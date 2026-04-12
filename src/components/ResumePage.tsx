@@ -2,8 +2,7 @@ import { forwardRef } from 'react'
 import type { Resume, ResumeSection } from '../types'
 import { ResumeHeader } from './ResumeHeader'
 import { Section } from './Section'
-
-type Warnings = Map<string, boolean>
+import type { Warnings } from '../useResizeEngine'
 
 interface ResumePageProps {
   resume: Resume

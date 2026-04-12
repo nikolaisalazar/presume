@@ -1,8 +1,7 @@
 import { EditableText } from './EditableText'
 import { Bullet } from './Bullet'
 import type { ResumeEntry } from '../types'
-
-type Warnings = Map<string, boolean>
+import type { Warnings } from '../useResizeEngine'
 
 interface EntryProps {
   entry: ResumeEntry
