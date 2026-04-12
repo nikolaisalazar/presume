@@ -3,9 +3,11 @@ import { prepareWithSegments, measureLineStats } from '@chenglou/pretext'
 import type { Constraints, Resume } from './types'
 
 // ── Constants ──────────────────────────────────────────────────────
+// COLUMN_WIDTH = page width (816) - left margin (48) - right margin (48) - bullet indent (16)
+// If --page-margin-x or --bullet-indent change in resume.css, update this constant too.
 const PAGE_HEIGHT_PX = 1056
-const COLUMN_WIDTH = 704  // 816 - 48 - 48 - 16
-const DEFAULT_BULLET_SIZE = 10  // px, must match --font-size-bullet in CSS
+const COLUMN_WIDTH = 704
+const DEFAULT_BULLET_SIZE = 10  // px, must match --font-size-bullet in resume.css
 const RESUME_FONT = 'EB Garamond'
 
 // ── Public types ───────────────────────────────────────────────────
@@ -17,14 +19,15 @@ export type Warnings = Map<string, boolean>
  * Binary search for the highest font size (in [lo, hi]) where
  * measureLines(fontSize) <= maxLines.
  *
- * @param measureLines - callback that returns the line count for a given font size
- * @param lo           - minimum font size (lower bound, inclusive)
- * @param hi           - starting maximum font size (upper bound, inclusive)
- * @param maxLines     - constraint: line count must be <= this
- * @param precision    - stop when hi - lo < precision
+ * `low` always tracks the last value that satisfied the constraint.
+ * Returns `low` — the largest font size that fits — or `lo` if nothing fits.
+ *
+ * @param measureLines  - callback returning line count for a given font size
+ * @param lo            - minimum font size (lower bound, inclusive)
+ * @param hi            - starting maximum font size (upper bound, inclusive)
+ * @param maxLines      - constraint: line count must be <= this
+ * @param precision     - stop when high - low < precision
  * @param maxIterations - safety cap on iterations
- * @returns the highest fontSize in [lo, hi] that satisfies the constraint,
- *          or lo if nothing satisfies it
  */
 export function binarySearchFontSize(
   measureLines: (fontSize: number) => number,
@@ -68,9 +71,12 @@ export function useResizeEngine(
   const prevHeight = useRef<number>(0)
 
   useEffect(() => {
+    let cancelled = false
+
     const run = async () => {
       // Wait for fonts to load so Pretext measurements are accurate.
       await document.fonts.ready
+      if (cancelled) return
 
       const { maxPages, maxLinesPerBullet, minFontSize } = constraints
       const pageHeightLimit = maxPages * PAGE_HEIGHT_PX
@@ -85,12 +91,17 @@ export function useResizeEngine(
       )
 
       // ── Fast path ───────────────────────────────────────────────
+      // Skip full measurement when bullets haven't changed AND we're well
+      // within the page limit. Always clears warnings to avoid stale state.
       const bulletTextsUnchanged =
         bulletTexts.length === prevBulletTexts.current.length &&
         bulletTexts.every((t, i) => t === prevBulletTexts.current[i])
       const wellWithinLimit = prevHeight.current < pageHeightLimit * 0.95
 
-      if (bulletTextsUnchanged && wellWithinLimit) return
+      if (bulletTextsUnchanged && wellWithinLimit) {
+        warningsRef.current = new Map()
+        return
+      }
 
       prevBulletTexts.current = bulletTexts
       const newWarnings = new Map<string, boolean>()
@@ -125,13 +136,15 @@ export function useResizeEngine(
                 0.5,
                 20
               )
-              // Verify at minFontSize
+              // Verify even at minFontSize — if it still overflows, warn
               if (measureLines(minFontSize) > maxLinesPerBullet) {
                 newWarnings.set(`bullet-${sIdx}-${eIdx}-${bIdx}`, true)
                 newSize = minFontSize
               }
-            } else if (lineCount < maxLinesPerBullet && currentSize < DEFAULT_BULLET_SIZE) {
-              // Recover toward default
+            } else if (lineCount <= maxLinesPerBullet && currentSize < DEFAULT_BULLET_SIZE) {
+              // Recover toward default size when there's room.
+              // Uses `<=` so recovery works at maxLinesPerBullet=1 (the default),
+              // where a fitting bullet always has lineCount === 1.
               newSize = binarySearchFontSize(
                 measureLines,
                 currentSize,
@@ -147,6 +160,8 @@ export function useResizeEngine(
         })
       })
 
+      if (cancelled) return
+
       // ── Page overflow resize ────────────────────────────────────
       if (!pageRef.current) return
 
@@ -157,7 +172,8 @@ export function useResizeEngine(
       const currentScale = currentScaleStr ? parseFloat(currentScaleStr) : 1.0
 
       if (currentHeight > pageHeightLimit) {
-        // Smallest base font role is 10px (contact/bullet), so min scale keeps it at minFontSize
+        // Smallest base font role is 10px (contact/bullet), so min scale keeps
+        // all text at minFontSize when applied.
         const minScale = minFontSize / 10
 
         const measureHeightAtScale = (scale: number): number => {
@@ -169,18 +185,22 @@ export function useResizeEngine(
           scale => (measureHeightAtScale(scale) <= pageHeightLimit ? 1 : 2),
           minScale,
           currentScale,
-          1,  // "fits" means lineCount-equivalent <= 1 (height fits)
+          1,
           0.001,
           20
         )
 
         root.style.setProperty('--global-scale', `${fitScale}`)
 
-        // Check if still overflows at minScale
-        const finalHeight = pageRef.current.getBoundingClientRect().height
-        if (finalHeight > pageHeightLimit) {
+        // Check whether content overflows even at minScale.
+        // Measure at minScale explicitly rather than trusting the post-fitScale
+        // layout (CSS var writes don't always flush synchronously).
+        const heightAtMinScale = measureHeightAtScale(minScale)
+        if (heightAtMinScale > pageHeightLimit) {
           newWarnings.set('global-overflow', true)
         }
+        // Restore fitScale (measureHeightAtScale left --global-scale at minScale)
+        root.style.setProperty('--global-scale', `${fitScale}`)
       } else if (currentHeight <= pageHeightLimit && currentScale < 1.0) {
         // Try to recover scale toward 1.0
         const measureHeightAtScale = (scale: number): number => {
@@ -200,11 +220,16 @@ export function useResizeEngine(
         root.style.setProperty('--global-scale', `${recoveredScale}`)
       }
 
-      warningsRef.current = newWarnings
+      if (!cancelled) {
+        warningsRef.current = newWarnings
+      }
     }
 
     run().catch(console.error)
-  }, [resume, constraints, pageRef])
+    return () => { cancelled = true }
+    // pageRef is a stable object ref — intentionally excluded from deps.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resume, constraints])
 
   return warningsRef.current
 }
