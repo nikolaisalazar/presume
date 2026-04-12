@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { prepareWithSegments, measureLineStats } from '@chenglou/pretext'
 import type { Constraints, Resume } from './types'
 
@@ -66,7 +66,7 @@ export function useResizeEngine(
   constraints: Constraints,
   pageRef: React.RefObject<HTMLElement | null>
 ): Warnings {
-  const warningsRef = useRef<Warnings>(new Map())
+  const [warnings, setWarnings] = useState<Warnings>(new Map())
   const prevBulletTexts = useRef<string[]>([])
   const prevHeight = useRef<number>(0)
 
@@ -99,7 +99,7 @@ export function useResizeEngine(
       const wellWithinLimit = prevHeight.current < pageHeightLimit * 0.95
 
       if (bulletTextsUnchanged && wellWithinLimit) {
-        warningsRef.current = new Map()
+        setWarnings(new Map())
         return
       }
 
@@ -221,7 +221,7 @@ export function useResizeEngine(
       }
 
       if (!cancelled) {
-        warningsRef.current = newWarnings
+        setWarnings(newWarnings)
       }
     }
 
@@ -231,5 +231,5 @@ export function useResizeEngine(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resume, constraints])
 
-  return warningsRef.current
+  return warnings
 }
