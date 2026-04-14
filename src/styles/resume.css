@@ -46,7 +46,7 @@
   gap: 0 12px;
   list-style: none;
   padding: 0;
-  margin: 0 0 8px;
+  margin: 0;
 }
 
 .resume-contact-item {
@@ -62,6 +62,7 @@
   display: flex;
   align-items: baseline;
   gap: 8px;
+  position: relative;
 }
 
 .resume-section-title {

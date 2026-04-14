@@ -9,6 +9,7 @@ const PAGE_HEIGHT_PX = 1056
 const COLUMN_WIDTH = 704
 const DEFAULT_BULLET_SIZE = 10  // px, must match --font-size-bullet in resume.css
 const RESUME_FONT = 'EB Garamond'
+const MAX_SCALE = 2.0            // maximum --global-scale when scaling up to fill the page
 
 // ── Public types ───────────────────────────────────────────────────
 export type Warnings = Map<string, boolean>
@@ -162,24 +163,24 @@ export function useResizeEngine(
 
       if (cancelled) return
 
-      // ── Page overflow resize ────────────────────────────────────
+      // ── Page fill / overflow resize ─────────────────────────────
       if (!pageRef.current) return
 
       const currentHeight = pageRef.current.getBoundingClientRect().height
-      prevHeight.current = currentHeight
 
       const currentScaleStr = root.style.getPropertyValue('--global-scale')
       const currentScale = currentScaleStr ? parseFloat(currentScaleStr) : 1.0
 
+      const measureHeightAtScale = (scale: number): number => {
+        root.style.setProperty('--global-scale', `${scale}`)
+        return pageRef.current!.getBoundingClientRect().height
+      }
+
       if (currentHeight > pageHeightLimit) {
+        // Content overflows — shrink to fit.
         // Smallest base font role is 10px (contact/bullet), so min scale keeps
         // all text at minFontSize when applied.
         const minScale = minFontSize / 10
-
-        const measureHeightAtScale = (scale: number): number => {
-          root.style.setProperty('--global-scale', `${scale}`)
-          return pageRef.current!.getBoundingClientRect().height
-        }
 
         const fitScale = binarySearchFontSize(
           scale => (measureHeightAtScale(scale) <= pageHeightLimit ? 1 : 2),
@@ -201,24 +202,24 @@ export function useResizeEngine(
         }
         // Restore fitScale (measureHeightAtScale left --global-scale at minScale)
         root.style.setProperty('--global-scale', `${fitScale}`)
-      } else if (currentHeight <= pageHeightLimit && currentScale < 1.0) {
-        // Try to recover scale toward 1.0
-        const measureHeightAtScale = (scale: number): number => {
-          root.style.setProperty('--global-scale', `${scale}`)
-          return pageRef.current!.getBoundingClientRect().height
-        }
-
-        const recoveredScale = binarySearchFontSize(
+      } else {
+        // Content fits — scale up toward MAX_SCALE to fill the page.
+        // This also handles recovering from a previously shrunk scale.
+        const fillScale = binarySearchFontSize(
           scale => (measureHeightAtScale(scale) <= pageHeightLimit ? 1 : 2),
           currentScale,
-          1.0,
+          MAX_SCALE,
           1,
           0.001,
           20
         )
 
-        root.style.setProperty('--global-scale', `${recoveredScale}`)
+        root.style.setProperty('--global-scale', `${fillScale}`)
       }
+
+      // Update prevHeight with the post-adjustment page height so the fast
+      // path on the next run has an accurate baseline.
+      prevHeight.current = pageRef.current.getBoundingClientRect().height
 
       if (!cancelled) {
         setWarnings(newWarnings)

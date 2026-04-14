@@ -36,29 +36,29 @@ export function ResumeHeader({
         className="resume-name"
         placeholder="Your Name"
       />
-      <ul className="resume-contact">
-        {contact.map((item, i) => (
-          <li key={i} className="resume-contact-item">
-            <EditableText
-              value={item}
-              onChange={v => updateContact(i, v)}
-              placeholder="contact"
-            />
-            <button
-              className="remove-btn"
-              onClick={() => removeContact(i)}
-              aria-label="Remove contact item"
-            >
-              −
-            </button>
-          </li>
-        ))}
-        <li>
-          <button className="add-btn" onClick={addContact}>
-            + contact
-          </button>
-        </li>
-      </ul>
+      <div className="resume-header-contact-row">
+        <ul className="resume-contact">
+          {contact.map((item, i) => (
+            <li key={i} className="resume-contact-item">
+              <EditableText
+                value={item}
+                onChange={v => updateContact(i, v)}
+                placeholder="contact"
+              />
+              <button
+                className="remove-btn"
+                onClick={() => removeContact(i)}
+                aria-label="Remove contact item"
+              >
+                −
+              </button>
+            </li>
+          ))}
+        </ul>
+        <button className="add-btn" onClick={addContact}>
+          + contact
+        </button>
+      </div>
     </header>
   )
 }

@@ -123,7 +123,9 @@ body {
 .resume-entry:hover .remove-btn,
 .bullet-item:hover .remove-btn,
 .resume-section:hover .add-btn,
-.resume-entry:hover .add-btn {
+.resume-entry:hover .add-btn,
+.resume-contact-item:hover .remove-btn,
+.resume-header:hover .add-btn {
   opacity: 1;
 }
 
@@ -144,4 +146,25 @@ body {
   justify-content: flex-end;
   gap: 4px;
   margin-top: 2px;
+}
+
+/* ── Resume header contact row ───────────────────────────────────── */
+.resume-header-contact-row {
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.resume-header-contact-row > .add-btn {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* ── Section header remove button ────────────────────────────────── */
+.resume-section-header-row > .remove-btn {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
 }
