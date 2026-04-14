@@ -107,59 +107,81 @@ export function useResizeEngine(
       prevBulletTexts.current = bulletTexts
       const newWarnings = new Map<string, boolean>()
 
-      // ── Per-bullet resize ────────────────────────────────────────
-      resume.sections.forEach((section, sIdx) => {
-        section.entries.forEach((entry, eIdx) => {
-          entry.bullets.forEach((bulletText, bIdx) => {
-            const varName = `--font-size-bullet-${sIdx}-${eIdx}-${bIdx}`
-            const currentSizeStr = root.style.getPropertyValue(varName)
-            // Parse "9.5px" → 9.5, or fall back to default
-            const currentSize = currentSizeStr
-              ? parseFloat(currentSizeStr)
-              : DEFAULT_BULLET_SIZE
+      // ── Read current global scale ────────────────────────────────
+      // Per-bullet measurements must account for the current scale so that
+      // "fits in N lines" decisions match what the user actually sees.
+      // (Bullets render at base-size * --global-scale, not at base-size alone.)
+      const currentScaleStr = root.style.getPropertyValue('--global-scale')
+      const currentScale = currentScaleStr ? parseFloat(currentScaleStr) : 1.0
 
-            const measureLines = (fontSize: number) => {
-              const font = `${fontSize}px '${RESUME_FONT}'`
-              const prepared = prepareWithSegments(bulletText, font)
-              return measureLineStats(prepared, COLUMN_WIDTH).lineCount
-            }
+      // ── Per-bullet resize helper ─────────────────────────────────
+      // Resizes every bullet so it fits within maxLinesPerBullet at the given
+      // global scale.  Works in base font-size units (pre-scale); the scale is
+      // applied only inside the Pretext measurement so the stored CSS variable
+      // stays in the same coordinate space as the inline style:
+      //   font-size: calc(var(--font-size-bullet-s-e-b) * var(--global-scale))
+      //
+      // @param scale      - the --global-scale to assume during measurement
+      // @param setWarns   - whether to record overflow warnings this pass
+      const resizeBulletsAtScale = (scale: number, setWarns: boolean) => {
+        resume.sections.forEach((section, sIdx) => {
+          section.entries.forEach((entry, eIdx) => {
+            entry.bullets.forEach((bulletText, bIdx) => {
+              const varName = `--font-size-bullet-${sIdx}-${eIdx}-${bIdx}`
+              const currentSizeStr = root.style.getPropertyValue(varName)
+              // Parse "9.5px" → 9.5, or fall back to default
+              const currentSize = currentSizeStr
+                ? parseFloat(currentSizeStr)
+                : DEFAULT_BULLET_SIZE
 
-            const lineCount = measureLines(currentSize)
-            let newSize = currentSize
-
-            if (lineCount > maxLinesPerBullet) {
-              // Shrink to fit
-              newSize = binarySearchFontSize(
-                measureLines,
-                minFontSize,
-                currentSize,
-                maxLinesPerBullet,
-                0.5,
-                20
-              )
-              // Verify even at minFontSize — if it still overflows, warn
-              if (measureLines(minFontSize) > maxLinesPerBullet) {
-                newWarnings.set(`bullet-${sIdx}-${eIdx}-${bIdx}`, true)
-                newSize = minFontSize
+              // Measure in base-size space; multiply by scale for rendered size.
+              const measureLines = (baseFontSize: number) => {
+                const font = `${baseFontSize * scale}px '${RESUME_FONT}'`
+                const prepared = prepareWithSegments(bulletText, font)
+                return measureLineStats(prepared, COLUMN_WIDTH).lineCount
               }
-            } else if (lineCount <= maxLinesPerBullet && currentSize < DEFAULT_BULLET_SIZE) {
-              // Recover toward default size when there's room.
-              // Uses `<=` so recovery works at maxLinesPerBullet=1 (the default),
-              // where a fitting bullet always has lineCount === 1.
-              newSize = binarySearchFontSize(
-                measureLines,
-                currentSize,
-                DEFAULT_BULLET_SIZE,
-                maxLinesPerBullet,
-                0.5,
-                20
-              )
-            }
 
-            root.style.setProperty(varName, `${newSize}px`)
+              const lineCount = measureLines(currentSize)
+              let newSize = currentSize
+
+              if (lineCount > maxLinesPerBullet) {
+                // Shrink to fit
+                newSize = binarySearchFontSize(
+                  measureLines,
+                  minFontSize,
+                  currentSize,
+                  maxLinesPerBullet,
+                  0.5,
+                  20
+                )
+                // Verify even at minFontSize — if it still overflows, warn
+                if (setWarns && measureLines(minFontSize) > maxLinesPerBullet) {
+                  newWarnings.set(`bullet-${sIdx}-${eIdx}-${bIdx}`, true)
+                  newSize = minFontSize
+                }
+              } else if (lineCount <= maxLinesPerBullet && currentSize < DEFAULT_BULLET_SIZE) {
+                // Recover toward default size when there's room.
+                // Uses `<=` so recovery works at maxLinesPerBullet=1 (the default),
+                // where a fitting bullet always has lineCount === 1.
+                newSize = binarySearchFontSize(
+                  measureLines,
+                  currentSize,
+                  DEFAULT_BULLET_SIZE,
+                  maxLinesPerBullet,
+                  0.5,
+                  20
+                )
+              }
+
+              root.style.setProperty(varName, `${newSize}px`)
+            })
           })
         })
-      })
+      }
+
+      // Pass 1: resize bullets at the scale from the previous engine run.
+      // This stabilises any bullets that started wrapping due to a scale change.
+      resizeBulletsAtScale(currentScale, false)
 
       if (cancelled) return
 
@@ -168,13 +190,12 @@ export function useResizeEngine(
 
       const currentHeight = pageRef.current.getBoundingClientRect().height
 
-      const currentScaleStr = root.style.getPropertyValue('--global-scale')
-      const currentScale = currentScaleStr ? parseFloat(currentScaleStr) : 1.0
-
       const measureHeightAtScale = (scale: number): number => {
         root.style.setProperty('--global-scale', `${scale}`)
         return pageRef.current!.getBoundingClientRect().height
       }
+
+      let finalScale = currentScale
 
       if (currentHeight > pageHeightLimit) {
         // Content overflows — shrink to fit.
@@ -182,7 +203,7 @@ export function useResizeEngine(
         // all text at minFontSize when applied.
         const minScale = minFontSize / 10
 
-        const fitScale = binarySearchFontSize(
+        finalScale = binarySearchFontSize(
           scale => (measureHeightAtScale(scale) <= pageHeightLimit ? 1 : 2),
           minScale,
           currentScale,
@@ -191,7 +212,7 @@ export function useResizeEngine(
           20
         )
 
-        root.style.setProperty('--global-scale', `${fitScale}`)
+        root.style.setProperty('--global-scale', `${finalScale}`)
 
         // Check whether content overflows even at minScale.
         // Measure at minScale explicitly rather than trusting the post-fitScale
@@ -200,12 +221,12 @@ export function useResizeEngine(
         if (heightAtMinScale > pageHeightLimit) {
           newWarnings.set('global-overflow', true)
         }
-        // Restore fitScale (measureHeightAtScale left --global-scale at minScale)
-        root.style.setProperty('--global-scale', `${fitScale}`)
+        // Restore finalScale (measureHeightAtScale left --global-scale at minScale)
+        root.style.setProperty('--global-scale', `${finalScale}`)
       } else {
         // Content fits — scale up toward MAX_SCALE to fill the page.
         // This also handles recovering from a previously shrunk scale.
-        const fillScale = binarySearchFontSize(
+        finalScale = binarySearchFontSize(
           scale => (measureHeightAtScale(scale) <= pageHeightLimit ? 1 : 2),
           currentScale,
           MAX_SCALE,
@@ -214,8 +235,15 @@ export function useResizeEngine(
           20
         )
 
-        root.style.setProperty('--global-scale', `${fillScale}`)
+        root.style.setProperty('--global-scale', `${finalScale}`)
       }
+
+      if (cancelled) return
+
+      // Pass 2: resize bullets at the newly chosen scale so they are guaranteed
+      // to fit within maxLinesPerBullet at exactly the scale we will render with.
+      // This pass also records warnings.
+      resizeBulletsAtScale(finalScale, true)
 
       // Update prevHeight with the post-adjustment page height so the fast
       // path on the next run has an accurate baseline.
