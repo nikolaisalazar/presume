@@ -69,9 +69,6 @@ export function Entry({
           <Bullet
             key={bIdx}
             text={bullet}
-            sectionIdx={sectionIdx}
-            entryIdx={entryIdx}
-            bulletIdx={bIdx}
             warning={warnings.get(`bullet-${sectionIdx}-${entryIdx}-${bIdx}`) ?? false}
             onChange={v => updateBullet(bIdx, v)}
             onDelete={() => removeBullet(bIdx)}

@@ -17,16 +17,18 @@ export type Warnings = Map<string, boolean>
 // ── Pure helpers (exported for testing) ───────────────────────────
 
 /**
- * Binary search for the highest font size (in [lo, hi]) where
- * measureLines(fontSize) <= maxLines.
+ * Binary search for the highest value in [lo, hi] where
+ * measureLines(value) <= maxLines.
  *
  * `low` always tracks the last value that satisfied the constraint.
- * Returns `low` — the largest font size that fits — or `lo` if nothing fits.
+ * Returns `low` — the largest value that fits — or `lo` if nothing fits.
  *
- * @param measureLines  - callback returning line count for a given font size
- * @param lo            - minimum font size (lower bound, inclusive)
- * @param hi            - starting maximum font size (upper bound, inclusive)
- * @param maxLines      - constraint: line count must be <= this
+ * Used for both font-size searches and global-scale searches.
+ *
+ * @param measureLines  - callback returning a score for a given value
+ * @param lo            - minimum value (lower bound, inclusive)
+ * @param hi            - starting maximum value (upper bound, inclusive)
+ * @param maxLines      - constraint: score must be <= this
  * @param precision     - stop when high - low < precision
  * @param maxIterations - safety cap on iterations
  */
@@ -59,8 +61,16 @@ export function binarySearchFontSize(
 
 /**
  * Runs the Pretext-based resize engine after every resume/constraints change.
- * Writes CSS custom properties to document.documentElement and returns
- * a Warnings map keyed by "bullet-{s}-{e}-{b}" or "global-overflow".
+ *
+ * Rather than sizing each bullet independently, this engine finds the single
+ * largest --global-scale at which ALL bullets fit within maxLinesPerBullet AND
+ * the page stays within the height limit. All font sizes in the resume are
+ * defined relative to --global-scale, so every element grows and shrinks
+ * together, preserving the typographic hierarchy.
+ *
+ * Writes --global-scale to document.documentElement and returns a Warnings map
+ * keyed by "bullet-{s}-{e}-{b}" (bullet overflows even at minScale) or
+ * "global-overflow" (page overflows even at minScale).
  */
 export function useResizeEngine(
   resume: Resume,
@@ -107,146 +117,81 @@ export function useResizeEngine(
       prevBulletTexts.current = bulletTexts
       const newWarnings = new Map<string, boolean>()
 
-      // ── Read current global scale ────────────────────────────────
-      // Per-bullet measurements must account for the current scale so that
-      // "fits in N lines" decisions match what the user actually sees.
-      // (Bullets render at base-size * --global-scale, not at base-size alone.)
-      const currentScaleStr = root.style.getPropertyValue('--global-scale')
-      const currentScale = currentScaleStr ? parseFloat(currentScaleStr) : 1.0
-
-      // ── Per-bullet resize helper ─────────────────────────────────
-      // Resizes every bullet so it fits within maxLinesPerBullet at the given
-      // global scale.  Works in base font-size units (pre-scale); the scale is
-      // applied only inside the Pretext measurement so the stored CSS variable
-      // stays in the same coordinate space as the inline style:
-      //   font-size: calc(var(--font-size-bullet-s-e-b) * var(--global-scale))
-      //
-      // @param scale      - the --global-scale to assume during measurement
-      // @param setWarns   - whether to record overflow warnings this pass
-      const resizeBulletsAtScale = (scale: number, setWarns: boolean) => {
-        resume.sections.forEach((section, sIdx) => {
-          section.entries.forEach((entry, eIdx) => {
-            entry.bullets.forEach((bulletText, bIdx) => {
-              const varName = `--font-size-bullet-${sIdx}-${eIdx}-${bIdx}`
-              const currentSizeStr = root.style.getPropertyValue(varName)
-              // Parse "9.5px" → 9.5, or fall back to default
-              const currentSize = currentSizeStr
-                ? parseFloat(currentSizeStr)
-                : DEFAULT_BULLET_SIZE
-
-              // Measure in base-size space; multiply by scale for rendered size.
-              const measureLines = (baseFontSize: number) => {
-                const font = `${baseFontSize * scale}px '${RESUME_FONT}'`
-                const prepared = prepareWithSegments(bulletText, font)
-                return measureLineStats(prepared, COLUMN_WIDTH).lineCount
-              }
-
-              const lineCount = measureLines(currentSize)
-              let newSize = currentSize
-
-              if (lineCount > maxLinesPerBullet) {
-                // Shrink to fit
-                newSize = binarySearchFontSize(
-                  measureLines,
-                  minFontSize,
-                  currentSize,
-                  maxLinesPerBullet,
-                  0.5,
-                  20
-                )
-                // Verify even at minFontSize — if it still overflows, warn
-                if (setWarns && measureLines(minFontSize) > maxLinesPerBullet) {
-                  newWarnings.set(`bullet-${sIdx}-${eIdx}-${bIdx}`, true)
-                  newSize = minFontSize
-                }
-              } else if (lineCount <= maxLinesPerBullet && currentSize < DEFAULT_BULLET_SIZE) {
-                // Recover toward default size when there's room.
-                // Uses `<=` so recovery works at maxLinesPerBullet=1 (the default),
-                // where a fitting bullet always has lineCount === 1.
-                newSize = binarySearchFontSize(
-                  measureLines,
-                  currentSize,
-                  DEFAULT_BULLET_SIZE,
-                  maxLinesPerBullet,
-                  0.5,
-                  20
-                )
-              }
-
-              root.style.setProperty(varName, `${newSize}px`)
-            })
-          })
-        })
-      }
-
-      // Pass 1: resize bullets at the scale from the previous engine run.
-      // This stabilises any bullets that started wrapping due to a scale change.
-      resizeBulletsAtScale(currentScale, false)
-
-      if (cancelled) return
-
-      // ── Page fill / overflow resize ─────────────────────────────
       if (!pageRef.current) return
 
-      const currentHeight = pageRef.current.getBoundingClientRect().height
+      // minScale ensures no font renders below minFontSize when global-scale is applied.
+      // The smallest base size in the resume is DEFAULT_BULLET_SIZE (contact and bullets),
+      // so minScale = minFontSize / DEFAULT_BULLET_SIZE.
+      const minScale = minFontSize / DEFAULT_BULLET_SIZE
 
-      const measureHeightAtScale = (scale: number): number => {
-        root.style.setProperty('--global-scale', `${scale}`)
-        return pageRef.current!.getBoundingClientRect().height
-      }
-
-      let finalScale = currentScale
-
-      if (currentHeight > pageHeightLimit) {
-        // Content overflows — shrink to fit.
-        // Smallest base font role is 10px (contact/bullet), so min scale keeps
-        // all text at minFontSize when applied.
-        const minScale = minFontSize / 10
-
-        finalScale = binarySearchFontSize(
-          scale => (measureHeightAtScale(scale) <= pageHeightLimit ? 1 : 2),
-          minScale,
-          currentScale,
-          1,
-          0.001,
-          20
-        )
-
-        root.style.setProperty('--global-scale', `${finalScale}`)
-
-        // Check whether content overflows even at minScale.
-        // Measure at minScale explicitly rather than trusting the post-fitScale
-        // layout (CSS var writes don't always flush synchronously).
-        const heightAtMinScale = measureHeightAtScale(minScale)
-        if (heightAtMinScale > pageHeightLimit) {
-          newWarnings.set('global-overflow', true)
+      // ── Check if all bullets fit at a given scale ────────────────
+      // Uses Pretext for off-layout measurement — no DOM reflow needed.
+      const allBulletsFitAtScale = (scale: number): boolean => {
+        for (const section of resume.sections) {
+          for (const entry of section.entries) {
+            for (const bulletText of entry.bullets) {
+              if (!bulletText) continue
+              const font = `${DEFAULT_BULLET_SIZE * scale}px '${RESUME_FONT}'`
+              const prepared = prepareWithSegments(bulletText, font)
+              const { lineCount } = measureLineStats(prepared, COLUMN_WIDTH)
+              if (lineCount > maxLinesPerBullet) return false
+            }
+          }
         }
-        // Restore finalScale (measureHeightAtScale left --global-scale at minScale)
-        root.style.setProperty('--global-scale', `${finalScale}`)
-      } else {
-        // Content fits — scale up toward MAX_SCALE to fill the page.
-        // This also handles recovering from a previously shrunk scale.
-        finalScale = binarySearchFontSize(
-          scale => (measureHeightAtScale(scale) <= pageHeightLimit ? 1 : 2),
-          currentScale,
-          MAX_SCALE,
-          1,
-          0.001,
-          20
-        )
-
-        root.style.setProperty('--global-scale', `${finalScale}`)
+        return true
       }
+
+      // ── Combined fitness check at a given scale ──────────────────
+      // Sets --global-scale as a side effect (required for DOM height measurement),
+      // then returns true only if both the page height and all bullet line counts fit.
+      const fitsAtScale = (scale: number): boolean => {
+        root.style.setProperty('--global-scale', `${scale}`)
+        const height = pageRef.current!.getBoundingClientRect().height
+        if (height > pageHeightLimit) return false
+        return allBulletsFitAtScale(scale)
+      }
+
+      // ── Find the largest scale where everything fits ─────────────
+      // Binary search across [minScale, MAX_SCALE].
+      // fitsAtScale returns 1 (pass) or 2 (fail); maxLines=1 finds the largest
+      // value that passes, which is the standard binarySearchFontSize contract.
+      const finalScale = binarySearchFontSize(
+        scale => (fitsAtScale(scale) ? 1 : 2),
+        minScale,
+        MAX_SCALE,
+        1,
+        0.001,
+        30
+      )
+
+      root.style.setProperty('--global-scale', `${finalScale}`)
 
       if (cancelled) return
 
-      // Pass 2: resize bullets at the newly chosen scale so they are guaranteed
-      // to fit within maxLinesPerBullet at exactly the scale we will render with.
-      // This pass also records warnings.
-      resizeBulletsAtScale(finalScale, true)
+      // ── Emit warnings for things that overflow even at minScale ──
+      // Set --global-scale to minScale for the DOM height check, then restore.
+      root.style.setProperty('--global-scale', `${minScale}`)
+      const heightAtMinScale = pageRef.current.getBoundingClientRect().height
+      if (heightAtMinScale > pageHeightLimit) {
+        newWarnings.set('global-overflow', true)
+      }
+      resume.sections.forEach((section, sIdx) => {
+        section.entries.forEach((entry, eIdx) => {
+          entry.bullets.forEach((bulletText, bIdx) => {
+            if (!bulletText) return
+            const font = `${DEFAULT_BULLET_SIZE * minScale}px '${RESUME_FONT}'`
+            const prepared = prepareWithSegments(bulletText, font)
+            const { lineCount } = measureLineStats(prepared, COLUMN_WIDTH)
+            if (lineCount > maxLinesPerBullet) {
+              newWarnings.set(`bullet-${sIdx}-${eIdx}-${bIdx}`, true)
+            }
+          })
+        })
+      })
+      // Restore finalScale after the minScale diagnostic pass.
+      root.style.setProperty('--global-scale', `${finalScale}`)
 
-      // Update prevHeight with the post-adjustment page height so the fast
-      // path on the next run has an accurate baseline.
+      // Update prevHeight so the fast path has an accurate baseline next run.
       prevHeight.current = pageRef.current.getBoundingClientRect().height
 
       if (!cancelled) {
