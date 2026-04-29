@@ -17,6 +17,74 @@ export type Warnings = Map<string, boolean>
 // ── Pure helpers (exported for testing) ───────────────────────────
 
 /**
+ * Returns the set of bullet keys ("bullet-{s}-{e}-{b}") whose text overflows
+ * maxLinesPerBullet when measured by the provided measureLines callback.
+ *
+ * These are "impossible" bullets — ones that can't be made to fit by shrinking
+ * the global scale any further. They should be warned about but must not
+ * prevent the scale search from finding the best scale for the rest of the page.
+ *
+ * @param resume           - the full resume data
+ * @param measureLines     - returns line count for a bullet text
+ * @param maxLinesPerBullet - the line-count limit
+ */
+export function getImpossibleBulletKeys(
+  resume: Resume,
+  measureLines: (text: string) => number,
+  maxLinesPerBullet: number
+): Set<string> {
+  const keys = new Set<string>()
+  resume.sections.forEach((section, sIdx) => {
+    section.entries.forEach((entry, eIdx) => {
+      entry.bullets.forEach((text, bIdx) => {
+        if (!text) return
+        if (measureLines(text) > maxLinesPerBullet) {
+          keys.add(`bullet-${sIdx}-${eIdx}-${bIdx}`)
+        }
+      })
+    })
+  })
+  return keys
+}
+
+/**
+ * Returns true if every bullet that is NOT in impossibleKeys fits within
+ * maxLinesPerBullet at the given scale, according to measureLines.
+ *
+ * Impossible bullets are skipped so they cannot drag the global scale down
+ * beyond what is already the minimum.
+ *
+ * @param resume            - the full resume data
+ * @param scale             - the candidate global scale to test
+ * @param impossibleKeys    - set of bullet keys to skip (already warned elsewhere)
+ * @param maxLinesPerBullet - the line-count limit
+ * @param measureLines      - returns line count for a bullet text at the given scale
+ */
+export function checkBulletsFitAtScale(
+  resume: Resume,
+  scale: number,
+  impossibleKeys: Set<string>,
+  maxLinesPerBullet: number,
+  measureLines: (text: string, scale: number) => number
+): boolean {
+  for (let sIdx = 0; sIdx < resume.sections.length; sIdx++) {
+    const section = resume.sections[sIdx]
+    for (let eIdx = 0; eIdx < section.entries.length; eIdx++) {
+      const entry = section.entries[eIdx]
+      for (let bIdx = 0; bIdx < entry.bullets.length; bIdx++) {
+        const text = entry.bullets[bIdx]
+        if (!text) continue
+        if (impossibleKeys.has(`bullet-${sIdx}-${eIdx}-${bIdx}`)) continue
+        if (measureLines(text, scale) > maxLinesPerBullet) return false
+      }
+    }
+  }
+  return true
+}
+
+// ── Pure helpers (exported for testing) ───────────────────────────
+
+/**
  * Binary search for the highest value in [lo, hi] where
  * measureLines(value) <= maxLines.
  *
@@ -124,31 +192,35 @@ export function useResizeEngine(
       // so minScale = minFontSize / DEFAULT_BULLET_SIZE.
       const minScale = minFontSize / DEFAULT_BULLET_SIZE
 
-      // ── Check if all bullets fit at a given scale ────────────────
-      // Uses Pretext for off-layout measurement — no DOM reflow needed.
-      const allBulletsFitAtScale = (scale: number): boolean => {
-        for (const section of resume.sections) {
-          for (const entry of section.entries) {
-            for (const bulletText of entry.bullets) {
-              if (!bulletText) continue
-              const font = `${DEFAULT_BULLET_SIZE * scale}px '${RESUME_FONT}'`
-              const prepared = prepareWithSegments(bulletText, font)
-              const { lineCount } = measureLineStats(prepared, COLUMN_WIDTH)
-              if (lineCount > maxLinesPerBullet) return false
-            }
-          }
-        }
-        return true
+      // ── Build a Pretext line-count measurer for a given scale ────
+      const measureBulletLines = (text: string, scale: number): number => {
+        const font = `${DEFAULT_BULLET_SIZE * scale}px '${RESUME_FONT}'`
+        const prepared = prepareWithSegments(text, font)
+        const { lineCount } = measureLineStats(prepared, COLUMN_WIDTH)
+        return lineCount
       }
+
+      // ── Pre-compute impossible bullets at minScale ───────────────
+      // A bullet is "impossible" if it still overflows maxLinesPerBullet even at
+      // minScale (the smallest the engine will ever go). Such bullets are warned
+      // about but must NOT constrain the scale search — otherwise a single
+      // impossible bullet would collapse the entire resume to minScale even when
+      // the page has plenty of room.
+      const impossibleKeys = getImpossibleBulletKeys(
+        resume,
+        text => measureBulletLines(text, minScale),
+        maxLinesPerBullet
+      )
 
       // ── Combined fitness check at a given scale ──────────────────
       // Sets --global-scale as a side effect (required for DOM height measurement),
-      // then returns true only if both the page height and all bullet line counts fit.
+      // then returns true only if both the page height fits and all satisfiable
+      // bullets (those not in impossibleKeys) fit within maxLinesPerBullet.
       const fitsAtScale = (scale: number): boolean => {
         root.style.setProperty('--global-scale', `${scale}`)
         const height = pageRef.current!.getBoundingClientRect().height
         if (height > pageHeightLimit) return false
-        return allBulletsFitAtScale(scale)
+        return checkBulletsFitAtScale(resume, scale, impossibleKeys, maxLinesPerBullet, measureBulletLines)
       }
 
       // ── Find the largest scale where everything fits ─────────────
@@ -169,25 +241,15 @@ export function useResizeEngine(
       if (cancelled) return
 
       // ── Emit warnings for things that overflow even at minScale ──
-      // Set --global-scale to minScale for the DOM height check, then restore.
+      // impossibleKeys was already computed at minScale above — reuse it
+      // to avoid re-measuring. Set --global-scale to minScale only long
+      // enough to take the DOM height reading, then restore finalScale.
       root.style.setProperty('--global-scale', `${minScale}`)
       const heightAtMinScale = pageRef.current.getBoundingClientRect().height
       if (heightAtMinScale > pageHeightLimit) {
         newWarnings.set('global-overflow', true)
       }
-      resume.sections.forEach((section, sIdx) => {
-        section.entries.forEach((entry, eIdx) => {
-          entry.bullets.forEach((bulletText, bIdx) => {
-            if (!bulletText) return
-            const font = `${DEFAULT_BULLET_SIZE * minScale}px '${RESUME_FONT}'`
-            const prepared = prepareWithSegments(bulletText, font)
-            const { lineCount } = measureLineStats(prepared, COLUMN_WIDTH)
-            if (lineCount > maxLinesPerBullet) {
-              newWarnings.set(`bullet-${sIdx}-${eIdx}-${bIdx}`, true)
-            }
-          })
-        })
-      })
+      impossibleKeys.forEach(key => newWarnings.set(key, true))
       // Restore finalScale after the minScale diagnostic pass.
       root.style.setProperty('--global-scale', `${finalScale}`)
 
