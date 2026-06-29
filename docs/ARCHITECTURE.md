@@ -11,7 +11,7 @@ Presume is currently a static React application. It owns editing, formatting, lo
 | `src/App.tsx` | Composes resume state, settings, toolbar, resume page, and resize warnings. |
 | `src/useResume.ts` | Owns resume and constraint state, loading defaults from LocalStorage and autosaving changes. |
 | `src/useResizeEngine.ts` | Uses Pretext and DOM height measurement to find a global scale that satisfies layout constraints. |
-| `src/export.ts` | Exports PDF, exports JSON, imports and validates JSON. |
+| `src/export.ts` | Exports single-page or multi-page Letter PDFs, exports JSON, imports and validates JSON. |
 | `src/types.ts` | Defines `Resume`, `ResumeSection`, `ResumeEntry`, `Constraints`, defaults, and validators. |
 | `src/storage.ts` | Wraps LocalStorage persistence for resume data and constraints. |
 | `src/defaultResume.ts` | Provides the initial resume template. |
@@ -68,6 +68,12 @@ The resume page uses US Letter proportions: `816px` by `1056px`, with fixed page
 
 All major resume font sizes are expressed as CSS custom properties multiplied by `--global-scale`. The current implementation does not assign independent per-bullet font variables.
 
+## Current PDF Export Behavior
+
+`src/export.ts` captures the rendered `ResumePage` DOM node with `html2canvas` and writes it to a Letter-sized `jsPDF` document. The captured canvas is sliced by Letter page height. A one-page render produces one PDF page; a taller render produced by `maxPages > 1` produces additional Letter pages rather than one compressed page.
+
+The current renderer does not create visible page-break UI inside the editor. Multi-page export is a canvas slicing operation aligned to the same Letter aspect ratio used by the resume page and resize engine.
+
 ## Current Frontend Data Flow
 
 ```mermaid
@@ -81,7 +87,7 @@ flowchart TD
   Resize --> CSS[CSS --global-scale and warnings]
   App --> Page[src/components/ResumePage.tsx]
   Page --> Export[src/export.ts]
-  Export --> PDF[PDF download]
+  Export --> PDF[Single or multi-page PDF download]
   Export --> JSON[JSON download/import]
 ```
 
@@ -106,7 +112,7 @@ sequenceDiagram
   participant GH as GitHub API
 
   User->>UI: Request review
-  UI->>PDF: Render current ResumePage to PDF Blob
+  UI->>PDF: Render current ResumePage to PDF Blob using the multi-page export path
   PDF-->>UI: PDF Blob
   UI->>API: POST /reviews multipart resume.pdf
   API->>HA: Run extraction and scoring

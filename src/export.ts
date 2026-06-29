@@ -4,10 +4,36 @@ import { validateResume } from './types'
 const PAGE_WIDTH_IN = 8.5
 const PAGE_HEIGHT_IN = 11
 
+type PdfPageSlice = {
+  sourceY: number
+  sourceHeight: number
+}
+
+export function getPdfPageSlices(
+  canvasWidth: number,
+  canvasHeight: number
+): PdfPageSlice[] {
+  if (canvasWidth <= 0 || canvasHeight <= 0) {
+    throw new Error('Canvas dimensions must be positive.')
+  }
+
+  const pageHeightPx = canvasWidth * (PAGE_HEIGHT_IN / PAGE_WIDTH_IN)
+  const pageCount = Math.ceil(canvasHeight / pageHeightPx)
+
+  return Array.from({ length: pageCount }, (_, pageIndex) => {
+    const sourceY = pageIndex * pageHeightPx
+    return {
+      sourceY,
+      sourceHeight: Math.min(pageHeightPx, canvasHeight - sourceY),
+    }
+  })
+}
+
 /**
  * Captures the ResumePage DOM element as a canvas and saves it as a PDF.
- * The resize engine guarantees the page fits within the configured page limit,
- * so no clipping is needed — we capture the element as-is.
+ * The resize engine fits the page within the configured height limit. If that
+ * height spans multiple Letter pages, the captured canvas is sliced into one
+ * PDF page per Letter-height segment instead of being squeezed onto one page.
  */
 export async function exportPDF(pageElement: HTMLElement): Promise<void> {
   // Dynamic imports to avoid bloating the initial bundle.
@@ -29,14 +55,50 @@ export async function exportPDF(pageElement: HTMLElement): Promise<void> {
     pageElement.style.overflow = prevOverflow
   }
 
-  const imgData = canvas.toDataURL('image/png')
   const pdf = new jsPDF({
     orientation: 'portrait',
     unit: 'in',
     format: 'letter',
   })
 
-  pdf.addImage(imgData, 'PNG', 0, 0, PAGE_WIDTH_IN, PAGE_HEIGHT_IN)
+  const slices = getPdfPageSlices(canvas.width, canvas.height)
+  slices.forEach((slice, index) => {
+    const pageCanvas = document.createElement('canvas')
+    pageCanvas.width = canvas.width
+    pageCanvas.height = slice.sourceHeight
+
+    const context = pageCanvas.getContext('2d')
+    if (!context) {
+      throw new Error('Could not prepare PDF page canvas.')
+    }
+
+    context.drawImage(
+      canvas,
+      0,
+      slice.sourceY,
+      canvas.width,
+      slice.sourceHeight,
+      0,
+      0,
+      canvas.width,
+      slice.sourceHeight
+    )
+
+    if (index > 0) {
+      pdf.addPage('letter', 'portrait')
+    }
+
+    const renderedHeightIn = PAGE_WIDTH_IN * (slice.sourceHeight / canvas.width)
+    pdf.addImage(
+      pageCanvas.toDataURL('image/png'),
+      'PNG',
+      0,
+      0,
+      PAGE_WIDTH_IN,
+      renderedHeightIn
+    )
+  })
+
   pdf.save('resume.pdf')
 }
 

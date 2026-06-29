@@ -17,7 +17,7 @@ Working today:
 - Configurable max pages, max lines per bullet, and minimum font size.
 - LocalStorage persistence for resume data and formatting constraints.
 - JSON export and import.
-- Client-side PDF export.
+- Client-side PDF export, including multiple Letter pages when the configured page limit is greater than one.
 
 Planned, not shipped:
 
@@ -29,7 +29,7 @@ Planned, not shipped:
 
 The frontend renders a US Letter resume page and stores the resume as typed JSON. As the resume changes, `@chenglou/pretext` measures bullet text and the resize engine binary-searches a global CSS scale so the document satisfies the configured page and line constraints. Content that cannot fit within the configured minimum font size is marked with a formatting warning.
 
-PDF export is fully client-side using `html2canvas` and `jsPDF`. JSON export/import provides a portable save format.
+PDF export is fully client-side using `html2canvas` and `jsPDF`. The exporter slices the captured resume into Letter-height pages so a resume fitted to multiple pages exports as multiple PDF pages instead of being compressed onto one page. JSON export/import provides a portable save format.
 
 The planned review flow keeps semantic evaluation outside the static frontend. A local or self-hosted FastAPI service will accept the current resume PDF, run Hiring Agent through an adapter, and return a normalized review result for the frontend to display. If no review endpoint is configured, the review UI should be disabled rather than breaking the editor.
 

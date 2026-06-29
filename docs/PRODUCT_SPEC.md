@@ -22,7 +22,7 @@ The product has two separate loops:
 - Preserve a clear relationship between typed resume data, on-page layout, and exported artifacts.
 - Fit content according to explicit constraints: max pages, max bullet lines, and minimum font size.
 - Provide portable local data through JSON export/import.
-- Export a PDF that reflects the current rendered resume.
+- Export a PDF that reflects the current rendered resume, including multiple Letter pages when the configured page limit allows them.
 - Add review feedback as advisory evidence, not automatic rewriting.
 - Keep current formatting behavior independent from future review behavior.
 
@@ -44,7 +44,7 @@ The product has two separate loops:
 3. Adjust layout constraints if needed.
 4. Let the resize engine fit the resume.
 5. Shorten content manually if the app marks an impossible fit warning.
-6. Export the result as PDF or JSON.
+6. Export the result as PDF or JSON. PDF export uses one Letter page per Letter-height segment of the rendered resume.
 7. Re-import a previously exported JSON resume when needed.
 
 ### Planned Review Workflow
@@ -67,7 +67,7 @@ The app currently supports:
 - Adding and removing contact items, sections, entries, and bullets.
 - Autosaving resume content and constraints to LocalStorage.
 - Validating imported JSON before replacing current resume data.
-- Exporting the rendered page as a PDF.
+- Exporting the rendered resume as a Letter-sized PDF, with additional PDF pages when the rendered canvas exceeds one page.
 - Warning on content that cannot fit within the configured constraints.
 
 ## Planned Review Behavior

@@ -72,9 +72,12 @@ Update `src/export.ts`.
 
 Add a reusable helper that renders `ResumePage` to a PDF `Blob` without triggering a download. Keep the current `exportPDF` download behavior by building it on top of the blob helper when practical.
 
+The blob helper must use the same multi-page Letter slicing behavior as the current download exporter. Review upload must not use a single squashed page when `maxPages > 1`.
+
 Acceptance criteria:
 
 - Existing Export PDF button behavior remains unchanged.
+- Multi-page resumes produce multi-page PDF blobs and downloads.
 - Missing page elements fail with a useful error.
 - PDF generation errors are surfaced to the caller.
 - Tests cover error handling where feasible.
