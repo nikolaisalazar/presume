@@ -1,40 +1,60 @@
 # Presume
 
-A WYSIWYG resume editor that automatically resizes text to satisfy layout constraints — no manual font tweaking required.
+Presume is a WYSIWYG resume editor for building resumes that stay directly editable while fitting cleanly on the page. The current app focuses on deterministic browser-side formatting; the planned next phase adds an explainable review loop powered by HackerRank's open-source Hiring Agent.
 
-Built on [Cheng Lou's Pretext](https://github.com/chenglou/pretext) for fast, DOM-reflow-free text measurement.
+## Why
 
-## How it works
+Resume tools usually split writing, formatting, and feedback into separate workflows. Presume keeps the resume itself as the interface: edit the final document directly, let the app handle fit constraints, then use review feedback as evidence for manual revision.
 
-Edit your resume directly on the page. As you type, Presume measures your text using Pretext and enforces two constraints automatically:
+The project is also intended to read well as a portfolio project: a small frontend with clear layout constraints today and a documented path toward a local or self-hosted review service.
 
-- **Single-line bullets** — each bullet point shrinks just enough to stay on one line
-- **Page limit** — if the document overflows, all text scales down proportionally to fit
+## Current Status
 
-Both constraints are configurable. If content can't be made to fit without becoming illegible, the affected element is highlighted as a warning.
+Working today:
 
-## Features
+- Direct inline editing for resume content.
+- Pretext-based fitting for page height and bullet line constraints.
+- Configurable max pages, max lines per bullet, and minimum font size.
+- LocalStorage persistence for resume data and formatting constraints.
+- JSON export and import.
+- Client-side PDF export, including multiple Letter pages when the configured page limit is greater than one.
 
-- Click-to-edit WYSIWYG interface — what you see is what you get, always
-- Jake's Resume layout as the default template
-- Configurable constraints: max pages, max lines per bullet, minimum font size
-- Autosaves to localStorage
-- Export as PDF or JSON
-- Import from a previously exported JSON file
+Planned, not shipped:
 
-## Tech stack
+- A FastAPI review service wrapping HackerRank Hiring Agent.
+- A review panel with score, evidence, strengths, improvements, bonuses, and deductions.
+- Non-destructive annotations that map review findings back to resume content when possible.
 
-- React 18 + TypeScript, built with Vite
-- [`@chenglou/pretext`](https://github.com/chenglou/pretext) for text measurement
-- `html2canvas` + `jsPDF` for client-side PDF export
-- Deployed to GitHub Pages
+## How It Works
+
+The frontend renders a US Letter resume page and stores the resume as typed JSON. As the resume changes, `@chenglou/pretext` measures bullet text and the resize engine binary-searches a global CSS scale so the document satisfies the configured page and line constraints. Content that cannot fit within the configured minimum font size is marked with a formatting warning.
+
+PDF export is fully client-side using `html2canvas` and `jsPDF`. The exporter slices the captured resume into Letter-height pages so a resume fitted to multiple pages exports as multiple PDF pages instead of being compressed onto one page. JSON export/import provides a portable save format.
+
+The planned review flow keeps semantic evaluation outside the static frontend. A local or self-hosted FastAPI service will accept the current resume PDF, run Hiring Agent through an adapter, and return a normalized review result for the frontend to display. If no review endpoint is configured, the review UI should be disabled rather than breaking the editor.
+
+## Tech Stack
+
+- React 18, TypeScript, and Vite.
+- `@chenglou/pretext` for text measurement.
+- `html2canvas` and `jsPDF` for browser PDF export.
+- Vitest and jsdom for tests.
+- Planned: FastAPI review service, `vendor/hiring-agent`, Ollama by default, optional Gemini configuration, and optional GitHub enrichment.
 
 ## Development
 
 ```sh
 npm install
 npm run dev
+npm test
+npm run build
 ```
+
+The frontend can run as a static app. The planned review feature requires a separate backend service; see [docs/REVIEW_SERVICE.md](docs/REVIEW_SERVICE.md).
+
+## Documentation
+
+Start with the [documentation index](docs/README.md) for product, architecture, review-service, and implementation planning docs.
 
 ## License
 
