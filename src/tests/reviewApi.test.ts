@@ -52,6 +52,14 @@ function emptyJsonResponse(init: ResponseInit = {}): Response {
   })
 }
 
+function textResponse(body: string, init: ResponseInit = {}): Response {
+  return new Response(body, {
+    status: 500,
+    headers: { 'content-type': 'text/plain' },
+    ...init,
+  })
+}
+
 describe('reviewApi', () => {
   afterEach(() => {
     vi.unstubAllEnvs()
@@ -189,6 +197,51 @@ describe('reviewApi', () => {
         code,
         status,
         requestId,
+      })
+    )
+    expect(fetchMock).toHaveBeenCalledOnce()
+  })
+
+  it('does not expose messages from undocumented backend error codes', async () => {
+    vi.stubEnv('VITE_REVIEW_API_URL', 'https://reviews.example.test')
+    const fetchMock = vi.fn().mockResolvedValue(
+      response(
+        {
+          error: {
+            code: 'provider_secret_leaked',
+            message: 'raw provider stack trace with /local/path and token',
+            requestId: 'req_unknown',
+          },
+        },
+        { status: 502 }
+      )
+    )
+    const pdf = new Blob(['%PDF-1.7'], { type: 'application/pdf' })
+
+    await expect(
+      submitResumeForReview(pdf, { fetch: fetchMock })
+    ).rejects.toEqual(
+      new ReviewApiError('Review service request failed.', {
+        code: 'internal_error',
+        status: 502,
+      })
+    )
+    expect(fetchMock).toHaveBeenCalledOnce()
+  })
+
+  it('normalizes non-JSON backend error responses without retrying', async () => {
+    vi.stubEnv('VITE_REVIEW_API_URL', 'https://reviews.example.test')
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(textResponse('raw stack trace', { status: 503 }))
+    const pdf = new Blob(['%PDF-1.7'], { type: 'application/pdf' })
+
+    await expect(
+      submitResumeForReview(pdf, { fetch: fetchMock })
+    ).rejects.toEqual(
+      new ReviewApiError('Review service request failed.', {
+        code: 'internal_error',
+        status: 503,
       })
     )
     expect(fetchMock).toHaveBeenCalledOnce()
