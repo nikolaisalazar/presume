@@ -1,9 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { exportPDF, getPdfPageSlices } from '../export'
+import { exportPDF, getPdfPageSlices, renderResumePageToPDFBlob } from '../export'
 
 const pdfMock = vi.hoisted(() => ({
   addImage: vi.fn(),
   addPage: vi.fn(),
+  output: vi.fn(),
   save: vi.fn(),
   constructor: vi.fn(),
 }))
@@ -20,6 +21,7 @@ vi.mock('jspdf', () => ({
     return {
       addImage: pdfMock.addImage,
       addPage: pdfMock.addPage,
+      output: pdfMock.output,
       save: pdfMock.save,
     }
   }),
@@ -60,6 +62,7 @@ describe('exportPDF', () => {
   beforeEach(() => {
     pdfMock.addImage.mockClear()
     pdfMock.addPage.mockClear()
+    pdfMock.output.mockClear()
     pdfMock.save.mockClear()
     pdfMock.constructor.mockClear()
     html2canvasMock.mockReset()
@@ -202,5 +205,36 @@ describe('exportPDF', () => {
       11
     )
     expect(pdfMock.save).toHaveBeenCalledWith('resume.pdf')
+  })
+
+  it('renders each Letter-height canvas slice to a PDF blob without downloading', async () => {
+    const sourceCanvas = {
+      width: 850,
+      height: 2420,
+    } as HTMLCanvasElement
+    const pageElement = document.createElement('div')
+    const blob = new Blob(['pdf'], { type: 'application/pdf' })
+    html2canvasMock.mockResolvedValue(sourceCanvas)
+    pdfMock.output.mockReturnValue(blob)
+
+    await expect(renderResumePageToPDFBlob(pageElement)).resolves.toBe(blob)
+
+    expect(pdfMock.addPage).toHaveBeenCalledTimes(2)
+    expect(pdfMock.addImage).toHaveBeenCalledTimes(3)
+    expect(pdfMock.output).toHaveBeenCalledWith('blob')
+    expect(pdfMock.save).not.toHaveBeenCalled()
+  })
+
+  it('surfaces PDF blob generation errors to callers', async () => {
+    const pageElement = document.createElement('div')
+    pageElement.style.overflow = 'visible'
+    const error = new Error('canvas failed')
+    html2canvasMock.mockRejectedValue(error)
+
+    await expect(renderResumePageToPDFBlob(pageElement)).rejects.toThrow(
+      'canvas failed'
+    )
+    expect(pageElement.style.overflow).toBe('visible')
+    expect(pdfMock.save).not.toHaveBeenCalled()
   })
 })

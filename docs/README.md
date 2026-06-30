@@ -4,10 +4,11 @@ This directory is the source of truth for Presume's product direction, current a
 
 ## Docs
 
+- [Milestone Plan](MILESTONE_PLAN.md): source of truth for deciding the next milestone and tracking milestone status.
 - [Product Spec](PRODUCT_SPEC.md): product vision, target users, goals, non-goals, workflows, and UX principles.
 - [Architecture](ARCHITECTURE.md): current frontend architecture, data flow, formatting behavior, and future review-service boundaries.
 - [Review Service](REVIEW_SERVICE.md): implementation-grade backend plan for the planned FastAPI wrapper around Hiring Agent.
-- [Implementation Plan](IMPLEMENTATION_PLAN.md): roadmap for frontend review integration, backend service work, tests, and acceptance criteria.
+- [Implementation Plan](IMPLEMENTATION_PLAN.md): supporting implementation detail for review integration work after a milestone has been selected.
 
 ## Current vs Planned
 

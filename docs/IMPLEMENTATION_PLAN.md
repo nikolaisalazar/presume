@@ -1,5 +1,9 @@
 # Implementation Plan
 
+This file is not the milestone plan. Use [Milestone Plan](MILESTONE_PLAN.md) to
+decide what milestone comes next. Use this file only as supporting
+implementation detail after a milestone has been selected.
+
 ## Orientation Note
 
 Current shipped functionality:
@@ -186,7 +190,8 @@ Docs:
 
 - Keep README concise and public-facing.
 - Keep product and architecture details in `docs/`.
-- Keep this file as the authoritative roadmap.
+- Keep `docs/MILESTONE_PLAN.md` as the authoritative milestone tracker.
+- Keep this file as supporting implementation detail.
 
 ## Acceptance Criteria
 
