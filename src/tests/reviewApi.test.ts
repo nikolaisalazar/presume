@@ -36,6 +36,14 @@ function response(body: unknown, init: ResponseInit = {}): Response {
   })
 }
 
+function malformedJsonResponse(init: ResponseInit = {}): Response {
+  return new Response('{not valid json', {
+    status: 200,
+    headers: { 'content-type': 'application/json' },
+    ...init,
+  })
+}
+
 describe('reviewApi', () => {
   afterEach(() => {
     vi.unstubAllEnvs()
@@ -78,6 +86,18 @@ describe('reviewApi', () => {
     await expect(fetchReviewConfig({ fetch: fetchMock })).resolves.toBeNull()
 
     expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('normalizes malformed successful config responses', async () => {
+    vi.stubEnv('VITE_REVIEW_API_URL', 'https://reviews.example.test')
+    const fetchMock = vi.fn().mockResolvedValue(malformedJsonResponse())
+
+    await expect(fetchReviewConfig({ fetch: fetchMock })).rejects.toMatchObject({
+      code: 'invalid_response',
+      status: 200,
+      message: 'Review service returned an invalid configuration.',
+    })
+    expect(fetchMock).toHaveBeenCalledOnce()
   })
 
   it('submits the generated PDF as multipart form data and validates the result', async () => {
@@ -155,6 +175,21 @@ describe('reviewApi', () => {
       code: 'invalid_response',
       message: 'Review service returned an invalid review result.',
     })
+  })
+
+  it('normalizes malformed successful review JSON without retrying', async () => {
+    vi.stubEnv('VITE_REVIEW_API_URL', 'https://reviews.example.test')
+    const fetchMock = vi.fn().mockResolvedValue(malformedJsonResponse())
+    const pdf = new Blob(['%PDF-1.7'], { type: 'application/pdf' })
+
+    await expect(
+      submitResumeForReview(pdf, { fetch: fetchMock })
+    ).rejects.toMatchObject({
+      code: 'invalid_response',
+      status: 200,
+      message: 'Review service returned an invalid review result.',
+    })
+    expect(fetchMock).toHaveBeenCalledOnce()
   })
 
   it('normalizes network failures without retrying automatically', async () => {

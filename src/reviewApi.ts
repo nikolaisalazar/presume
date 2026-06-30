@@ -86,7 +86,7 @@ export async function fetchReviewConfig(
   })
 
   await throwForErrorResponse(response)
-  const config = validateReviewServiceConfig(await response.json())
+  const config = validateReviewServiceConfig(await readJson(response))
   if (!config) {
     throw new ReviewApiError(
       'Review service returned an invalid configuration.',
@@ -117,7 +117,7 @@ export async function submitResumeForReview(
   })
 
   await throwForErrorResponse(response)
-  const result = validateReviewResult(await response.json())
+  const result = validateReviewResult(await readJson(response))
   if (!result) {
     throw new ReviewApiError(
       'Review service returned an invalid review result.',
