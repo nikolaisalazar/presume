@@ -82,6 +82,10 @@ function isStringArray(data: unknown): data is string[] {
   return Array.isArray(data) && data.every(item => typeof item === 'string')
 }
 
+function isFiniteNumber(data: unknown): data is number {
+  return typeof data === 'number' && Number.isFinite(data)
+}
+
 function validateOptionalString(data: unknown): string | undefined | null {
   if (data === undefined) return undefined
   if (typeof data !== 'string') return null
@@ -114,8 +118,8 @@ function validateCategory(data: unknown): ReviewCategory | null {
   const key = validateCategoryKey(data.key)
   if (!key) return null
   if (typeof data.label !== 'string') return null
-  if (typeof data.score !== 'number') return null
-  if (typeof data.maxScore !== 'number') return null
+  if (!isFiniteNumber(data.score)) return null
+  if (!isFiniteNumber(data.maxScore)) return null
   if (!isStringArray(data.evidence)) return null
   if (!isStringArray(data.suggestions)) return null
 
@@ -132,7 +136,7 @@ function validateCategory(data: unknown): ReviewCategory | null {
 function validateAdjustment(data: unknown): ReviewAdjustment | null {
   if (!isRecord(data)) return null
   if (typeof data.label !== 'string') return null
-  if (typeof data.points !== 'number') return null
+  if (!isFiniteNumber(data.points)) return null
   const evidence = validateOptionalString(data.evidence)
   if (evidence === null) return null
 
@@ -195,8 +199,8 @@ export function validateReviewResult(data: unknown): ReviewResult | null {
   if (!isRecord(data)) return null
   if (typeof data.id !== 'string') return null
   if (typeof data.reviewedAt !== 'string') return null
-  if (typeof data.totalScore !== 'number') return null
-  if (typeof data.maxScore !== 'number') return null
+  if (!isFiniteNumber(data.totalScore)) return null
+  if (!isFiniteNumber(data.maxScore)) return null
   const tier = validateReviewTier(data.tier)
   if (!tier) return null
 

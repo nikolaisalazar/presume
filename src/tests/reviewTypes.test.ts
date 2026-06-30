@@ -85,6 +85,35 @@ describe('validateReviewResult', () => {
     ).toBeNull()
   })
 
+  it('rejects non-finite numeric values', () => {
+    expect(
+      validateReviewResult({ ...validReviewResult, totalScore: NaN })
+    ).toBeNull()
+    expect(
+      validateReviewResult({ ...validReviewResult, maxScore: Infinity })
+    ).toBeNull()
+    expect(
+      validateReviewResult({
+        ...validReviewResult,
+        categories: [
+          { ...validReviewResult.categories[0], score: -Infinity },
+        ],
+      })
+    ).toBeNull()
+    expect(
+      validateReviewResult({
+        ...validReviewResult,
+        categories: [{ ...validReviewResult.categories[0], maxScore: NaN }],
+      })
+    ).toBeNull()
+    expect(
+      validateReviewResult({
+        ...validReviewResult,
+        bonuses: [{ ...validReviewResult.bonuses[0], points: Infinity }],
+      })
+    ).toBeNull()
+  })
+
   it('rejects malformed category objects', () => {
     expect(
       validateReviewResult({
