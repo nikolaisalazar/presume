@@ -9,6 +9,23 @@ type PdfPageSlice = {
   sourceHeight: number
 }
 
+type PdfDocument = {
+  addImage: (
+    imageData: string,
+    format: string,
+    x: number,
+    y: number,
+    width: number,
+    height: number
+  ) => unknown
+  addPage: (
+    format?: string | number[],
+    orientation?: 'p' | 'portrait' | 'l' | 'landscape'
+  ) => unknown
+  output: (type: 'blob') => Blob
+  save: (filename: string) => unknown
+}
+
 export function getPdfPageSlices(
   canvasWidth: number,
   canvasHeight: number
@@ -29,23 +46,14 @@ export function getPdfPageSlices(
   })
 }
 
-/**
- * Captures the ResumePage DOM element as a canvas and saves it as a PDF.
- * The resize engine fits the page within the configured height limit. If that
- * height spans multiple Letter pages, the captured canvas is sliced into one
- * PDF page per Letter-height segment instead of being squeezed onto one page.
- */
-export async function exportPDF(pageElement: HTMLElement): Promise<void> {
-  // Dynamic imports to avoid bloating the initial bundle.
+async function captureResumePage(pageElement: HTMLElement): Promise<HTMLCanvasElement> {
   const html2canvas = (await import('html2canvas')).default
-  const { jsPDF } = await import('jspdf')
 
   const prevOverflow = pageElement.style.overflow
   pageElement.style.overflow = 'hidden'
 
-  let canvas: HTMLCanvasElement
   try {
-    canvas = await html2canvas(pageElement, {
+    return await html2canvas(pageElement, {
       scale: 2,
       useCORS: true,
       logging: false,
@@ -54,6 +62,13 @@ export async function exportPDF(pageElement: HTMLElement): Promise<void> {
   } finally {
     pageElement.style.overflow = prevOverflow
   }
+}
+
+async function renderResumePageToPDF(
+  pageElement: HTMLElement
+): Promise<PdfDocument> {
+  const { jsPDF } = await import('jspdf')
+  const canvas = await captureResumePage(pageElement)
 
   const pdf = new jsPDF({
     orientation: 'portrait',
@@ -99,6 +114,29 @@ export async function exportPDF(pageElement: HTMLElement): Promise<void> {
     )
   })
 
+  return pdf
+}
+
+/**
+ * Captures the ResumePage DOM element and returns a PDF Blob without starting a
+ * browser download. The rendered canvas is sliced into Letter-height pages using
+ * the same path as the download exporter.
+ */
+export async function renderResumePageToPDFBlob(
+  pageElement: HTMLElement
+): Promise<Blob> {
+  const pdf = await renderResumePageToPDF(pageElement)
+  return pdf.output('blob')
+}
+
+/**
+ * Captures the ResumePage DOM element as a canvas and saves it as a PDF.
+ * The resize engine fits the page within the configured height limit. If that
+ * height spans multiple Letter pages, the captured canvas is sliced into one
+ * PDF page per Letter-height segment instead of being squeezed onto one page.
+ */
+export async function exportPDF(pageElement: HTMLElement): Promise<void> {
+  const pdf = await renderResumePageToPDF(pageElement)
   pdf.save('resume.pdf')
 }
 
