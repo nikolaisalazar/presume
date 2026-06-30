@@ -64,7 +64,7 @@ Completion evidence:
 
 ### Milestone 3: Reusable PDF Blob Export
 
-Status: Next.
+Status: Complete.
 
 Scope:
 
@@ -75,6 +75,14 @@ Scope:
   path.
 - Surface PDF generation errors to callers.
 - Add focused tests for the blob helper and preserve existing exporter tests.
+
+Completion evidence:
+
+- `src/export.ts`
+- `src/tests/export.test.ts`
+- `renderResumePageToPDFBlob` shares the multi-page Letter slicing path with
+  `exportPDF`.
+- Existing `exportPDF` download behavior is preserved.
 
 Supporting detail:
 
@@ -91,23 +99,57 @@ Out of scope:
 
 ### Milestone 4: Review API Client
 
-Status: Planned.
+Status: Complete in PR #5.
 
 Scope:
 
 - Add a frontend API client for the planned review service.
 - Read review configuration from `VITE_REVIEW_API_URL`.
 - Handle unconfigured state.
+- Fetch `GET /config` to discover capabilities without exposing secrets.
+- Submit `POST /reviews` as multipart form data with the generated PDF.
 - Normalize successful review responses through `validateReviewResult`.
 - Normalize documented backend errors.
+- Normalize malformed successful responses as invalid frontend responses.
+- Do not retry automatically.
+
+Completion evidence:
+
+- `src/reviewApi.ts`
+- `src/tests/reviewApi.test.ts`
 
 Supporting detail:
 
 - See `docs/IMPLEMENTATION_PLAN.md`, Phase 3.
 
+Out of scope:
+
+- Review hook.
+- Review panel.
+- Review annotations UI.
+- Review backend.
+- Hiring Agent integration.
+- End-to-end review flow.
+- Resume content mutation.
+
+Security note:
+
+- `GET /config` is frontend-safe capability discovery only. It must not expose
+  API keys, tokens, filesystem paths, raw environment values, stack traces, raw
+  provider responses, or secrets of any kind.
+
+Residual risk:
+
+- Milestone 4 tests use mocked `fetch`; no real backend compatibility has been
+  proven yet.
+- End-to-end frontend/backend verification belongs to a later milestone.
+- The API client accepts the configured `VITE_REVIEW_API_URL` after trimming and
+  trailing-slash normalization; deployment-specific URL correctness remains a
+  configuration responsibility.
+
 ### Milestone 5: Review State Hook
 
-Status: Planned.
+Status: Next.
 
 Scope:
 

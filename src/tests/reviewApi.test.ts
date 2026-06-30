@@ -44,6 +44,14 @@ function malformedJsonResponse(init: ResponseInit = {}): Response {
   })
 }
 
+function emptyJsonResponse(init: ResponseInit = {}): Response {
+  return new Response('', {
+    status: 200,
+    headers: { 'content-type': 'application/json' },
+    ...init,
+  })
+}
+
 describe('reviewApi', () => {
   afterEach(() => {
     vi.unstubAllEnvs()
@@ -100,6 +108,18 @@ describe('reviewApi', () => {
     expect(fetchMock).toHaveBeenCalledOnce()
   })
 
+  it('normalizes empty successful config responses', async () => {
+    vi.stubEnv('VITE_REVIEW_API_URL', 'https://reviews.example.test')
+    const fetchMock = vi.fn().mockResolvedValue(emptyJsonResponse())
+
+    await expect(fetchReviewConfig({ fetch: fetchMock })).rejects.toMatchObject({
+      code: 'invalid_response',
+      status: 200,
+      message: 'Review service returned an invalid configuration.',
+    })
+    expect(fetchMock).toHaveBeenCalledOnce()
+  })
+
   it('submits the generated PDF as multipart form data and validates the result', async () => {
     vi.stubEnv('VITE_REVIEW_API_URL', 'https://reviews.example.test')
     const fetchMock = vi.fn().mockResolvedValue(response(validReviewResult))
@@ -135,18 +155,29 @@ describe('reviewApi', () => {
     expect(fetchMock).not.toHaveBeenCalled()
   })
 
-  it('normalizes documented backend errors', async () => {
+  it.each([
+    'invalid_upload',
+    'pdf_parse_failed',
+    'llm_provider_unavailable',
+    'github_rate_limited',
+    'hiring_agent_failed',
+    'review_timeout',
+    'internal_error',
+  ] as const)('normalizes documented backend error code %s', async code => {
     vi.stubEnv('VITE_REVIEW_API_URL', 'https://reviews.example.test')
+    const status = code === 'internal_error' ? 500 : 400
+    const requestId = `req_${code}`
+    const message = `Frontend-safe message for ${code}.`
     const fetchMock = vi.fn().mockResolvedValue(
       response(
         {
           error: {
-            code: 'invalid_upload',
-            message: 'Upload must be a PDF.',
-            requestId: 'req_123',
+            code,
+            message,
+            requestId,
           },
         },
-        { status: 400 }
+        { status }
       )
     )
     const pdf = new Blob(['not a pdf'], { type: 'application/pdf' })
@@ -154,12 +185,13 @@ describe('reviewApi', () => {
     await expect(
       submitResumeForReview(pdf, { fetch: fetchMock })
     ).rejects.toEqual(
-      new ReviewApiError('Upload must be a PDF.', {
-        code: 'invalid_upload',
-        status: 400,
-        requestId: 'req_123',
+      new ReviewApiError(message, {
+        code,
+        status,
+        requestId,
       })
     )
+    expect(fetchMock).toHaveBeenCalledOnce()
   })
 
   it('rejects malformed successful review responses', async () => {
