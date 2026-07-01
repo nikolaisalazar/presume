@@ -14,13 +14,6 @@ export type ReviewAnnotationTargets = Map<
   ReviewAnnotation[]
 >
 
-type MatchContext = {
-  section: ResumeSection
-  sectionIdx: number
-  entry?: ResumeEntry
-  entryIdx?: number
-}
-
 export function getReviewAnnotationTargets(
   resume: Resume,
   annotations: ReviewAnnotation[] = []
@@ -81,84 +74,78 @@ function findAnnotationTarget(
   resume: Resume,
   annotation: ReviewAnnotation
 ): ReviewAnnotationTargetKey | null {
-  const sectionMatches = findMatchingSections(resume.sections, annotation)
+  if (annotation.sectionTitle === undefined) {
+    return null
+  }
+
+  const sectionMatches = findMatchingSections(
+    resume.sections,
+    annotation.sectionTitle
+  )
   if (sectionMatches.length !== 1) return null
 
   const sectionMatch = sectionMatches[0]
 
-  if (annotation.entryTitle !== undefined || annotation.bulletText !== undefined) {
-    const entryMatches = findMatchingEntries(sectionMatch, annotation)
+  if (annotation.bulletText !== undefined) {
+    if (annotation.entryTitle === undefined) {
+      return null
+    }
+
+    const entryMatches = findMatchingEntries(
+      sectionMatch.section,
+      annotation.entryTitle
+    )
     if (entryMatches.length !== 1) return null
 
     const entryMatch = entryMatches[0]
+    const bulletMatches = findMatchingBullets(
+      entryMatch.entry,
+      annotation.bulletText
+    )
+    if (bulletMatches.length !== 1) return null
 
-    if (annotation.bulletText !== undefined) {
-      const bulletMatches = findMatchingBullets(entryMatch, annotation)
-      if (bulletMatches.length !== 1) return null
-
-      return `bullet-${sectionMatch.sectionIdx}-${entryMatch.entryIdx}-${bulletMatches[0]}`
-    }
-
-    return `entry-${sectionMatch.sectionIdx}-${entryMatch.entryIdx}`
+    return `bullet-${sectionMatch.sectionIdx}-${entryMatch.entryIdx}-${bulletMatches[0]}`
   }
 
-  if (annotation.sectionTitle !== undefined) {
-    return `section-${sectionMatch.sectionIdx}`
+  if (annotation.entryTitle !== undefined) {
+    const entryMatches = findMatchingEntries(
+      sectionMatch.section,
+      annotation.entryTitle
+    )
+    if (entryMatches.length !== 1) return null
+
+    return `entry-${sectionMatch.sectionIdx}-${entryMatches[0].entryIdx}`
   }
 
-  return null
+  return `section-${sectionMatch.sectionIdx}`
 }
 
 function findMatchingSections(
   sections: ResumeSection[],
-  annotation: ReviewAnnotation
-): MatchContext[] {
-  if (annotation.sectionTitle === undefined) {
-    return sections.map((section, sectionIdx) => ({ section, sectionIdx }))
-  }
-
+  sectionTitle: string
+): { section: ResumeSection; sectionIdx: number }[] {
   return sections.flatMap((section, sectionIdx) =>
-    section.title === annotation.sectionTitle ? [{ section, sectionIdx }] : []
+    section.title === sectionTitle ? [{ section, sectionIdx }] : []
   )
 }
 
 function findMatchingEntries(
-  sectionMatch: MatchContext,
-  annotation: ReviewAnnotation
-): Required<Pick<MatchContext, 'section' | 'sectionIdx' | 'entry' | 'entryIdx'>>[] {
-  const entries = sectionMatch.section.entries
-
-  if (annotation.entryTitle === undefined) {
-    return entries.map((entry, entryIdx) => ({
-      section: sectionMatch.section,
-      sectionIdx: sectionMatch.sectionIdx,
-      entry,
-      entryIdx,
-    }))
-  }
-
-  return entries.flatMap((entry, entryIdx) =>
-    entry.title === annotation.entryTitle
-      ? [
-          {
-            section: sectionMatch.section,
-            sectionIdx: sectionMatch.sectionIdx,
-            entry,
-            entryIdx,
-          },
-        ]
+  section: ResumeSection,
+  entryTitle: string
+): { entry: ResumeEntry; entryIdx: number }[] {
+  return section.entries.flatMap((entry, entryIdx) =>
+    entry.title === entryTitle
+      ? [{ entry, entryIdx }]
       : []
   )
 }
 
 function findMatchingBullets(
-  entryMatch: Required<
-    Pick<MatchContext, 'section' | 'sectionIdx' | 'entry' | 'entryIdx'>
-  >,
-  annotation: ReviewAnnotation
+  entry: ResumeEntry,
+  bulletText: string
 ): number[] {
-  return entryMatch.entry.bullets.flatMap((bullet, bulletIdx) =>
-    bullet === annotation.bulletText ? [bulletIdx] : []
+  return entry.bullets.flatMap((bullet, bulletIdx) =>
+    bullet === bulletText ? [bulletIdx] : []
   )
 }
 
