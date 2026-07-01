@@ -1,6 +1,6 @@
 # Presume
 
-Presume is a WYSIWYG resume editor for building resumes that stay directly editable while fitting cleanly on the page. The current app focuses on deterministic browser-side formatting; the planned next phase adds an explainable review loop powered by HackerRank's open-source Hiring Agent.
+Presume is a WYSIWYG resume editor for building resumes that stay directly editable while fitting cleanly on the page. The app focuses on deterministic browser-side formatting and an advisory review loop designed to run through a local or self-hosted service.
 
 ## Why
 
@@ -18,12 +18,13 @@ Working today:
 - LocalStorage persistence for resume data and formatting constraints.
 - JSON export and import.
 - Client-side PDF export, including multiple Letter pages when the configured page limit is greater than one.
+- Review API client, review state hook, panel, and conservative non-destructive annotations that stay disabled without `VITE_REVIEW_API_URL`.
+- FastAPI review service scaffold with safe config projection, normalized schemas, normalized errors, PDF upload validation, and mocked contract tests.
 
-Planned, not shipped:
+Still planned:
 
-- A FastAPI review service wrapping HackerRank Hiring Agent.
-- A review panel with score, evidence, strengths, improvements, bonuses, and deductions.
-- Non-destructive annotations that map review findings back to resume content when possible.
+- Full end-to-end Hiring Agent execution through the backend adapter.
+- Integration tests proving the browser review flow against a running backend.
 
 ## How It Works
 
@@ -31,7 +32,7 @@ The frontend renders a US Letter resume page and stores the resume as typed JSON
 
 PDF export is fully client-side using `html2canvas` and `jsPDF`. The exporter slices the captured resume into Letter-height pages so a resume fitted to multiple pages exports as multiple PDF pages instead of being compressed onto one page. JSON export/import provides a portable save format.
 
-The planned review flow keeps semantic evaluation outside the static frontend. A local or self-hosted FastAPI service will accept the current resume PDF, run Hiring Agent through an adapter, and return a normalized review result for the frontend to display. If no review endpoint is configured, the review UI should be disabled rather than breaking the editor.
+The review flow keeps semantic evaluation outside the static frontend. A local or self-hosted FastAPI service accepts the current resume PDF, runs review work through a Hiring Agent adapter boundary, and returns a normalized review result for the frontend to display. If no review endpoint is configured, the review UI is disabled rather than breaking the editor.
 
 ## Tech Stack
 
@@ -39,7 +40,7 @@ The planned review flow keeps semantic evaluation outside the static frontend. A
 - `@chenglou/pretext` for text measurement.
 - `html2canvas` and `jsPDF` for browser PDF export.
 - Vitest and jsdom for tests.
-- Planned: FastAPI review service, `vendor/hiring-agent`, Ollama by default, optional Gemini configuration, and optional GitHub enrichment.
+- FastAPI review service, `vendor/hiring-agent` adapter boundary, Ollama by default, optional Gemini configuration, and optional GitHub enrichment.
 
 ## Development
 
@@ -50,7 +51,7 @@ npm test
 npm run build
 ```
 
-The frontend can run as a static app. The planned review feature requires a separate backend service; see [docs/REVIEW_SERVICE.md](docs/REVIEW_SERVICE.md).
+The frontend can run as a static app. Review submission requires a separate backend service and `VITE_REVIEW_API_URL`; see [docs/REVIEW_SERVICE.md](docs/REVIEW_SERVICE.md) and [review-service/README.md](review-service/README.md).
 
 ## Documentation
 

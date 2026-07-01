@@ -186,7 +186,7 @@ Residual risk:
 
 ### Milestone 6: Review UI
 
-Status: Next.
+Status: Complete in PR #7.
 
 Scope:
 
@@ -201,7 +201,7 @@ Supporting detail:
 
 ### Milestone 7: Review Service
 
-Status: Planned.
+Status: Next.
 
 Scope:
 
