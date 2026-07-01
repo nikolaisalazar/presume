@@ -2,19 +2,19 @@
 
 ## Product Vision
 
-Presume helps job seekers maintain a resume that is both visually controlled and easier to improve. The resume remains the primary interface: users edit the finished document directly, keep formatting constraints visible, and eventually request advisory review feedback without surrendering control of the content.
+Presume helps job seekers maintain a resume that is both visually controlled and easier to improve. The resume remains the primary interface: users edit the finished document directly, keep formatting constraints visible, and review advisory feedback without surrendering control of the content.
 
 The product has two separate loops:
 
 - Formatting loop: deterministic browser-side fitting powered by Pretext.
-- Review loop: planned evidence-backed feedback powered by a backend wrapper around HackerRank Hiring Agent.
+- Review loop: advisory evidence display powered by a Presume-owned backend wrapper around HackerRank Hiring Agent. The UI and service scaffold exist; full Hiring Agent execution is still pending adapter wiring.
 
 ## Target Users
 
 - Job seekers who want a precise, editable resume without manually adjusting font sizes.
 - Software engineers who want a clean one-page resume workflow.
 - Portfolio reviewers who want to understand the engineering choices behind the project.
-- Future contributors implementing the review service and frontend review UI.
+- Future contributors implementing full Hiring Agent execution and integration tests.
 
 ## Goals
 
@@ -24,7 +24,7 @@ The product has two separate loops:
 - Provide portable local data through JSON export/import.
 - Export a PDF that reflects the current rendered resume, including multiple Letter pages when the configured page limit allows them.
 - Add review feedback as advisory evidence, not automatic rewriting.
-- Keep current formatting behavior independent from future review behavior.
+- Keep formatting behavior independent from review behavior.
 
 ## Non-Goals
 
@@ -47,15 +47,23 @@ The product has two separate loops:
 6. Export the result as PDF or JSON. PDF export uses one Letter page per Letter-height segment of the rendered resume.
 7. Re-import a previously exported JSON resume when needed.
 
-### Planned Review Workflow
+### Current Review Workflow
 
 1. Start the local or self-hosted review service.
 2. Configure the frontend with `VITE_REVIEW_API_URL`.
-3. Click a future review action in the editor.
+3. Click the review action in the editor.
 4. The frontend renders the current resume page to a PDF blob.
-5. The backend runs Hiring Agent and returns a normalized review result.
-6. The frontend displays score, evidence, strengths, improvements, bonuses, deductions, and best-effort annotations.
-7. The user manually edits the resume and re-runs review when ready.
+5. The backend accepts the PDF through the normalized FastAPI review-service contract.
+6. Mocked backend contract tests prove the normalized response and error shapes.
+7. When a normalized review result is returned, the frontend displays score, evidence, strengths, improvements, bonuses, deductions, and best-effort annotations.
+8. The user manually edits the resume and re-runs review when ready.
+
+### Still-Planned Review Workflow
+
+1. Wire `review-service/app/hiring_agent_adapter.py` to concrete HackerRank Hiring Agent internals.
+2. Run extraction, scoring, optional GitHub enrichment, and LLM calls through the adapter.
+3. Return a normalized review result without exposing Hiring Agent internals to the frontend.
+4. Add browser-to-running-backend integration tests for the full review flow.
 
 ## Current Editor Behavior
 
@@ -70,7 +78,16 @@ The app currently supports:
 - Exporting the rendered resume as a Letter-sized PDF, with additional PDF pages when the rendered canvas exceeds one page.
 - Warning on content that cannot fit within the configured constraints.
 
-## Planned Review Behavior
+## Current Review Behavior
+
+The app currently supports:
+
+- Review API configuration through `VITE_REVIEW_API_URL`.
+- An unconfigured review state that disables review submission without breaking editing, export, import, or LocalStorage persistence.
+- A review state hook that generates a PDF blob and submits it to the configured review service.
+- A review panel for score, tier, category evidence, suggestions, strengths, improvements, bonuses, deductions, and findings.
+- Conservative review annotations that only map inline when section, entry, and bullet text matches are exact and unambiguous.
+- A FastAPI review service scaffold with safe config projection, normalized schemas, normalized errors, bounded PDF upload validation, and mocked backend contract tests.
 
 Review feedback must be advisory. The first review phase must not rewrite, reorder, or delete resume content automatically.
 
@@ -86,6 +103,8 @@ The review output should include:
 - Annotations linked to resume content when matching is clear.
 
 Annotations are best effort. If a review finding cannot be matched confidently to a section, entry, or bullet, it should remain visible in the review panel without an inline highlight.
+
+Still-planned review behavior includes full end-to-end Hiring Agent execution through the backend adapter and browser-to-running-backend integration tests.
 
 ## UX Principles
 

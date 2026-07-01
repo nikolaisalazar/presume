@@ -12,7 +12,9 @@ Current shipped functionality:
 - Pretext-based fitting through `src/useResizeEngine.ts`.
 - LocalStorage persistence through `src/useResume.ts` and `src/storage.ts`.
 - JSON import/export and client-side PDF export through `src/export.ts`.
-- No review backend, review API client, review panel, or review annotations yet.
+- Review API client, review state hook, review panel, and conservative review annotations.
+- FastAPI review service scaffold under `review-service/` with normalized endpoints, errors, configuration, and tests.
+- Full end-to-end Hiring Agent execution remains pending concrete upstream adapter wiring.
 
 Current and planned features must remain clearly separated in implementation, docs, and UI copy.
 

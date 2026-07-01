@@ -2,7 +2,7 @@
 
 ## Current State
 
-Presume is currently a static React application. It owns editing, formatting, local persistence, JSON import/export, and PDF generation in the browser. There is no review backend yet.
+Presume is currently a React application with an optional review service. The frontend owns editing, formatting, local persistence, JSON import/export, PDF generation, review display, stale-state tracking, and advisory annotation rendering. The backend service under `review-service/` owns the normalized review API boundary.
 
 ## Frontend Modules
 
@@ -91,15 +91,17 @@ flowchart TD
   Export --> JSON[JSON download/import]
 ```
 
-## Planned Review Architecture
+## Review Architecture
 
-The review feature will add a separate service. The frontend should remain responsible for editing, formatting, local persistence, PDF generation, review display, stale-state tracking, and annotation rendering.
+The review feature uses a separate service. The frontend remains responsible for editing, formatting, local persistence, PDF generation, review display, stale-state tracking, and annotation rendering.
 
 The backend should own PDF ingestion, Hiring Agent orchestration, LLM provider configuration, GitHub enrichment, timeouts, error normalization, and normalized review output.
 
-`VITE_REVIEW_API_URL` is the planned frontend config variable. If it is missing, the app should enter an unconfigured review state and disable review submission without affecting editing, export, or persistence.
+`VITE_REVIEW_API_URL` is the frontend config variable. If it is missing, the app enters an unconfigured review state and disables review submission without affecting editing, export, import, or persistence.
 
-## Future Review Request Flow
+The first backend implementation provides FastAPI endpoints, safe allowlisted config projection, normalized schemas, template-based normalized errors, bounded upload validation, and a Hiring Agent adapter boundary. Full Hiring Agent execution still requires a local `vendor/hiring-agent` checkout and concrete upstream API wiring inside `review-service/app/hiring_agent_adapter.py`. Browser-to-running-backend integration tests remain planned for Milestone 8.
+
+## Review Request Flow
 
 ```mermaid
 sequenceDiagram
@@ -115,7 +117,7 @@ sequenceDiagram
   UI->>PDF: Render current ResumePage to PDF Blob using the multi-page export path
   PDF-->>UI: PDF Blob
   UI->>API: POST /reviews multipart resume.pdf
-  API->>HA: Run extraction and scoring
+  API->>HA: Run extraction and scoring through adapter
   HA->>LLM: Prompt-based parsing/evaluation
   HA->>GH: Optional repository enrichment
   HA-->>API: Raw review output

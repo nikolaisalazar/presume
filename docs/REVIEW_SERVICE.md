@@ -1,10 +1,10 @@
-# Review Service Plan
+# Review Service
 
 ## Purpose
 
-The planned review service wraps HackerRank's open-source Hiring Agent behind a small Presume-owned API. The service accepts the rendered resume PDF, runs extraction and evaluation, and returns a normalized review contract that the frontend can render without depending on Hiring Agent internals.
+The review service wraps HackerRank's open-source Hiring Agent behind a small Presume-owned API. The service accepts the rendered resume PDF, runs extraction and evaluation through an adapter boundary, and returns a normalized review contract that the frontend can render without depending on Hiring Agent internals.
 
-This service is not implemented yet.
+The FastAPI service scaffold is implemented in `review-service/`. Full Hiring Agent execution still requires a local `vendor/hiring-agent` checkout and concrete upstream API wiring inside `review-service/app/hiring_agent_adapter.py`.
 
 ## Framework and Location
 
@@ -45,6 +45,9 @@ Rules:
 - `LLM_PROVIDER=ollama` is the default local path.
 - `DEFAULT_MODEL=gemma3:4b` is the default Ollama model.
 - `GEMINI_API_KEY` is required only when `LLM_PROVIDER=gemini`.
+- Unknown `LLM_PROVIDER` values disable review and are not projected verbatim through `/config`.
+- `/config` returns only allowlisted provider and model identifiers; unsafe model values are replaced with safe defaults or `unavailable`.
+- The public model allowlist is intentionally narrow. Arbitrary local model names must not be echoed from environment variables; add a safe allowlist entry before exposing another model identifier.
 - `GITHUB_TOKEN` is optional and should only be used for GitHub enrichment and higher API limits.
 - `CORS_ORIGINS` must be explicit; do not allow arbitrary origins by default.
 - `HIRING_AGENT_PATH` points to the local checkout or submodule.
@@ -63,7 +66,7 @@ Returns service liveness.
 
 ### `GET /config`
 
-Returns frontend-safe capability information. This endpoint must never expose secrets, API keys, filesystem paths, tokens, or raw environment values that contain sensitive data.
+Returns frontend-safe capability information. This endpoint must never expose secrets, API keys, filesystem paths, tokens, raw environment values, stack traces, raw provider responses, or arbitrary unknown provider/model strings.
 
 ```json
 {
@@ -106,6 +109,7 @@ Successful response:
 Every error response should use one of these codes:
 
 - `invalid_upload`
+- `upload_too_large`
 - `pdf_parse_failed`
 - `llm_provider_unavailable`
 - `github_rate_limited`
@@ -125,7 +129,7 @@ Error response shape:
 }
 ```
 
-Messages should be useful to the user but should not include secrets, stack traces, local filesystem paths, or raw provider responses.
+Messages are fixed safe templates selected by normalized error code. They should be useful to the user but must not include secrets, stack traces, local filesystem paths, raw provider responses, resume contents, or arbitrary adapter exception text.
 
 ## Review Result Schema
 
@@ -165,6 +169,10 @@ Minimum backend tests:
 - `GET /health` returns `{"status":"ok"}`.
 - `GET /config` excludes secrets and filesystem paths.
 - `POST /reviews` rejects non-PDF uploads with `invalid_upload`.
+- `POST /reviews` rejects oversized uploads with `upload_too_large` while reading within the configured size limit.
 - `POST /reviews` returns the normalized `ReviewResult` shape for a mocked Hiring Agent success.
 - Adapter failures map to documented error codes.
 - Review timeout maps to `review_timeout`.
+- Numeric review scores reject non-finite values.
+
+Integration-oriented frontend/backend tests are still planned for Milestone 8.

@@ -165,6 +165,7 @@ describe('reviewApi', () => {
 
   it.each([
     'invalid_upload',
+    'upload_too_large',
     'pdf_parse_failed',
     'llm_provider_unavailable',
     'github_rate_limited',

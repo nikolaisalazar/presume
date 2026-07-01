@@ -18,6 +18,7 @@ export type ReviewApiErrorCode =
   | 'invalid_response'
   | 'network_error'
   | 'invalid_upload'
+  | 'upload_too_large'
   | 'pdf_parse_failed'
   | 'llm_provider_unavailable'
   | 'github_rate_limited'
@@ -39,6 +40,7 @@ type ReviewApiOptions = {
 
 const DOCUMENTED_BACKEND_ERROR_CODES = new Set<ReviewApiErrorCode>([
   'invalid_upload',
+  'upload_too_large',
   'pdf_parse_failed',
   'llm_provider_unavailable',
   'github_rate_limited',
