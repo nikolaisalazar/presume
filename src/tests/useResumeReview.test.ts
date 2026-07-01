@@ -1,4 +1,4 @@
-import { act, renderHook } from '@testing-library/react'
+import { act, renderHook, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { RefObject } from 'react'
 import type { ReviewResult } from '../reviewTypes'
@@ -61,6 +61,13 @@ const reviewResult: ReviewResult = {
   annotations: [],
 }
 
+const newerReviewResult: ReviewResult = {
+  ...reviewResult,
+  id: 'review_456',
+  totalScore: 80,
+  strengths: ['Newer review result.'],
+}
+
 function pageRef(): RefObject<HTMLElement> {
   return { current: document.createElement('div') }
 }
@@ -77,6 +84,14 @@ function deferred<T>() {
     reject = promiseReject
   })
   return { promise, resolve, reject }
+}
+
+async function completeSuccessfulReview(result: {
+  current: ReturnType<typeof useResumeReview>
+}) {
+  await act(async () => {
+    await result.current.requestReview()
+  })
 }
 
 describe('useResumeReview', () => {
@@ -175,6 +190,39 @@ describe('useResumeReview', () => {
     })
   })
 
+  it('keeps the previous successful result visible while a rerun is loading', async () => {
+    getReviewApiStateMock.mockReturnValue({
+      status: 'configured',
+      baseUrl: 'https://reviews.example.test',
+    })
+    const pendingReview = deferred<ReviewResult>()
+    renderResumePageToPDFBlobMock.mockResolvedValue(
+      new Blob(['%PDF-1.7'], { type: 'application/pdf' })
+    )
+    submitResumeForReviewMock
+      .mockResolvedValueOnce(reviewResult)
+      .mockReturnValueOnce(pendingReview.promise)
+
+    const { result } = renderHook(() =>
+      useResumeReview({ resume, pageRef: pageRef() })
+    )
+
+    await completeSuccessfulReview(result)
+
+    act(() => {
+      void result.current.requestReview()
+    })
+
+    expect(result.current.state).toEqual({
+      status: 'loading',
+      result: reviewResult,
+    })
+
+    await act(async () => {
+      pendingReview.resolve(newerReviewResult)
+    })
+  })
+
   it('marks a successful result stale after resume content changes', async () => {
     getReviewApiStateMock.mockReturnValue({
       status: 'configured',
@@ -203,6 +251,226 @@ describe('useResumeReview', () => {
     expect(result.current.state).toEqual({
       status: 'stale',
       result: reviewResult,
+    })
+  })
+
+  it('keeps a stale result marked stale while a rerun is loading', async () => {
+    getReviewApiStateMock.mockReturnValue({
+      status: 'configured',
+      baseUrl: 'https://reviews.example.test',
+    })
+    renderResumePageToPDFBlobMock.mockResolvedValue(
+      new Blob(['%PDF-1.7'], { type: 'application/pdf' })
+    )
+    const pendingReview = deferred<ReviewResult>()
+    submitResumeForReviewMock
+      .mockResolvedValueOnce(reviewResult)
+      .mockReturnValueOnce(pendingReview.promise)
+    const editedResume = cloneResume(resume)
+    editedResume.sections[0].entries[0].bullets[0] =
+      'Documented the first published computer program.'
+
+    const { result, rerender } = renderHook(
+      ({ currentResume }) =>
+        useResumeReview({ resume: currentResume, pageRef: pageRef() }),
+      { initialProps: { currentResume: resume } }
+    )
+
+    await completeSuccessfulReview(result)
+    rerender({ currentResume: editedResume })
+
+    act(() => {
+      void result.current.requestReview()
+    })
+
+    expect(result.current.state).toEqual({
+      status: 'loading',
+      result: reviewResult,
+      resultIsStale: true,
+    })
+
+    await act(async () => {
+      pendingReview.resolve(newerReviewResult)
+    })
+  })
+
+  it('does not let an older successful request overwrite a newer successful request', async () => {
+    getReviewApiStateMock.mockReturnValue({
+      status: 'configured',
+      baseUrl: 'https://reviews.example.test',
+    })
+    renderResumePageToPDFBlobMock.mockResolvedValue(
+      new Blob(['%PDF-1.7'], { type: 'application/pdf' })
+    )
+    const olderReview = deferred<ReviewResult>()
+    const newerReview = deferred<ReviewResult>()
+    submitResumeForReviewMock
+      .mockReturnValueOnce(olderReview.promise)
+      .mockReturnValueOnce(newerReview.promise)
+
+    const { result } = renderHook(() =>
+      useResumeReview({ resume, pageRef: pageRef() })
+    )
+
+    let olderRequest!: Promise<void>
+    let newerRequest!: Promise<void>
+    act(() => {
+      olderRequest = result.current.requestReview()
+      newerRequest = result.current.requestReview()
+    })
+    await waitFor(() => expect(submitResumeForReviewMock).toHaveBeenCalledTimes(2))
+
+    await act(async () => {
+      newerReview.resolve(newerReviewResult)
+      await newerRequest
+    })
+
+    expect(result.current.state).toEqual({
+      status: 'success',
+      result: newerReviewResult,
+    })
+
+    await act(async () => {
+      olderReview.resolve(reviewResult)
+      await olderRequest
+    })
+
+    expect(result.current.state).toEqual({
+      status: 'success',
+      result: newerReviewResult,
+    })
+  })
+
+  it('does not let an older failure replace a newer success', async () => {
+    getReviewApiStateMock.mockReturnValue({
+      status: 'configured',
+      baseUrl: 'https://reviews.example.test',
+    })
+    renderResumePageToPDFBlobMock.mockResolvedValue(
+      new Blob(['%PDF-1.7'], { type: 'application/pdf' })
+    )
+    const olderReview = deferred<ReviewResult>()
+    const newerReview = deferred<ReviewResult>()
+    submitResumeForReviewMock
+      .mockReturnValueOnce(olderReview.promise)
+      .mockReturnValueOnce(newerReview.promise)
+
+    const { result } = renderHook(() =>
+      useResumeReview({ resume, pageRef: pageRef() })
+    )
+
+    let olderRequest!: Promise<void>
+    let newerRequest!: Promise<void>
+    act(() => {
+      olderRequest = result.current.requestReview()
+      newerRequest = result.current.requestReview()
+    })
+    await waitFor(() => expect(submitResumeForReviewMock).toHaveBeenCalledTimes(2))
+
+    await act(async () => {
+      newerReview.resolve(newerReviewResult)
+      await newerRequest
+    })
+
+    await act(async () => {
+      olderReview.reject(
+        new ReviewApiError('Older request failed.', { code: 'network_error' })
+      )
+      await olderRequest
+    })
+
+    expect(result.current.state).toEqual({
+      status: 'success',
+      result: newerReviewResult,
+    })
+  })
+
+  it('does not let an older success hide a newer failure', async () => {
+    getReviewApiStateMock.mockReturnValue({
+      status: 'configured',
+      baseUrl: 'https://reviews.example.test',
+    })
+    renderResumePageToPDFBlobMock.mockResolvedValue(
+      new Blob(['%PDF-1.7'], { type: 'application/pdf' })
+    )
+    const olderReview = deferred<ReviewResult>()
+    const newerReview = deferred<ReviewResult>()
+    const newerError = new ReviewApiError('Newer request failed.', {
+      code: 'network_error',
+    })
+    submitResumeForReviewMock
+      .mockReturnValueOnce(olderReview.promise)
+      .mockReturnValueOnce(newerReview.promise)
+
+    const { result } = renderHook(() =>
+      useResumeReview({ resume, pageRef: pageRef() })
+    )
+
+    let olderRequest!: Promise<void>
+    let newerRequest!: Promise<void>
+    act(() => {
+      olderRequest = result.current.requestReview()
+      newerRequest = result.current.requestReview()
+    })
+    await waitFor(() => expect(submitResumeForReviewMock).toHaveBeenCalledTimes(2))
+
+    await act(async () => {
+      newerReview.reject(newerError)
+      await newerRequest
+    })
+
+    expect(result.current.state).toEqual({
+      status: 'error',
+      error: newerError,
+    })
+
+    await act(async () => {
+      olderReview.resolve(reviewResult)
+      await olderRequest
+    })
+
+    expect(result.current.state).toEqual({
+      status: 'error',
+      error: newerError,
+    })
+  })
+
+  it('marks carried-forward stale results on errors after resume edits', async () => {
+    getReviewApiStateMock.mockReturnValue({
+      status: 'configured',
+      baseUrl: 'https://reviews.example.test',
+    })
+    renderResumePageToPDFBlobMock.mockResolvedValue(
+      new Blob(['%PDF-1.7'], { type: 'application/pdf' })
+    )
+    const error = new ReviewApiError('Could not reach the review service.', {
+      code: 'network_error',
+    })
+    submitResumeForReviewMock
+      .mockResolvedValueOnce(reviewResult)
+      .mockRejectedValueOnce(error)
+    const editedResume = cloneResume(resume)
+    editedResume.sections[0].entries[0].bullets[0] =
+      'Documented the first published computer program.'
+
+    const { result, rerender } = renderHook(
+      ({ currentResume }) =>
+        useResumeReview({ resume: currentResume, pageRef: pageRef() }),
+      { initialProps: { currentResume: resume } }
+    )
+
+    await completeSuccessfulReview(result)
+    rerender({ currentResume: editedResume })
+
+    await act(async () => {
+      await result.current.requestReview()
+    })
+
+    expect(result.current.state).toEqual({
+      status: 'error',
+      error,
+      result: reviewResult,
+      resultIsStale: true,
     })
   })
 

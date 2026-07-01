@@ -149,7 +149,7 @@ Residual risk:
 
 ### Milestone 5: Review State Hook
 
-Status: Next.
+Status: Complete in PR #6.
 
 Scope:
 
@@ -159,13 +159,34 @@ Scope:
 - Submit through the review API client.
 - Never mutate resume content automatically.
 
+Completion evidence:
+
+- `src/useResumeReview.ts`
+- `src/tests/useResumeReview.test.ts`
+
 Supporting detail:
 
 - See `docs/IMPLEMENTATION_PLAN.md`, Phase 4.
 
+Out of scope:
+
+- Review panel.
+- Review annotations UI.
+- Review backend.
+- Hiring Agent integration.
+- End-to-end review flow.
+- Resume content mutation.
+
+Residual risk:
+
+- Milestone 5 tests mock PDF generation and review API submission; no real
+  backend compatibility has been proven yet.
+- End-to-end review flow remains planned for a later milestone.
+- Review UI and annotation rendering remain out of scope until Milestone 6.
+
 ### Milestone 6: Review UI
 
-Status: Planned.
+Status: Next.
 
 Scope:
 

@@ -7,10 +7,15 @@ import type { Resume } from './types'
 export type ResumeReviewState =
   | { status: 'unconfigured' }
   | { status: 'idle' }
-  | { status: 'loading'; result?: ReviewResult }
+  | { status: 'loading'; result?: ReviewResult; resultIsStale?: boolean }
   | { status: 'success'; result: ReviewResult }
   | { status: 'stale'; result: ReviewResult }
-  | { status: 'error'; error: Error; result?: ReviewResult }
+  | {
+      status: 'error'
+      error: Error
+      result?: ReviewResult
+      resultIsStale?: boolean
+    }
 
 export type UseResumeReviewOptions = {
   resume: Resume
@@ -29,6 +34,7 @@ export function useResumeReview({
   const resumeKey = useMemo(() => serializeResume(resume), [resume])
   const currentResumeKeyRef = useRef(resumeKey)
   const latestSubmittedResumeKeyRef = useRef<string | null>(null)
+  const activeRequestIdRef = useRef(0)
   const [state, setState] = useState<ResumeReviewState>(() =>
     getReviewApiState().status === 'unconfigured'
       ? { status: 'unconfigured' }
@@ -38,28 +44,43 @@ export function useResumeReview({
   useEffect(() => {
     currentResumeKeyRef.current = resumeKey
     setState(current => {
-      if (current.status !== 'success') {
-        return current
+      const latestReviewMatchesResume =
+        latestSubmittedResumeKeyRef.current === resumeKey
+
+      if (current.status === 'success') {
+        return latestReviewMatchesResume
+          ? current
+          : { status: 'stale', result: current.result }
       }
-      if (latestSubmittedResumeKeyRef.current === resumeKey) {
-        return current
+
+      if (
+        (current.status === 'loading' || current.status === 'error') &&
+        current.result &&
+        !latestReviewMatchesResume &&
+        !current.resultIsStale
+      ) {
+        return { ...current, resultIsStale: true }
       }
-      return { status: 'stale', result: current.result }
+
+      return current
     })
   }, [resumeKey])
 
   const requestReview = useCallback(async () => {
+    const requestId = activeRequestIdRef.current + 1
+    activeRequestIdRef.current = requestId
+
     if (getReviewApiState().status === 'unconfigured') {
       setState({ status: 'unconfigured' })
       return
     }
 
-    const previousResult = getCurrentResult(state)
-    setState(
-      previousResult
-        ? { status: 'loading', result: previousResult }
-        : { status: 'loading' }
-    )
+    const previousReview = getCurrentReview(state)
+    setState({
+      status: 'loading',
+      ...(previousReview.result ? { result: previousReview.result } : {}),
+      ...(previousReview.resultIsStale ? { resultIsStale: true } : {}),
+    })
 
     const submittedResumeKey = currentResumeKeyRef.current
 
@@ -71,6 +92,10 @@ export function useResumeReview({
 
       const pdf = await renderResumePageToPDFBlob(pageElement)
       const result = await submitResumeForReview(pdf)
+      if (activeRequestIdRef.current !== requestId) {
+        return
+      }
+
       latestSubmittedResumeKeyRef.current = submittedResumeKey
 
       setState(
@@ -79,10 +104,15 @@ export function useResumeReview({
           : { status: 'stale', result }
       )
     } catch (error) {
+      if (activeRequestIdRef.current !== requestId) {
+        return
+      }
+
       setState({
         status: 'error',
         error: normalizeError(error),
-        ...(previousResult ? { result: previousResult } : {}),
+        ...(previousReview.result ? { result: previousReview.result } : {}),
+        ...(previousReview.resultIsStale ? { resultIsStale: true } : {}),
       })
     }
   }, [pageRef, state])
@@ -94,8 +124,22 @@ function serializeResume(resume: Resume): string {
   return JSON.stringify(resume)
 }
 
-function getCurrentResult(state: ResumeReviewState): ReviewResult | undefined {
-  return 'result' in state ? state.result : undefined
+function getCurrentReview(state: ResumeReviewState): {
+  result?: ReviewResult
+  resultIsStale?: boolean
+} {
+  if (!('result' in state) || !state.result) {
+    return {}
+  }
+
+  const resultIsStale =
+    state.status === 'stale' ||
+    (state.status !== 'success' && state.resultIsStale)
+
+  return {
+    result: state.result,
+    ...(resultIsStale ? { resultIsStale: true } : {}),
+  }
 }
 
 function normalizeError(error: unknown): Error {
