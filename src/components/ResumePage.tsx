@@ -3,15 +3,23 @@ import type { Resume, ResumeSection } from '../types'
 import { ResumeHeader } from './ResumeHeader'
 import { Section } from './Section'
 import type { Warnings } from '../useResizeEngine'
+import type { ReviewAnnotation } from '../reviewTypes'
+import { getReviewAnnotationTargets } from './ReviewAnnotations'
 
 interface ResumePageProps {
   resume: Resume
   onResumeChange: (resume: Resume) => void
   warnings: Warnings
+  reviewAnnotations?: ReviewAnnotation[]
 }
 
 export const ResumePage = forwardRef<HTMLDivElement, ResumePageProps>(
-  ({ resume, onResumeChange, warnings }, ref) => {
+  ({ resume, onResumeChange, warnings, reviewAnnotations = [] }, ref) => {
+    const reviewAnnotationTargets = getReviewAnnotationTargets(
+      resume,
+      reviewAnnotations
+    )
+
     const updateSection = (sectionIdx: number, section: ResumeSection) => {
       const sections = [...resume.sections]
       sections[sectionIdx] = section
@@ -49,6 +57,7 @@ export const ResumePage = forwardRef<HTMLDivElement, ResumePageProps>(
             section={section}
             sectionIdx={sIdx}
             warnings={warnings}
+            reviewAnnotationTargets={reviewAnnotationTargets}
             onChange={s => updateSection(sIdx, s)}
             onRemove={() => removeSection(sIdx)}
           />

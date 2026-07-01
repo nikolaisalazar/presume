@@ -2,11 +2,18 @@ import { EditableText } from './EditableText'
 import { Entry } from './Entry'
 import type { ResumeSection, ResumeEntry } from '../types'
 import type { Warnings } from '../useResizeEngine'
+import {
+  ReviewAnnotations,
+  getReviewAnnotationsForTarget,
+  getReviewSeverityClass,
+  type ReviewAnnotationTargets,
+} from './ReviewAnnotations'
 
 interface SectionProps {
   section: ResumeSection
   sectionIdx: number
   warnings: Warnings
+  reviewAnnotationTargets?: ReviewAnnotationTargets
   onChange: (section: ResumeSection) => void
   onRemove: () => void
 }
@@ -15,6 +22,7 @@ export function Section({
   section,
   sectionIdx,
   warnings,
+  reviewAnnotationTargets,
   onChange,
   onRemove,
 }: SectionProps) {
@@ -39,8 +47,15 @@ export function Section({
     onChange({ ...section, entries: section.entries.filter((_, i) => i !== entryIdx) })
   }
 
+  const reviewAnnotations = getReviewAnnotationsForTarget(
+    reviewAnnotationTargets,
+    `section-${sectionIdx}`
+  )
+
   return (
-    <section className="resume-section">
+    <section
+      className={`resume-section ${getReviewSeverityClass(reviewAnnotations)}`}
+    >
       <div className="resume-section-header-row">
         <EditableText
           value={section.title}
@@ -48,6 +63,7 @@ export function Section({
           className="resume-section-title"
           placeholder="SECTION"
         />
+        <ReviewAnnotations annotations={reviewAnnotations} />
         <button className="remove-btn" onClick={onRemove} aria-label="Remove section">
           − section
         </button>
@@ -59,6 +75,7 @@ export function Section({
           sectionIdx={sectionIdx}
           entryIdx={eIdx}
           warnings={warnings}
+          reviewAnnotationTargets={reviewAnnotationTargets}
           onChange={e => updateEntry(eIdx, e)}
           onRemove={() => removeEntry(eIdx)}
         />

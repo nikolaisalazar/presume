@@ -2,12 +2,19 @@ import { EditableText } from './EditableText'
 import { Bullet } from './Bullet'
 import type { ResumeEntry } from '../types'
 import type { Warnings } from '../useResizeEngine'
+import {
+  ReviewAnnotations,
+  getReviewAnnotationsForTarget,
+  getReviewSeverityClass,
+  type ReviewAnnotationTargets,
+} from './ReviewAnnotations'
 
 interface EntryProps {
   entry: ResumeEntry
   sectionIdx: number
   entryIdx: number
   warnings: Warnings
+  reviewAnnotationTargets?: ReviewAnnotationTargets
   onChange: (entry: ResumeEntry) => void
   onRemove: () => void
 }
@@ -17,6 +24,7 @@ export function Entry({
   sectionIdx,
   entryIdx,
   warnings,
+  reviewAnnotationTargets,
   onChange,
   onRemove,
 }: EntryProps) {
@@ -34,8 +42,13 @@ export function Entry({
     onChange({ ...entry, bullets: entry.bullets.filter((_, i) => i !== bulletIdx) })
   }
 
+  const reviewAnnotations = getReviewAnnotationsForTarget(
+    reviewAnnotationTargets,
+    `entry-${sectionIdx}-${entryIdx}`
+  )
+
   return (
-    <div className="resume-entry">
+    <div className={`resume-entry ${getReviewSeverityClass(reviewAnnotations)}`}>
       <div className="entry-header-row">
         <EditableText
           value={entry.title}
@@ -43,6 +56,7 @@ export function Entry({
           className="entry-title"
           placeholder="Job Title / Degree"
         />
+        <ReviewAnnotations annotations={reviewAnnotations} />
         <EditableText
           value={entry.dateRange}
           onChange={v => onChange({ ...entry, dateRange: v })}
@@ -70,6 +84,10 @@ export function Entry({
             key={bIdx}
             text={bullet}
             warning={warnings.get(`bullet-${sectionIdx}-${entryIdx}-${bIdx}`) ?? false}
+            reviewAnnotations={getReviewAnnotationsForTarget(
+              reviewAnnotationTargets,
+              `bullet-${sectionIdx}-${entryIdx}-${bIdx}`
+            )}
             onChange={v => updateBullet(bIdx, v)}
             onDelete={() => removeBullet(bIdx)}
           />
