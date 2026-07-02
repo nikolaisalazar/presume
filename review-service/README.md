@@ -21,7 +21,8 @@ python3 -m pytest review-service/tests -q
 ## Endpoints
 
 - `GET /health` returns `{"status":"ok"}`.
-- `GET /config` returns frontend-safe capability information only.
+- `GET /config` returns frontend-safe capability information only. It reports
+  `reviewEnabled: false` when the local Hiring Agent checkout is unavailable.
 - `POST /reviews` accepts multipart form data with a required PDF `file`.
 
 Error responses use:
@@ -56,6 +57,8 @@ Defaults favor local review:
 - `LLM_PROVIDER` defaults to `ollama`.
 - `DEFAULT_MODEL` defaults to `gemma3:4b`.
 - `CORS_ORIGINS` defaults to `http://localhost:5173`.
+- Review is enabled only when provider configuration is usable and the local
+  Hiring Agent checkout exists.
 - `GEMINI_API_KEY` is only used when `LLM_PROVIDER=gemini`.
 - `GITHUB_TOKEN` is optional and only enables GitHub enrichment.
 - `GET /config` returns only allowlisted provider and model identifiers. Unknown
@@ -77,8 +80,10 @@ HackerRank Hiring Agent internals. The expected checkout is
 `vendor/hiring-agent` or the path provided by `HIRING_AGENT_PATH`.
 
 This repository does not vendor Hiring Agent by default. Until that checkout is
-present and its concrete Python API is wired inside the adapter, `/reviews`
-returns a normalized `hiring_agent_failed` error for the default adapter.
+present, `GET /config` reports `reviewEnabled: false` without exposing the
+configured path. Until the checkout is present and its concrete Python API is
+wired inside the adapter, `/reviews` returns normalized safe errors for the
+default adapter.
 Tests inject a mocked adapter to verify the public API contract without relying
 on upstream internals.
 

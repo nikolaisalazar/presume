@@ -89,6 +89,7 @@ The app currently supports:
 - A review panel for score, tier, category evidence, suggestions, strengths, improvements, bonuses, deductions, and findings.
 - Conservative review annotations that only map inline when section, entry, and bullet text matches are exact and unambiguous.
 - A FastAPI review service scaffold with safe config projection, normalized schemas, normalized errors, bounded PDF upload validation, and mocked backend contract tests.
+- Review-service capability discovery that disables review when the local Hiring Agent checkout is unavailable, without exposing filesystem paths.
 - Integration-oriented tests for the unconfigured editor path, backend-shaped frontend errors, and safe backend error handling.
 
 Review feedback must be advisory. The first review phase must not rewrite, reorder, or delete resume content automatically.

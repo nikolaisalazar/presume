@@ -258,4 +258,39 @@ Completion evidence:
 Residual risk:
 
 - Full browser-to-running-backend review flow remains planned.
-- Full Hiring Agent execution remains planned.
+
+### Milestone 9: Hiring Agent Adapter Readiness
+
+Status: Complete.
+
+Scope:
+
+- Confirm that this checkout does not include `vendor/hiring-agent`.
+- Keep full Hiring Agent execution deferred until a concrete upstream checkout
+  and Python API are available.
+- Make review-service capability discovery reflect local adapter readiness
+  without exposing the configured Hiring Agent path.
+- Keep hosted providers opt-in.
+- Preserve normalized, secret-free review errors.
+- Keep review feedback advisory and non-mutating.
+
+Supporting detail:
+
+- See `docs/REVIEW_SERVICE.md`.
+- See `docs/IMPLEMENTATION_PLAN.md`, Phase 6.
+
+Completion evidence:
+
+- `review-service/app/config.py`
+- `review-service/app/hiring_agent_adapter.py`
+- `review-service/tests/test_health.py`
+- Documentation updates in `README.md`, `docs/README.md`,
+  `docs/ARCHITECTURE.md`, `docs/PRODUCT_SPEC.md`,
+  `docs/REVIEW_SERVICE.md`, and `review-service/README.md`.
+
+Residual risk:
+
+- Full Hiring Agent execution still requires `vendor/hiring-agent` and concrete
+  upstream API wiring inside `review-service/app/hiring_agent_adapter.py`.
+- Full browser-to-running-backend review flow remains deferred until a real
+  adapter path or controlled mocked integration target exists.

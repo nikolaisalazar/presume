@@ -19,7 +19,7 @@ Working today:
 - JSON export and import.
 - Client-side PDF export, including multiple Letter pages when the configured page limit is greater than one.
 - Review API client, review state hook, panel, and conservative non-destructive annotations that stay disabled without `VITE_REVIEW_API_URL`.
-- FastAPI review service scaffold with safe config projection, normalized schemas, normalized errors, PDF upload validation, and mocked contract tests.
+- FastAPI review service scaffold with safe config projection, Hiring Agent dependency readiness checks, normalized schemas, normalized errors, PDF upload validation, and mocked contract tests.
 - Integration-oriented tests for unconfigured editor behavior, backend-shaped frontend errors, and safe backend error handling.
 
 Still planned:
@@ -33,7 +33,7 @@ The frontend renders a US Letter resume page and stores the resume as typed JSON
 
 PDF export is fully client-side using `html2canvas` and `jsPDF`. The exporter slices the captured resume into Letter-height pages so a resume fitted to multiple pages exports as multiple PDF pages instead of being compressed onto one page. JSON export/import provides a portable save format.
 
-The review flow keeps semantic evaluation outside the static frontend. A local or self-hosted FastAPI service accepts the current resume PDF, runs review work through a Hiring Agent adapter boundary, and returns a normalized review result for the frontend to display. If no review endpoint is configured, the review UI is disabled rather than breaking the editor.
+The review flow keeps semantic evaluation outside the static frontend. A local or self-hosted FastAPI service accepts the current resume PDF, runs review work through a Hiring Agent adapter boundary, and returns a normalized review result for the frontend to display. If no review endpoint is configured, or if the service reports review disabled because the local Hiring Agent checkout is unavailable, the review UI is disabled rather than breaking the editor.
 
 ## Tech Stack
 

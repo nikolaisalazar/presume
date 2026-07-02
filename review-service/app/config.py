@@ -1,5 +1,6 @@
 import os
 from dataclasses import dataclass
+from pathlib import Path
 
 from .schemas import PublicConfig
 
@@ -9,6 +10,7 @@ LOCAL_PROVIDER = "ollama"
 DISABLED_PROVIDER = "disabled"
 DISABLED_MODEL = "unavailable"
 DEFAULT_OLLAMA_MODEL = "gemma3:4b"
+REVIEW_SERVICE_ROOT = Path(__file__).resolve().parents[1]
 
 ALLOWED_PROVIDERS = {LOCAL_PROVIDER, "gemini"}
 ALLOWED_MODELS_BY_PROVIDER = {
@@ -29,12 +31,19 @@ class Settings:
 
     @property
     def review_enabled(self) -> bool:
+        if not self.hiring_agent_available:
+            return False
+
         provider = self.public_provider
         if provider == LOCAL_PROVIDER:
             return True
         if provider == "gemini":
             return bool(self.gemini_api_key)
         return False
+
+    @property
+    def hiring_agent_available(self) -> bool:
+        return resolve_hiring_agent_path(self.hiring_agent_path).exists()
 
     @property
     def github_enrichment_enabled(self) -> bool:
@@ -102,3 +111,11 @@ def parse_max_upload_bytes(value: str | None) -> int:
         return DEFAULT_MAX_UPLOAD_BYTES
 
     return parsed if parsed > 0 else DEFAULT_MAX_UPLOAD_BYTES
+
+
+def resolve_hiring_agent_path(value: str) -> Path:
+    path = Path(value).expanduser()
+    if path.is_absolute():
+        return path
+
+    return (REVIEW_SERVICE_ROOT / path).resolve()

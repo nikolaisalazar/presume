@@ -1,9 +1,8 @@
 import asyncio
 from datetime import UTC, datetime
-from pathlib import Path
 from uuid import uuid4
 
-from .config import Settings
+from .config import Settings, resolve_hiring_agent_path
 from .errors import ReviewServiceError
 from .schemas import ReviewResult
 
@@ -44,7 +43,9 @@ class HiringAgentAdapter:
             ) from exc
 
     async def _run_hiring_agent(self, pdf_bytes: bytes) -> ReviewResult:
-        hiring_agent_path = Path(self.settings.hiring_agent_path)
+        hiring_agent_path = resolve_hiring_agent_path(
+            self.settings.hiring_agent_path
+        )
         if not hiring_agent_path.exists():
             raise ReviewServiceError(
                 code="hiring_agent_failed",
