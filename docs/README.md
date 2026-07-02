@@ -14,4 +14,6 @@ This directory is the source of truth for Presume's product direction, current a
 
 The current shipped app is a browser resume editor with deterministic formatting, LocalStorage persistence, JSON import/export, PDF export, and advisory review UI that stays disabled without `VITE_REVIEW_API_URL` or when the configured review service reports review unavailable.
 
-The review service exists under `review-service/` with normalized endpoints, errors, configuration, Hiring Agent dependency readiness checks, and tests. Current integration-oriented tests cover unconfigured, configured-service-disabled, and config-error editor behavior, backend-shaped frontend errors, and safe backend error handling. Full Hiring Agent execution and full browser-to-running-backend review flow verification remain planned.
+The review service exists under `review-service/` with normalized endpoints, errors, configuration, Hiring Agent dependency readiness checks, and tests. Current integration-oriented tests cover unconfigured, configured-service-disabled, and config-error editor behavior, backend-shaped frontend errors, and safe backend error handling.
+
+The next milestone is [Milestone 10: Real Hiring Agent Adapter Spike](MILESTONE_PLAN.md#milestone-10-real-hiring-agent-adapter-spike). It should wire the backend adapter to a local `vendor/hiring-agent` checkout enough to return one real normalized review result before broader UI polish begins.

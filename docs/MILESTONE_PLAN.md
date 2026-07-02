@@ -302,3 +302,243 @@ Residual risk:
   upstream API wiring inside `review-service/app/hiring_agent_adapter.py`.
 - Full browser-to-running-backend review flow remains deferred until a real
   adapter path or controlled mocked integration target exists.
+
+### Milestone 10: Real Hiring Agent Adapter Spike
+
+Status: Not started.
+
+Priority:
+
+- Do this before broad UI polish. The review integration is the largest
+  unresolved product risk, and the UI should be polished around real Hiring
+  Agent output rather than mocked fixtures.
+
+Goal:
+
+- Wire `review-service/app/hiring_agent_adapter.py` to a local
+  `vendor/hiring-agent` checkout enough to produce one real normalized
+  `ReviewResult` from one uploaded PDF.
+- Keep the Presume-owned API contract stable even if upstream Hiring Agent
+  internals are unstable.
+
+Scope:
+
+- Add or document the local dependency setup path for HackerRank Hiring Agent.
+- Inspect upstream Hiring Agent entrypoints and choose the smallest viable
+  adapter strategy:
+  - Python library integration, preferred if the upstream API is stable enough.
+  - Subprocess execution, acceptable if upstream internals are unstable.
+- Implement the adapter path that converts one real Hiring Agent review into
+  Presume's normalized `ReviewResult`.
+- Preserve normalized safe error handling.
+- Keep all Hiring Agent imports, subprocess calls, path handling, and provider
+  details inside `review-service/app/hiring_agent_adapter.py`.
+
+Files likely to change:
+
+- `review-service/app/hiring_agent_adapter.py`
+- `review-service/app/config.py` if new config is needed.
+- `review-service/app/schemas.py` only for additive schema fields that real
+  output proves necessary.
+- `review-service/tests/test_review_contract.py`
+- New backend adapter tests as needed.
+- `review-service/README.md`
+- `docs/REVIEW_SERVICE.md`
+- This milestone plan.
+
+Public interface constraints:
+
+- Keep `POST /reviews` as multipart form data with the required `file` PDF
+  field.
+- Keep the normalized `ReviewResult` response shape expected by
+  `src/reviewTypes.ts`.
+- Avoid frontend contract changes unless real Hiring Agent output proves the
+  current contract insufficient.
+
+Allowed additive config field:
+
+- `hiringAgentMode?: "library" | "subprocess" | "unavailable"` may be added to
+  `GET /config` only if it materially improves debugging without exposing
+  filesystem paths, secrets, stack traces, or arbitrary upstream values.
+
+Security and privacy constraints:
+
+- Do not expose API keys, tokens, local filesystem paths, provider prompts,
+  provider responses, stack traces, raw resume text, or arbitrary adapter
+  exception text through public API responses.
+- Do not log raw PDFs, extracted resume text, provider prompts, or full raw
+  review responses by default.
+- Hosted LLM providers remain opt-in. Local Ollama remains the default path.
+
+Tests:
+
+- Adapter reports unavailable or normalized failure when `vendor/hiring-agent`
+  is missing.
+- Adapter maps a real or fixture-like Hiring Agent success into `ReviewResult`.
+- Adapter maps upstream execution failure to `hiring_agent_failed`.
+- Adapter maps timeout to `review_timeout`.
+- `/config` still hides filesystem paths and secrets.
+- `/reviews` still rejects invalid uploads before invoking Hiring Agent.
+- Existing frontend and backend tests continue to pass.
+
+Acceptance criteria:
+
+- With `vendor/hiring-agent` present and provider configuration valid,
+  `/config` reports review as enabled.
+- Posting a valid PDF to `/reviews` returns a normalized `ReviewResult`.
+- The frontend validator accepts the returned result without schema changes.
+- Existing backend contract tests still pass.
+- Public errors remain fixed, safe, normalized templates.
+
+Residual risk:
+
+- A spike may discover that upstream Hiring Agent does not expose a stable
+  importable API. In that case, prefer a subprocess adapter for the first real
+  vertical slice and document the tradeoff.
+
+### Milestone 11: Browser-To-Backend Review Flow
+
+Status: Not started.
+
+Goal:
+
+- Verify that the actual frontend can submit a rendered resume PDF to the
+  running backend and display the returned review result.
+
+Scope:
+
+- Run the FastAPI review service with valid Hiring Agent and provider config.
+- Run the frontend with `VITE_REVIEW_API_URL=http://127.0.0.1:8000`.
+- Submit the default resume through the UI.
+- Fix any CORS, contract, upload, validation, or state bugs exposed by the real
+  browser-to-backend flow.
+- Document exact local run commands.
+
+Files likely to change:
+
+- `src/reviewApi.ts` if contract bugs appear.
+- `src/useResumeReview.ts` if state behavior needs adjustment.
+- `src/components/ReviewPanel.tsx` if real output exposes rendering gaps.
+- `review-service/app/main.py` if CORS or response behavior needs adjustment.
+- `README.md`, `review-service/README.md`, and docs as needed.
+- This milestone plan.
+
+Tests and verification:
+
+- Manual E2E script:
+  1. Start backend.
+  2. Start frontend with `VITE_REVIEW_API_URL`.
+  3. Click "Review resume".
+  4. Confirm loading, success, stale-after-edit, and error states.
+- Add a realistic frontend review fixture captured from the backend adapter.
+- Add automated browser testing only if the project intentionally adopts a
+  browser test runner; otherwise document manual verification clearly.
+
+Acceptance criteria:
+
+- A user can run both services locally and submit the default resume for review.
+- The review panel displays real score, categories, strengths, improvements,
+  bonuses, deductions, and annotations when present.
+- Editing after a successful review marks the result stale.
+- Backend unavailable and review-disabled states remain understandable.
+- Docs include exact run commands and common failure modes.
+
+### Milestone 12: Review UX Polish Using Real Data
+
+Status: Not started.
+
+Goal:
+
+- Improve the review experience based on actual Hiring Agent output, latency,
+  evidence length, category shape, and annotation quality.
+
+Scope:
+
+- Improve review result hierarchy for scanning.
+- Group evidence and suggestions by category.
+- Add or refine stale-result affordances.
+- Improve unavailable, disabled, config-error, and request-error messaging.
+- Add a review annotation legend if annotations are useful in real output.
+- Improve long-string wrapping and empty-result states.
+- Keep formatting warnings visually distinct from review annotations.
+
+Files likely to change:
+
+- `src/components/ReviewPanel.tsx`
+- `src/components/ReviewAnnotations.tsx`
+- `src/styles/app.css`
+- `src/styles/resume.css`
+- `src/tests/reviewUi.test.tsx`
+
+UX constraints:
+
+- Keep review advisory.
+- Do not present the score as guaranteed ATS truth.
+- Do not automatically rewrite resume content.
+- Keep the resume document as the primary surface.
+
+Tests:
+
+- Long category evidence renders without layout breakage.
+- Empty categories, strengths, improvements, bonuses, deductions, and
+  annotations render cleanly.
+- Stale result keeps the previous review visible.
+- Error state can preserve previous stale result.
+- Multiple annotations on one target are understandable.
+- Ambiguous annotations remain in the panel and are not rendered inline.
+
+Acceptance criteria:
+
+- Real Hiring Agent output is readable without overwhelming the user.
+- Review panel remains usable on desktop and narrow viewports.
+- Annotation markers are understandable and accessible.
+- No review panel text overlaps or unreadable controls are introduced.
+
+### Milestone 13: General Editor UI Polish
+
+Status: Not started.
+
+Goal:
+
+- Improve the base editor experience after the real review flow is proven.
+
+Scope:
+
+- App shell layout.
+- Toolbar ergonomics.
+- Settings panel polish.
+- Add/remove control behavior.
+- Narrow viewport handling for the fixed-width resume canvas.
+- Visual hierarchy between editor, toolbar, and review panel.
+
+Observed issues to consider:
+
+- The 816px resume canvas overflows horizontally on narrow viewports. That may
+  be acceptable for a fixed document editor, but the surrounding layout should
+  handle it intentionally.
+- Toolbar and settings are functional but plain.
+- Add/remove controls are highly visible and make the resume look less like a
+  finished document.
+- The app has no top-level brand/header or persistent status area explaining
+  current review/config state.
+
+Files likely to change:
+
+- `src/App.tsx`
+- `src/components/Toolbar.tsx`
+- `src/components/SettingsPanel.tsx`
+- `src/components/ResumePage.tsx`
+- `src/components/Section.tsx`
+- `src/components/Entry.tsx`
+- `src/components/Bullet.tsx`
+- `src/styles/app.css`
+- `src/styles/resume.css`
+- UI tests as needed.
+
+Acceptance criteria:
+
+- The resume remains visually printable and document-like.
+- Controls are discoverable but do not dominate the resume.
+- Narrow viewport behavior is intentional.
+- Export, import, reset, constraints, and review actions remain obvious.
+- Existing frontend tests and production build still pass.
