@@ -203,6 +203,34 @@ describe('reviewApi', () => {
     expect(fetchMock).toHaveBeenCalledOnce()
   })
 
+  it('normalizes the documented upload_too_large backend response shape', async () => {
+    vi.stubEnv('VITE_REVIEW_API_URL', 'https://reviews.example.test')
+    const fetchMock = vi.fn().mockResolvedValue(
+      response(
+        {
+          error: {
+            code: 'upload_too_large',
+            message: 'Upload exceeds the review service size limit.',
+            requestId: 'req_upload_limit',
+          },
+        },
+        { status: 413 }
+      )
+    )
+    const pdf = new Blob(['%PDF-1.7'], { type: 'application/pdf' })
+
+    await expect(
+      submitResumeForReview(pdf, { fetch: fetchMock })
+    ).rejects.toEqual(
+      new ReviewApiError('Upload exceeds the review service size limit.', {
+        code: 'upload_too_large',
+        status: 413,
+        requestId: 'req_upload_limit',
+      })
+    )
+    expect(fetchMock).toHaveBeenCalledOnce()
+  })
+
   it('does not expose messages from undocumented backend error codes', async () => {
     vi.stubEnv('VITE_REVIEW_API_URL', 'https://reviews.example.test')
     const fetchMock = vi.fn().mockResolvedValue(

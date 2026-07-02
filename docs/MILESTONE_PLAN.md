@@ -201,7 +201,7 @@ Supporting detail:
 
 ### Milestone 7: Review Service
 
-Status: Next.
+Status: Complete in PR #8.
 
 Scope:
 
@@ -215,9 +215,26 @@ Supporting detail:
 - See `docs/REVIEW_SERVICE.md`.
 - See `docs/IMPLEMENTATION_PLAN.md`, Phase 6.
 
+Completion evidence:
+
+- `review-service/app/main.py`
+- `review-service/app/config.py`
+- `review-service/app/errors.py`
+- `review-service/app/schemas.py`
+- `review-service/app/hiring_agent_adapter.py`
+- `review-service/tests/test_health.py`
+- `review-service/tests/test_review_contract.py`
+- `review-service/README.md`
+
+Residual risk:
+
+- Full Hiring Agent execution still requires `vendor/hiring-agent` and concrete
+  upstream API wiring inside the adapter.
+- Backend success tests use a mocked adapter.
+
 ### Milestone 8: Integration Tests And Documentation
 
-Status: Planned.
+Status: Complete.
 
 Scope:
 
@@ -228,3 +245,17 @@ Scope:
 Supporting detail:
 
 - See `docs/IMPLEMENTATION_PLAN.md`, Phase 7.
+
+Completion evidence:
+
+- `src/tests/appIntegration.test.tsx`
+- `src/tests/reviewApi.test.ts`
+- `review-service/tests/test_review_contract.py`
+- Documentation updates in `README.md`, `docs/ARCHITECTURE.md`,
+  `docs/PRODUCT_SPEC.md`, `docs/REVIEW_SERVICE.md`, and
+  `review-service/README.md`.
+
+Residual risk:
+
+- Full browser-to-running-backend review flow remains planned.
+- Full Hiring Agent execution remains planned.

@@ -20,11 +20,12 @@ Working today:
 - Client-side PDF export, including multiple Letter pages when the configured page limit is greater than one.
 - Review API client, review state hook, panel, and conservative non-destructive annotations that stay disabled without `VITE_REVIEW_API_URL`.
 - FastAPI review service scaffold with safe config projection, normalized schemas, normalized errors, PDF upload validation, and mocked contract tests.
+- Integration-oriented tests for unconfigured editor behavior, backend-shaped frontend errors, and safe backend error handling.
 
 Still planned:
 
 - Full end-to-end Hiring Agent execution through the backend adapter.
-- Integration tests proving the browser review flow against a running backend.
+- Full browser-to-running-backend review flow verification.
 
 ## How It Works
 

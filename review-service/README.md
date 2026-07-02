@@ -94,6 +94,8 @@ are rejected before the service retains the full body in memory.
 
 ## Current Test Boundary
 
-The backend tests use mocked adapters for successful review results and error
-mapping. Browser-to-running-backend integration tests are still planned for the
-next milestone.
+The backend tests use mocked adapters for successful review results, error
+mapping, documented endpoint behavior, config secrecy, and safe unexpected
+error handling. Frontend tests cover backend-shaped response and error payloads,
+including `upload_too_large`. Full browser-to-running-backend review flow
+verification remains planned.
