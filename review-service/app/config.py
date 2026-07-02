@@ -1,14 +1,17 @@
 import os
 from dataclasses import dataclass
+from pathlib import Path
 
 from .schemas import PublicConfig
 
 
 DEFAULT_MAX_UPLOAD_BYTES = 10 * 1024 * 1024
+DEFAULT_HIRING_AGENT_PATH = "vendor/hiring-agent"
 LOCAL_PROVIDER = "ollama"
 DISABLED_PROVIDER = "disabled"
 DISABLED_MODEL = "unavailable"
 DEFAULT_OLLAMA_MODEL = "gemma3:4b"
+REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 
 ALLOWED_PROVIDERS = {LOCAL_PROVIDER, "gemini"}
 ALLOWED_MODELS_BY_PROVIDER = {
@@ -29,12 +32,19 @@ class Settings:
 
     @property
     def review_enabled(self) -> bool:
+        if not self.hiring_agent_available:
+            return False
+
         provider = self.public_provider
         if provider == LOCAL_PROVIDER:
             return True
         if provider == "gemini":
             return bool(self.gemini_api_key)
         return False
+
+    @property
+    def hiring_agent_available(self) -> bool:
+        return resolve_hiring_agent_path(self.hiring_agent_path).is_dir()
 
     @property
     def github_enrichment_enabled(self) -> bool:
@@ -82,7 +92,7 @@ def load_settings() -> Settings:
         cors_origins=parse_cors_origins(
             os.getenv("CORS_ORIGINS", "http://localhost:5173")
         ),
-        hiring_agent_path=os.getenv("HIRING_AGENT_PATH", "../vendor/hiring-agent"),
+        hiring_agent_path=os.getenv("HIRING_AGENT_PATH", DEFAULT_HIRING_AGENT_PATH),
         max_upload_bytes=parse_max_upload_bytes(os.getenv("MAX_UPLOAD_BYTES")),
     )
 
@@ -102,3 +112,11 @@ def parse_max_upload_bytes(value: str | None) -> int:
         return DEFAULT_MAX_UPLOAD_BYTES
 
     return parsed if parsed > 0 else DEFAULT_MAX_UPLOAD_BYTES
+
+
+def resolve_hiring_agent_path(value: str) -> Path:
+    path = Path(value).expanduser()
+    if path.is_absolute():
+        return path
+
+    return (REPOSITORY_ROOT / path).resolve()

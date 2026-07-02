@@ -1,11 +1,18 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { renderResumePageToPDFBlob } from './export'
-import { getReviewApiState, submitResumeForReview } from './reviewApi'
+import {
+  fetchReviewConfig,
+  getReviewApiState,
+  submitResumeForReview,
+} from './reviewApi'
 import type { ReviewResult } from './reviewTypes'
 import type { Resume } from './types'
 
 export type ResumeReviewState =
   | { status: 'unconfigured' }
+  | { status: 'checking' }
+  | { status: 'disabled' }
+  | { status: 'config_error'; error: Error }
   | { status: 'idle' }
   | { status: 'loading'; result?: ReviewResult; resultIsStale?: boolean }
   | { status: 'success'; result: ReviewResult }
@@ -38,8 +45,43 @@ export function useResumeReview({
   const [state, setState] = useState<ResumeReviewState>(() =>
     getReviewApiState().status === 'unconfigured'
       ? { status: 'unconfigured' }
-      : { status: 'idle' }
+      : { status: 'checking' }
   )
+
+  useEffect(() => {
+    if (getReviewApiState().status === 'unconfigured') {
+      setState({ status: 'unconfigured' })
+      return
+    }
+
+    let isActive = true
+
+    fetchReviewConfig()
+      .then(config => {
+        if (!isActive) return
+
+        setState(current => {
+          if (current.status !== 'checking') return current
+          if (!config) return { status: 'unconfigured' }
+          return config.reviewEnabled
+            ? { status: 'idle' }
+            : { status: 'disabled' }
+        })
+      })
+      .catch(error => {
+        if (!isActive) return
+
+        setState(current =>
+          current.status === 'checking'
+            ? { status: 'config_error', error: normalizeError(error) }
+            : current
+        )
+      })
+
+    return () => {
+      isActive = false
+    }
+  }, [])
 
   useEffect(() => {
     currentResumeKeyRef.current = resumeKey
@@ -72,6 +114,14 @@ export function useResumeReview({
 
     if (getReviewApiState().status === 'unconfigured') {
       setState({ status: 'unconfigured' })
+      return
+    }
+
+    if (
+      state.status === 'checking' ||
+      state.status === 'disabled' ||
+      state.status === 'config_error'
+    ) {
       return
     }
 

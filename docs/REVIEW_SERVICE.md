@@ -5,6 +5,8 @@
 The review service wraps HackerRank's open-source Hiring Agent behind a small Presume-owned API. The service accepts the rendered resume PDF, runs extraction and evaluation through an adapter boundary, and returns a normalized review contract that the frontend can render without depending on Hiring Agent internals.
 
 The FastAPI service scaffold is implemented in `review-service/`. Full Hiring Agent execution still requires a local `vendor/hiring-agent` checkout and concrete upstream API wiring inside `review-service/app/hiring_agent_adapter.py`.
+When the local Hiring Agent checkout directory is unavailable, `GET /config`
+reports `reviewEnabled: false` without exposing the configured filesystem path.
 
 ## Framework and Location
 
@@ -37,19 +39,23 @@ DEFAULT_MODEL=gemma3:4b
 GEMINI_API_KEY=
 GITHUB_TOKEN=
 CORS_ORIGINS=http://localhost:5173
-HIRING_AGENT_PATH=../vendor/hiring-agent
+HIRING_AGENT_PATH=vendor/hiring-agent
 ```
 
 Rules:
 
 - `LLM_PROVIDER=ollama` is the default local path.
 - `DEFAULT_MODEL=gemma3:4b` is the default Ollama model.
+- Review is enabled only when provider configuration is usable and the local
+  Hiring Agent checkout exists as a directory.
 - `GEMINI_API_KEY` is required only when `LLM_PROVIDER=gemini`.
 - Unknown `LLM_PROVIDER` values disable review and are not projected verbatim through `/config`.
 - `/config` returns only allowlisted provider and model identifiers; unsafe model values are replaced with safe defaults or `unavailable`.
 - The public model allowlist is intentionally narrow. Arbitrary local model names must not be echoed from environment variables; add a safe allowlist entry before exposing another model identifier.
 - `GITHUB_TOKEN` is optional and should only be used for GitHub enrichment and higher API limits.
 - `CORS_ORIGINS` must be explicit; do not allow arbitrary origins by default.
+- Relative `HIRING_AGENT_PATH` values resolve from the repository root. The
+  default expects a checkout directory at `vendor/hiring-agent`.
 - `HIRING_AGENT_PATH` points to the local checkout or submodule.
 
 ## API Contract
@@ -66,7 +72,7 @@ Returns service liveness.
 
 ### `GET /config`
 
-Returns frontend-safe capability information. This endpoint must never expose secrets, API keys, filesystem paths, tokens, raw environment values, stack traces, raw provider responses, or arbitrary unknown provider/model strings.
+Returns frontend-safe capability information. This endpoint must never expose secrets, API keys, filesystem paths, tokens, raw environment values, stack traces, raw provider responses, or arbitrary unknown provider/model strings. `reviewEnabled` is false when the local Hiring Agent checkout is missing or is not a directory.
 
 ```json
 {
@@ -175,4 +181,4 @@ Minimum backend tests:
 - Review timeout maps to `review_timeout`.
 - Numeric review scores reject non-finite values.
 
-Integration-oriented frontend/backend tests now cover unconfigured editor behavior, backend-shaped frontend errors, mocked backend review success, documented endpoint behavior, config secrecy, and safe error handling. Full browser-to-running-backend review flow verification remains planned.
+Integration-oriented frontend/backend tests now cover unconfigured editor behavior, configured-service-disabled behavior, config-error behavior, backend-shaped frontend errors, mocked backend review success, documented endpoint behavior, config secrecy, and safe error handling. Full browser-to-running-backend review flow verification remains planned.
