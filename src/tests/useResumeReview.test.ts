@@ -184,6 +184,76 @@ describe('useResumeReview', () => {
     expect(submitResumeForReviewMock).not.toHaveBeenCalled()
   })
 
+  it('does not submit review when service configuration discovery fails on the network', async () => {
+    getReviewApiStateMock.mockReturnValue({
+      status: 'configured',
+      baseUrl: 'https://reviews.example.test',
+    })
+    const error = new ReviewApiError('Could not reach the review service.', {
+      code: 'network_error',
+    })
+    fetchReviewConfigMock.mockRejectedValue(error)
+
+    const { result } = renderHook(() =>
+      useResumeReview({ resume, pageRef: pageRef() })
+    )
+
+    await waitFor(() =>
+      expect(result.current.state).toEqual({
+        status: 'config_error',
+        error,
+      })
+    )
+
+    await act(async () => {
+      await result.current.requestReview()
+    })
+
+    expect(result.current.state).toEqual({
+      status: 'config_error',
+      error,
+    })
+    expect(renderResumePageToPDFBlobMock).not.toHaveBeenCalled()
+    expect(submitResumeForReviewMock).not.toHaveBeenCalled()
+  })
+
+  it('does not submit review when service configuration response is invalid', async () => {
+    getReviewApiStateMock.mockReturnValue({
+      status: 'configured',
+      baseUrl: 'https://reviews.example.test',
+    })
+    const error = new ReviewApiError(
+      'Review service returned an invalid configuration.',
+      {
+        code: 'invalid_response',
+        status: 200,
+      }
+    )
+    fetchReviewConfigMock.mockRejectedValue(error)
+
+    const { result } = renderHook(() =>
+      useResumeReview({ resume, pageRef: pageRef() })
+    )
+
+    await waitFor(() =>
+      expect(result.current.state).toEqual({
+        status: 'config_error',
+        error,
+      })
+    )
+
+    await act(async () => {
+      await result.current.requestReview()
+    })
+
+    expect(result.current.state).toEqual({
+      status: 'config_error',
+      error,
+    })
+    expect(renderResumePageToPDFBlobMock).not.toHaveBeenCalled()
+    expect(submitResumeForReviewMock).not.toHaveBeenCalled()
+  })
+
   it('generates a PDF blob, submits it, and stores the review result', async () => {
     mockConfiguredApi()
     const pdf = new Blob(['%PDF-1.7'], { type: 'application/pdf' })

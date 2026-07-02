@@ -140,4 +140,24 @@ describe('App review availability boundaries', () => {
     await waitFor(() => expect(importJSONMock).toHaveBeenCalledWith(file))
     expect(await screen.findByText('Grace Hopper')).toBeInTheDocument()
   })
+
+  it('keeps review submission disabled when review configuration cannot be discovered', async () => {
+    vi.stubEnv('VITE_REVIEW_API_URL', 'https://reviews.example.test')
+    const fetchMock = vi.fn().mockRejectedValue(new TypeError('Failed to fetch'))
+    vi.stubGlobal('fetch', fetchMock)
+
+    render(<App />)
+
+    expect(await screen.findByText('Review service unavailable')).toBeInTheDocument()
+    expect(screen.getByText('Could not reach the review service.')).toBeInTheDocument()
+    const button = screen.getByRole('button', { name: 'Review resume' })
+    expect(button).toBeDisabled()
+
+    fireEvent.click(button)
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(fetchMock).toHaveBeenCalledWith('https://reviews.example.test/config', {
+      method: 'GET',
+    })
+  })
 })

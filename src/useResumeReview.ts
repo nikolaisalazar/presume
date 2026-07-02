@@ -12,6 +12,7 @@ export type ResumeReviewState =
   | { status: 'unconfigured' }
   | { status: 'checking' }
   | { status: 'disabled' }
+  | { status: 'config_error'; error: Error }
   | { status: 'idle' }
   | { status: 'loading'; result?: ReviewResult; resultIsStale?: boolean }
   | { status: 'success'; result: ReviewResult }
@@ -72,7 +73,7 @@ export function useResumeReview({
 
         setState(current =>
           current.status === 'checking'
-            ? { status: 'error', error: normalizeError(error) }
+            ? { status: 'config_error', error: normalizeError(error) }
             : current
         )
       })
@@ -116,7 +117,11 @@ export function useResumeReview({
       return
     }
 
-    if (state.status === 'checking' || state.status === 'disabled') {
+    if (
+      state.status === 'checking' ||
+      state.status === 'disabled' ||
+      state.status === 'config_error'
+    ) {
       return
     }
 

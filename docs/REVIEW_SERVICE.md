@@ -181,4 +181,4 @@ Minimum backend tests:
 - Review timeout maps to `review_timeout`.
 - Numeric review scores reject non-finite values.
 
-Integration-oriented frontend/backend tests now cover unconfigured editor behavior, backend-shaped frontend errors, mocked backend review success, documented endpoint behavior, config secrecy, and safe error handling. Full browser-to-running-backend review flow verification remains planned.
+Integration-oriented frontend/backend tests now cover unconfigured editor behavior, configured-service-disabled behavior, config-error behavior, backend-shaped frontend errors, mocked backend review success, documented endpoint behavior, config secrecy, and safe error handling. Full browser-to-running-backend review flow verification remains planned.

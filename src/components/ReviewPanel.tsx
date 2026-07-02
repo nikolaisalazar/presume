@@ -15,6 +15,7 @@ export function ReviewPanel({ state, onRequestReview }: ReviewPanelProps) {
     state.status === 'unconfigured' ||
     state.status === 'checking' ||
     state.status === 'disabled' ||
+    state.status === 'config_error' ||
     isLoading
 
   return (
@@ -51,6 +52,13 @@ export function ReviewPanel({ state, onRequestReview }: ReviewPanelProps) {
         <ReviewEmptyState
           title="Review service unavailable"
           message="The configured review service is not ready to review resumes."
+        />
+      ) : null}
+
+      {state.status === 'config_error' ? (
+        <ReviewEmptyState
+          title="Review service unavailable"
+          message={state.error.message}
         />
       ) : null}
 
