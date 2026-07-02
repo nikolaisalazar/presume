@@ -55,8 +55,9 @@ The product has two separate loops:
 4. The frontend renders the current resume page to a PDF blob.
 5. The backend accepts the PDF through the normalized FastAPI review-service contract.
 6. Mocked backend contract tests prove the normalized response and error shapes.
-7. When a normalized review result is returned, the frontend displays score, evidence, strengths, improvements, bonuses, deductions, and best-effort annotations.
-8. The user manually edits the resume and re-runs review when ready.
+7. Integration-oriented tests cover unconfigured editor behavior, backend-shaped frontend errors, and safe backend error handling.
+8. When a normalized review result is returned, the frontend displays score, evidence, strengths, improvements, bonuses, deductions, and best-effort annotations.
+9. The user manually edits the resume and re-runs review when ready.
 
 ### Still-Planned Review Workflow
 
@@ -88,6 +89,7 @@ The app currently supports:
 - A review panel for score, tier, category evidence, suggestions, strengths, improvements, bonuses, deductions, and findings.
 - Conservative review annotations that only map inline when section, entry, and bullet text matches are exact and unambiguous.
 - A FastAPI review service scaffold with safe config projection, normalized schemas, normalized errors, bounded PDF upload validation, and mocked backend contract tests.
+- Integration-oriented tests for the unconfigured editor path, backend-shaped frontend errors, and safe backend error handling.
 
 Review feedback must be advisory. The first review phase must not rewrite, reorder, or delete resume content automatically.
 

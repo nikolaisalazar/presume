@@ -10,13 +10,13 @@ The FastAPI service scaffold is implemented in `review-service/`. Full Hiring Ag
 
 - Framework: FastAPI.
 - Python: 3.11+.
-- Planned directory: `review-service/`.
+- Directory: `review-service/`.
 - Initial Hiring Agent dependency: `vendor/hiring-agent` as a local checkout or git submodule.
 - Integration style: a thin adapter around Hiring Agent internals.
 
 The adapter matters because upstream Hiring Agent APIs may change. Presume should isolate those changes in `hiring_agent_adapter.py`.
 
-## Planned Files
+## Files
 
 | File | Responsibility |
 |---|---|
@@ -175,4 +175,4 @@ Minimum backend tests:
 - Review timeout maps to `review_timeout`.
 - Numeric review scores reject non-finite values.
 
-Integration-oriented frontend/backend tests are still planned for Milestone 8.
+Integration-oriented frontend/backend tests now cover unconfigured editor behavior, backend-shaped frontend errors, mocked backend review success, documented endpoint behavior, config secrecy, and safe error handling. Full browser-to-running-backend review flow verification remains planned.

@@ -56,6 +56,13 @@ class FailingAdapter:
         raise self.error
 
 
+class UnexpectedFailingAdapter:
+    async def review_pdf(self, pdf_bytes: bytes) -> ReviewResult:
+        raise RuntimeError(
+            "provider failed with sk-secret-token at /Users/name/resume.pdf"
+        )
+
+
 def test_reviews_rejects_non_pdf_upload():
     client = TestClient(create_app(adapter=SuccessfulAdapter()))
 
@@ -164,6 +171,29 @@ def test_error_response_does_not_expose_leaky_adapter_message():
     assert "sk-secret" not in serialized
     assert "/Users/name" not in serialized
     assert "resume.pdf" not in serialized
+
+
+def test_unexpected_errors_return_safe_internal_error_without_details():
+    client = TestClient(
+        create_app(adapter=UnexpectedFailingAdapter()),
+        raise_server_exceptions=False,
+    )
+
+    response = client.post(
+        "/reviews",
+        files={"file": ("resume.pdf", b"%PDF-1.7\n%%EOF", "application/pdf")},
+    )
+
+    assert response.status_code == 500
+    body = response.json()
+    assert body["error"]["code"] == "internal_error"
+    assert body["error"]["message"] == "Review service failed."
+    assert body["error"]["requestId"].startswith("req_")
+    serialized = response.text
+    assert "sk-secret-token" not in serialized
+    assert "/Users/name" not in serialized
+    assert "resume.pdf" not in serialized
+    assert "RuntimeError" not in serialized
 
 
 def test_review_timeout_maps_to_timeout_error():
