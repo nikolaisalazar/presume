@@ -105,6 +105,37 @@ describe('ReviewPanel', () => {
     expect(onRequestReview).not.toHaveBeenCalled()
   })
 
+  it('renders the checking state without requesting review', () => {
+    const onRequestReview = vi.fn()
+
+    render(<ReviewPanel state={{ status: 'checking' }} onRequestReview={onRequestReview} />)
+
+    expect(screen.getByText('Checking review service')).toBeInTheDocument()
+    const button = screen.getByRole('button', { name: 'Review resume' })
+    expect(button).toBeDisabled()
+
+    fireEvent.click(button)
+
+    expect(onRequestReview).not.toHaveBeenCalled()
+  })
+
+  it('renders the disabled service state without requesting review', () => {
+    const onRequestReview = vi.fn()
+
+    render(<ReviewPanel state={{ status: 'disabled' }} onRequestReview={onRequestReview} />)
+
+    expect(screen.getByText('Review service unavailable')).toBeInTheDocument()
+    expect(
+      screen.getByText('The configured review service is not ready to review resumes.')
+    ).toBeInTheDocument()
+    const button = screen.getByRole('button', { name: 'Review resume' })
+    expect(button).toBeDisabled()
+
+    fireEvent.click(button)
+
+    expect(onRequestReview).not.toHaveBeenCalled()
+  })
+
   it('renders the loading state with a disabled review action', () => {
     const onRequestReview = vi.fn()
 

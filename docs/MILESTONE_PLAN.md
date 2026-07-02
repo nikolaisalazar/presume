@@ -270,6 +270,10 @@ Scope:
   and Python API are available.
 - Make review-service capability discovery reflect local adapter readiness
   without exposing the configured Hiring Agent path.
+- Make the frontend consume review-service readiness and disable review
+  submission when the configured service reports review unavailable.
+- Resolve relative `HIRING_AGENT_PATH` values from the repository root and
+  require a checkout directory for dependency readiness.
 - Keep hosted providers opt-in.
 - Preserve normalized, secret-free review errors.
 - Keep review feedback advisory and non-mutating.
@@ -284,6 +288,10 @@ Completion evidence:
 - `review-service/app/config.py`
 - `review-service/app/hiring_agent_adapter.py`
 - `review-service/tests/test_health.py`
+- `src/useResumeReview.ts`
+- `src/components/ReviewPanel.tsx`
+- `src/tests/useResumeReview.test.ts`
+- `src/tests/reviewUi.test.tsx`
 - Documentation updates in `README.md`, `docs/README.md`,
   `docs/ARCHITECTURE.md`, `docs/PRODUCT_SPEC.md`,
   `docs/REVIEW_SERVICE.md`, and `review-service/README.md`.

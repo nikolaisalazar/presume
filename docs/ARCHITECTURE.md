@@ -97,9 +97,9 @@ The review feature uses a separate service. The frontend remains responsible for
 
 The backend should own PDF ingestion, Hiring Agent orchestration, LLM provider configuration, GitHub enrichment, timeouts, error normalization, and normalized review output.
 
-`VITE_REVIEW_API_URL` is the frontend config variable. If it is missing, the app enters an unconfigured review state and disables review submission without affecting editing, export, import, or persistence.
+`VITE_REVIEW_API_URL` is the frontend config variable. If it is missing, the app enters an unconfigured review state and disables review submission without affecting editing, export, import, or persistence. When it is present, the frontend reads `GET /config` and disables review submission if the service reports review unavailable.
 
-The first backend implementation provides FastAPI endpoints, safe allowlisted config projection, normalized schemas, template-based normalized errors, bounded upload validation, Hiring Agent dependency readiness checks, and a Hiring Agent adapter boundary. Integration-oriented tests cover unconfigured editor behavior, backend-shaped frontend errors, mocked backend review success, and safe backend error handling. Full Hiring Agent execution still requires a local `vendor/hiring-agent` checkout and concrete upstream API wiring inside `review-service/app/hiring_agent_adapter.py`. Full browser-to-running-backend review flow verification remains planned.
+The first backend implementation provides FastAPI endpoints, safe allowlisted config projection, normalized schemas, template-based normalized errors, bounded upload validation, Hiring Agent dependency readiness checks, and a Hiring Agent adapter boundary. The frontend consumes the public readiness signal before enabling review submission. Integration-oriented tests cover unconfigured editor behavior, backend-shaped frontend errors, mocked backend review success, and safe backend error handling. Full Hiring Agent execution still requires a local `vendor/hiring-agent` checkout and concrete upstream API wiring inside `review-service/app/hiring_agent_adapter.py`. Full browser-to-running-backend review flow verification remains planned.
 
 ## Review Request Flow
 

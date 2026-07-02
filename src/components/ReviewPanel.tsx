@@ -11,7 +11,11 @@ export function ReviewPanel({ state, onRequestReview }: ReviewPanelProps) {
   const resultIsStale =
     'resultIsStale' in state ? state.resultIsStale : false
   const isLoading = state.status === 'loading'
-  const isUnconfigured = state.status === 'unconfigured'
+  const actionDisabled =
+    state.status === 'unconfigured' ||
+    state.status === 'checking' ||
+    state.status === 'disabled' ||
+    isLoading
 
   return (
     <aside className="review-panel" aria-label="Resume review">
@@ -23,7 +27,7 @@ export function ReviewPanel({ state, onRequestReview }: ReviewPanelProps) {
         <button
           className="toolbar-btn review-panel__action"
           onClick={onRequestReview}
-          disabled={isUnconfigured || isLoading}
+          disabled={actionDisabled}
         >
           {isLoading ? 'Reviewing...' : 'Review resume'}
         </button>
@@ -33,6 +37,20 @@ export function ReviewPanel({ state, onRequestReview }: ReviewPanelProps) {
         <ReviewEmptyState
           title="Review service not configured"
           message="Set VITE_REVIEW_API_URL to enable advisory resume review."
+        />
+      ) : null}
+
+      {state.status === 'checking' ? (
+        <ReviewEmptyState
+          title="Checking review service"
+          message="Review availability is being checked."
+        />
+      ) : null}
+
+      {state.status === 'disabled' ? (
+        <ReviewEmptyState
+          title="Review service unavailable"
+          message="The configured review service is not ready to review resumes."
         />
       ) : null}
 

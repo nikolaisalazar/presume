@@ -15,7 +15,9 @@ Current shipped functionality:
 - Review API client, review state hook, review panel, and conservative review annotations.
 - FastAPI review service scaffold under `review-service/` with normalized endpoints, errors, configuration, and tests.
 - Review-service capability discovery disables review when the local Hiring
-  Agent checkout is unavailable, without exposing the configured path.
+  Agent checkout directory is unavailable, without exposing the configured
+  path, and the frontend consumes that readiness signal before enabling review
+  submission.
 - Full end-to-end Hiring Agent execution remains pending concrete upstream adapter wiring.
 
 Current and planned features must remain clearly separated in implementation, docs, and UI copy.

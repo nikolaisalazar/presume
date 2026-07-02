@@ -6,11 +6,12 @@ from .schemas import PublicConfig
 
 
 DEFAULT_MAX_UPLOAD_BYTES = 10 * 1024 * 1024
+DEFAULT_HIRING_AGENT_PATH = "vendor/hiring-agent"
 LOCAL_PROVIDER = "ollama"
 DISABLED_PROVIDER = "disabled"
 DISABLED_MODEL = "unavailable"
 DEFAULT_OLLAMA_MODEL = "gemma3:4b"
-REVIEW_SERVICE_ROOT = Path(__file__).resolve().parents[1]
+REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 
 ALLOWED_PROVIDERS = {LOCAL_PROVIDER, "gemini"}
 ALLOWED_MODELS_BY_PROVIDER = {
@@ -43,7 +44,7 @@ class Settings:
 
     @property
     def hiring_agent_available(self) -> bool:
-        return resolve_hiring_agent_path(self.hiring_agent_path).exists()
+        return resolve_hiring_agent_path(self.hiring_agent_path).is_dir()
 
     @property
     def github_enrichment_enabled(self) -> bool:
@@ -91,7 +92,7 @@ def load_settings() -> Settings:
         cors_origins=parse_cors_origins(
             os.getenv("CORS_ORIGINS", "http://localhost:5173")
         ),
-        hiring_agent_path=os.getenv("HIRING_AGENT_PATH", "../vendor/hiring-agent"),
+        hiring_agent_path=os.getenv("HIRING_AGENT_PATH", DEFAULT_HIRING_AGENT_PATH),
         max_upload_bytes=parse_max_upload_bytes(os.getenv("MAX_UPLOAD_BYTES")),
     )
 
@@ -118,4 +119,4 @@ def resolve_hiring_agent_path(value: str) -> Path:
     if path.is_absolute():
         return path
 
-    return (REVIEW_SERVICE_ROOT / path).resolve()
+    return (REPOSITORY_ROOT / path).resolve()

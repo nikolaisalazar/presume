@@ -85,11 +85,12 @@ The app currently supports:
 
 - Review API configuration through `VITE_REVIEW_API_URL`.
 - An unconfigured review state that disables review submission without breaking editing, export, import, or LocalStorage persistence.
+- A disabled review state when the configured service reports review unavailable through `GET /config`.
 - A review state hook that generates a PDF blob and submits it to the configured review service.
 - A review panel for score, tier, category evidence, suggestions, strengths, improvements, bonuses, deductions, and findings.
 - Conservative review annotations that only map inline when section, entry, and bullet text matches are exact and unambiguous.
 - A FastAPI review service scaffold with safe config projection, normalized schemas, normalized errors, bounded PDF upload validation, and mocked backend contract tests.
-- Review-service capability discovery that disables review when the local Hiring Agent checkout is unavailable, without exposing filesystem paths.
+- Review-service capability discovery that disables review when the local Hiring Agent checkout directory is unavailable, without exposing filesystem paths.
 - Integration-oriented tests for the unconfigured editor path, backend-shaped frontend errors, and safe backend error handling.
 
 Review feedback must be advisory. The first review phase must not rewrite, reorder, or delete resume content automatically.

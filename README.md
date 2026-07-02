@@ -18,7 +18,7 @@ Working today:
 - LocalStorage persistence for resume data and formatting constraints.
 - JSON export and import.
 - Client-side PDF export, including multiple Letter pages when the configured page limit is greater than one.
-- Review API client, review state hook, panel, and conservative non-destructive annotations that stay disabled without `VITE_REVIEW_API_URL`.
+- Review API client, review state hook, panel, and conservative non-destructive annotations that stay disabled without `VITE_REVIEW_API_URL` or when the configured review service reports review unavailable.
 - FastAPI review service scaffold with safe config projection, Hiring Agent dependency readiness checks, normalized schemas, normalized errors, PDF upload validation, and mocked contract tests.
 - Integration-oriented tests for unconfigured editor behavior, backend-shaped frontend errors, and safe backend error handling.
 
