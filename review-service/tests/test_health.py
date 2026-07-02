@@ -151,7 +151,7 @@ def test_config_disables_gemini_without_key(monkeypatch, tmp_path):
     hiring_agent_path = tmp_path / "hiring-agent"
     hiring_agent_path.mkdir()
     monkeypatch.setenv("LLM_PROVIDER", "gemini")
-    monkeypatch.setenv("DEFAULT_MODEL", "gemini-1.5-flash")
+    monkeypatch.setenv("DEFAULT_MODEL", "gemini-2.5-flash")
     monkeypatch.setenv("HIRING_AGENT_PATH", str(hiring_agent_path))
     monkeypatch.delenv("GEMINI_API_KEY", raising=False)
 
@@ -162,10 +162,33 @@ def test_config_disables_gemini_without_key(monkeypatch, tmp_path):
     assert response.status_code == 200
     assert response.json()["reviewEnabled"] is False
     assert response.json()["llmProvider"] == "gemini"
-    assert response.json()["defaultModel"] == "gemini-1.5-flash"
+    assert response.json()["defaultModel"] == "gemini-2.5-flash"
 
 
 def test_config_enables_gemini_with_key_and_hiring_agent_without_exposing_key(
+    monkeypatch, tmp_path
+):
+    hiring_agent_path = tmp_path / "hiring-agent"
+    hiring_agent_path.mkdir()
+    monkeypatch.setenv("LLM_PROVIDER", "gemini")
+    monkeypatch.setenv("DEFAULT_MODEL", "gemini-2.5-flash")
+    monkeypatch.setenv("GEMINI_API_KEY", "sk-secret-gemini-key")
+    monkeypatch.setenv("HIRING_AGENT_PATH", str(hiring_agent_path))
+
+    client = TestClient(create_app())
+
+    response = client.get("/config")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["reviewEnabled"] is True
+    assert body["llmProvider"] == "gemini"
+    assert body["defaultModel"] == "gemini-2.5-flash"
+    assert "sk-secret" not in response.text
+    assert str(hiring_agent_path) not in response.text
+
+
+def test_config_replaces_unsupported_gemini_model_with_upstream_supported_default(
     monkeypatch, tmp_path
 ):
     hiring_agent_path = tmp_path / "hiring-agent"
@@ -183,9 +206,8 @@ def test_config_enables_gemini_with_key_and_hiring_agent_without_exposing_key(
     body = response.json()
     assert body["reviewEnabled"] is True
     assert body["llmProvider"] == "gemini"
-    assert body["defaultModel"] == "gemini-1.5-flash"
-    assert "sk-secret" not in response.text
-    assert str(hiring_agent_path) not in response.text
+    assert body["defaultModel"] == "gemini-2.5-flash"
+    assert "gemini-1.5-flash" not in response.text
 
 
 def test_config_replaces_arbitrary_model_env_value(monkeypatch):

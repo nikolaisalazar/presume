@@ -176,9 +176,26 @@ output_path = Path(sys.argv[3])
 
 sys.path.insert(0, str(hiring_agent_path))
 
+try:
+    import config
+except ModuleNotFoundError:
+    config = None
+else:
+    config.DEVELOPMENT_MODE = False
+
 import score
 
-score.DEVELOPMENT_MODE = False
+for module in tuple(sys.modules.values()):
+    if hasattr(module, "DEVELOPMENT_MODE"):
+        module_file = getattr(module, "__file__", None)
+        if module_file is None:
+            continue
+        try:
+            module_path = Path(module_file).resolve()
+            module_path.relative_to(hiring_agent_path.resolve())
+        except ValueError:
+            continue
+        module.DEVELOPMENT_MODE = False
 
 evaluation = score.main(str(pdf_path))
 if evaluation is None:
@@ -204,16 +221,16 @@ def normalize_hiring_agent_output(output: dict[str, Any]) -> ReviewResult:
     for key, label in CATEGORY_LABELS.items():
         category = _required_mapping(scores, key)
         score = _finite_number(category.get("score"))
-        category_max = _finite_number(category.get("max"))
+        category_max = _positive_number(category.get("max"))
         evidence = _string_list(category.get("evidence"))
-        capped_score = min(score, category_max)
-        total_score += capped_score
+        normalized_score = _clamp(score, lower=0.0, upper=category_max)
+        total_score += normalized_score
         max_score += category_max
         categories.append(
             {
                 "key": key,
                 "label": label,
-                "score": capped_score,
+                "score": normalized_score,
                 "maxScore": category_max,
                 "evidence": evidence,
                 "suggestions": [],
@@ -221,12 +238,16 @@ def normalize_hiring_agent_output(output: dict[str, Any]) -> ReviewResult:
         )
 
     bonus_points = _optional_mapping(output, "bonus_points")
-    bonus_total = _finite_number(bonus_points.get("total", 0))
+    bonus_total = _clamp(
+        _finite_number(bonus_points.get("total", 0)),
+        lower=0.0,
+        upper=20.0,
+    )
     bonus_breakdown = _optional_string(bonus_points.get("breakdown"))
     total_score += bonus_total
 
     deductions = _optional_mapping(output, "deductions")
-    deduction_total = _finite_number(deductions.get("total", 0))
+    deduction_total = max(_finite_number(deductions.get("total", 0)), 0.0)
     deduction_reasons = _optional_string(deductions.get("reasons"))
     total_score -= deduction_total
 
@@ -276,6 +297,20 @@ def _finite_number(value: Any) -> float:
             status_code=502,
         )
     return parsed
+
+
+def _positive_number(value: Any) -> float:
+    parsed = _finite_number(value)
+    if parsed <= 0:
+        raise ReviewServiceError(
+            code="hiring_agent_failed",
+            status_code=502,
+        )
+    return parsed
+
+
+def _clamp(value: float, *, lower: float, upper: float) -> float:
+    return max(lower, min(value, upper))
 
 
 def _optional_string(value: Any) -> str | None:

@@ -60,6 +60,9 @@ Defaults favor local review:
 - Review is enabled only when provider configuration is usable and the local
   Hiring Agent checkout exists as a directory.
 - `GEMINI_API_KEY` is only used when `LLM_PROVIDER=gemini`.
+- Gemini defaults and fallbacks use upstream-supported model identifiers such
+  as `gemini-2.5-flash`; unsupported Gemini model values are not echoed through
+  `/config`.
 - `GITHUB_TOKEN` is optional and only enables GitHub enrichment.
 - Relative `HIRING_AGENT_PATH` values resolve from the repository root. The
   default expects a checkout directory at `vendor/hiring-agent`.
@@ -105,10 +108,14 @@ The adapter prefers `vendor/hiring-agent/.venv/bin/python` when it exists and
 falls back to the review service Python executable. Keep `ollama serve` running
 for the default local provider before posting a resume. Hosted providers remain
 opt-in through `LLM_PROVIDER` and their provider-specific credentials.
+For service requests, the bridge disables Hiring Agent development/cache mode
+before importing its scoring entrypoint and patches already-imported Hiring
+Agent modules that copied that flag by value. This prevents review requests
+from creating or reusing development cache files in `vendor/hiring-agent/cache`.
 
 Adapter tests use a fixture-like fake checkout to verify subprocess execution,
-normalization, safe failure mapping, and timeout mapping without relying on
-Ollama or upstream network calls.
+normalization, cache disabling, safe failure mapping, and timeout mapping
+without relying on Ollama or upstream network calls.
 
 ## Privacy
 
@@ -125,6 +132,8 @@ are rejected before the service retains the full body in memory.
 The backend tests use mocked adapters for route-level successful review results,
 error mapping, documented endpoint behavior, config secrecy, and safe unexpected
 error handling. Focused adapter tests cover the subprocess bridge and
-normalization with a fake Hiring Agent checkout. Frontend tests cover
+normalization with a fake Hiring Agent checkout. The real Ollama-backed PDF
+execution path has not been manually exercised unless a local
+`vendor/hiring-agent` checkout and model are installed. Frontend tests cover
 backend-shaped response and error payloads, including `upload_too_large`. Full
 browser-to-running-backend review flow verification remains planned.

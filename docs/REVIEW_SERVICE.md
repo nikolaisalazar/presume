@@ -50,6 +50,9 @@ Rules:
 - Review is enabled only when provider configuration is usable and the local
   Hiring Agent checkout exists as a directory.
 - `GEMINI_API_KEY` is required only when `LLM_PROVIDER=gemini`.
+- Gemini model values are limited to models currently supported by the local
+  Hiring Agent checkout. Unsupported Gemini model values fall back to
+  `gemini-2.5-flash` rather than being exposed through `/config`.
 - Unknown `LLM_PROVIDER` values disable review and are not projected verbatim through `/config`.
 - `/config` returns only allowlisted provider and model identifiers; unsafe model values are replaced with safe defaults or `unavailable`.
 - The public model allowlist is intentionally narrow. Arbitrary local model names must not be echoed from environment variables; add a safe allowlist entry before exposing another model identifier.
@@ -61,6 +64,10 @@ Rules:
 - The adapter prefers `.venv/bin/python` inside the Hiring Agent checkout when
   present, so its upstream dependencies can remain isolated from the review
   service environment.
+- Service requests disable Hiring Agent development/cache behavior before
+  importing its scoring entrypoint, then patch already-imported Hiring Agent
+  modules that copied the development flag by value. This prevents service
+  requests from creating or reusing development cache files under the checkout.
 
 ## API Contract
 
@@ -189,5 +196,9 @@ Minimum backend tests:
 - Numeric review scores reject non-finite values.
 - The adapter subprocess bridge maps fixture-like Hiring Agent evaluation output
   into the normalized `ReviewResult` contract.
+- Adapter tests verify development/cache behavior is disabled for service
+  requests, subprocess timeouts map to `review_timeout`, and malformed numeric
+  score boundaries are normalized or rejected before reaching the frontend
+  contract.
 
 Integration-oriented frontend/backend tests now cover unconfigured editor behavior, configured-service-disabled behavior, config-error behavior, backend-shaped frontend errors, mocked backend review success, documented endpoint behavior, config secrecy, and safe error handling. Full browser-to-running-backend review flow verification remains planned.
