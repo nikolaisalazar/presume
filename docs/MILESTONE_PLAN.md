@@ -305,7 +305,7 @@ Residual risk:
 
 ### Milestone 10: Real Hiring Agent Adapter Spike
 
-Status: Not started.
+Status: Complete.
 
 Priority:
 
@@ -392,9 +392,24 @@ Acceptance criteria:
 
 Residual risk:
 
-- A spike may discover that upstream Hiring Agent does not expose a stable
-  importable API. In that case, prefer a subprocess adapter for the first real
-  vertical slice and document the tradeoff.
+- Upstream Hiring Agent does not expose a packaged, stable import API. The
+  adapter uses a subprocess bridge that runs inside the local checkout and calls
+  `score.main`, then normalizes the returned Pydantic evaluation.
+- This workspace did not include `vendor/hiring-agent`, so the real Ollama PDF
+  execution path was not manually exercised here. The adapter is covered with a
+  fixture-like fake checkout that proves subprocess execution, normalization,
+  upstream failure mapping, and timeout mapping.
+- Full browser-to-running-backend review flow remains deferred to Milestone 11.
+
+Completion evidence:
+
+- `review-service/app/hiring_agent_adapter.py`
+- `review-service/tests/test_hiring_agent_adapter.py`
+- `review-service/README.md`
+- `docs/REVIEW_SERVICE.md`
+- Backend verification: `python3 -m pytest review-service/tests -q`
+- Frontend verification: `npm test -- --run`
+- Build verification: `npm run build`
 
 ### Milestone 11: Browser-To-Backend Review Flow
 

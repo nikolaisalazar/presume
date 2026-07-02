@@ -84,12 +84,31 @@ HackerRank Hiring Agent internals. The expected checkout is
 
 This repository does not vendor Hiring Agent by default. Until that checkout is
 present as a directory, `GET /config` reports `reviewEnabled: false` without
-exposing the configured path. This is a dependency checkout readiness check, not
-proof that full Hiring Agent execution is wired. Until the checkout is present
-and its concrete Python API is wired inside the adapter, `/reviews` returns
-normalized safe errors for the default adapter.
-Tests inject a mocked adapter to verify the public API contract without relying
-on upstream internals.
+exposing the configured path. When the checkout is present, the adapter runs a
+small subprocess bridge inside that directory, calls Hiring Agent's `score.main`
+entrypoint with the uploaded PDF, captures the returned Pydantic evaluation as
+JSON, and maps it into Presume's normalized `ReviewResult`.
+
+Set up the dependency checkout separately:
+
+```sh
+mkdir -p vendor
+git clone https://github.com/interviewstreet/hiring-agent.git vendor/hiring-agent
+cd vendor/hiring-agent
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+ollama pull gemma3:4b
+```
+
+The adapter prefers `vendor/hiring-agent/.venv/bin/python` when it exists and
+falls back to the review service Python executable. Keep `ollama serve` running
+for the default local provider before posting a resume. Hosted providers remain
+opt-in through `LLM_PROVIDER` and their provider-specific credentials.
+
+Adapter tests use a fixture-like fake checkout to verify subprocess execution,
+normalization, safe failure mapping, and timeout mapping without relying on
+Ollama or upstream network calls.
 
 ## Privacy
 
@@ -103,8 +122,9 @@ are rejected before the service retains the full body in memory.
 
 ## Current Test Boundary
 
-The backend tests use mocked adapters for successful review results, error
-mapping, documented endpoint behavior, config secrecy, and safe unexpected
-error handling. Frontend tests cover backend-shaped response and error payloads,
-including `upload_too_large`. Full browser-to-running-backend review flow
-verification remains planned.
+The backend tests use mocked adapters for route-level successful review results,
+error mapping, documented endpoint behavior, config secrecy, and safe unexpected
+error handling. Focused adapter tests cover the subprocess bridge and
+normalization with a fake Hiring Agent checkout. Frontend tests cover
+backend-shaped response and error payloads, including `upload_too_large`. Full
+browser-to-running-backend review flow verification remains planned.

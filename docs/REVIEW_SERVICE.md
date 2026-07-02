@@ -4,7 +4,7 @@
 
 The review service wraps HackerRank's open-source Hiring Agent behind a small Presume-owned API. The service accepts the rendered resume PDF, runs extraction and evaluation through an adapter boundary, and returns a normalized review contract that the frontend can render without depending on Hiring Agent internals.
 
-The FastAPI service scaffold is implemented in `review-service/`. Full Hiring Agent execution still requires a local `vendor/hiring-agent` checkout and concrete upstream API wiring inside `review-service/app/hiring_agent_adapter.py`.
+The FastAPI service scaffold is implemented in `review-service/`. Hiring Agent execution is isolated in `review-service/app/hiring_agent_adapter.py` and requires a local `vendor/hiring-agent` checkout with its Python dependencies installed.
 When the local Hiring Agent checkout directory is unavailable, `GET /config`
 reports `reviewEnabled: false` without exposing the configured filesystem path.
 
@@ -14,7 +14,8 @@ reports `reviewEnabled: false` without exposing the configured filesystem path.
 - Python: 3.11+.
 - Directory: `review-service/`.
 - Initial Hiring Agent dependency: `vendor/hiring-agent` as a local checkout or git submodule.
-- Integration style: a thin adapter around Hiring Agent internals.
+- Integration style: a subprocess bridge around Hiring Agent's `score.main`
+  entrypoint, followed by Presume-owned normalization.
 
 The adapter matters because upstream Hiring Agent APIs may change. Presume should isolate those changes in `hiring_agent_adapter.py`.
 
@@ -57,6 +58,9 @@ Rules:
 - Relative `HIRING_AGENT_PATH` values resolve from the repository root. The
   default expects a checkout directory at `vendor/hiring-agent`.
 - `HIRING_AGENT_PATH` points to the local checkout or submodule.
+- The adapter prefers `.venv/bin/python` inside the Hiring Agent checkout when
+  present, so its upstream dependencies can remain isolated from the review
+  service environment.
 
 ## API Contract
 
@@ -159,6 +163,9 @@ type ReviewResult = {
 ```
 
 The adapter may keep raw Hiring Agent output in `raw` during development, but production UI should depend only on normalized fields.
+The current adapter only exposes `raw: {"source": "hiring-agent"}` and does not
+return raw provider responses, prompts, extracted resume text, or full upstream
+evaluation payloads to clients.
 
 ## Privacy
 
@@ -180,5 +187,7 @@ Minimum backend tests:
 - Adapter failures map to documented error codes.
 - Review timeout maps to `review_timeout`.
 - Numeric review scores reject non-finite values.
+- The adapter subprocess bridge maps fixture-like Hiring Agent evaluation output
+  into the normalized `ReviewResult` contract.
 
 Integration-oriented frontend/backend tests now cover unconfigured editor behavior, configured-service-disabled behavior, config-error behavior, backend-shaped frontend errors, mocked backend review success, documented endpoint behavior, config secrecy, and safe error handling. Full browser-to-running-backend review flow verification remains planned.
