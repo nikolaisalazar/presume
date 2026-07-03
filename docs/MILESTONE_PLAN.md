@@ -573,6 +573,9 @@ Completion evidence:
   results, stale result copy, preserved stale results after request errors,
   annotation legends, ambiguous findings that remain in the panel, and multiple
   annotations on one inline target.
+- `src/tests/responsiveLayout.test.ts` covers the responsive CSS contract that
+  lets the fixed-width resume overflow independently from the narrow review
+  panel.
 - Manual browser verification on July 3, 2026 used a controlled local
   Hiring-Agent-shaped fixture response, not real Ollama-backed execution:
   - Fixture backend:
@@ -587,6 +590,23 @@ Completion evidence:
     strengths, improvements, bonus, deduction, annotation legend, matched and
     unmatched findings, and stale-after-edit copy with previous results
     preserved.
+- Follow-up narrow-overflow verification on July 3, 2026 used the same
+  controlled fixture class with long evidence, long suggestions, empty category
+  evidence/suggestions, matched annotations, unmatched annotations, bonuses,
+  and deductions:
+  - Before the responsive fix at `358x980`: `bodyClientWidth: 358`,
+    `bodyScrollWidth: 832`, `workspaceClientWidth: 326`,
+    `workspaceScrollWidth: 816`, `resumeWidth: 816`, and `panelWidth: 816`.
+  - After the responsive fix at `358x980`: review panel measured
+    `panelLeft: 16`, `panelRight: 342`, `panelWidth: 326`,
+    `panelClientWidth: 324`, `panelScrollWidth: 324`, and no review-panel
+    descendants reported horizontal overflow. The fixed resume canvas still
+    overflowed independently as expected.
+  - Desktop `1280x900` remained a sticky right rail with `panelWidth: 360` and
+    no review-panel descendants reporting horizontal overflow.
+  - Matched annotations rendered inline with an accessible multi-note label,
+    unmatched annotations stayed in the panel, and editing after a successful
+    review showed stale copy while preserving the prior result.
 
 Verification:
 

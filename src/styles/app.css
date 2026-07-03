@@ -26,6 +26,7 @@ body {
   align-items: start;
   gap: 16px;
   width: min(1192px, 100%);
+  min-width: 0;
 }
 
 /* ── Toolbar ─────────────────────────────────────────────────────── */
@@ -73,6 +74,7 @@ body {
   color: #111827;
   box-shadow: 0 2px 12px rgba(15, 23, 42, 0.08);
   overflow-wrap: anywhere;
+  min-width: 0;
 }
 
 .review-panel__header {
@@ -323,13 +325,15 @@ body {
 
 @media (max-width: 1220px) {
   .workspace {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     justify-items: center;
+    width: 100%;
   }
 
   .review-panel {
     position: static;
-    width: min(816px, 100%);
+    width: 100%;
+    max-width: min(816px, calc(100vw - 32px));
     max-height: none;
     order: -1;
   }
