@@ -12,6 +12,22 @@ python3 -m pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
+To run the service for the browser review flow from the repository root:
+
+```sh
+cd review-service
+HIRING_AGENT_PATH=../vendor/hiring-agent \
+LLM_PROVIDER=ollama \
+DEFAULT_MODEL=gemma3:4b \
+uvicorn app.main:app --host 127.0.0.1 --port 8000
+```
+
+Then start the frontend from the repository root:
+
+```sh
+VITE_REVIEW_API_URL=http://127.0.0.1:8000 npm run dev -- --host 127.0.0.1
+```
+
 Run tests from the repository root:
 
 ```sh
@@ -47,16 +63,18 @@ LLM_PROVIDER=ollama
 DEFAULT_MODEL=gemma3:4b
 GEMINI_API_KEY=
 GITHUB_TOKEN=
-CORS_ORIGINS=http://localhost:5173
+CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
 HIRING_AGENT_PATH=vendor/hiring-agent
-MAX_UPLOAD_BYTES=10485760
+MAX_UPLOAD_BYTES=26214400
 ```
 
 Defaults favor local review:
 
 - `LLM_PROVIDER` defaults to `ollama`.
 - `DEFAULT_MODEL` defaults to `gemma3:4b`.
-- `CORS_ORIGINS` defaults to `http://localhost:5173`.
+- `CORS_ORIGINS` defaults to `http://localhost:5173,http://127.0.0.1:5173`.
+- `MAX_UPLOAD_BYTES` defaults to 25 MiB so the browser-rendered default resume
+  PDF can be posted for review while still bounding upload memory per request.
 - Review is enabled only when provider configuration is usable and the local
   Hiring Agent checkout exists as a directory.
 - `GEMINI_API_KEY` is only used when `LLM_PROVIDER=gemini`.
@@ -132,7 +150,10 @@ filesystem paths, raw environment values, stack traces, or provider responses.
 Client-facing error messages are fixed templates selected by normalized error
 code; adapter exception text and provider details are not returned to clients.
 Uploads are read with the configured `MAX_UPLOAD_BYTES` limit so oversized files
-are rejected before the service retains the full body in memory.
+are rejected before the service retains the full body in memory. Upload memory
+is bounded per request by `MAX_UPLOAD_BYTES`; deployments that expose the
+service beyond local development should add appropriate process, proxy, rate,
+or concurrency limits.
 Local Ollama keeps LLM inference local by default. GitHub enrichment is a
 separate external network path and remains disabled unless `GITHUB_TOKEN` is
 configured.
@@ -142,8 +163,28 @@ configured.
 The backend tests use mocked adapters for route-level successful review results,
 error mapping, documented endpoint behavior, config secrecy, and safe unexpected
 error handling. Focused adapter tests cover the subprocess bridge and
-normalization with a fake Hiring Agent checkout. The real Ollama-backed PDF
-execution path has not been manually exercised unless a local
-`vendor/hiring-agent` checkout and model are installed. Frontend tests cover
-backend-shaped response and error payloads, including `upload_too_large`. Full
-browser-to-running-backend review flow verification remains planned.
+normalization with a fake Hiring Agent checkout. Frontend tests cover
+backend-shaped response and error payloads, including `upload_too_large`.
+Browser-to-running-backend verification has exercised the actual frontend,
+FastAPI service, CORS preflight, multipart upload, adapter subprocess boundary,
+review result rendering, stale-after-edit behavior, disabled-service state, and
+backend-unavailable state with a controlled temporary adapter target. The real
+Ollama-backed PDF execution path has not been manually exercised unless a local
+`vendor/hiring-agent` checkout, `ollama`, and the selected model are installed.
+
+## Browser Flow Troubleshooting
+
+- If the review panel says the service is not ready, confirm `GET
+  http://127.0.0.1:8000/config` returns `"reviewEnabled": true`. A missing
+  Hiring Agent checkout or unsupported provider configuration reports review as
+  disabled.
+- If the browser reports a network failure, confirm the frontend is running on
+  one of the configured `CORS_ORIGINS`. The defaults cover both
+  `http://localhost:5173` and `http://127.0.0.1:5173`.
+- If review fails with `upload_too_large`, the backend rejected the PDF after
+  upload because it exceeded `MAX_UPLOAD_BYTES`. Raise `MAX_UPLOAD_BYTES` for
+  local testing or reduce the rendered PDF size. The default is 25 MiB.
+- If review fails with `hiring_agent_failed`, run the Hiring Agent checkout
+  directly with the same provider settings. Missing Python dependencies,
+  missing `ollama`, an unpulled model, or a stopped Ollama server all surface to
+  the client as the same safe normalized error.

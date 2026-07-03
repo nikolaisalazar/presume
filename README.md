@@ -21,11 +21,16 @@ Working today:
 - Review API client, review state hook, panel, and conservative non-destructive annotations that stay disabled without `VITE_REVIEW_API_URL` or when the configured review service reports review unavailable.
 - FastAPI review service scaffold with safe config projection, Hiring Agent dependency readiness checks, normalized schemas, normalized errors, PDF upload validation, and mocked contract tests.
 - Integration-oriented tests for unconfigured editor behavior, backend-shaped frontend errors, and safe backend error handling.
+- Browser-to-backend review flow has been exercised with a running frontend,
+  running backend, and controlled adapter target. A real local Ollama-backed
+  Hiring Agent run still requires `vendor/hiring-agent`, `ollama`, and the
+  selected model installed locally.
 
 Still planned:
 
-- Full end-to-end Hiring Agent execution through the backend adapter.
-- Full browser-to-running-backend review flow verification.
+- Real local Ollama-backed Hiring Agent execution in a fully provisioned
+  developer environment.
+- Browser verification against a real local Ollama-backed Hiring Agent run.
 
 ## How It Works
 
@@ -52,7 +57,26 @@ npm test
 npm run build
 ```
 
-The frontend can run as a static app. Review submission requires a separate backend service and `VITE_REVIEW_API_URL`; see [docs/REVIEW_SERVICE.md](docs/REVIEW_SERVICE.md) and [review-service/README.md](review-service/README.md).
+To run the review flow locally, start the backend:
+
+```sh
+cd review-service
+HIRING_AGENT_PATH=../vendor/hiring-agent \
+LLM_PROVIDER=ollama \
+DEFAULT_MODEL=gemma3:4b \
+uvicorn app.main:app --host 127.0.0.1 --port 8000
+```
+
+Then start the frontend from the repository root:
+
+```sh
+VITE_REVIEW_API_URL=http://127.0.0.1:8000 npm run dev -- --host 127.0.0.1
+```
+
+The frontend can also run as a static app without review configured. Review
+submission requires a separate backend service and `VITE_REVIEW_API_URL`; see
+[docs/REVIEW_SERVICE.md](docs/REVIEW_SERVICE.md) and
+[review-service/README.md](review-service/README.md).
 
 ## Documentation
 

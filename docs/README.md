@@ -20,8 +20,9 @@ adapter spike, and tests. Current integration-oriented tests cover
 unconfigured, configured-service-disabled, and config-error editor behavior,
 backend-shaped frontend errors, and safe backend error handling.
 
-Milestone 10 completed the first backend adapter spike around a local
-`vendor/hiring-agent` checkout. The next milestone is
-[Milestone 11: Browser-To-Backend Review Flow](MILESTONE_PLAN.md#milestone-11-browser-to-backend-review-flow).
-It should verify the actual frontend can submit a rendered resume PDF to the
-running backend and display the normalized review result.
+Milestone 11 verified the actual frontend can submit a browser-rendered resume
+PDF to a running backend and display the normalized result using a controlled
+temporary adapter target. Real Ollama-backed Hiring Agent execution still
+requires `vendor/hiring-agent`, `ollama`, and the selected model installed
+locally. The next milestone is
+[Milestone 12: Review UX Polish Using Real Data](MILESTONE_PLAN.md#milestone-12-review-ux-polish-using-real-data).

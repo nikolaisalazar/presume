@@ -39,8 +39,9 @@ LLM_PROVIDER=ollama
 DEFAULT_MODEL=gemma3:4b
 GEMINI_API_KEY=
 GITHUB_TOKEN=
-CORS_ORIGINS=http://localhost:5173
+CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
 HIRING_AGENT_PATH=vendor/hiring-agent
+MAX_UPLOAD_BYTES=26214400
 ```
 
 Rules:
@@ -60,7 +61,9 @@ Rules:
   `GITHUB_TOKEN` enables enrichment and provides GitHub API rate limits.
 - Without GitHub enrichment enabled, resumes with GitHub profile URLs should
   not trigger outbound GitHub API calls.
-- `CORS_ORIGINS` must be explicit; do not allow arbitrary origins by default.
+- `CORS_ORIGINS` defaults to
+  `http://localhost:5173,http://127.0.0.1:5173` for local Vite development and
+  must stay explicit; do not allow arbitrary origins by default.
 - Relative `HIRING_AGENT_PATH` values resolve from the repository root. The
   default expects a checkout directory at `vendor/hiring-agent`.
 - `HIRING_AGENT_PATH` points to the local checkout or submodule.
@@ -74,6 +77,9 @@ Rules:
   importing its scoring entrypoint, then patch already-imported Hiring Agent
   modules that copied the development flag by value. This prevents service
   requests from creating or reusing development cache files under the checkout.
+- Upload memory is bounded per request by `MAX_UPLOAD_BYTES`; deployments that
+  expose the service beyond local development should add appropriate process,
+  proxy, rate, or concurrency limits.
 
 ## API Contract
 
@@ -97,7 +103,7 @@ Returns frontend-safe capability information. This endpoint must never expose se
   "llmProvider": "ollama",
   "defaultModel": "gemma3:4b",
   "githubEnrichmentEnabled": false,
-  "maxUploadBytes": 10485760
+  "maxUploadBytes": 26214400
 }
 ```
 
@@ -215,4 +221,42 @@ Minimum backend tests:
   stripped from the subprocess environment unless explicitly configured, and
   GitHub enrichment is disabled or enabled consistently with `/config`.
 
-Integration-oriented frontend/backend tests now cover unconfigured editor behavior, configured-service-disabled behavior, config-error behavior, backend-shaped frontend errors, mocked backend review success, documented endpoint behavior, config secrecy, and safe error handling. Full browser-to-running-backend review flow verification remains planned.
+Integration-oriented frontend/backend tests now cover unconfigured editor behavior, configured-service-disabled behavior, config-error behavior, backend-shaped frontend errors, mocked backend review success, documented endpoint behavior, config secrecy, and safe error handling. Browser-to-running-backend verification has exercised the actual frontend, FastAPI service, CORS preflight, multipart upload, adapter subprocess boundary, review result rendering, stale-after-edit behavior, disabled-service state, and backend-unavailable state with a controlled temporary adapter target. Real Ollama-backed Hiring Agent execution still requires a local checkout, `ollama`, and the selected model installed locally.
+
+## Local Browser-To-Backend Runbook
+
+Start the backend from the repository root:
+
+```sh
+cd review-service
+HIRING_AGENT_PATH=../vendor/hiring-agent \
+LLM_PROVIDER=ollama \
+DEFAULT_MODEL=gemma3:4b \
+uvicorn app.main:app --host 127.0.0.1 --port 8000
+```
+
+Start the frontend from the repository root:
+
+```sh
+VITE_REVIEW_API_URL=http://127.0.0.1:8000 npm run dev -- --host 127.0.0.1
+```
+
+Open the Vite URL, click `Review resume`, and verify the review panel renders
+the returned score, categories, strengths, improvements, bonuses, deductions,
+and findings when present. Edit the resume after a successful review and verify
+the previous result remains visible with a stale status.
+
+Common failure modes:
+
+- `GET /config` returns `"reviewEnabled": false`: `HIRING_AGENT_PATH` does not
+  point to a checkout directory, the selected provider is unsupported, or the
+  selected hosted provider is missing required credentials.
+- Browser network error: the frontend origin is not in `CORS_ORIGINS`, the
+  backend is not running at `VITE_REVIEW_API_URL`, or the backend process
+  crashed.
+- `upload_too_large`: the browser-rendered PDF exceeded `MAX_UPLOAD_BYTES` and
+  was rejected by the backend after upload. The default is 25 MiB.
+- `hiring_agent_failed`: the adapter could not execute the checkout
+  successfully. Check Hiring Agent dependencies, `ollama` installation,
+  `ollama serve`, and `ollama pull gemma3:4b` locally. Public API responses
+  intentionally do not expose adapter exception text.
