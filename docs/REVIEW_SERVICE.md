@@ -77,6 +77,9 @@ Rules:
   importing its scoring entrypoint, then patch already-imported Hiring Agent
   modules that copied the development flag by value. This prevents service
   requests from creating or reusing development cache files under the checkout.
+- Upload memory is bounded per request by `MAX_UPLOAD_BYTES`; deployments that
+  expose the service beyond local development should add appropriate process,
+  proxy, rate, or concurrency limits.
 
 ## API Contract
 
@@ -251,8 +254,8 @@ Common failure modes:
 - Browser network error: the frontend origin is not in `CORS_ORIGINS`, the
   backend is not running at `VITE_REVIEW_API_URL`, or the backend process
   crashed.
-- `upload_too_large`: the browser-rendered PDF exceeded `MAX_UPLOAD_BYTES`.
-  The default is 25 MiB.
+- `upload_too_large`: the browser-rendered PDF exceeded `MAX_UPLOAD_BYTES` and
+  was rejected by the backend after upload. The default is 25 MiB.
 - `hiring_agent_failed`: the adapter could not execute the checkout
   successfully. Check Hiring Agent dependencies, `ollama` installation,
   `ollama serve`, and `ollama pull gemma3:4b` locally. Public API responses

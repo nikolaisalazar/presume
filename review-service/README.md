@@ -74,7 +74,7 @@ Defaults favor local review:
 - `DEFAULT_MODEL` defaults to `gemma3:4b`.
 - `CORS_ORIGINS` defaults to `http://localhost:5173,http://127.0.0.1:5173`.
 - `MAX_UPLOAD_BYTES` defaults to 25 MiB so the browser-rendered default resume
-  PDF can be posted for review while still keeping upload memory bounded.
+  PDF can be posted for review while still bounding upload memory per request.
 - Review is enabled only when provider configuration is usable and the local
   Hiring Agent checkout exists as a directory.
 - `GEMINI_API_KEY` is only used when `LLM_PROVIDER=gemini`.
@@ -150,7 +150,10 @@ filesystem paths, raw environment values, stack traces, or provider responses.
 Client-facing error messages are fixed templates selected by normalized error
 code; adapter exception text and provider details are not returned to clients.
 Uploads are read with the configured `MAX_UPLOAD_BYTES` limit so oversized files
-are rejected before the service retains the full body in memory.
+are rejected before the service retains the full body in memory. Upload memory
+is bounded per request by `MAX_UPLOAD_BYTES`; deployments that expose the
+service beyond local development should add appropriate process, proxy, rate,
+or concurrency limits.
 Local Ollama keeps LLM inference local by default. GitHub enrichment is a
 separate external network path and remains disabled unless `GITHUB_TOKEN` is
 configured.
@@ -178,8 +181,9 @@ Ollama-backed PDF execution path has not been manually exercised unless a local
 - If the browser reports a network failure, confirm the frontend is running on
   one of the configured `CORS_ORIGINS`. The defaults cover both
   `http://localhost:5173` and `http://127.0.0.1:5173`.
-- If review fails with `upload_too_large`, raise `MAX_UPLOAD_BYTES` for local
-  testing or reduce the rendered PDF size. The default is 25 MiB.
+- If review fails with `upload_too_large`, the backend rejected the PDF after
+  upload because it exceeded `MAX_UPLOAD_BYTES`. Raise `MAX_UPLOAD_BYTES` for
+  local testing or reduce the rendered PDF size. The default is 25 MiB.
 - If review fails with `hiring_agent_failed`, run the Hiring Agent checkout
   directly with the same provider settings. Missing Python dependencies,
   missing `ollama`, an unpulled model, or a stopped Ollama server all surface to

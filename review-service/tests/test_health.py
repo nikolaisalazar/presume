@@ -71,7 +71,27 @@ def test_default_upload_limit_covers_browser_generated_review_pdf(monkeypatch):
     assert settings.max_upload_bytes == 25 * 1024 * 1024
 
 
-def test_default_cors_allows_loopback_vite_origin(monkeypatch):
+def test_default_cors_allows_localhost_vite_origin(monkeypatch):
+    monkeypatch.delenv("CORS_ORIGINS", raising=False)
+
+    client = TestClient(create_app())
+
+    response = client.options(
+        "/reviews",
+        headers={
+            "Origin": "http://localhost:5173",
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "content-type",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] == (
+        "http://localhost:5173"
+    )
+
+
+def test_default_cors_allows_127_loopback_vite_origin(monkeypatch):
     monkeypatch.delenv("CORS_ORIGINS", raising=False)
 
     client = TestClient(create_app())
@@ -89,6 +109,24 @@ def test_default_cors_allows_loopback_vite_origin(monkeypatch):
     assert response.headers["access-control-allow-origin"] == (
         "http://127.0.0.1:5173"
     )
+
+
+def test_default_cors_rejects_unconfigured_origin(monkeypatch):
+    monkeypatch.delenv("CORS_ORIGINS", raising=False)
+
+    client = TestClient(create_app())
+
+    response = client.options(
+        "/reviews",
+        headers={
+            "Origin": "http://localhost:3000",
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "content-type",
+        },
+    )
+
+    assert response.status_code == 400
+    assert "access-control-allow-origin" not in response.headers
 
 
 def test_config_enables_review_when_local_provider_and_hiring_agent_exist(

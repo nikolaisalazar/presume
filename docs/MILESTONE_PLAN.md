@@ -465,9 +465,12 @@ Completion evidence:
   `http://localhost:5173` and `http://127.0.0.1:5173`.
 - `review-service/app/config.py` now defaults `MAX_UPLOAD_BYTES` to 25 MiB
   because the browser-rendered default resume PDF exceeded the prior 10 MiB
-  service limit during real UI submission.
+  service limit during real UI submission. Upload memory remains bounded per
+  request by `MAX_UPLOAD_BYTES`, but concurrent uploads can multiply service
+  memory use.
 - `review-service/tests/test_health.py` covers default loopback CORS preflight
-  behavior and the default browser review upload limit.
+  behavior, rejection of unconfigured default origins, and the default browser
+  review upload limit.
 - Manual browser verification on July 3, 2026:
   - Backend:
     `HIRING_AGENT_PATH=/tmp/presume-fake-hiring-agent LLM_PROVIDER=ollama DEFAULT_MODEL=gemma3:4b uvicorn app.main:app --host 127.0.0.1 --port 8000`
@@ -499,6 +502,9 @@ Residual risk:
   verification.
 - No frontend fixture captured from a real Ollama-backed Hiring Agent review was
   added because that real review did not run successfully in this workspace.
+- Deployments that expose the review service beyond local development should add
+  appropriate process, proxy, rate, or concurrency limits for concurrent upload
+  memory.
 
 ### Milestone 12: Review UX Polish Using Real Data
 
