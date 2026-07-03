@@ -16,6 +16,16 @@ from .schemas import ReviewResult
 
 
 SUBPROCESS_TIMEOUT_SECONDS = 55
+SAFE_SUBPROCESS_ENV_KEYS = {
+    "HOME",
+    "LANG",
+    "LC_ALL",
+    "OLLAMA_HOST",
+    "PATH",
+    "SSL_CERT_DIR",
+    "SSL_CERT_FILE",
+    "TMPDIR",
+}
 
 CATEGORY_LABELS = {
     "open_source": "Open Source",
@@ -106,6 +116,7 @@ class HiringAgentAdapter:
                         str(hiring_agent_path),
                         str(pdf_path),
                         str(output_path),
+                        "1" if self.settings.github_enrichment_enabled else "0",
                     ],
                     cwd=hiring_agent_path,
                     env=env,
@@ -132,7 +143,11 @@ class HiringAgentAdapter:
                 ) from exc
 
     def _subprocess_environment(self) -> dict[str, str]:
-        env = os.environ.copy()
+        env = {
+            key: value
+            for key, value in os.environ.items()
+            if key in SAFE_SUBPROCESS_ENV_KEYS
+        }
         env["LLM_PROVIDER"] = self.settings.public_provider
         env["DEFAULT_MODEL"] = self.settings.public_model
         if self.settings.gemini_api_key:
@@ -173,6 +188,7 @@ from pathlib import Path
 hiring_agent_path = Path(sys.argv[1])
 pdf_path = Path(sys.argv[2])
 output_path = Path(sys.argv[3])
+github_enrichment_enabled = sys.argv[4] == "1"
 
 sys.path.insert(0, str(hiring_agent_path))
 
@@ -196,6 +212,12 @@ for module in tuple(sys.modules.values()):
         except ValueError:
             continue
         module.DEVELOPMENT_MODE = False
+
+if not github_enrichment_enabled:
+    def _skip_github_enrichment(*args, **kwargs):
+        return {}
+
+    score.fetch_and_display_github_info = _skip_github_enrichment
 
 evaluation = score.main(str(pdf_path))
 if evaluation is None:

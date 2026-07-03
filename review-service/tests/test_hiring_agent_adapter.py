@@ -1,3 +1,4 @@
+import json
 import math
 import subprocess
 
@@ -12,12 +13,17 @@ from app.hiring_agent_adapter import (
 )
 
 
-def make_settings(hiring_agent_path: str) -> Settings:
+def make_settings(
+    hiring_agent_path: str,
+    *,
+    github_token: str = "",
+    gemini_api_key: str = "",
+) -> Settings:
     return Settings(
         llm_provider="ollama",
         default_model="gemma3:4b",
-        gemini_api_key="",
-        github_token="",
+        gemini_api_key=gemini_api_key,
+        github_token=github_token,
         cors_origins=("http://localhost:5173",),
         hiring_agent_path=hiring_agent_path,
         max_upload_bytes=10_485_760,
@@ -27,6 +33,46 @@ def make_settings(hiring_agent_path: str) -> Settings:
 def write_fake_hiring_agent(path, score_py: str) -> None:
     path.mkdir()
     (path / "score.py").write_text(score_py, encoding="utf-8")
+
+
+def write_github_fetching_hiring_agent(path) -> None:
+    path.mkdir()
+    (path / "score.py").write_text(
+        """
+import os
+from pathlib import Path
+
+
+def fetch_and_display_github_info(github_url):
+    Path("github-called.txt").write_text(
+        os.environ.get("GITHUB_TOKEN", "missing"),
+        encoding="utf-8",
+    )
+    return {"profile": {"url": github_url}}
+
+
+class FakeEvaluation:
+    def model_dump(self):
+        return {
+            "scores": {
+                "open_source": {"score": 1, "max": 35, "evidence": "Evidence."},
+                "self_projects": {"score": 2, "max": 30, "evidence": "Evidence."},
+                "production": {"score": 3, "max": 25, "evidence": "Evidence."},
+                "technical_skills": {"score": 4, "max": 10, "evidence": "Evidence."},
+            },
+            "bonus_points": {"total": 0, "breakdown": ""},
+            "deductions": {"total": 0, "reasons": ""},
+            "key_strengths": ["Strength."],
+            "areas_for_improvement": ["Improvement."],
+        }
+
+
+def main(pdf_path):
+    fetch_and_display_github_info("https://github.com/example")
+    return FakeEvaluation()
+""",
+        encoding="utf-8",
+    )
 
 
 def hiring_agent_output(**overrides):
@@ -73,6 +119,10 @@ def hiring_agent_output(**overrides):
     }
     output.update(overrides)
     return output
+
+
+def json_for_fake_evaluation() -> str:
+    return json.dumps(hiring_agent_output())
 
 
 @pytest.mark.anyio
@@ -295,6 +345,63 @@ async def test_adapter_maps_subprocess_timeout_to_safe_timeout(monkeypatch, tmp_
 
     assert exc.value.code == "review_timeout"
     assert exc.value.status_code == 504
+
+
+@pytest.mark.anyio
+async def test_adapter_strips_ambient_secrets_from_subprocess_environment(
+    monkeypatch,
+    tmp_path,
+):
+    hiring_agent_path = tmp_path / "hiring-agent"
+    write_fake_hiring_agent(hiring_agent_path, "def main(pdf_path): return None")
+    monkeypatch.setenv("GITHUB_TOKEN", "ambient-github-token")
+    monkeypatch.setenv("GEMINI_API_KEY", "ambient-gemini-key")
+    adapter = HiringAgentAdapter(make_settings(str(hiring_agent_path)))
+
+    def capture_environment(*args, **kwargs):
+        env = kwargs["env"]
+        assert "GITHUB_TOKEN" not in env
+        assert "GEMINI_API_KEY" not in env
+        assert env["LLM_PROVIDER"] == "ollama"
+        assert env["DEFAULT_MODEL"] == "gemma3:4b"
+
+        output_path = args[0][5]
+        with open(output_path, "w", encoding="utf-8") as output_file:
+            output_file.write(json_for_fake_evaluation())
+
+        return subprocess.CompletedProcess(args=args[0], returncode=0)
+
+    monkeypatch.setattr("app.hiring_agent_adapter.subprocess.run", capture_environment)
+
+    result = await adapter.review_pdf(b"%PDF-1.7\n%%EOF")
+
+    assert result.raw == {"source": "hiring-agent"}
+
+
+@pytest.mark.anyio
+async def test_adapter_disables_github_enrichment_without_configured_token(tmp_path):
+    hiring_agent_path = tmp_path / "hiring-agent"
+    write_github_fetching_hiring_agent(hiring_agent_path)
+    adapter = HiringAgentAdapter(make_settings(str(hiring_agent_path)))
+
+    await adapter.review_pdf(b"%PDF-1.7\n%%EOF")
+
+    assert not (hiring_agent_path / "github-called.txt").exists()
+
+
+@pytest.mark.anyio
+async def test_adapter_allows_github_enrichment_with_configured_token(tmp_path):
+    hiring_agent_path = tmp_path / "hiring-agent"
+    write_github_fetching_hiring_agent(hiring_agent_path)
+    adapter = HiringAgentAdapter(
+        make_settings(str(hiring_agent_path), github_token="configured-github-token")
+    )
+
+    await adapter.review_pdf(b"%PDF-1.7\n%%EOF")
+
+    assert (
+        hiring_agent_path / "github-called.txt"
+    ).read_text(encoding="utf-8") == "configured-github-token"
 
 
 def test_normalize_clamps_category_scores_to_valid_range():

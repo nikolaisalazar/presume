@@ -63,7 +63,10 @@ Defaults favor local review:
 - Gemini defaults and fallbacks use upstream-supported model identifiers such
   as `gemini-2.5-flash`; unsupported Gemini model values are not echoed through
   `/config`.
-- `GITHUB_TOKEN` is optional and only enables GitHub enrichment.
+- GitHub enrichment is disabled unless `GITHUB_TOKEN` is configured. When set,
+  `GITHUB_TOKEN` enables enrichment and provides GitHub API rate limits.
+- Without GitHub enrichment enabled, resumes with GitHub profile URLs should
+  not trigger outbound GitHub API calls.
 - Relative `HIRING_AGENT_PATH` values resolve from the repository root. The
   default expects a checkout directory at `vendor/hiring-agent`.
 - `GET /config` returns only allowlisted provider and model identifiers. Unknown
@@ -108,14 +111,18 @@ The adapter prefers `vendor/hiring-agent/.venv/bin/python` when it exists and
 falls back to the review service Python executable. Keep `ollama serve` running
 for the default local provider before posting a resume. Hosted providers remain
 opt-in through `LLM_PROVIDER` and their provider-specific credentials.
+The subprocess receives only allowlisted runtime environment variables plus
+explicit provider settings from the service configuration; ambient parent
+process secrets such as `GITHUB_TOKEN` or `GEMINI_API_KEY` are not inherited.
 For service requests, the bridge disables Hiring Agent development/cache mode
 before importing its scoring entrypoint and patches already-imported Hiring
 Agent modules that copied that flag by value. This prevents review requests
 from creating or reusing development cache files in `vendor/hiring-agent/cache`.
 
 Adapter tests use a fixture-like fake checkout to verify subprocess execution,
-normalization, cache disabling, safe failure mapping, and timeout mapping
-without relying on Ollama or upstream network calls.
+normalization, cache disabling, GitHub enrichment gating, ambient secret
+stripping, safe failure mapping, and timeout mapping without relying on Ollama
+or upstream network calls.
 
 ## Privacy
 
@@ -126,6 +133,9 @@ Client-facing error messages are fixed templates selected by normalized error
 code; adapter exception text and provider details are not returned to clients.
 Uploads are read with the configured `MAX_UPLOAD_BYTES` limit so oversized files
 are rejected before the service retains the full body in memory.
+Local Ollama keeps LLM inference local by default. GitHub enrichment is a
+separate external network path and remains disabled unless `GITHUB_TOKEN` is
+configured.
 
 ## Current Test Boundary
 

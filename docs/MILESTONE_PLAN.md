@@ -398,7 +398,8 @@ Residual risk:
 - This workspace did not include `vendor/hiring-agent`, so the real Ollama PDF
   execution path was not manually exercised here. The adapter is covered with a
   fixture-like fake checkout that proves subprocess execution, normalization,
-  upstream failure mapping, and timeout mapping.
+  GitHub enrichment gating, ambient secret stripping, upstream failure mapping,
+  and timeout mapping.
 - Full browser-to-running-backend review flow remains deferred to Milestone 11.
 
 Completion evidence:

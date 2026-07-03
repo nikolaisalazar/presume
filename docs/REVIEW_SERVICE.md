@@ -56,7 +56,10 @@ Rules:
 - Unknown `LLM_PROVIDER` values disable review and are not projected verbatim through `/config`.
 - `/config` returns only allowlisted provider and model identifiers; unsafe model values are replaced with safe defaults or `unavailable`.
 - The public model allowlist is intentionally narrow. Arbitrary local model names must not be echoed from environment variables; add a safe allowlist entry before exposing another model identifier.
-- `GITHUB_TOKEN` is optional and should only be used for GitHub enrichment and higher API limits.
+- GitHub enrichment is disabled unless `GITHUB_TOKEN` is configured. When set,
+  `GITHUB_TOKEN` enables enrichment and provides GitHub API rate limits.
+- Without GitHub enrichment enabled, resumes with GitHub profile URLs should
+  not trigger outbound GitHub API calls.
 - `CORS_ORIGINS` must be explicit; do not allow arbitrary origins by default.
 - Relative `HIRING_AGENT_PATH` values resolve from the repository root. The
   default expects a checkout directory at `vendor/hiring-agent`.
@@ -64,6 +67,9 @@ Rules:
 - The adapter prefers `.venv/bin/python` inside the Hiring Agent checkout when
   present, so its upstream dependencies can remain isolated from the review
   service environment.
+- The subprocess receives only allowlisted runtime environment variables plus
+  explicit provider settings from service configuration. Ambient parent process
+  secrets such as `GITHUB_TOKEN` or `GEMINI_API_KEY` are not inherited.
 - Service requests disable Hiring Agent development/cache behavior before
   importing its scoring entrypoint, then patch already-imported Hiring Agent
   modules that copied the development flag by value. This prevents service
@@ -180,6 +186,11 @@ Resumes contain personal information. The default path should be local Ollama in
 
 Hosted providers such as Gemini must be opt-in and clearly documented. When enabled, the service may transmit resume text, extracted resume data, and prompt context to that provider. The service README should state that users are responsible for understanding the provider's data retention and privacy terms.
 
+GitHub enrichment is a separate external network path from LLM inference. It is
+disabled unless `GITHUB_TOKEN` is configured; local Ollama review without a
+GitHub token should not call GitHub even when the resume includes GitHub profile
+URLs.
+
 Do not log raw PDF bytes, extracted resume text, API keys, provider prompts, or full raw review responses by default.
 
 ## Tests
@@ -200,5 +211,8 @@ Minimum backend tests:
   requests, subprocess timeouts map to `review_timeout`, and malformed numeric
   score boundaries are normalized or rejected before reaching the frontend
   contract.
+- Adapter tests verify ambient `GITHUB_TOKEN` and `GEMINI_API_KEY` values are
+  stripped from the subprocess environment unless explicitly configured, and
+  GitHub enrichment is disabled or enabled consistently with `/config`.
 
 Integration-oriented frontend/backend tests now cover unconfigured editor behavior, configured-service-disabled behavior, config-error behavior, backend-shaped frontend errors, mocked backend review success, documented endpoint behavior, config secrecy, and safe error handling. Full browser-to-running-backend review flow verification remains planned.
