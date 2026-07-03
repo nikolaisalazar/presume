@@ -87,6 +87,23 @@ describe('App review availability boundaries', () => {
     expect(await screen.findByText('Grace Hopper')).toBeInTheDocument()
   })
 
+  it('renders a polished editor shell with grouped document actions and constraint summary', () => {
+    vi.stubEnv('VITE_REVIEW_API_URL', '')
+
+    render(<App />)
+
+    expect(screen.getByRole('banner')).toHaveTextContent('Presume')
+    expect(screen.getByText('Editable resume workspace')).toBeInTheDocument()
+    expect(
+      screen.getByRole('toolbar', { name: 'Document actions' })
+    ).toBeInTheDocument()
+    expect(screen.getByText('PDF')).toBeInTheDocument()
+    expect(screen.getByText('JSON')).toBeInTheDocument()
+    expect(screen.getByText('1 page')).toBeInTheDocument()
+    expect(screen.getByText('1 lines/bullet')).toBeInTheDocument()
+    expect(screen.getByText('8px min')).toBeInTheDocument()
+  })
+
   it('keeps editing, persistence, export, and import available when review service is disabled', async () => {
     vi.stubEnv('VITE_REVIEW_API_URL', 'https://reviews.example.test')
     vi.spyOn(window, 'confirm').mockReturnValue(true)

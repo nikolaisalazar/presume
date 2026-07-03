@@ -59,19 +59,36 @@ export function Toolbar({ resume, pageRef, onImport, onReset }: ToolbarProps) {
   }
 
   return (
-    <div className="toolbar">
-      <button className="toolbar-btn" onClick={handleExportPDF}>
-        Export PDF
-      </button>
-      <button className="toolbar-btn" onClick={handleExportJSON}>
-        Export JSON
-      </button>
-      <button className="toolbar-btn" onClick={handleImportClick}>
-        Import JSON
-      </button>
-      <button className="toolbar-btn toolbar-btn--danger" onClick={handleReset}>
-        Reset to Template
-      </button>
+    <div className="toolbar" role="toolbar" aria-label="Document actions">
+      <div className="toolbar__group" aria-label="Export actions">
+        <span className="toolbar__group-label">Export</span>
+        <button
+          className="toolbar-btn toolbar-btn--primary"
+          onClick={handleExportPDF}
+          aria-label="Export PDF"
+        >
+          PDF
+        </button>
+        <button
+          className="toolbar-btn"
+          onClick={handleExportJSON}
+          aria-label="Export JSON"
+        >
+          JSON
+        </button>
+      </div>
+      <div className="toolbar__group" aria-label="File actions">
+        <button
+          className="toolbar-btn"
+          onClick={handleImportClick}
+          aria-label="Import JSON"
+        >
+          Import
+        </button>
+        <button className="toolbar-btn toolbar-btn--danger" onClick={handleReset}>
+          Reset to Template
+        </button>
+      </div>
       <input
         ref={fileInputRef}
         type="file"

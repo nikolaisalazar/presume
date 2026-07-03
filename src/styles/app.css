@@ -6,8 +6,9 @@
 
 body {
   margin: 0;
-  background: #e5e7eb;
+  background: #eef2f7;
   font-family: system-ui, -apple-system, sans-serif;
+  color: #111827;
 }
 
 /* ── App Shell ───────────────────────────────────────────────────── */
@@ -15,41 +16,136 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 24px 16px 48px;
-  gap: 16px;
+  padding: 20px 16px 48px;
+  gap: 14px;
   min-height: 100vh;
+  --editor-control-resting-opacity: 0.26;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  width: min(1192px, 100%);
+}
+
+.app-header h1,
+.app-header p {
+  margin: 0;
+}
+
+.app-header h1 {
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.app-header p {
+  margin-top: 3px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.app-header__status {
+  padding: 5px 9px;
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .workspace {
   display: grid;
-  grid-template-columns: 816px minmax(280px, 360px);
+  grid-template-columns: minmax(0, var(--page-width)) minmax(280px, 360px);
   align-items: start;
   gap: 16px;
   width: min(1192px, 100%);
   min-width: 0;
 }
 
+.editor-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: var(--page-width);
+  min-width: 0;
+}
+
+.resume-canvas-scroll {
+  width: 100%;
+  max-width: var(--page-width);
+  overflow-x: auto;
+  overflow-y: visible;
+  padding: 0 0 10px;
+  scrollbar-gutter: stable both-edges;
+}
+
+.resume-canvas {
+  width: max-content;
+  margin: 0 auto;
+}
+
 /* ── Toolbar ─────────────────────────────────────────────────────── */
 .toolbar {
   display: flex;
-  gap: 8px;
+  justify-content: space-between;
+  gap: 10px;
   align-items: center;
-  width: 816px;
+  width: 100%;
+  max-width: var(--page-width);
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid #d8dee8;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.05);
+}
+
+.toolbar__group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.toolbar__group-label {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .toolbar-btn {
-  padding: 6px 14px;
-  border: 1px solid #d1d5db;
+  padding: 6px 11px;
+  border: 1px solid #cbd5e1;
   border-radius: 6px;
-  background: white;
+  background: #ffffff;
+  color: #1f2937;
   cursor: pointer;
   font-size: 13px;
-  font-weight: 500;
-  transition: background 0.15s;
+  font-weight: 650;
+  line-height: 1.2;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
 
 .toolbar-btn:hover {
-  background: #f3f4f6;
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+
+.toolbar-btn--primary {
+  border-color: #0f766e;
+  background: #0f766e;
+  color: #ffffff;
+}
+
+.toolbar-btn--primary:hover {
+  background: #115e59;
+  border-color: #115e59;
 }
 
 .toolbar-btn--danger:hover {
@@ -339,19 +435,47 @@ body {
   }
 }
 
+@media (max-width: 560px) {
+  .app {
+    padding-inline: 12px;
+  }
+
+  .app-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .toolbar__group {
+    justify-content: space-between;
+  }
+
+  .toolbar__group-label {
+    flex-basis: 100%;
+  }
+}
+
 /* ── Settings Panel ──────────────────────────────────────────────── */
 .settings-panel {
-  width: 816px;
-  background: white;
-  border: 1px solid #e5e7eb;
+  width: 100%;
+  max-width: var(--page-width);
+  background: #ffffff;
+  border: 1px solid #d8dee8;
   border-radius: 8px;
   overflow: hidden;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.05);
 }
 
 .settings-panel__toggle {
   width: 100%;
   display: flex;
-  justify-content: space-between;
+  gap: 12px;
+  justify-content: flex-start;
   align-items: center;
   padding: 10px 16px;
   background: none;
@@ -366,11 +490,42 @@ body {
   background: #f9fafb;
 }
 
-.settings-panel__body {
+.settings-panel__title {
+  flex: 0 0 auto;
+}
+
+.settings-panel__summary {
   display: flex;
-  gap: 24px;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+
+.settings-panel__summary span {
+  padding: 2px 7px;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.3;
+}
+
+.settings-panel__chevron {
+  margin-left: auto;
+  color: #64748b;
+  font-size: 10px;
+}
+
+.settings-panel__body {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(120px, 1fr));
+  gap: 14px;
   padding: 12px 16px;
   border-top: 1px solid #e5e7eb;
+  background: #fbfdff;
 }
 
 .settings-field {
@@ -386,26 +541,45 @@ body {
 }
 
 .settings-field input[type='number'] {
-  width: 72px;
+  width: 100%;
+  max-width: 96px;
   padding: 4px 8px;
   border: 1px solid #d1d5db;
   border-radius: 4px;
   font-size: 13px;
 }
 
+@media (max-width: 560px) {
+  .settings-panel__toggle {
+    align-items: flex-start;
+  }
+
+  .settings-panel__summary {
+    flex-direction: column;
+  }
+
+  .settings-panel__summary span {
+    width: max-content;
+  }
+
+  .settings-panel__body {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ── Add / Remove controls ───────────────────────────────────────── */
 .add-btn,
 .remove-btn {
-  opacity: 0;
-  transition: opacity 0.15s;
+  opacity: var(--editor-control-resting-opacity);
+  transition: opacity 0.15s, background 0.15s, border-color 0.15s, color 0.15s;
   padding: 1px 6px;
-  border: 1px solid #d1d5db;
+  border: 1px solid rgba(148, 163, 184, 0.65);
   border-radius: 4px;
-  background: white;
+  background: rgba(255, 255, 255, 0.92);
   cursor: pointer;
   font-size: 12px;
   line-height: 1.4;
-  color: #6b7280;
+  color: #64748b;
   white-space: nowrap;
 }
 
@@ -415,7 +589,9 @@ body {
 .resume-section:hover .add-btn,
 .resume-entry:hover .add-btn,
 .resume-contact-item:hover .remove-btn,
-.resume-header:hover .add-btn {
+.resume-header:hover .add-btn,
+.add-btn:focus-visible,
+.remove-btn:focus-visible {
   opacity: 1;
 }
 
