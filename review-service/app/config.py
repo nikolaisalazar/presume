@@ -11,12 +11,19 @@ LOCAL_PROVIDER = "ollama"
 DISABLED_PROVIDER = "disabled"
 DISABLED_MODEL = "unavailable"
 DEFAULT_OLLAMA_MODEL = "gemma3:4b"
+DEFAULT_GEMINI_MODEL = "gemini-2.5-flash"
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 
 ALLOWED_PROVIDERS = {LOCAL_PROVIDER, "gemini"}
 ALLOWED_MODELS_BY_PROVIDER = {
     LOCAL_PROVIDER: {DEFAULT_OLLAMA_MODEL},
-    "gemini": {"gemini-1.5-flash"},
+    "gemini": {
+        "gemini-2.0-flash",
+        "gemini-2.0-flash-lite",
+        DEFAULT_GEMINI_MODEL,
+        "gemini-2.5-flash-lite",
+        "gemini-2.5-pro",
+    },
 }
 
 
@@ -69,7 +76,7 @@ class Settings:
         if provider == LOCAL_PROVIDER:
             return DEFAULT_OLLAMA_MODEL
 
-        return sorted(allowed_models)[0]
+        return DEFAULT_GEMINI_MODEL
 
     def public_config(self) -> PublicConfig:
         return PublicConfig(
