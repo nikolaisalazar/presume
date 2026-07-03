@@ -141,12 +141,27 @@
 }
 
 .review-annotation-marker {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 7px;
   height: 7px;
   border-radius: 50%;
   background: #0ea5e9;
   box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.18);
+}
+
+.review-annotation-marker--count {
+  width: auto;
+  min-width: 13px;
+  height: 13px;
+  padding: 0 3px;
+  border-radius: 999px;
+  color: #ffffff;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
 }
 
 .review-annotation--info {

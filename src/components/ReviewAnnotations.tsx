@@ -54,18 +54,31 @@ export function ReviewAnnotations({
     return null
   }
 
+  const label =
+    annotations.length === 1
+      ? `Review note: ${annotations[0].message}`
+      : `${annotations.length} review notes: ${annotations
+          .map(annotation => annotation.message)
+          .join('; ')}`
+  const severityClass = getReviewSeverityClass(annotations)
+
   return (
     <span className="review-annotation-list" aria-hidden="false">
-      {annotations.map(annotation => (
+      {annotations.length > 1 ? (
         <span
-          key={annotation.id}
-          className={`review-annotation-marker ${getReviewSeverityClass([
-            annotation,
-          ])}`}
-          aria-label={`Review note: ${annotation.message}`}
-          title={annotation.message}
+          className={`review-annotation-marker review-annotation-marker--count ${severityClass}`}
+          aria-label={label}
+          title={annotations.map(annotation => annotation.message).join('\n')}
+        >
+          {annotations.length}
+        </span>
+      ) : (
+        <span
+          className={`review-annotation-marker ${severityClass}`}
+          aria-label={label}
+          title={annotations[0].message}
         />
-      ))}
+      )}
     </span>
   )
 }

@@ -1,4 +1,9 @@
-import type { ReviewAdjustment, ReviewCategory } from '../reviewTypes'
+import type {
+  ReviewAdjustment,
+  ReviewAnnotation,
+  ReviewAnnotationSeverity,
+  ReviewCategory,
+} from '../reviewTypes'
 import type { ResumeReviewState } from '../useResumeReview'
 
 interface ReviewPanelProps {
@@ -37,7 +42,7 @@ export function ReviewPanel({ state, onRequestReview }: ReviewPanelProps) {
       {state.status === 'unconfigured' ? (
         <ReviewEmptyState
           title="Review service not configured"
-          message="Set VITE_REVIEW_API_URL to enable advisory resume review."
+          message="Set VITE_REVIEW_API_URL and start the review service to enable advisory resume review."
         />
       ) : null}
 
@@ -51,7 +56,7 @@ export function ReviewPanel({ state, onRequestReview }: ReviewPanelProps) {
       {state.status === 'disabled' ? (
         <ReviewEmptyState
           title="Review service unavailable"
-          message="The configured review service is not ready to review resumes."
+          message="The configured service is reachable, but review is disabled. Check provider setup and Hiring Agent readiness."
         />
       ) : null}
 
@@ -74,11 +79,26 @@ export function ReviewPanel({ state, onRequestReview }: ReviewPanelProps) {
       ) : null}
 
       {state.status === 'stale' || resultIsStale ? (
-        <ReviewStatus message="Review is stale" tone="stale" />
+        <ReviewStatus
+          title="Review is stale"
+          message="Previous results are still shown. Re-run review after editing."
+          tone="stale"
+        />
       ) : null}
 
       {state.status === 'error' ? (
-        <ReviewStatus message={state.error.message} tone="error" />
+        <ReviewStatus
+          title="Review request failed"
+          message={state.error.message}
+          detail={
+            result
+              ? resultIsStale
+                ? 'Previous stale results remain visible below.'
+                : 'Previous results remain visible below.'
+              : undefined
+          }
+          tone="error"
+        />
       ) : null}
 
       {result ? <ReviewResultDetails state={state} /> : null}
@@ -93,9 +113,12 @@ function ReviewResultDetails({ state }: { state: ResumeReviewState }) {
   return (
     <div className="review-result">
       <div className="review-score">
-        <span className="review-score__value">
-          {result.totalScore} / {result.maxScore}
-        </span>
+        <div>
+          <span className="review-score__value">
+            {result.totalScore} / {result.maxScore}
+          </span>
+          <p className="review-score__note">Advisory score, not an ATS guarantee.</p>
+        </div>
         <span className="review-score__tier">{formatTier(result.tier)}</span>
       </div>
 
@@ -104,10 +127,11 @@ function ReviewResultDetails({ state }: { state: ResumeReviewState }) {
       <ReviewList title="Improvements" items={result.improvements} />
       <ReviewAdjustments title="Bonuses" adjustments={result.bonuses} />
       <ReviewAdjustments title="Deductions" adjustments={result.deductions} />
-      <ReviewList
-        title="Findings"
-        items={result.annotations.map(annotation => annotation.message)}
-      />
+      <ReviewAnnotationLegend annotations={result.annotations} />
+      <ReviewFindings annotations={result.annotations} />
+      {hasNoDetailedFindings(result) ? (
+        <p className="review-empty-detail">No detailed findings returned.</p>
+      ) : null}
     </div>
   )
 }
@@ -126,8 +150,10 @@ function ReviewCategories({ categories }: { categories: ReviewCategory[] }) {
               {category.score} / {category.maxScore}
             </span>
           </div>
-          <ReviewList title="Evidence" items={category.evidence} compact />
-          <ReviewList title="Suggestions" items={category.suggestions} compact />
+          <div className="review-category__body">
+            <ReviewList title="Evidence" items={category.evidence} compact />
+            <ReviewList title="Suggestions" items={category.suggestions} compact />
+          </div>
         </article>
       ))}
     </section>
@@ -185,6 +211,72 @@ function ReviewAdjustments({
   )
 }
 
+function ReviewAnnotationLegend({
+  annotations,
+}: {
+  annotations: ReviewAnnotation[]
+}) {
+  if (annotations.length === 0) return null
+
+  return (
+    <section className="review-section review-annotation-legend">
+      <h3>Annotation legend</h3>
+      <div className="review-annotation-legend__items" aria-label="Annotation legend">
+        <ReviewSeverityLegendItem severity="warning" label="Needs attention" />
+        <ReviewSeverityLegendItem severity="info" label="Context" />
+        <ReviewSeverityLegendItem severity="strong" label="Strength" />
+      </div>
+    </section>
+  )
+}
+
+function ReviewSeverityLegendItem({
+  severity,
+  label,
+}: {
+  severity: ReviewAnnotationSeverity
+  label: string
+}) {
+  return (
+    <span className="review-annotation-legend__item">
+      <span
+        className={`review-annotation-marker review-annotation--${severity}`}
+        aria-hidden="true"
+      />
+      {label}
+    </span>
+  )
+}
+
+function ReviewFindings({
+  annotations,
+}: {
+  annotations: ReviewAnnotation[]
+}) {
+  if (annotations.length === 0) return null
+
+  return (
+    <section className="review-section review-findings">
+      <h3>Findings</h3>
+      <ul>
+        {annotations.map(annotation => (
+          <li key={annotation.id} className="review-finding">
+            <div className="review-finding__header">
+              <span className={`review-finding__severity review-finding__severity--${annotation.severity}`}>
+                {formatSeverity(annotation.severity)}
+              </span>
+              <span className="review-finding__target">
+                {formatAnnotationTarget(annotation)}
+              </span>
+            </div>
+            <p>{annotation.message}</p>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}
+
 function ReviewEmptyState({
   title,
   message,
@@ -201,13 +293,23 @@ function ReviewEmptyState({
 }
 
 function ReviewStatus({
+  title,
   message,
+  detail,
   tone = 'neutral',
 }: {
+  title?: string
   message: string
+  detail?: string
   tone?: 'neutral' | 'stale' | 'error'
 }) {
-  return <p className={`review-status review-status--${tone}`}>{message}</p>
+  return (
+    <div className={`review-status review-status--${tone}`}>
+      {title ? <h3>{title}</h3> : null}
+      <p>{message}</p>
+      {detail ? <p>{detail}</p> : null}
+    </div>
+  )
 }
 
 function formatTier(tier: string): string {
@@ -215,4 +317,40 @@ function formatTier(tier: string): string {
     .split('_')
     .map(part => part.charAt(0).toUpperCase() + part.slice(1))
     .join(' ')
+}
+
+function formatSeverity(severity: ReviewAnnotationSeverity): string {
+  if (severity === 'warning') return 'Needs attention'
+  if (severity === 'strong') return 'Strength'
+  return 'Context'
+}
+
+function formatAnnotationTarget(annotation: ReviewAnnotation): string {
+  if (!annotation.sectionTitle) {
+    return 'Target not matched inline'
+  }
+
+  const parts = [annotation.sectionTitle, annotation.entryTitle].filter(
+    Boolean
+  )
+
+  return parts.join(' / ')
+}
+
+function hasNoDetailedFindings(result: {
+  categories: ReviewCategory[]
+  strengths: string[]
+  improvements: string[]
+  bonuses: ReviewAdjustment[]
+  deductions: ReviewAdjustment[]
+  annotations: ReviewAnnotation[]
+}): boolean {
+  return (
+    result.categories.length === 0 &&
+    result.strengths.length === 0 &&
+    result.improvements.length === 0 &&
+    result.bonuses.length === 0 &&
+    result.deductions.length === 0 &&
+    result.annotations.length === 0
+  )
 }

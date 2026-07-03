@@ -508,7 +508,7 @@ Residual risk:
 
 ### Milestone 12: Review UX Polish Using Real Data
 
-Status: Not started.
+Status: Complete with residual risk.
 
 Goal:
 
@@ -556,6 +556,52 @@ Acceptance criteria:
 - Review panel remains usable on desktop and narrow viewports.
 - Annotation markers are understandable and accessible.
 - No review panel text overlaps or unreadable controls are introduced.
+
+Completion evidence:
+
+- `src/components/ReviewPanel.tsx` now renders an advisory score note, grouped
+  category evidence and suggestions, explicit stale and preserved-result error
+  states, clean empty-detail output, an annotation legend when findings exist,
+  and finding cards with severity and target context.
+- `src/components/ReviewAnnotations.tsx` now collapses multiple inline notes on
+  the same target into one accessible count marker.
+- `src/styles/app.css` and `src/styles/resume.css` add wrapping and visual
+  treatment for long review evidence, suggestions, findings, legends, stale
+  states, and multi-note markers while keeping formatting warnings visually
+  distinct.
+- `src/tests/reviewUi.test.tsx` covers grouped category detail, clean empty
+  results, stale result copy, preserved stale results after request errors,
+  annotation legends, ambiguous findings that remain in the panel, and multiple
+  annotations on one inline target.
+- Manual browser verification on July 3, 2026 used a controlled local
+  Hiring-Agent-shaped fixture response, not real Ollama-backed execution:
+  - Fixture backend:
+    `node - <<'NODE' ... NODE` listening on `http://127.0.0.1:8123` with
+    `GET /config` and `POST /reviews`.
+  - Frontend:
+    `VITE_REVIEW_API_URL=http://127.0.0.1:8123 npm run dev -- --host 127.0.0.1 --port 5173`
+  - Vite URL used by the browser:
+    `http://127.0.0.1:5174/presume/` because port `5173` was occupied.
+  - Viewports: `358x980` narrow preview and `1280x900` desktop preview.
+  - Observed score `69 / 100`, all four categories, long evidence wrapping,
+    strengths, improvements, bonus, deduction, annotation legend, matched and
+    unmatched findings, and stale-after-edit copy with previous results
+    preserved.
+
+Verification:
+
+- Backend verification: `python3 -m pytest review-service/tests -q`
+- Frontend verification: `npm test -- --run`
+- Build verification: `npm run build`
+
+Residual risk:
+
+- Real Ollama-backed Hiring Agent PDF execution still has not been verified in
+  this workspace because it requires a local `vendor/hiring-agent` checkout,
+  `ollama`, the selected model, and a valid PDF posted through `/reviews`.
+- Milestone 12 browser verification used a controlled Hiring-Agent-shaped
+  fixture response to exercise realistic result shape, length, annotation, and
+  stale-state behavior through the actual frontend.
 
 ### Milestone 13: General Editor UI Polish
 
