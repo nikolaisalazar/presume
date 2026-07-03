@@ -76,6 +76,20 @@ const reviewResult: ReviewResult = {
   ],
 }
 
+const emptyReviewResult: ReviewResult = {
+  id: 'review_empty',
+  reviewedAt: '2026-06-29T12:00:00Z',
+  totalScore: 0,
+  maxScore: 100,
+  tier: 'incomplete',
+  categories: [],
+  strengths: [],
+  improvements: [],
+  bonuses: [],
+  deductions: [],
+  annotations: [],
+}
+
 describe('ReviewPanel', () => {
   it('renders the idle state with an enabled review action', () => {
     const onRequestReview = vi.fn()
@@ -126,7 +140,9 @@ describe('ReviewPanel', () => {
 
     expect(screen.getByText('Review service unavailable')).toBeInTheDocument()
     expect(
-      screen.getByText('The configured review service is not ready to review resumes.')
+      screen.getByText(
+        'The configured service is reachable, but review is disabled. Check provider setup and Hiring Agent readiness.'
+      )
     ).toBeInTheDocument()
     const button = screen.getByRole('button', { name: 'Review resume' })
     expect(button).toBeDisabled()
@@ -192,12 +208,67 @@ describe('ReviewPanel', () => {
     expect(screen.getByText('Advisory only')).toBeInTheDocument()
   })
 
+  it('groups category evidence and suggestions under the category result', () => {
+    render(
+      <ReviewPanel
+        state={{ status: 'success', result: reviewResult }}
+        onRequestReview={vi.fn()}
+      />
+    )
+
+    const category = screen
+      .getByText('Production Experience')
+      .closest('.review-category')
+
+    expect(category).not.toBeNull()
+    expect(category).toHaveTextContent('18 / 25')
+    expect(category).toHaveTextContent('Evidence')
+    expect(category).toHaveTextContent('Experience section shows engineering work.')
+    expect(category).toHaveTextContent('Suggestions')
+    expect(category).toHaveTextContent('Clarify user or business impact.')
+  })
+
+  it('renders a clean empty-result state when no detailed review arrays are returned', () => {
+    render(
+      <ReviewPanel
+        state={{ status: 'success', result: emptyReviewResult }}
+        onRequestReview={vi.fn()}
+      />
+    )
+
+    expect(screen.getByText('0 / 100')).toBeInTheDocument()
+    expect(screen.getByText('No detailed findings returned.')).toBeInTheDocument()
+    expect(screen.queryByText('Strengths')).not.toBeInTheDocument()
+    expect(screen.queryByText('Findings')).not.toBeInTheDocument()
+  })
+
   it('keeps stale review results visible with a stale label', () => {
     const state: ResumeReviewState = { status: 'stale', result: reviewResult }
 
     render(<ReviewPanel state={state} onRequestReview={vi.fn()} />)
 
     expect(screen.getByText('Review is stale')).toBeInTheDocument()
+    expect(
+      screen.getByText('Previous results are still shown. Re-run review after editing.')
+    ).toBeInTheDocument()
+    expect(screen.getByText('72 / 100')).toBeInTheDocument()
+  })
+
+  it('explains request errors while preserving a previous stale result', () => {
+    const state: ResumeReviewState = {
+      status: 'error',
+      error: new Error('Could not reach the review service.'),
+      result: reviewResult,
+      resultIsStale: true,
+    }
+
+    render(<ReviewPanel state={state} onRequestReview={vi.fn()} />)
+
+    expect(screen.getByText('Review request failed')).toBeInTheDocument()
+    expect(screen.getByText('Could not reach the review service.')).toBeInTheDocument()
+    expect(
+      screen.getByText('Previous stale results remain visible below.')
+    ).toBeInTheDocument()
     expect(screen.getByText('72 / 100')).toBeInTheDocument()
   })
 
@@ -213,6 +284,41 @@ describe('ReviewPanel', () => {
     )
 
     expect(screen.getByText('Could not reach the review service.')).toBeInTheDocument()
+  })
+
+  it('shows annotation legend and target context in the review panel', () => {
+    render(
+      <ReviewPanel
+        state={{ status: 'success', result: reviewResult }}
+        onRequestReview={vi.fn()}
+      />
+    )
+
+    expect(screen.getByText('Annotation legend')).toBeInTheDocument()
+    expect(screen.getAllByText('Needs attention')).toHaveLength(2)
+    expect(screen.getByText('Experience / Engineer')).toBeInTheDocument()
+    expect(screen.getByText('Add measurable impact.')).toBeInTheDocument()
+  })
+
+  it('keeps ambiguous annotations visible in the panel', () => {
+    const result: ReviewResult = {
+      ...reviewResult,
+      annotations: [
+        {
+          id: 'ann_ambiguous',
+          entryTitle: 'Engineer',
+          message: 'Ambiguous entry title.',
+          severity: 'info',
+        },
+      ],
+    }
+
+    render(
+      <ReviewPanel state={{ status: 'success', result }} onRequestReview={vi.fn()} />
+    )
+
+    expect(screen.getByText('Ambiguous entry title.')).toBeInTheDocument()
+    expect(screen.getByText('Target not matched inline')).toBeInTheDocument()
   })
 })
 
@@ -233,6 +339,34 @@ describe('review annotations', () => {
 
     expect(bullet).toHaveClass('bullet-item--review-warning')
     expect(screen.getByLabelText('Review note: Add measurable impact.')).toBeInTheDocument()
+  })
+
+  it('summarizes multiple inline annotations on one target', () => {
+    render(
+      <ResumePage
+        resume={resume}
+        warnings={new Map()}
+        reviewAnnotations={[
+          ...reviewResult.annotations,
+          {
+            id: 'ann_2',
+            sectionTitle: 'Experience',
+            entryTitle: 'Engineer',
+            bulletText: 'Documented a general-purpose computing system.',
+            message: 'Tie this to a user outcome.',
+            severity: 'info',
+          },
+        ]}
+        onResumeChange={vi.fn()}
+      />
+    )
+
+    expect(
+      screen.getByLabelText(
+        '2 review notes: Add measurable impact.; Tie this to a user outcome.'
+      )
+    ).toBeInTheDocument()
+    expect(screen.getByText('2')).toHaveClass('review-annotation-marker')
   })
 
   it('renders an inline annotation for one exact entry match', () => {

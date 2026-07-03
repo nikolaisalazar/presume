@@ -89,7 +89,9 @@ The app currently supports:
 - A disabled review state when the configured service reports review unavailable through `GET /config`.
 - A config-error review state when `GET /config` cannot confirm readiness; review submission stays disabled and the editor remains usable.
 - A review state hook that generates a PDF blob and submits it to the configured review service.
-- A review panel for score, tier, category evidence, suggestions, strengths, improvements, bonuses, deductions, and findings.
+- A review panel for advisory score, tier, grouped category evidence and
+  suggestions, strengths, improvements, bonuses, deductions, annotation legend,
+  and findings with severity and target context.
 - Conservative review annotations that only map inline when section, entry, and bullet text matches are exact and unambiguous.
 - A FastAPI review service scaffold with safe config projection, normalized schemas, normalized errors, bounded PDF upload validation, and mocked backend contract tests.
 - Review-service capability discovery that disables review when the local Hiring Agent checkout directory is unavailable, without exposing filesystem paths.
