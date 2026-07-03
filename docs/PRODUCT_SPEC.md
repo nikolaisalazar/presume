@@ -61,10 +61,11 @@ The product has two separate loops:
 
 ### Still-Planned Review Workflow
 
-1. Wire `review-service/app/hiring_agent_adapter.py` to concrete HackerRank Hiring Agent internals.
-2. Run extraction, scoring, optional GitHub enrichment, and LLM calls through the adapter.
-3. Return a normalized review result without exposing Hiring Agent internals to the frontend.
-4. Add browser-to-running-backend integration tests for the full review flow.
+1. Run extraction, scoring, optional GitHub enrichment, and LLM calls through a
+   local Ollama-backed Hiring Agent checkout in a developer environment with
+   `vendor/hiring-agent`, `ollama`, and the selected model installed.
+2. Add automated browser-to-running-backend integration tests if the project
+   adopts a browser test runner.
 
 ## Current Editor Behavior
 
@@ -93,6 +94,9 @@ The app currently supports:
 - A FastAPI review service scaffold with safe config projection, normalized schemas, normalized errors, bounded PDF upload validation, and mocked backend contract tests.
 - Review-service capability discovery that disables review when the local Hiring Agent checkout directory is unavailable, without exposing filesystem paths.
 - Integration-oriented tests for unconfigured, configured-service-disabled, and config-error editor paths, backend-shaped frontend errors, and safe backend error handling.
+- Manual browser-to-backend verification of PDF upload, normalized result
+  rendering, stale-after-edit behavior, disabled-service state, and
+  backend-unavailable state with a controlled temporary adapter target.
 
 Review feedback must be advisory. The first review phase must not rewrite, reorder, or delete resume content automatically.
 
@@ -109,7 +113,9 @@ The review output should include:
 
 Annotations are best effort. If a review finding cannot be matched confidently to a section, entry, or bullet, it should remain visible in the review panel without an inline highlight.
 
-Still-planned review behavior includes full end-to-end Hiring Agent execution through the backend adapter and browser-to-running-backend integration tests.
+Still-planned review behavior includes real Ollama-backed Hiring Agent
+execution in a fully provisioned local environment and automated
+browser-to-running-backend integration tests if a browser test runner is added.
 
 ## UX Principles
 

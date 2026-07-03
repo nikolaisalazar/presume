@@ -5,8 +5,9 @@ from pathlib import Path
 from .schemas import PublicConfig
 
 
-DEFAULT_MAX_UPLOAD_BYTES = 10 * 1024 * 1024
+DEFAULT_MAX_UPLOAD_BYTES = 25 * 1024 * 1024
 DEFAULT_HIRING_AGENT_PATH = "vendor/hiring-agent"
+DEFAULT_CORS_ORIGINS = ("http://localhost:5173", "http://127.0.0.1:5173")
 LOCAL_PROVIDER = "ollama"
 DISABLED_PROVIDER = "disabled"
 DISABLED_MODEL = "unavailable"
@@ -97,7 +98,7 @@ def load_settings() -> Settings:
         gemini_api_key=os.getenv("GEMINI_API_KEY", ""),
         github_token=os.getenv("GITHUB_TOKEN", ""),
         cors_origins=parse_cors_origins(
-            os.getenv("CORS_ORIGINS", "http://localhost:5173")
+            os.getenv("CORS_ORIGINS", ",".join(DEFAULT_CORS_ORIGINS))
         ),
         hiring_agent_path=os.getenv("HIRING_AGENT_PATH", DEFAULT_HIRING_AGENT_PATH),
         max_upload_bytes=parse_max_upload_bytes(os.getenv("MAX_UPLOAD_BYTES")),
@@ -106,7 +107,7 @@ def load_settings() -> Settings:
 
 def parse_cors_origins(value: str) -> tuple[str, ...]:
     origins = tuple(origin.strip() for origin in value.split(",") if origin.strip())
-    return origins or ("http://localhost:5173",)
+    return origins or DEFAULT_CORS_ORIGINS
 
 
 def parse_max_upload_bytes(value: str | None) -> int:

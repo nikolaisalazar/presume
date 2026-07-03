@@ -35,7 +35,7 @@ def test_config_uses_safe_defaults_and_hides_secrets(monkeypatch):
         "llmProvider": "ollama",
         "defaultModel": "gemma3:4b",
         "githubEnrichmentEnabled": True,
-        "maxUploadBytes": 10_485_760,
+        "maxUploadBytes": 26_214_400,
     }
     serialized = response.text
     assert "secret" not in serialized
@@ -61,6 +61,34 @@ def test_config_defaults_to_local_ollama_with_review_disabled_without_hiring_age
     assert config["llmProvider"] == "ollama"
     assert config["defaultModel"] == "gemma3:4b"
     assert config["githubEnrichmentEnabled"] is False
+
+
+def test_default_upload_limit_covers_browser_generated_review_pdf(monkeypatch):
+    monkeypatch.delenv("MAX_UPLOAD_BYTES", raising=False)
+
+    settings = load_settings()
+
+    assert settings.max_upload_bytes == 25 * 1024 * 1024
+
+
+def test_default_cors_allows_loopback_vite_origin(monkeypatch):
+    monkeypatch.delenv("CORS_ORIGINS", raising=False)
+
+    client = TestClient(create_app())
+
+    response = client.options(
+        "/reviews",
+        headers={
+            "Origin": "http://127.0.0.1:5173",
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "content-type",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] == (
+        "http://127.0.0.1:5173"
+    )
 
 
 def test_config_enables_review_when_local_provider_and_hiring_agent_exist(

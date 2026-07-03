@@ -414,7 +414,7 @@ Completion evidence:
 
 ### Milestone 11: Browser-To-Backend Review Flow
 
-Status: Not started.
+Status: Complete with residual risk.
 
 Goal:
 
@@ -458,6 +458,47 @@ Acceptance criteria:
 - Editing after a successful review marks the result stale.
 - Backend unavailable and review-disabled states remain understandable.
 - Docs include exact run commands and common failure modes.
+
+Completion evidence:
+
+- `review-service/app/config.py` now allows both default Vite loopback origins:
+  `http://localhost:5173` and `http://127.0.0.1:5173`.
+- `review-service/app/config.py` now defaults `MAX_UPLOAD_BYTES` to 25 MiB
+  because the browser-rendered default resume PDF exceeded the prior 10 MiB
+  service limit during real UI submission.
+- `review-service/tests/test_health.py` covers default loopback CORS preflight
+  behavior and the default browser review upload limit.
+- Manual browser verification on July 3, 2026:
+  - Backend:
+    `HIRING_AGENT_PATH=/tmp/presume-fake-hiring-agent LLM_PROVIDER=ollama DEFAULT_MODEL=gemma3:4b uvicorn app.main:app --host 127.0.0.1 --port 8000`
+  - Frontend:
+    `VITE_REVIEW_API_URL=http://127.0.0.1:8000 npm run dev -- --host 127.0.0.1`
+  - URL: `http://127.0.0.1:5173/presume/`
+  - Observed `GET /config` returned review enabled.
+  - Clicking `Review resume` generated the default resume PDF, posted it to
+    `/reviews`, received HTTP 200, and rendered normalized score `69 / 100`,
+    all four categories, strengths, improvements, bonus, and deduction in the
+    review panel.
+  - Editing the resume after success displayed `Review is stale` while keeping
+    the prior result visible.
+  - Running the backend with a missing `HIRING_AGENT_PATH` rendered the
+    configured-service-disabled state.
+  - Stopping the backend rendered the backend-unavailable/config-error state.
+- Documentation updates:
+  - `README.md`
+  - `docs/REVIEW_SERVICE.md`
+  - `review-service/README.md`
+
+Residual risk:
+
+- This workspace did not have `ollama` installed, so the real default
+  Ollama-backed Hiring Agent PDF execution path was not verified.
+- `vendor/hiring-agent` was not present in the repository. A temporary checkout
+  under `/tmp` confirmed the upstream project is reachable without dirtying the
+  repo, and a controlled temporary adapter target was used for browser flow
+  verification.
+- No frontend fixture captured from a real Ollama-backed Hiring Agent review was
+  added because that real review did not run successfully in this workspace.
 
 ### Milestone 12: Review UX Polish Using Real Data
 
