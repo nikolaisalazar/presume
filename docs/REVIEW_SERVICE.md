@@ -197,11 +197,11 @@ return raw provider responses, prompts, extracted resume text, or full upstream
 evaluation payloads to clients.
 
 The frontend review submission PDF includes a review-only extractable text
-appendix so Hiring Agent can parse browser-generated resumes. That appendix is
-restricted to visible, allowlisted resume content selectors and excludes hidden
-DOM, `aria-hidden` content, `[data-editor-only="true"]` content, and editor
-controls such as add/remove buttons. The normal Export PDF button remains the
-visual canvas export path and does not add that review appendix.
+appendix so Hiring Agent can parse browser-generated resumes. The appendix is
+built from visible, allowlisted resume content selectors and strips hidden,
+`aria-hidden`, and editor-only descendants, including add/remove controls. The
+normal Export PDF button remains the visual canvas export path and does not add
+that review appendix.
 
 ## Privacy
 

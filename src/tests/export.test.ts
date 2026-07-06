@@ -348,6 +348,10 @@ describe('exportPDF', () => {
       </section>
       <li class="bullet-item">
         Shipped visible work.
+        <span style="display: none">Hidden nested impact.</span>
+        <span style="visibility: hidden">Invisible nested impact.</span>
+        <span hidden>Hidden attr nested impact.</span>
+        <span aria-hidden="true">Aria nested impact.</span>
         <button class="remove-btn">Remove visible work</button>
         <span data-editor-only="true">Editor hint</span>
       </li>
@@ -372,6 +376,10 @@ describe('exportPDF', () => {
     expect(writtenText).not.toContain('Aria hidden impact.')
     expect(writtenText).not.toContain('Editor-only draft role')
     expect(writtenText).not.toContain('Editor-only draft impact.')
+    expect(writtenText).not.toContain('Hidden nested impact.')
+    expect(writtenText).not.toContain('Invisible nested impact.')
+    expect(writtenText).not.toContain('Hidden attr nested impact.')
+    expect(writtenText).not.toContain('Aria nested impact.')
     expect(writtenText).not.toContain('Remove visible work')
     expect(writtenText).not.toContain('Editor hint')
   })

@@ -269,10 +269,29 @@ function isVisibleResumeContent(
 function visibleTextWithoutEditorControls(element: HTMLElement): string {
   const clone = element.cloneNode(true) as HTMLElement
   clone
-    .querySelectorAll('.add-btn, .remove-btn, [data-editor-only="true"]')
-    .forEach(control => control.remove())
+    .querySelectorAll<HTMLElement>('*')
+    .forEach(descendant => {
+      if (isHiddenOrEditorOnly(descendant)) {
+        descendant.remove()
+      }
+    })
 
   return (clone.textContent ?? '').replace(/\s+/g, ' ').trim()
+}
+
+function isHiddenOrEditorOnly(element: HTMLElement): boolean {
+  if (
+    element.hidden ||
+    element.getAttribute('aria-hidden') === 'true' ||
+    element.hasAttribute('data-editor-only') ||
+    element.classList.contains('add-btn') ||
+    element.classList.contains('remove-btn')
+  ) {
+    return true
+  }
+
+  const style = window.getComputedStyle(element)
+  return style.display === 'none' || style.visibility === 'hidden'
 }
 
 function wrapText(text: string, maxLineLength: number): string[] {

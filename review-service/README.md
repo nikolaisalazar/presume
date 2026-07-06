@@ -120,10 +120,10 @@ JSON, and maps it into Presume's normalized `ReviewResult`.
 
 Presume review submissions include a review-only extractable text appendix in
 the generated PDF so Hiring Agent can parse browser-rendered resumes. The
-appendix is limited to visible, allowlisted resume content and excludes hidden
-DOM, `aria-hidden` content, `[data-editor-only="true"]` content, and nested
-editor controls. The regular frontend Export PDF path remains the visual canvas
-export and does not add this review appendix.
+appendix is built from visible, allowlisted resume content selectors and strips
+hidden, `aria-hidden`, and editor-only descendants, including add/remove
+controls. The regular frontend Export PDF path remains the visual canvas export
+and does not add this review appendix.
 
 Set up the dependency checkout separately:
 
