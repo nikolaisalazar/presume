@@ -26,6 +26,7 @@ temporary adapter target. Milestone 13 completed general editor UI polish and
 follow-up fixes for export, print, accessibility, and responsive fixed-canvas
 scrolling. Milestone 14 verified the real local path with
 `vendor/hiring-agent`, Ollama, `gemma3:4b`, a browser-generated Presume PDF,
-the FastAPI service, the frontend validator, and the review panel. The next
-milestone is
-[Milestone 15: Browser And E2E Automation For Review And Export Contracts](MILESTONE_PLAN.md#milestone-15-browser-and-e2e-automation-for-review-and-export-contracts).
+the FastAPI service, the frontend validator, and the review panel. Milestone
+15 added Playwright browser automation for the review and export contracts with
+route-intercepted `/config` and `/reviews` fixture responses. The next milestone
+is [Milestone 16: Review-Service Operational Hardening](MILESTONE_PLAN.md#milestone-16-review-service-operational-hardening).
