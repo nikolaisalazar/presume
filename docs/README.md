@@ -28,5 +28,7 @@ scrolling. Milestone 14 verified the real local path with
 `vendor/hiring-agent`, Ollama, `gemma3:4b`, a browser-generated Presume PDF,
 the FastAPI service, the frontend validator, and the review panel. Milestone
 15 added Playwright browser automation for the review and export contracts with
-route-intercepted `/config` and `/reviews` fixture responses. The next milestone
-is [Milestone 16: Review-Service Operational Hardening](MILESTONE_PLAN.md#milestone-16-review-service-operational-hardening).
+route-intercepted `/config` and `/reviews` fixture responses. Milestone 16 added
+bounded operational config validation, safe readiness diagnostics, and deployment
+guidance for running the review service beyond a single local happy path. The
+next milestone is [Milestone 17: Resume Editing Model Improvements](MILESTONE_PLAN.md#milestone-17-resume-editing-model-improvements).

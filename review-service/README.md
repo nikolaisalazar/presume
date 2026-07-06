@@ -66,6 +66,7 @@ GITHUB_TOKEN=
 CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
 HIRING_AGENT_PATH=vendor/hiring-agent
 MAX_UPLOAD_BYTES=26214400
+REVIEW_TIMEOUT_SECONDS=360
 ```
 
 Defaults favor local review:
@@ -75,6 +76,10 @@ Defaults favor local review:
 - `CORS_ORIGINS` defaults to `http://localhost:5173,http://127.0.0.1:5173`.
 - `MAX_UPLOAD_BYTES` defaults to 25 MiB so the browser-rendered default resume
   PDF can be posted for review while still bounding upload memory per request.
+  Invalid, zero, negative, tiny, or extremely large values resolve to documented
+  safe limits.
+- `REVIEW_TIMEOUT_SECONDS` defaults to 360 seconds. Invalid, zero, negative,
+  tiny, or extremely large values resolve to documented safe limits.
 - Review is enabled only when provider configuration is usable and the local
   Hiring Agent checkout exists as a directory.
 - `GEMINI_API_KEY` is only used when `LLM_PROVIDER=gemini`.
@@ -95,7 +100,8 @@ Defaults favor local review:
   before exposing another model identifier.
 - The adapter timeout is several minutes because the real local Ollama-backed
   Hiring Agent path makes multiple model calls. On the Milestone 14 verification
-  machine, direct `/reviews` completion took 202.292199 seconds.
+  machine, direct `/reviews` completion took 202.292199 seconds. Real latency
+  varies by hardware, model warmup, model size, and current Ollama load.
 
 Hosted providers are opt-in. When a hosted provider such as Gemini is enabled,
 resume text, extracted resume data, and prompt context may be sent to that
@@ -163,12 +169,31 @@ Client-facing error messages are fixed templates selected by normalized error
 code; adapter exception text and provider details are not returned to clients.
 Uploads are read with the configured `MAX_UPLOAD_BYTES` limit so oversized files
 are rejected before the service retains the full body in memory. Upload memory
-is bounded per request by `MAX_UPLOAD_BYTES`; deployments that expose the
-service beyond local development should add appropriate process, proxy, rate,
-or concurrency limits.
+is bounded per request by `MAX_UPLOAD_BYTES`, not globally; concurrent uploads
+can multiply memory use by approximately the configured upload limit per
+in-flight request before adapter work begins. Deployments that expose the
+service beyond trusted local development should add process, proxy, rate, and
+concurrency limits outside the app. The review service is not an authenticated
+public review platform.
 Local Ollama keeps LLM inference local by default. GitHub enrichment is a
 separate external network path and remains disabled unless `GITHUB_TOKEN` is
 configured.
+
+## Deployment Guidance
+
+The review service is intended for trusted local or self-hosted use with
+external operational controls. For deployments beyond a single local developer:
+
+- Configure reverse-proxy request body limits to `MAX_UPLOAD_BYTES` or lower.
+- Configure frontend-facing proxy, load balancer, and process-supervisor
+  timeouts higher than `REVIEW_TIMEOUT_SECONDS` plus upload overhead.
+- Limit concurrency at the proxy or process manager because upload memory is
+  bounded per request, not globally.
+- Choose worker/process counts based on Ollama model memory, available CPU/GPU,
+  expected review latency, and per-request upload memory.
+- Add rate limiting before exposing the service outside a trusted local network.
+- Keep hosted providers opt-in and document that hosted inference may transmit
+  resume text, extracted resume data, and prompt context to that provider.
 
 ## Current Test Boundary
 
@@ -246,8 +271,13 @@ Observed:
   `http://localhost:5173` and `http://127.0.0.1:5173`.
 - If review fails with `upload_too_large`, the backend rejected the PDF after
   upload because it exceeded `MAX_UPLOAD_BYTES`. Raise `MAX_UPLOAD_BYTES` for
-  local testing or reduce the rendered PDF size. The default is 25 MiB.
+  local testing or reduce the rendered PDF size. The default is 25 MiB. For
+  deployments, set reverse-proxy request body limits to the same value or lower.
 - If review fails with `hiring_agent_failed`, run the Hiring Agent checkout
   directly with the same provider settings. Missing Python dependencies,
   missing `ollama`, an unpulled model, or a stopped Ollama server all surface to
   the client as the same safe normalized error.
+- If a proxy or browser-facing request times out before the service responds,
+  increase proxy, load balancer, or process-supervisor timeouts so they exceed
+  `REVIEW_TIMEOUT_SECONDS` plus upload overhead. Real local Ollama review can
+  take several minutes.

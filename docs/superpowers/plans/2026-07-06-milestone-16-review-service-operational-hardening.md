@@ -462,7 +462,7 @@ In `docs/PRODUCT_SPEC.md` and `docs/ARCHITECTURE.md`, mention bounded operationa
 
 - [ ] **Step 3: Update milestone plan**
 
-In `docs/MILESTONE_PLAN.md`, change Milestone 16 status from `Planned` to `Complete` and add completion evidence:
+In `docs/MILESTONE_PLAN.md`, change the initial Milestone 16 status to `Complete` and add completion evidence:
 
 ```md
 Completion evidence:
@@ -491,7 +491,7 @@ Residual risk:
 Run:
 
 ```bash
-grep -R "Milestone 16.*Planned\|Operational hardening.*planned" README.md docs review-service/README.md || true
+grep -R --exclude-dir=superpowers "Milestone 16.*Planned\|Operational hardening.*planned" README.md docs review-service/README.md || true
 ```
 
 Expected: no stale claims that Milestone 16 is still planned.
