@@ -4,7 +4,7 @@
 
 The review service wraps HackerRank's open-source Hiring Agent behind a small Presume-owned API. The service accepts the rendered resume PDF, runs extraction and evaluation through an adapter boundary, and returns a normalized review contract that the frontend can render without depending on Hiring Agent internals.
 
-The FastAPI service scaffold is implemented in `review-service/`. Hiring Agent execution is isolated in `review-service/app/hiring_agent_adapter.py` and requires a local `vendor/hiring-agent` checkout with its Python dependencies installed.
+The FastAPI service scaffold is implemented in `review-service/`. Hiring Agent execution is isolated in `review-service/app/hiring_agent_adapter.py` and requires a local `vendor/hiring-agent` checkout with its Python dependencies installed. That checkout is a local prerequisite and is not vendored into this repository.
 When the local Hiring Agent checkout directory is unavailable, `GET /config`
 reports `reviewEnabled: false` without exposing the configured filesystem path.
 
@@ -13,7 +13,7 @@ reports `reviewEnabled: false` without exposing the configured filesystem path.
 - Framework: FastAPI.
 - Python: 3.11+.
 - Directory: `review-service/`.
-- Initial Hiring Agent dependency: `vendor/hiring-agent` as a local checkout or git submodule.
+- Initial Hiring Agent dependency: `vendor/hiring-agent` as a local checkout outside the tracked repository contents.
 - Integration style: a subprocess bridge around Hiring Agent's `score.main`
   entrypoint, followed by Presume-owned normalization.
 
@@ -71,7 +71,7 @@ Rules:
   must stay explicit; do not allow arbitrary origins by default.
 - Relative `HIRING_AGENT_PATH` values resolve from the repository root. The
   default expects a checkout directory at `vendor/hiring-agent`.
-- `HIRING_AGENT_PATH` points to the local checkout or submodule.
+- `HIRING_AGENT_PATH` points to the local checkout.
 - The adapter prefers `.venv/bin/python` inside the Hiring Agent checkout when
   present, so its upstream dependencies can remain isolated from the review
   service environment.
@@ -197,9 +197,11 @@ return raw provider responses, prompts, extracted resume text, or full upstream
 evaluation payloads to clients.
 
 The frontend review submission PDF includes a review-only extractable text
-appendix so Hiring Agent can parse browser-generated resumes. The normal Export
-PDF button remains the visual canvas export path and does not add that review
-appendix.
+appendix so Hiring Agent can parse browser-generated resumes. That appendix is
+restricted to visible, allowlisted resume content selectors and excludes hidden
+DOM, `aria-hidden` content, `[data-editor-only="true"]` content, and editor
+controls such as add/remove buttons. The normal Export PDF button remains the
+visual canvas export path and does not add that review appendix.
 
 ## Privacy
 

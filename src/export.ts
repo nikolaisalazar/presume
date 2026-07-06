@@ -231,9 +231,39 @@ function extractResumeText(pageElement: HTMLElement): string {
     .flatMap(selector =>
       Array.from(pageElement.querySelectorAll<HTMLElement>(selector))
     )
+    .filter(element => isVisibleResumeContent(element, pageElement))
     .map(element => visibleTextWithoutEditorControls(element))
     .filter(Boolean)
     .join('\n')
+}
+
+function isVisibleResumeContent(
+  element: HTMLElement,
+  boundary: HTMLElement
+): boolean {
+  let current: HTMLElement | null = element
+
+  while (current && current !== boundary.parentElement) {
+    if (
+      current.hidden ||
+      current.getAttribute('aria-hidden') === 'true' ||
+      current.hasAttribute('data-editor-only')
+    ) {
+      return false
+    }
+
+    const style = window.getComputedStyle(current)
+    if (style.display === 'none' || style.visibility === 'hidden') {
+      return false
+    }
+
+    if (current === boundary) {
+      return true
+    }
+    current = current.parentElement
+  }
+
+  return false
 }
 
 function visibleTextWithoutEditorControls(element: HTMLElement): string {

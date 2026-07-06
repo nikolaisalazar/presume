@@ -111,15 +111,19 @@ HackerRank Hiring Agent internals. The expected checkout is
 
 This repository does not vendor Hiring Agent by default. Until that checkout is
 present as a directory, `GET /config` reports `reviewEnabled: false` without
-exposing the configured path. When the checkout is present, the adapter runs a
-small subprocess bridge inside that directory, calls Hiring Agent's `score.main`
+exposing the configured path. The checkout is a local prerequisite under
+`vendor/hiring-agent`, which is ignored by git and should not be committed to
+this repository. When the checkout is present, the adapter runs a small
+subprocess bridge inside that directory, calls Hiring Agent's `score.main`
 entrypoint with the uploaded PDF, captures the returned Pydantic evaluation as
 JSON, and maps it into Presume's normalized `ReviewResult`.
 
 Presume review submissions include a review-only extractable text appendix in
 the generated PDF so Hiring Agent can parse browser-rendered resumes. The
-regular frontend Export PDF path remains the visual canvas export and does not
-add this review appendix.
+appendix is limited to visible, allowlisted resume content and excludes hidden
+DOM, `aria-hidden` content, `[data-editor-only="true"]` content, and nested
+editor controls. The regular frontend Export PDF path remains the visual canvas
+export and does not add this review appendix.
 
 Set up the dependency checkout separately:
 
@@ -212,9 +216,10 @@ VITE_REVIEW_API_URL=http://127.0.0.1:8000 npm run dev -- --host 127.0.0.1
 Observed:
 
 - `GET /config` returned review enabled with `ollama`, `gemma3:4b`, GitHub
-  enrichment disabled, and `maxUploadBytes` `26214400`.
+  enrichment disabled, and `maxUploadBytes` `26214400`; it did not expose
+  paths, secrets, raw environment values, stack traces, or provider internals.
 - Direct `POST /reviews` with a browser-generated Presume review PDF returned
-  HTTP 200 in 202.292199 seconds.
+  HTTP 200 in 202.292199 seconds using multipart form data field `file`.
 - The normalized result included score `81 / 100`, tier `competitive`, four
   categories, three strengths, one improvement, one bonus, no deductions, no
   annotations, and `raw: {"source":"hiring-agent"}`.
@@ -223,6 +228,7 @@ Observed:
   while preserving the previous result.
 - With `OLLAMA_HOST=http://127.0.0.1:9`, the same PDF returned HTTP 502 with
   `hiring_agent_failed` and fixed public message `Resume review failed.`
+  Adapter/provider exception text was not exposed to the client.
 
 ## Browser Flow Troubleshooting
 

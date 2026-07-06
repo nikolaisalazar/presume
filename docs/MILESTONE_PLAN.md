@@ -789,7 +789,8 @@ Goal:
 Scope:
 
 - Install or confirm a local HackerRank Hiring Agent checkout at
-  `vendor/hiring-agent`.
+  `vendor/hiring-agent`. This checkout is a local prerequisite and is not
+  vendored into the Presume repository.
 - Install or confirm Hiring Agent Python dependencies in
   `vendor/hiring-agent/.venv`.
 - Install or confirm `ollama`, start the local Ollama service, and pull or
@@ -894,7 +895,9 @@ Completion evidence:
   Hiring Agent could not extract text from them. `src/export.ts` now supports a
   review-only extractable text appendix, and `src/useResumeReview.ts` enables it
   only for review submissions. The normal Export PDF button still uses the
-  visual canvas path without the review text appendix.
+  visual canvas path without the review text appendix. The appendix is limited
+  to visible, allowlisted resume content and excludes hidden DOM, `aria-hidden`
+  content, `[data-editor-only="true"]` content, and nested editor controls.
 - Direct real-stack `POST /reviews` evidence:
   - Input: browser-generated Presume review PDF saved during verification,
     13,796,920 bytes.
@@ -935,7 +938,14 @@ Residual risk:
   Ollama load.
 - The review-only PDF text appendix is intended for machine extraction, while
   the visual PDF remains canvas-rendered. Future export or review changes should
-  preserve that distinction.
+  preserve that distinction and keep the appendix restricted to content visible
+  in the resume.
+- Local `vendor/hiring-agent` availability varies by machine and upstream
+  Hiring Agent contracts can change outside this repository.
+- PDF text extraction behavior may vary by parser. The review-only appendix is
+  designed to make the submitted text explicit for Hiring Agent, but future
+  parser changes should be rechecked with real-stack smoke tests.
+- GitHub enrichment remains optional and token/rate-limit dependent.
 - The verified real Hiring Agent result did not include deductions or
   annotations. Existing frontend tests still cover rendering those fields when
   present, but this real run did not exercise non-empty findings.

@@ -326,6 +326,56 @@ describe('exportPDF', () => {
     expect(writtenText).not.toContain('+ section')
   })
 
+  it('excludes hidden and editor-only resume text from review PDF blobs', async () => {
+    const sourceCanvas = {
+      width: 850,
+      height: 1100,
+    } as HTMLCanvasElement
+    const pageElement = document.createElement('div')
+    pageElement.innerHTML = `
+      <span class="resume-name">Alex Johnson</span>
+      <span class="entry-title">Visible Role</span>
+      <span class="entry-title" hidden>Hidden Role</span>
+      <li class="bullet-item">Visible impact.</li>
+      <li class="bullet-item" style="display: none">Hidden display impact.</li>
+      <li class="bullet-item" style="visibility: hidden">Hidden visibility impact.</li>
+      <section aria-hidden="true">
+        <li class="bullet-item">Aria hidden impact.</li>
+      </section>
+      <section data-editor-only="true">
+        <span class="entry-title">Editor-only draft role</span>
+        <li class="bullet-item">Editor-only draft impact.</li>
+      </section>
+      <li class="bullet-item">
+        Shipped visible work.
+        <button class="remove-btn">Remove visible work</button>
+        <span data-editor-only="true">Editor hint</span>
+      </li>
+    `
+    const blob = new Blob(['pdf'], { type: 'application/pdf' })
+    html2canvasMock.mockResolvedValue(sourceCanvas)
+    pdfMock.output.mockReturnValue(blob)
+
+    await expect(
+      renderResumePageToPDFBlob(pageElement, { includeExtractableText: true })
+    ).resolves.toBe(blob)
+
+    const writtenText = pdfMock.text.mock.calls
+      .map(([text]) => text)
+      .join('\n')
+    expect(writtenText).toContain('Visible Role')
+    expect(writtenText).toContain('Visible impact.')
+    expect(writtenText).toContain('Shipped visible work.')
+    expect(writtenText).not.toContain('Hidden Role')
+    expect(writtenText).not.toContain('Hidden display impact.')
+    expect(writtenText).not.toContain('Hidden visibility impact.')
+    expect(writtenText).not.toContain('Aria hidden impact.')
+    expect(writtenText).not.toContain('Editor-only draft role')
+    expect(writtenText).not.toContain('Editor-only draft impact.')
+    expect(writtenText).not.toContain('Remove visible work')
+    expect(writtenText).not.toContain('Editor hint')
+  })
+
   it('surfaces PDF blob generation errors to callers', async () => {
     const pageElement = document.createElement('div')
     pageElement.style.overflow = 'visible'

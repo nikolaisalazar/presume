@@ -89,6 +89,9 @@ The app currently supports:
 - A disabled review state when the configured service reports review unavailable through `GET /config`.
 - A config-error review state when `GET /config` cannot confirm readiness; review submission stays disabled and the editor remains usable.
 - A review state hook that generates a PDF blob and submits it to the configured review service.
+- Review submissions add an extractable text appendix restricted to visible,
+  allowlisted resume content so Hiring Agent can parse browser-rendered PDFs;
+  normal exported PDFs remain canvas/image-only.
 - A review panel for advisory score, tier, grouped category evidence and
   suggestions, strengths, improvements, bonuses, deductions, annotation legend,
   and findings with severity and target context.
@@ -100,9 +103,11 @@ The app currently supports:
   rendering, stale-after-edit behavior, disabled-service state, and
   backend-unavailable state with a controlled temporary adapter target.
 - Manual real-stack verification of a browser-generated Presume PDF posted to
-  the FastAPI service, real `vendor/hiring-agent`, local Ollama, `gemma3:4b`,
-  normalized response validation, review panel rendering, stale-after-edit
-  behavior, and safe misconfigured-Ollama failure.
+  the FastAPI service, real local `vendor/hiring-agent` checkout, local
+  Ollama, `gemma3:4b`, normalized response validation, review panel rendering,
+  stale-after-edit behavior, and safe misconfigured-Ollama failure. The Hiring
+  Agent checkout is a local prerequisite and is not vendored into this
+  repository.
 
 Review feedback must be advisory. The first review phase must not rewrite, reorder, or delete resume content automatically.
 

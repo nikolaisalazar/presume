@@ -72,6 +72,11 @@ All major resume font sizes are expressed as CSS custom properties multiplied by
 
 `src/export.ts` captures the rendered `ResumePage` DOM node with `html2canvas` and writes it to a Letter-sized `jsPDF` document. The captured canvas is sliced by Letter page height. A one-page render produces one PDF page; a taller render produced by `maxPages > 1` produces additional Letter pages rather than one compressed page.
 
+For review submissions only, the PDF helper appends extractable text restricted
+to visible, allowlisted resume content so Hiring Agent can parse the
+browser-rendered resume. The user-facing Export PDF action remains the visual
+canvas/image export and does not include that appendix.
+
 The current renderer does not create visible page-break UI inside the editor. Multi-page export is a canvas slicing operation aligned to the same Letter aspect ratio used by the resume page and resize engine.
 
 ## Current Frontend Data Flow
@@ -114,7 +119,7 @@ sequenceDiagram
   participant GH as GitHub API
 
   User->>UI: Request review
-  UI->>PDF: Render current ResumePage to PDF Blob using the multi-page export path
+  UI->>PDF: Render current ResumePage to PDF Blob with review-only text appendix
   PDF-->>UI: PDF Blob
   UI->>API: POST /reviews multipart resume.pdf
   API->>HA: Run extraction and scoring through adapter

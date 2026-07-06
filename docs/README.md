@@ -29,6 +29,3 @@ scrolling. Milestone 14 verified the real local path with
 the FastAPI service, the frontend validator, and the review panel. The next
 milestone is
 [Milestone 15: Browser And E2E Automation For Review And Export Contracts](MILESTONE_PLAN.md#milestone-15-browser-and-e2e-automation-for-review-and-export-contracts).
-
-For a fresh-agent handoff, see
-[Milestone 14 Fresh-Agent Prompt](MILESTONE_14_AGENT_PROMPT.md).
