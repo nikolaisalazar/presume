@@ -7,7 +7,10 @@ Presume helps job seekers maintain a resume that is both visually controlled and
 The product has two separate loops:
 
 - Formatting loop: deterministic browser-side fitting powered by Pretext.
-- Review loop: advisory evidence display powered by a Presume-owned backend wrapper around HackerRank Hiring Agent. The UI and service scaffold exist; full Hiring Agent execution is still pending adapter wiring.
+- Review loop: advisory evidence display powered by a Presume-owned backend
+  wrapper around HackerRank Hiring Agent. The UI, service scaffold, subprocess
+  adapter, and real local Ollama-backed execution path have been verified in a
+  fully provisioned developer environment.
 
 ## Target Users
 
@@ -61,10 +64,7 @@ The product has two separate loops:
 
 ### Still-Planned Review Workflow
 
-1. Run extraction, scoring, optional GitHub enrichment, and LLM calls through a
-   local Ollama-backed Hiring Agent checkout in a developer environment with
-   `vendor/hiring-agent`, `ollama`, and the selected model installed.
-2. Add automated browser-to-running-backend integration tests if the project
+1. Add automated browser-to-running-backend integration tests if the project
    adopts a browser test runner.
 
 ## Current Editor Behavior
@@ -99,6 +99,10 @@ The app currently supports:
 - Manual browser-to-backend verification of PDF upload, normalized result
   rendering, stale-after-edit behavior, disabled-service state, and
   backend-unavailable state with a controlled temporary adapter target.
+- Manual real-stack verification of a browser-generated Presume PDF posted to
+  the FastAPI service, real `vendor/hiring-agent`, local Ollama, `gemma3:4b`,
+  normalized response validation, review panel rendering, stale-after-edit
+  behavior, and safe misconfigured-Ollama failure.
 
 Review feedback must be advisory. The first review phase must not rewrite, reorder, or delete resume content automatically.
 
@@ -115,9 +119,8 @@ The review output should include:
 
 Annotations are best effort. If a review finding cannot be matched confidently to a section, entry, or bullet, it should remain visible in the review panel without an inline highlight.
 
-Still-planned review behavior includes real Ollama-backed Hiring Agent
-execution in a fully provisioned local environment and automated
-browser-to-running-backend integration tests if a browser test runner is added.
+Still-planned review behavior includes automated browser-to-running-backend
+integration tests if a browser test runner is added.
 
 ## UX Principles
 

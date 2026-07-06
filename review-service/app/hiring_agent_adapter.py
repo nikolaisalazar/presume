@@ -15,7 +15,7 @@ from .errors import ReviewServiceError
 from .schemas import ReviewResult
 
 
-SUBPROCESS_TIMEOUT_SECONDS = 55
+SUBPROCESS_TIMEOUT_SECONDS = 360
 SAFE_SUBPROCESS_ENV_KEYS = {
     "HOME",
     "LANG",
@@ -55,7 +55,8 @@ class HiringAgentAdapter:
 
         try:
             return await asyncio.wait_for(
-                self._run_hiring_agent(pdf_bytes), timeout=60
+                self._run_hiring_agent(pdf_bytes),
+                timeout=SUBPROCESS_TIMEOUT_SECONDS + 15,
             )
         except TimeoutError:
             raise ReviewServiceError(

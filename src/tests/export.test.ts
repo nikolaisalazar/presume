@@ -4,6 +4,9 @@ import { exportPDF, getPdfPageSlices, renderResumePageToPDFBlob } from '../expor
 const pdfMock = vi.hoisted(() => ({
   addImage: vi.fn(),
   addPage: vi.fn(),
+  setFontSize: vi.fn(),
+  setTextColor: vi.fn(),
+  text: vi.fn(),
   output: vi.fn(),
   save: vi.fn(),
   constructor: vi.fn(),
@@ -21,6 +24,9 @@ vi.mock('jspdf', () => ({
     return {
       addImage: pdfMock.addImage,
       addPage: pdfMock.addPage,
+      setFontSize: pdfMock.setFontSize,
+      setTextColor: pdfMock.setTextColor,
+      text: pdfMock.text,
       output: pdfMock.output,
       save: pdfMock.save,
     }
@@ -62,6 +68,9 @@ describe('exportPDF', () => {
   beforeEach(() => {
     pdfMock.addImage.mockClear()
     pdfMock.addPage.mockClear()
+    pdfMock.setFontSize.mockClear()
+    pdfMock.setTextColor.mockClear()
+    pdfMock.text.mockClear()
     pdfMock.output.mockClear()
     pdfMock.save.mockClear()
     pdfMock.constructor.mockClear()
@@ -251,6 +260,7 @@ describe('exportPDF', () => {
       8.5,
       11
     )
+    expect(pdfMock.text).not.toHaveBeenCalled()
     expect(pdfMock.save).toHaveBeenCalledWith('resume.pdf')
   })
 
@@ -270,6 +280,50 @@ describe('exportPDF', () => {
     expect(pdfMock.addImage).toHaveBeenCalledTimes(3)
     expect(pdfMock.output).toHaveBeenCalledWith('blob')
     expect(pdfMock.save).not.toHaveBeenCalled()
+  })
+
+  it('can add extractable resume text to review PDF blobs without editor controls', async () => {
+    const sourceCanvas = {
+      width: 850,
+      height: 1100,
+    } as HTMLCanvasElement
+    const pageElement = document.createElement('div')
+    pageElement.innerHTML = `
+      <span class="resume-name">Alex Johnson</span>
+      <li class="resume-contact-item">
+        alex@example.com
+        <button class="remove-btn">-</button>
+      </li>
+      <span class="resume-section-title">Experience</span>
+      <span class="entry-title">Software Engineer</span>
+      <span class="entry-date">2023 - Present</span>
+      <span class="entry-subtitle">Acme</span>
+      <span class="entry-location">Remote</span>
+      <li class="bullet-item">
+        Built review tooling.
+        <button class="remove-btn">-</button>
+      </li>
+      <button class="add-btn">+ section</button>
+    `
+    const blob = new Blob(['pdf'], { type: 'application/pdf' })
+    html2canvasMock.mockResolvedValue(sourceCanvas)
+    pdfMock.output.mockReturnValue(blob)
+
+    await expect(
+      renderResumePageToPDFBlob(pageElement, { includeExtractableText: true })
+    ).resolves.toBe(blob)
+
+    expect(pdfMock.addImage).toHaveBeenCalledTimes(1)
+    expect(pdfMock.addPage).toHaveBeenCalledWith('letter', 'portrait')
+    expect(pdfMock.setFontSize).toHaveBeenCalledWith(8)
+    expect(pdfMock.setTextColor).toHaveBeenCalledWith(255, 255, 255)
+    const writtenText = pdfMock.text.mock.calls
+      .map(([text]) => text)
+      .join('\n')
+    expect(writtenText).toContain('Alex Johnson')
+    expect(writtenText).toContain('Experience')
+    expect(writtenText).toContain('Built review tooling.')
+    expect(writtenText).not.toContain('+ section')
   })
 
   it('surfaces PDF blob generation errors to callers', async () => {

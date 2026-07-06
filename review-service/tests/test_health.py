@@ -44,12 +44,15 @@ def test_config_uses_safe_defaults_and_hides_secrets(monkeypatch):
 
 
 def test_config_defaults_to_local_ollama_with_review_disabled_without_hiring_agent(
-    monkeypatch,
+    monkeypatch, tmp_path
 ):
     monkeypatch.delenv("LLM_PROVIDER", raising=False)
     monkeypatch.delenv("DEFAULT_MODEL", raising=False)
     monkeypatch.delenv("GEMINI_API_KEY", raising=False)
     monkeypatch.delenv("GITHUB_TOKEN", raising=False)
+    monkeypatch.setenv(
+        "HIRING_AGENT_PATH", str(tmp_path / "missing-hiring-agent")
+    )
 
     client = TestClient(create_app())
 
@@ -170,6 +173,20 @@ def test_absolute_hiring_agent_path_resolves_without_rebasing(tmp_path):
 def test_relative_vendor_hiring_agent_path_resolves_from_repository_root():
     assert resolve_hiring_agent_path("vendor/hiring-agent") == (
         REPOSITORY_ROOT / "vendor" / "hiring-agent"
+    )
+
+
+def test_parent_relative_hiring_agent_path_can_resolve_from_service_cwd(
+    monkeypatch, tmp_path
+):
+    service_dir = tmp_path / "repo" / "review-service"
+    hiring_agent_path = tmp_path / "repo" / "vendor" / "hiring-agent"
+    service_dir.mkdir(parents=True)
+    hiring_agent_path.mkdir(parents=True)
+    monkeypatch.chdir(service_dir)
+
+    assert resolve_hiring_agent_path("../vendor/hiring-agent") == (
+        hiring_agent_path.resolve()
     )
 
 

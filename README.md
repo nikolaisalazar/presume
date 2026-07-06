@@ -22,15 +22,15 @@ Working today:
 - FastAPI review service scaffold with safe config projection, Hiring Agent dependency readiness checks, normalized schemas, normalized errors, PDF upload validation, and mocked contract tests.
 - Integration-oriented tests for unconfigured editor behavior, backend-shaped frontend errors, and safe backend error handling.
 - Browser-to-backend review flow has been exercised with a running frontend,
-  running backend, and controlled adapter target. A real local Ollama-backed
-  Hiring Agent run still requires `vendor/hiring-agent`, `ollama`, and the
-  selected model installed locally.
+  running backend, controlled adapter target, and the real local
+  Ollama-backed Hiring Agent path using `vendor/hiring-agent`, `gemma3:4b`, and
+  a browser-generated Presume PDF.
 
 Still planned:
 
-- Real local Ollama-backed Hiring Agent execution in a fully provisioned
-  developer environment.
-- Browser verification against a real local Ollama-backed Hiring Agent run.
+- Browser automation for the review and export contracts.
+- Operational hardening for long-running local review requests and deployments
+  beyond single-developer local use.
 
 ## How It Works
 

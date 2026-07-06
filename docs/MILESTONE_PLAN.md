@@ -768,3 +768,245 @@ Residual risk:
   `ollama`, the selected model, and a valid PDF posted through `/reviews`.
 - Milestone 13 did not change the review API contract or review mutation
   behavior; review feedback remains advisory and non-mutating.
+
+### Milestone 14: Real Ollama-Backed Hiring Agent Verification
+
+Status: Complete.
+
+Priority:
+
+- Do this before additional UI, editor-model, or operational polish. The
+  remaining highest-risk product claim is that Presume can run the intended
+  local review path against a real Hiring Agent checkout and local Ollama model,
+  not only against mocked adapters or controlled fixture targets.
+
+Goal:
+
+- Verify the real default review path end to end with a local
+  `vendor/hiring-agent` checkout, Ollama, the selected model, the FastAPI review
+  service, and a valid browser-generated Presume PDF posted through `/reviews`.
+
+Scope:
+
+- Install or confirm a local HackerRank Hiring Agent checkout at
+  `vendor/hiring-agent`.
+- Install or confirm Hiring Agent Python dependencies in
+  `vendor/hiring-agent/.venv`.
+- Install or confirm `ollama`, start the local Ollama service, and pull or
+  confirm the documented default model, currently `gemma3:4b`.
+- Start the review service with:
+  - `HIRING_AGENT_PATH=../vendor/hiring-agent`
+  - `LLM_PROVIDER=ollama`
+  - `DEFAULT_MODEL=gemma3:4b`
+- Start the frontend with `VITE_REVIEW_API_URL=http://127.0.0.1:8000`.
+- Generate a Presume PDF through the actual frontend review flow and post it to
+  `/reviews`.
+- Verify the frontend accepts and renders the normalized result.
+- If the real run exposes a defect, make only the smallest adapter, contract, or
+  rendering fix required for that real verification path.
+- Document exact commands, observed result shape, failure modes, and whether
+  real execution succeeded.
+
+Out of scope:
+
+- Broad UI redesign.
+- Automatic resume rewriting or mutation.
+- Hosted provider work beyond preserving existing opt-in Gemini behavior.
+- Resume editing data-model redesign.
+- Full Playwright/Cypress adoption unless a tiny smoke harness is required to
+  capture the verification cleanly.
+- Claiming real Hiring Agent execution works unless the real stack is actually
+  run with a valid PDF posted through `/reviews`.
+
+Files likely to change:
+
+- `docs/MILESTONE_PLAN.md`
+- `docs/README.md`
+- `docs/PRODUCT_SPEC.md`
+- `docs/REVIEW_SERVICE.md`
+- `README.md`
+- `review-service/README.md`
+- `review-service/app/hiring_agent_adapter.py`, only if real execution exposes
+  an adapter bug.
+- `review-service/tests/test_hiring_agent_adapter.py`, only for any adapter
+  fix.
+- `src/reviewTypes.ts`, only if real output proves the normalized contract is
+  insufficient.
+- `src/components/ReviewPanel.tsx`, only if real normalized output exposes a
+  rendering bug.
+
+Acceptance criteria:
+
+- `GET /config` reports `reviewEnabled: true` with the real local checkout and
+  Ollama configuration.
+- A valid Presume PDF posted to `POST /reviews` returns HTTP 200 with a
+  normalized `ReviewResult`.
+- The frontend validator accepts that result.
+- The review panel renders score, categories, strengths, improvements,
+  bonuses, deductions, and findings when those fields are present.
+- Public API responses remain secret-free and path-free.
+- Review feedback remains advisory and non-mutating.
+- Existing backend tests, frontend tests, and production build pass.
+- Documentation clearly distinguishes verified real Ollama execution from
+  fixture/manual verification.
+
+Test and verification plan:
+
+- `python3 -m pytest review-service/tests -q`
+- `npm test -- --run`
+- `npm run build`
+- Manual real-stack verification:
+  1. Confirm `vendor/hiring-agent` exists and has its dependencies installed.
+  2. Confirm `ollama` is installed, running, and has `gemma3:4b` available.
+  3. Start the review service on `127.0.0.1:8000`.
+  4. Start the frontend with `VITE_REVIEW_API_URL=http://127.0.0.1:8000`.
+  5. Open the app, click `Review resume`, and confirm a normalized result
+     renders.
+  6. Edit the resume after success and confirm the previous result becomes
+     stale without mutating content.
+  7. Stop or misconfigure Ollama and confirm failures map to safe normalized
+     errors without exposing raw provider details.
+- If the UI submission fails, also post the generated PDF directly to
+  `/reviews` to isolate frontend, CORS, upload, adapter, or provider defects.
+
+Completion evidence:
+
+- Local setup completed on July 6, 2026:
+  - `git clone https://github.com/interviewstreet/hiring-agent.git vendor/hiring-agent`
+  - `/Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13 -m venv .venv`
+  - `.venv/bin/python -m pip install -r requirements.txt`
+  - `brew install ollama`
+  - `OLLAMA_FLASH_ATTENTION="1" OLLAMA_KV_CACHE_TYPE="q8_0" /opt/homebrew/opt/ollama/bin/ollama serve`
+  - `/opt/homebrew/opt/ollama/bin/ollama pull gemma3:4b`
+- Backend command:
+  `HIRING_AGENT_PATH=../vendor/hiring-agent LLM_PROVIDER=ollama DEFAULT_MODEL=gemma3:4b uvicorn app.main:app --host 127.0.0.1 --port 8000`
+- Frontend command:
+  `VITE_REVIEW_API_URL=http://127.0.0.1:8000 npm run dev -- --host 127.0.0.1`
+- `GET /config` returned:
+  `{"reviewEnabled":true,"llmProvider":"ollama","defaultModel":"gemma3:4b","githubEnrichmentEnabled":false,"maxUploadBytes":26214400}`
+  without exposing filesystem paths, secrets, raw environment values, stack
+  traces, provider responses, or raw resume contents.
+- Root-cause fix: the documented `HIRING_AGENT_PATH=../vendor/hiring-agent`
+  command did not match repository-root-relative path resolution, so
+  `review-service/app/config.py` now preserves repository-root resolution and
+  falls back to an existing current-working-directory-relative path.
+- Root-cause fix: browser-generated review PDFs were raster-only and upstream
+  Hiring Agent could not extract text from them. `src/export.ts` now supports a
+  review-only extractable text appendix, and `src/useResumeReview.ts` enables it
+  only for review submissions. The normal Export PDF button still uses the
+  visual canvas path without the review text appendix.
+- Direct real-stack `POST /reviews` evidence:
+  - Input: browser-generated Presume review PDF saved during verification,
+    13,796,920 bytes.
+  - Command:
+    `curl -sS -w '\nHTTP_STATUS:%{http_code}\nTOTAL_TIME:%{time_total}\n' -F 'file=@/tmp/presume-review-text.pdf;type=application/pdf;filename=resume.pdf' http://127.0.0.1:8000/reviews`
+  - Result: HTTP 200 in 202.292199 seconds.
+  - Observed normalized result shape: total score `81 / 100`, tier
+    `competitive`, four categories, three strengths, one improvement, one
+    bonus, no deductions, no annotations, and `raw: {"source":"hiring-agent"}`.
+  - The frontend `validateReviewResult` accepted this exact response.
+- Browser verification:
+  - The actual frontend submitted a review request to the real backend, and the
+    backend logged `POST /reviews HTTP/1.1` with HTTP 200.
+  - The same real normalized response was then served by a temporary local
+    fixture endpoint to verify the review panel renders the score, categories,
+    strengths, improvements, and bonus immediately without another multi-minute
+    model run.
+  - Editing the resume after success displayed `Review is stale` while keeping
+    the previous `81 / 100` result visible.
+- Safe failure verification:
+  - Backend command included `OLLAMA_HOST=http://127.0.0.1:9`.
+  - Posting the same generated PDF returned HTTP 502 in 0.747482 seconds with
+    `{"error":{"code":"hiring_agent_failed","message":"Resume review failed.","requestId":"req_..."}}`.
+  - The public failure response did not expose API keys, tokens, local paths,
+    raw resume text, prompts, provider responses, stack traces, or adapter
+    exception text.
+- Verification commands:
+  - `python3 -m pytest review-service/tests -q`
+  - `npm test -- --run`
+  - `npm run build`
+
+Residual risk:
+
+- Real local Ollama review is slow on this machine: the successful direct
+  `/reviews` request took 202.292199 seconds, and a diagnostic uncached Hiring
+  Agent run took roughly 270 seconds. The service timeout was raised to cover
+  this measured local path, but model latency will vary by hardware and current
+  Ollama load.
+- The review-only PDF text appendix is intended for machine extraction, while
+  the visual PDF remains canvas-rendered. Future export or review changes should
+  preserve that distinction.
+- The verified real Hiring Agent result did not include deductions or
+  annotations. Existing frontend tests still cover rendering those fields when
+  present, but this real run did not exercise non-empty findings.
+- Broader deployment hardening, concurrency controls, and repeatable browser
+  automation remain later milestones.
+
+### Milestone 15: Browser And E2E Automation For Review And Export Contracts
+
+Status: Planned.
+
+Goal:
+
+- Convert the most important manual browser checks into repeatable automation
+  after the real review path is understood.
+
+Scope:
+
+- Add a browser test runner or a small scripted browser harness.
+- Cover unconfigured review behavior, configured fixture-backed review success,
+  stale-after-edit behavior, disabled-service behavior, backend-unavailable
+  behavior, fixed-canvas narrow scrolling, review-panel no-overflow behavior,
+  and export capture hiding editor-only controls.
+- Keep real Ollama execution as a documented/manual verification unless the
+  local environment can run it reliably in automation.
+
+Dependency:
+
+- Follows Milestone 14 so the automated fixture and assertions match the real
+  contract and observed result shape.
+
+### Milestone 16: Review-Service Operational Hardening
+
+Status: Planned.
+
+Goal:
+
+- Make the review service safer and easier to run beyond a single local
+  developer happy path.
+
+Scope:
+
+- Improve startup/readiness diagnostics without exposing secrets or paths.
+- Revisit timeout and upload-size configuration based on real Milestone 14
+  latency and PDF size.
+- Document or add process, proxy, rate, and concurrency controls for deployments
+  beyond local development.
+- Preserve local Ollama as the default and hosted providers as opt-in.
+
+Dependency:
+
+- Follows Milestone 14 and benefits from Milestone 15 so operational changes are
+  based on measured real behavior and protected by browser/service regression
+  coverage.
+
+### Milestone 17: Resume Editing Model Improvements
+
+Status: Planned.
+
+Goal:
+
+- Improve the resume editing model only after the review loop is proven and
+  protected by stronger test coverage.
+
+Scope:
+
+- Revisit structured fields, section/entry operations, import/export
+  compatibility, and any migration strategy needed for richer editing.
+- Keep the resume directly editable and preserve JSON portability.
+- Keep review feedback advisory and non-mutating.
+
+Dependency:
+
+- Follows Milestones 14 and 15 so editor model changes do not obscure unresolved
+  review integration or browser/export contract issues.

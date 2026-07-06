@@ -22,7 +22,13 @@ backend-shaped frontend errors, and safe backend error handling.
 
 Milestone 11 verified the actual frontend can submit a browser-rendered resume
 PDF to a running backend and display the normalized result using a controlled
-temporary adapter target. Real Ollama-backed Hiring Agent execution still
-requires `vendor/hiring-agent`, `ollama`, and the selected model installed
-locally. The next milestone is
-[Milestone 12: Review UX Polish Using Real Data](MILESTONE_PLAN.md#milestone-12-review-ux-polish-using-real-data).
+temporary adapter target. Milestone 13 completed general editor UI polish and
+follow-up fixes for export, print, accessibility, and responsive fixed-canvas
+scrolling. Milestone 14 verified the real local path with
+`vendor/hiring-agent`, Ollama, `gemma3:4b`, a browser-generated Presume PDF,
+the FastAPI service, the frontend validator, and the review panel. The next
+milestone is
+[Milestone 15: Browser And E2E Automation For Review And Export Contracts](MILESTONE_PLAN.md#milestone-15-browser-and-e2e-automation-for-review-and-export-contracts).
+
+For a fresh-agent handoff, see
+[Milestone 14 Fresh-Agent Prompt](MILESTONE_14_AGENT_PROMPT.md).

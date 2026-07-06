@@ -22,11 +22,17 @@ type PdfDocument = {
     format?: string | number[],
     orientation?: 'p' | 'portrait' | 'l' | 'landscape'
   ) => unknown
+  setFontSize?: (size: number) => unknown
+  setTextColor?: (r: number, g: number, b: number) => unknown
+  text?: (text: string | string[], x: number, y: number) => unknown
   output: (type: 'blob') => Blob
   save: (filename: string) => unknown
 }
 
 type CaptureRestoration = () => void
+type PdfRenderOptions = {
+  includeExtractableText?: boolean
+}
 
 export function getPdfPageSlices(
   canvasWidth: number,
@@ -93,7 +99,8 @@ function hideEditorControlsForCapture(
 }
 
 async function renderResumePageToPDF(
-  pageElement: HTMLElement
+  pageElement: HTMLElement,
+  options: PdfRenderOptions = {}
 ): Promise<PdfDocument> {
   const { jsPDF } = await import('jspdf')
   const canvas = await captureResumePage(pageElement)
@@ -142,6 +149,10 @@ async function renderResumePageToPDF(
     )
   })
 
+  if (options.includeExtractableText) {
+    addExtractableTextAppendix(pdf, pageElement)
+  }
+
   return pdf
 }
 
@@ -151,9 +162,10 @@ async function renderResumePageToPDF(
  * the same path as the download exporter.
  */
 export async function renderResumePageToPDFBlob(
-  pageElement: HTMLElement
+  pageElement: HTMLElement,
+  options: PdfRenderOptions = {}
 ): Promise<Blob> {
-  const pdf = await renderResumePageToPDF(pageElement)
+  const pdf = await renderResumePageToPDF(pageElement, options)
   return pdf.output('blob')
 }
 
@@ -166,6 +178,94 @@ export async function renderResumePageToPDFBlob(
 export async function exportPDF(pageElement: HTMLElement): Promise<void> {
   const pdf = await renderResumePageToPDF(pageElement)
   pdf.save('resume.pdf')
+}
+
+function addExtractableTextAppendix(
+  pdf: PdfDocument,
+  pageElement: HTMLElement
+): void {
+  if (!pdf.text || !pdf.setFontSize || !pdf.setTextColor) {
+    return
+  }
+
+  const text = extractResumeText(pageElement)
+  if (!text) {
+    return
+  }
+
+  pdf.addPage('letter', 'portrait')
+  pdf.setFontSize(8)
+  pdf.setTextColor(255, 255, 255)
+
+  const lines = wrapText(text, 110)
+  const marginLeft = 0.35
+  const marginTop = 0.45
+  const lineHeight = 0.12
+  const maxLinesPerPage = Math.floor((PAGE_HEIGHT_IN - marginTop * 2) / lineHeight)
+
+  lines.forEach((line, index) => {
+    if (index > 0 && index % maxLinesPerPage === 0) {
+      pdf.addPage('letter', 'portrait')
+      pdf.setFontSize?.(8)
+      pdf.setTextColor?.(255, 255, 255)
+    }
+
+    const pageLineIndex = index % maxLinesPerPage
+    pdf.text?.(line, marginLeft, marginTop + pageLineIndex * lineHeight)
+  })
+}
+
+function extractResumeText(pageElement: HTMLElement): string {
+  const selectors = [
+    '.resume-name',
+    '.resume-contact-item',
+    '.resume-section-title',
+    '.entry-title',
+    '.entry-date',
+    '.entry-subtitle',
+    '.entry-location',
+    '.bullet-item',
+  ]
+
+  return selectors
+    .flatMap(selector =>
+      Array.from(pageElement.querySelectorAll<HTMLElement>(selector))
+    )
+    .map(element => visibleTextWithoutEditorControls(element))
+    .filter(Boolean)
+    .join('\n')
+}
+
+function visibleTextWithoutEditorControls(element: HTMLElement): string {
+  const clone = element.cloneNode(true) as HTMLElement
+  clone
+    .querySelectorAll('.add-btn, .remove-btn, [data-editor-only="true"]')
+    .forEach(control => control.remove())
+
+  return (clone.textContent ?? '').replace(/\s+/g, ' ').trim()
+}
+
+function wrapText(text: string, maxLineLength: number): string[] {
+  return text.split('\n').flatMap(line => {
+    const words = line.split(/\s+/).filter(Boolean)
+    const lines: string[] = []
+    let currentLine = ''
+
+    words.forEach(word => {
+      const nextLine = currentLine ? `${currentLine} ${word}` : word
+      if (nextLine.length > maxLineLength && currentLine) {
+        lines.push(currentLine)
+        currentLine = word
+      } else {
+        currentLine = nextLine
+      }
+    })
+
+    if (currentLine) {
+      lines.push(currentLine)
+    }
+    return lines
+  })
 }
 
 /**
