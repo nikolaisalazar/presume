@@ -979,8 +979,9 @@ Completion evidence:
 - `playwright.config.ts`, `playwright.unconfigured.config.ts`, and
   `playwright.configured.config.ts` run the built Vite app in Chromium via
   `vite preview`.
-- `e2e/unconfigured.spec.ts` verifies that the app loads in a real browser, the
-  resume page renders nonblank, normal `Export PDF` triggers a `resume.pdf`
+- `e2e/unconfigured.spec.ts` verifies that the app loads from the `/presume/`
+  base path in a real browser, the resume page renders nonblank, normal
+  `Export PDF` triggers a `resume.pdf`
   download, editing still works afterward, review submission stays disabled
   when unconfigured, and the narrow viewport keeps page-level horizontal
   overflow absent while `.resume-canvas-scroll` owns the fixed `816px` resume

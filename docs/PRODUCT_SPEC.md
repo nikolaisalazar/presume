@@ -66,8 +66,8 @@ The product has two separate loops:
 
 1. Run `npm run test:e2e` to launch the real Vite app in Chromium through
    Playwright.
-2. The suite verifies app load, nonblank resume rendering, normal PDF export
-   download, unconfigured/disabled/config-error review states, fixture-backed
+2. The suite verifies `/presume/` base-path app load, nonblank resume rendering,
+   normal PDF export download, unconfigured/disabled/config-error review states, fixture-backed
    review submission and rendering, stale-after-edit behavior, and narrow
    viewport fixed-canvas scrolling.
 3. The suite uses route interception for `/config` and `/reviews`; it does not

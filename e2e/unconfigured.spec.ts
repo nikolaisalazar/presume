@@ -2,8 +2,9 @@ import { expect, test } from '@playwright/test'
 
 test.describe('unconfigured browser contracts', () => {
   test('loads, renders a nonblank resume, exports PDF, and keeps editing available', async ({ page }) => {
-    await page.goto('/')
+    await page.goto('./')
 
+    await expect(page).toHaveURL(/\/presume\/$/)
     await expect(page.getByRole('banner')).toContainText('Presume')
     await expect(page.locator('.resume-page')).toBeVisible()
     await expect(page.getByText('Review service not configured')).toBeVisible()
@@ -26,7 +27,8 @@ test.describe('unconfigured browser contracts', () => {
 
   test('keeps narrow viewport overflow inside the fixed resume canvas scroller', async ({ page }) => {
     await page.setViewportSize({ width: 358, height: 980 })
-    await page.goto('/')
+    await page.goto('./')
+    await expect(page).toHaveURL(/\/presume\/$/)
 
     const metrics = await page.evaluate(() => {
       const workspace = document.querySelector('.workspace') as HTMLElement

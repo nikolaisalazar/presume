@@ -78,7 +78,7 @@ Then start the frontend from the repository root:
 VITE_REVIEW_API_URL=http://127.0.0.1:8000 npm run dev -- --host 127.0.0.1
 ```
 
-The `npm run test:e2e` command covers app load, nonblank resume rendering, normal PDF export download, unconfigured/disabled/config-error review states, fixture-backed review submission and rendering, stale-after-edit behavior, and narrow viewport fixed-canvas scrolling. It intentionally does not run the real Ollama-backed Hiring Agent path by default because that requires local `vendor/hiring-agent`, its `.venv`, a running Ollama service, a pulled model such as `gemma3:4b`, and multi-minute machine-dependent review latency.
+The `npm run test:e2e` command covers `/presume/` base-path app load, nonblank resume rendering, normal PDF export download, unconfigured/disabled/config-error review states, fixture-backed review submission and rendering, stale-after-edit behavior, and narrow viewport fixed-canvas scrolling. It intentionally does not run the real Ollama-backed Hiring Agent path by default because that requires local `vendor/hiring-agent`, its `.venv`, a running Ollama service, a pulled model such as `gemma3:4b`, and multi-minute machine-dependent review latency.
 
 The frontend can also run as a static app without review configured. Review
 submission requires a separate backend service and `VITE_REVIEW_API_URL`; see

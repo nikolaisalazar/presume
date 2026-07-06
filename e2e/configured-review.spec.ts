@@ -16,7 +16,8 @@ test.describe('configured review browser contracts', () => {
       })
     )
 
-    await page.goto('/')
+    await page.goto('./')
+    await expect(page).toHaveURL(/\/presume\/$/)
 
     await expect(page.getByText('Review service unavailable')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Review resume' })).toBeDisabled()
@@ -25,7 +26,8 @@ test.describe('configured review browser contracts', () => {
   test('renders config-error state when backend cannot be reached', async ({ page }) => {
     await page.route('http://127.0.0.1:8124/config', route => route.abort('failed'))
 
-    await page.goto('/')
+    await page.goto('./')
+    await expect(page).toHaveURL(/\/presume\/$/)
 
     await expect(page.getByText('Review service unavailable')).toBeVisible()
     await expect(page.getByText('Could not reach the review service.')).toBeVisible()
@@ -50,6 +52,9 @@ test.describe('configured review browser contracts', () => {
     await page.route('http://127.0.0.1:8124/reviews', async route => {
       const request = route.request()
       expect(request.method()).toBe('POST')
+      const contentType = request.headers()['content-type'] ?? ''
+      expect(contentType).toContain('multipart/form-data')
+      expect(contentType).toContain('boundary=')
       const body = request.postDataBuffer()
       expect(body).not.toBeNull()
       const multipartText = body!.toString('latin1')
@@ -65,7 +70,8 @@ test.describe('configured review browser contracts', () => {
       })
     })
 
-    await page.goto('/')
+    await page.goto('./')
+    await expect(page).toHaveURL(/\/presume\/$/)
     await expect(page.getByText('Ready for review')).toBeVisible()
 
     await page.getByRole('button', { name: 'Review resume' }).click()
