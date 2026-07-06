@@ -6,6 +6,11 @@ from .schemas import PublicConfig
 
 
 DEFAULT_MAX_UPLOAD_BYTES = 25 * 1024 * 1024
+MIN_ALLOWED_UPLOAD_BYTES = 1024 * 1024
+MAX_ALLOWED_UPLOAD_BYTES = 100 * 1024 * 1024
+DEFAULT_REVIEW_TIMEOUT_SECONDS = 360
+MIN_REVIEW_TIMEOUT_SECONDS = 60
+MAX_REVIEW_TIMEOUT_SECONDS = 900
 DEFAULT_HIRING_AGENT_PATH = "vendor/hiring-agent"
 DEFAULT_CORS_ORIGINS = ("http://localhost:5173", "http://127.0.0.1:5173")
 LOCAL_PROVIDER = "ollama"
@@ -37,6 +42,7 @@ class Settings:
     cors_origins: tuple[str, ...]
     hiring_agent_path: str
     max_upload_bytes: int
+    review_timeout_seconds: int
 
     @property
     def review_enabled(self) -> bool:
@@ -57,6 +63,23 @@ class Settings:
     @property
     def github_enrichment_enabled(self) -> bool:
         return bool(self.github_token)
+
+    @property
+    def readiness_reason(self) -> str:
+        if not self.hiring_agent_available:
+            return "missing_hiring_agent"
+
+        provider = self.public_provider
+        if provider == DISABLED_PROVIDER:
+            return "provider_disabled"
+        if provider == "gemini" and not self.gemini_api_key:
+            return "missing_provider_credentials"
+
+        return "ready"
+
+    @property
+    def readiness_state(self) -> str:
+        return "ready" if self.readiness_reason == "ready" else "unavailable"
 
     @property
     def public_provider(self) -> str:
@@ -86,6 +109,9 @@ class Settings:
             defaultModel=self.public_model,
             githubEnrichmentEnabled=self.github_enrichment_enabled,
             maxUploadBytes=self.max_upload_bytes,
+            reviewReadiness=self.readiness_state,
+            reviewReadinessReason=self.readiness_reason,
+            reviewTimeoutSeconds=self.review_timeout_seconds,
         )
 
 
@@ -102,6 +128,9 @@ def load_settings() -> Settings:
         ),
         hiring_agent_path=os.getenv("HIRING_AGENT_PATH", DEFAULT_HIRING_AGENT_PATH),
         max_upload_bytes=parse_max_upload_bytes(os.getenv("MAX_UPLOAD_BYTES")),
+        review_timeout_seconds=parse_review_timeout_seconds(
+            os.getenv("REVIEW_TIMEOUT_SECONDS")
+        ),
     )
 
 
@@ -111,15 +140,45 @@ def parse_cors_origins(value: str) -> tuple[str, ...]:
 
 
 def parse_max_upload_bytes(value: str | None) -> int:
+    return parse_bounded_int(
+        value,
+        default=DEFAULT_MAX_UPLOAD_BYTES,
+        minimum=MIN_ALLOWED_UPLOAD_BYTES,
+        maximum=MAX_ALLOWED_UPLOAD_BYTES,
+    )
+
+
+def parse_review_timeout_seconds(value: str | None) -> int:
+    return parse_bounded_int(
+        value,
+        default=DEFAULT_REVIEW_TIMEOUT_SECONDS,
+        minimum=MIN_REVIEW_TIMEOUT_SECONDS,
+        maximum=MAX_REVIEW_TIMEOUT_SECONDS,
+    )
+
+
+def parse_bounded_int(
+    value: str | None,
+    *,
+    default: int,
+    minimum: int,
+    maximum: int,
+) -> int:
     if value is None or not value.strip():
-        return DEFAULT_MAX_UPLOAD_BYTES
+        return default
 
     try:
         parsed = int(value)
     except ValueError:
-        return DEFAULT_MAX_UPLOAD_BYTES
+        return default
 
-    return parsed if parsed > 0 else DEFAULT_MAX_UPLOAD_BYTES
+    if parsed <= 0:
+        return default
+    if parsed < minimum:
+        return minimum
+    if parsed > maximum:
+        return maximum
+    return parsed
 
 
 def resolve_hiring_agent_path(value: str) -> Path:

@@ -47,6 +47,7 @@ GITHUB_TOKEN=
 CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
 HIRING_AGENT_PATH=vendor/hiring-agent
 MAX_UPLOAD_BYTES=26214400
+REVIEW_TIMEOUT_SECONDS=360
 ```
 
 Rules:
@@ -75,11 +76,20 @@ Rules:
 - The adapter prefers `.venv/bin/python` inside the Hiring Agent checkout when
   present, so its upstream dependencies can remain isolated from the review
   service environment.
+- `MAX_UPLOAD_BYTES` defaults to `26214400` bytes / 25 MiB and is bounded by
+  the service. Invalid, empty, zero, or negative values fall back to the
+  default. Positive values below `1048576` bytes / 1 MiB clamp up to that
+  minimum. Values above `104857600` bytes / 100 MiB clamp down to that maximum.
+- `REVIEW_TIMEOUT_SECONDS` defaults to `360` seconds and is bounded by the
+  service. Invalid, empty, zero, or negative values fall back to the default.
+  Positive values below `60` seconds clamp up to that minimum. Values above
+  `900` seconds clamp down to that maximum.
 - The adapter timeout is intentionally several minutes because the real default
   local Ollama path performs multiple Hiring Agent extraction and scoring LLM
   calls. On the verified Apple M2 environment, a successful `/reviews` request
   took 202.292199 seconds and an uncached diagnostic upstream run took roughly
-  270 seconds.
+  270 seconds. Real latency varies with hardware, model warmup, model size, and
+  current Ollama load.
 - The subprocess receives only allowlisted runtime environment variables plus
   explicit provider settings from service configuration. Ambient parent process
   secrets such as `GITHUB_TOKEN` or `GEMINI_API_KEY` are not inherited.
@@ -87,9 +97,12 @@ Rules:
   importing its scoring entrypoint, then patch already-imported Hiring Agent
   modules that copied the development flag by value. This prevents service
   requests from creating or reusing development cache files under the checkout.
-- Upload memory is bounded per request by `MAX_UPLOAD_BYTES`; deployments that
-  expose the service beyond local development should add appropriate process,
-  proxy, rate, or concurrency limits.
+- Upload memory is bounded per request by `MAX_UPLOAD_BYTES`, not globally.
+  Concurrent uploads can multiply memory use by approximately the configured
+  upload limit per in-flight request before adapter work begins.
+- Deployments that expose the service beyond trusted local development should
+  add process, proxy, rate, and concurrency limits outside the app. The review
+  service is not an authenticated public review platform.
 
 ## API Contract
 
@@ -113,9 +126,18 @@ Returns frontend-safe capability information. This endpoint must never expose se
   "llmProvider": "ollama",
   "defaultModel": "gemma3:4b",
   "githubEnrichmentEnabled": false,
-  "maxUploadBytes": 26214400
+  "maxUploadBytes": 26214400,
+  "reviewReadiness": "ready",
+  "reviewReadinessReason": "ready",
+  "reviewTimeoutSeconds": 360
 }
 ```
+
+Readiness fields are coarse fixed values only. They can explain safe states
+such as `ready`, `missing_hiring_agent`, `provider_disabled`, or
+`missing_provider_credentials`, but they must not expose configured paths, raw
+environment values, provider responses, stack traces, exception text, or
+secrets.
 
 ### `POST /reviews`
 
@@ -289,11 +311,36 @@ Common failure modes:
   backend is not running at `VITE_REVIEW_API_URL`, or the backend process
   crashed.
 - `upload_too_large`: the browser-rendered PDF exceeded `MAX_UPLOAD_BYTES` and
-  was rejected by the backend after upload. The default is 25 MiB.
+  was rejected by the backend after upload. The default is 25 MiB. Configure
+  reverse-proxy body limits to the same value or lower so oversized uploads are
+  rejected before reaching the Python process.
 - `hiring_agent_failed`: the adapter could not execute the checkout
   successfully. Check Hiring Agent dependencies, `ollama` installation,
   `ollama serve`, and `ollama pull gemma3:4b` locally. Public API responses
   intentionally do not expose adapter exception text.
 - Long review runtime: real local Ollama review can take several minutes,
   especially on first model use. The verified successful direct request took
-  202.292199 seconds on an Apple M2 machine.
+  202.292199 seconds on an Apple M2 machine. Configure frontend-facing proxy,
+  load balancer, and process-supervisor timeouts higher than
+  `REVIEW_TIMEOUT_SECONDS` plus upload overhead.
+
+## Deployment Guidance
+
+The review service is suitable for trusted local or self-hosted operation when
+paired with external operational controls. It does not include authentication,
+queues, global concurrency limiting, or rate limiting.
+
+Recommended controls for deployments beyond a single local developer:
+
+- Set reverse-proxy request body limits to `MAX_UPLOAD_BYTES` or lower.
+- Set proxy, load balancer, frontend, and process-supervisor timeouts higher
+  than `REVIEW_TIMEOUT_SECONDS` plus upload overhead.
+- Limit request concurrency at the proxy or process manager. Upload memory is
+  bounded per request, so concurrent uploads multiply memory use before model
+  work begins.
+- Choose worker/process counts based on Ollama model memory, available CPU/GPU,
+  and the configured upload limit. More workers can increase throughput only if
+  the machine can handle concurrent model and upload memory pressure.
+- Add rate limiting before exposing the service outside a trusted local network.
+- Keep hosted providers opt-in and document that hosted inference may transmit
+  resume text, extracted resume data, and prompt context to that provider.

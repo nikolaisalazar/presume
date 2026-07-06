@@ -135,7 +135,10 @@ Annotations are best effort. If a review finding cannot be matched confidently t
 Real Ollama-backed Hiring Agent browser review remains manual by default because
 it requires local `vendor/hiring-agent`, its `.venv`, a running Ollama service,
 a pulled model such as `gemma3:4b`, and multi-minute machine-dependent review
-latency.
+latency. The review service validates bounded upload and timeout configuration
+and exposes only safe readiness/limit diagnostics, but deployments beyond trusted
+local use still need external proxy body limits, timeout configuration,
+rate limiting, and concurrency controls.
 
 ## UX Principles
 

@@ -33,8 +33,14 @@ Working today:
 
 Still planned:
 
-- Operational hardening for long-running local review requests and deployments
-  beyond single-developer local use.
+- Resume editing model improvements after the review loop has been proven and
+  protected by automated browser contracts.
+
+Operational note: the review service now validates bounded upload and timeout
+configuration and documents proxy, process, rate, and concurrency controls for
+non-local use. It still does not include built-in authentication, queues, global
+concurrency limiting, or rate limiting; deployments exposed beyond trusted local
+use should add those controls externally.
 
 ## How It Works
 
@@ -78,7 +84,7 @@ Then start the frontend from the repository root:
 VITE_REVIEW_API_URL=http://127.0.0.1:8000 npm run dev -- --host 127.0.0.1
 ```
 
-The `npm run test:e2e` command covers `/presume/` base-path app load, nonblank resume rendering, normal PDF export download, unconfigured/disabled/config-error review states, fixture-backed review submission and rendering, stale-after-edit behavior, and narrow viewport fixed-canvas scrolling. It intentionally does not run the real Ollama-backed Hiring Agent path by default because that requires local `vendor/hiring-agent`, its `.venv`, a running Ollama service, a pulled model such as `gemma3:4b`, and multi-minute machine-dependent review latency.
+The `npm run test:e2e` command covers `/presume/` base-path app load, nonblank resume rendering, normal PDF export download, unconfigured/disabled/config-error review states, fixture-backed review submission and rendering, stale-after-edit behavior, and narrow viewport fixed-canvas scrolling. It intentionally does not run the real Ollama-backed Hiring Agent path by default because that requires local `vendor/hiring-agent`, its `.venv`, a running Ollama service, a pulled model such as `gemma3:4b`, and multi-minute machine-dependent review latency. For non-local review-service deployments, align proxy upload limits with `MAX_UPLOAD_BYTES`, set timeouts above `REVIEW_TIMEOUT_SECONDS` plus upload overhead, and add external rate/concurrency controls.
 
 The frontend can also run as a static app without review configured. Review
 submission requires a separate backend service and `VITE_REVIEW_API_URL`; see

@@ -6,11 +6,7 @@ import pytest
 
 from app.config import Settings
 from app.errors import ReviewServiceError
-from app.hiring_agent_adapter import (
-    SUBPROCESS_TIMEOUT_SECONDS,
-    HiringAgentAdapter,
-    normalize_hiring_agent_output,
-)
+from app.hiring_agent_adapter import HiringAgentAdapter, normalize_hiring_agent_output
 
 
 def make_settings(
@@ -18,6 +14,7 @@ def make_settings(
     *,
     github_token: str = "",
     gemini_api_key: str = "",
+    review_timeout_seconds: int = 360,
 ) -> Settings:
     return Settings(
         llm_provider="ollama",
@@ -27,6 +24,7 @@ def make_settings(
         cors_origins=("http://localhost:5173",),
         hiring_agent_path=hiring_agent_path,
         max_upload_bytes=10_485_760,
+        review_timeout_seconds=review_timeout_seconds,
     )
 
 
@@ -331,11 +329,12 @@ def main(pdf_path):
 async def test_adapter_maps_subprocess_timeout_to_safe_timeout(monkeypatch, tmp_path):
     hiring_agent_path = tmp_path / "hiring-agent"
     write_fake_hiring_agent(hiring_agent_path, "def main(pdf_path): return None")
-    adapter = HiringAgentAdapter(make_settings(str(hiring_agent_path)))
+    adapter = HiringAgentAdapter(
+        make_settings(str(hiring_agent_path), review_timeout_seconds=123)
+    )
 
     def raise_timeout(*args, **kwargs):
-        assert kwargs["timeout"] == SUBPROCESS_TIMEOUT_SECONDS
-        assert kwargs["timeout"] >= 300
+        assert kwargs["timeout"] == 123
         raise subprocess.TimeoutExpired(cmd=args[0], timeout=kwargs["timeout"])
 
     monkeypatch.setattr("app.hiring_agent_adapter.subprocess.run", raise_timeout)

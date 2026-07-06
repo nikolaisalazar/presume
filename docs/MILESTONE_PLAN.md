@@ -1016,7 +1016,7 @@ Residual risk:
 
 ### Milestone 16: Review-Service Operational Hardening
 
-Status: Planned.
+Status: Complete.
 
 Goal:
 
@@ -1032,11 +1032,43 @@ Scope:
   beyond local development.
 - Preserve local Ollama as the default and hosted providers as opt-in.
 
-Dependency:
+Completion evidence:
 
-- Follows Milestone 14 and benefits from Milestone 15 so operational changes are
-  based on measured real behavior and protected by browser/service regression
-  coverage.
+- `review-service/app/config.py` validates bounded upload and timeout settings.
+  `MAX_UPLOAD_BYTES` keeps the `26214400` byte / 25 MiB default, clamps positive
+  values to the `1048576` byte / 1 MiB minimum and `104857600` byte / 100 MiB
+  maximum, and falls back to the default for invalid, empty, zero, or negative
+  values. `REVIEW_TIMEOUT_SECONDS` keeps the `360` second default, clamps
+  positive values to the 60 second minimum and 900 second maximum, and falls
+  back to the default for invalid, empty, zero, or negative values.
+- `review-service/app/hiring_agent_adapter.py` uses the validated review timeout
+  for the Hiring Agent subprocess and preserves `review_timeout` mapping.
+- `GET /config` exposes only safe readiness and limit information:
+  `reviewReadiness`, `reviewReadinessReason`, `reviewTimeoutSeconds`, and the
+  existing capability fields. Readiness reasons are fixed values and remain
+  path-free and secret-free.
+- Backend tests cover invalid and boundary operational config, timeout wiring,
+  safe readiness projection, public config secrecy, and existing upload/error
+  contracts.
+- Documentation now covers proxy upload limits, timeout expectations,
+  worker/process considerations, rate and concurrency limiting, local Ollama
+  latency, and hosted-provider privacy boundaries.
+
+Verification:
+
+- Backend verification: `python3 -m pytest review-service/tests -q`
+- Frontend verification: `npm test -- --run`
+- Build verification: `npm run build`
+- Browser/E2E verification: `npm run test:e2e`
+
+Residual risk:
+
+- The service still does not provide built-in authentication, queues, global
+  concurrency limits, or rate limiting. Deployments exposed beyond trusted local
+  development must add those controls externally.
+- Real Ollama-backed review remains manual/local because it depends on local
+  `vendor/hiring-agent`, Ollama, model availability, and multi-minute
+  machine-dependent latency.
 
 ### Milestone 17: Resume Editing Model Improvements
 
