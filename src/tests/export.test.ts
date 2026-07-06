@@ -185,6 +185,53 @@ describe('exportPDF', () => {
     expect(pageElement.style.overflow).toBe('visible')
   })
 
+  it('hides editor-only controls during PDF capture and restores them afterward', async () => {
+    const sourceCanvas = {
+      width: 850,
+      height: 1100,
+    } as HTMLCanvasElement
+    const pageElement = document.createElement('div')
+    pageElement.className = 'resume-page'
+    const resumeContent = document.createElement('span')
+    resumeContent.textContent = 'Resume content'
+    const addButton = document.createElement('button')
+    addButton.className = 'add-btn'
+    addButton.textContent = '+ section'
+    const removeButton = document.createElement('button')
+    removeButton.className = 'remove-btn'
+    removeButton.textContent = '- section'
+    removeButton.style.visibility = 'visible'
+    pageElement.append(resumeContent, addButton, removeButton)
+
+    html2canvasMock.mockImplementation(async () => {
+      expect(resumeContent.textContent).toBe('Resume content')
+      expect(addButton.style.visibility).toBe('hidden')
+      expect(removeButton.style.visibility).toBe('hidden')
+      return sourceCanvas
+    })
+
+    await exportPDF(pageElement)
+
+    expect(html2canvasMock).toHaveBeenCalledTimes(1)
+    expect(addButton.style.visibility).toBe('')
+    expect(removeButton.style.visibility).toBe('visible')
+    expect(pdfMock.save).toHaveBeenCalledWith('resume.pdf')
+  })
+
+  it('restores hidden editor controls when PDF capture fails', async () => {
+    const pageElement = document.createElement('div')
+    const addButton = document.createElement('button')
+    addButton.className = 'add-btn'
+    addButton.textContent = '+ section'
+    pageElement.append(addButton)
+    html2canvasMock.mockRejectedValue(new Error('canvas failed'))
+
+    await expect(exportPDF(pageElement)).rejects.toThrow('canvas failed')
+
+    expect(addButton.style.visibility).toBe('')
+    expect(pdfMock.save).not.toHaveBeenCalled()
+  })
+
   it('does not add extra PDF pages for a one-page canvas', async () => {
     const sourceCanvas = {
       width: 850,

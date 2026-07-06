@@ -26,6 +26,8 @@ type PdfDocument = {
   save: (filename: string) => unknown
 }
 
+type CaptureRestoration = () => void
+
 export function getPdfPageSlices(
   canvasWidth: number,
   canvasHeight: number
@@ -50,6 +52,7 @@ async function captureResumePage(pageElement: HTMLElement): Promise<HTMLCanvasEl
   const html2canvas = (await import('html2canvas')).default
 
   const prevOverflow = pageElement.style.overflow
+  const restoreEditorControls = hideEditorControlsForCapture(pageElement)
   pageElement.style.overflow = 'hidden'
 
   try {
@@ -61,6 +64,31 @@ async function captureResumePage(pageElement: HTMLElement): Promise<HTMLCanvasEl
     })
   } finally {
     pageElement.style.overflow = prevOverflow
+    restoreEditorControls()
+  }
+}
+
+function hideEditorControlsForCapture(
+  pageElement: HTMLElement
+): CaptureRestoration {
+  const editorControls = Array.from(
+    pageElement.querySelectorAll<HTMLElement>(
+      '.add-btn, .remove-btn, [data-editor-only="true"]'
+    )
+  )
+  const previousVisibility = editorControls.map(control => ({
+    control,
+    visibility: control.style.visibility,
+  }))
+
+  editorControls.forEach(control => {
+    control.style.visibility = 'hidden'
+  })
+
+  return () => {
+    previousVisibility.forEach(({ control, visibility }) => {
+      control.style.visibility = visibility
+    })
   }
 }
 

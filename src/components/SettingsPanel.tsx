@@ -8,6 +8,7 @@ interface SettingsPanelProps {
 
 export function SettingsPanel({ constraints, onChange }: SettingsPanelProps) {
   const [open, setOpen] = useState(false)
+  const bodyId = 'constraint-settings'
 
   const update = (key: keyof Constraints, value: number) => {
     onChange({ ...constraints, [key]: value })
@@ -19,12 +20,20 @@ export function SettingsPanel({ constraints, onChange }: SettingsPanelProps) {
         className="settings-panel__toggle"
         onClick={() => setOpen(o => !o)}
         aria-expanded={open}
+        aria-controls={bodyId}
       >
-        <span>⚙ Constraints</span>
-        <span>{open ? '▲' : '▼'}</span>
+        <span className="settings-panel__title">Constraints</span>
+        <span className="settings-panel__summary">
+          <span>{constraints.maxPages} {constraints.maxPages === 1 ? 'page' : 'pages'}</span>
+          <span>{constraints.maxLinesPerBullet} lines/bullet</span>
+          <span>{constraints.minFontSize}px min</span>
+        </span>
+        <span className="settings-panel__chevron" aria-hidden="true">
+          {open ? '▲' : '▼'}
+        </span>
       </button>
       {open && (
-        <div className="settings-panel__body">
+        <div className="settings-panel__body" id={bodyId}>
           <div className="settings-field">
             <label htmlFor="max-pages">Max pages</label>
             <input

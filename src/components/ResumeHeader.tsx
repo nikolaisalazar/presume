@@ -29,7 +29,7 @@ export function ResumeHeader({
   }
 
   return (
-    <header className="resume-header">
+    <header className="resume-header" role="presentation">
       <EditableText
         value={name}
         onChange={onNameChange}

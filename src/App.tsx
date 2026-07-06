@@ -22,21 +22,36 @@ export default function App() {
 
   return (
     <div className="app">
-      <SettingsPanel constraints={constraints} onChange={setConstraints} />
-      <Toolbar
-        resume={resume}
-        pageRef={pageRef}
-        onImport={setResume}
-        onReset={() => setResume(DEFAULT_RESUME)}
-      />
+      <header className="app-header">
+        <div>
+          <h1>Presume</h1>
+          <p>Editable resume workspace</p>
+        </div>
+        <div className="app-header__status" aria-label="Editor status">
+          Local draft
+        </div>
+      </header>
       <main className="workspace">
-        <ResumePage
-          ref={pageRef}
-          resume={resume}
-          onResumeChange={setResume}
-          warnings={warnings}
-          reviewAnnotations={reviewAnnotations}
-        />
+        <section className="editor-panel" aria-label="Resume editor">
+          <SettingsPanel constraints={constraints} onChange={setConstraints} />
+          <Toolbar
+            resume={resume}
+            pageRef={pageRef}
+            onImport={setResume}
+            onReset={() => setResume(DEFAULT_RESUME)}
+          />
+          <div className="resume-canvas-scroll" aria-label="Fixed-width resume canvas">
+            <div className="resume-canvas">
+              <ResumePage
+                ref={pageRef}
+                resume={resume}
+                onResumeChange={setResume}
+                warnings={warnings}
+                reviewAnnotations={reviewAnnotations}
+              />
+            </div>
+          </div>
+        </section>
         <ReviewPanel
           state={review.state}
           onRequestReview={() => {
