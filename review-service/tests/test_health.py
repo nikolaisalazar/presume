@@ -2,7 +2,18 @@ from pathlib import Path
 
 from fastapi.testclient import TestClient
 
-from app.config import load_settings, resolve_hiring_agent_path
+from app.config import (
+    DEFAULT_MAX_UPLOAD_BYTES,
+    DEFAULT_REVIEW_TIMEOUT_SECONDS,
+    MAX_ALLOWED_UPLOAD_BYTES,
+    MAX_REVIEW_TIMEOUT_SECONDS,
+    MIN_ALLOWED_UPLOAD_BYTES,
+    MIN_REVIEW_TIMEOUT_SECONDS,
+    load_settings,
+    parse_max_upload_bytes,
+    parse_review_timeout_seconds,
+    resolve_hiring_agent_path,
+)
 from app.main import create_app
 
 
@@ -36,6 +47,9 @@ def test_config_uses_safe_defaults_and_hides_secrets(monkeypatch):
         "defaultModel": "gemma3:4b",
         "githubEnrichmentEnabled": True,
         "maxUploadBytes": 26_214_400,
+        "reviewReadiness": "unavailable",
+        "reviewReadinessReason": "missing_hiring_agent",
+        "reviewTimeoutSeconds": 360,
     }
     serialized = response.text
     assert "secret" not in serialized
@@ -72,6 +86,48 @@ def test_default_upload_limit_covers_browser_generated_review_pdf(monkeypatch):
     settings = load_settings()
 
     assert settings.max_upload_bytes == 25 * 1024 * 1024
+
+
+def test_upload_limit_parser_rejects_invalid_and_clamps_bounds():
+    assert parse_max_upload_bytes(None) == DEFAULT_MAX_UPLOAD_BYTES
+    assert parse_max_upload_bytes("") == DEFAULT_MAX_UPLOAD_BYTES
+    assert parse_max_upload_bytes("not-a-number") == DEFAULT_MAX_UPLOAD_BYTES
+    assert parse_max_upload_bytes("0") == DEFAULT_MAX_UPLOAD_BYTES
+    assert parse_max_upload_bytes("-1") == DEFAULT_MAX_UPLOAD_BYTES
+    assert (
+        parse_max_upload_bytes(str(MIN_ALLOWED_UPLOAD_BYTES - 1))
+        == MIN_ALLOWED_UPLOAD_BYTES
+    )
+    assert parse_max_upload_bytes(str(MIN_ALLOWED_UPLOAD_BYTES)) == MIN_ALLOWED_UPLOAD_BYTES
+    assert (
+        parse_max_upload_bytes(str(MAX_ALLOWED_UPLOAD_BYTES + 1))
+        == MAX_ALLOWED_UPLOAD_BYTES
+    )
+    assert parse_max_upload_bytes(str(MAX_ALLOWED_UPLOAD_BYTES)) == MAX_ALLOWED_UPLOAD_BYTES
+
+
+def test_review_timeout_parser_rejects_invalid_and_clamps_bounds():
+    assert parse_review_timeout_seconds(None) == DEFAULT_REVIEW_TIMEOUT_SECONDS
+    assert parse_review_timeout_seconds("") == DEFAULT_REVIEW_TIMEOUT_SECONDS
+    assert parse_review_timeout_seconds("not-a-number") == DEFAULT_REVIEW_TIMEOUT_SECONDS
+    assert parse_review_timeout_seconds("0") == DEFAULT_REVIEW_TIMEOUT_SECONDS
+    assert parse_review_timeout_seconds("-1") == DEFAULT_REVIEW_TIMEOUT_SECONDS
+    assert (
+        parse_review_timeout_seconds(str(MIN_REVIEW_TIMEOUT_SECONDS - 1))
+        == MIN_REVIEW_TIMEOUT_SECONDS
+    )
+    assert (
+        parse_review_timeout_seconds(str(MIN_REVIEW_TIMEOUT_SECONDS))
+        == MIN_REVIEW_TIMEOUT_SECONDS
+    )
+    assert (
+        parse_review_timeout_seconds(str(MAX_REVIEW_TIMEOUT_SECONDS + 1))
+        == MAX_REVIEW_TIMEOUT_SECONDS
+    )
+    assert (
+        parse_review_timeout_seconds(str(MAX_REVIEW_TIMEOUT_SECONDS))
+        == MAX_REVIEW_TIMEOUT_SECONDS
+    )
 
 
 def test_default_cors_allows_localhost_vite_origin(monkeypatch):
@@ -304,3 +360,77 @@ def test_config_replaces_arbitrary_model_env_value(monkeypatch):
     assert response.status_code == 200
     assert response.json()["defaultModel"] == "gemma3:4b"
     assert "sk-secret-model-name" not in response.text
+
+
+def test_config_reports_safe_missing_hiring_agent_readiness_without_path(
+    monkeypatch, tmp_path
+):
+    missing_path = tmp_path / "secret" / "hiring-agent"
+    monkeypatch.setenv("LLM_PROVIDER", "ollama")
+    monkeypatch.setenv("DEFAULT_MODEL", "gemma3:4b")
+    monkeypatch.setenv("HIRING_AGENT_PATH", str(missing_path))
+
+    client = TestClient(create_app())
+    response = client.get("/config")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["reviewEnabled"] is False
+    assert body["reviewReadiness"] == "unavailable"
+    assert body["reviewReadinessReason"] == "missing_hiring_agent"
+    assert str(missing_path) not in response.text
+    assert "secret" not in response.text
+
+
+def test_config_reports_safe_ready_state(monkeypatch, tmp_path):
+    hiring_agent_path = tmp_path / "hiring-agent"
+    hiring_agent_path.mkdir()
+    monkeypatch.setenv("LLM_PROVIDER", "ollama")
+    monkeypatch.setenv("DEFAULT_MODEL", "gemma3:4b")
+    monkeypatch.setenv("HIRING_AGENT_PATH", str(hiring_agent_path))
+
+    client = TestClient(create_app())
+    response = client.get("/config")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["reviewEnabled"] is True
+    assert body["reviewReadiness"] == "ready"
+    assert body["reviewReadinessReason"] == "ready"
+    assert str(hiring_agent_path) not in response.text
+
+
+def test_config_reports_safe_provider_readiness_reasons(monkeypatch, tmp_path):
+    hiring_agent_path = tmp_path / "hiring-agent"
+    hiring_agent_path.mkdir()
+    monkeypatch.setenv("HIRING_AGENT_PATH", str(hiring_agent_path))
+    monkeypatch.setenv("LLM_PROVIDER", "sk-secret-provider")
+    monkeypatch.setenv("DEFAULT_MODEL", "/Users/name/.config/secret-model")
+    monkeypatch.setenv("GEMINI_API_KEY", "sk-secret-key")
+
+    client = TestClient(create_app())
+    response = client.get("/config")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["reviewEnabled"] is False
+    assert body["reviewReadiness"] == "unavailable"
+    assert body["reviewReadinessReason"] == "provider_disabled"
+    assert "sk-secret" not in response.text
+    assert "/Users" not in response.text
+
+
+def test_config_includes_bounded_operational_limits(monkeypatch, tmp_path):
+    hiring_agent_path = tmp_path / "hiring-agent"
+    hiring_agent_path.mkdir()
+    monkeypatch.setenv("HIRING_AGENT_PATH", str(hiring_agent_path))
+    monkeypatch.setenv("MAX_UPLOAD_BYTES", "999999999999")
+    monkeypatch.setenv("REVIEW_TIMEOUT_SECONDS", "999999")
+
+    client = TestClient(create_app())
+    response = client.get("/config")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["maxUploadBytes"] == MAX_ALLOWED_UPLOAD_BYTES
+    assert body["reviewTimeoutSeconds"] == MAX_REVIEW_TIMEOUT_SECONDS

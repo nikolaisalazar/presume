@@ -74,6 +74,14 @@ class PublicConfig(StrictSchema):
     defaultModel: str
     githubEnrichmentEnabled: bool
     maxUploadBytes: int = Field(gt=0)
+    reviewReadiness: Literal["ready", "unavailable"] | None = None
+    reviewReadinessReason: Literal[
+        "ready",
+        "missing_hiring_agent",
+        "provider_disabled",
+        "missing_provider_credentials",
+    ] | None = None
+    reviewTimeoutSeconds: int | None = Field(default=None, gt=0)
 
 
 class ErrorBody(StrictSchema):
