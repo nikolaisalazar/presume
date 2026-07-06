@@ -689,6 +689,25 @@ Completion evidence:
   actions, and collapsed constraint summary.
 - `src/tests/responsiveLayout.test.ts` covers the fixed-canvas scroll contract
   and the lower-contrast but discoverable edit-control styling.
+- PR review follow-up found two issues in the initial Milestone 13 polish:
+  exported/printed resume captures could include faint editor-only controls, and
+  the collapsed constraints summary hid its current values from assistive
+  technology by exposing only `Current constraints`.
+- `src/export.ts` now hides `.add-btn`, `.remove-btn`, and
+  `[data-editor-only="true"]` descendants only during the `html2canvas` capture
+  window and restores their previous inline visibility afterward, including
+  failed capture paths.
+- `src/styles/app.css` now hides the same editor-only controls for print output.
+- `src/components/SettingsPanel.tsx` now lets the visible collapsed constraint
+  values contribute to the settings toggle accessible name.
+- `src/tests/export.test.ts` covers capture-time editor-control hiding,
+  restoration after successful capture, restoration after failed capture, and
+  continued capture of resume content.
+- `src/tests/appIntegration.test.tsx` covers that the settings toggle exposes
+  the current values accessibly while the visible collapsed summary still
+  renders.
+- `src/tests/responsiveLayout.test.ts` covers print hiding for editor-only
+  controls while preserving the normal editor discoverability contract.
 - Manual browser verification on July 3, 2026:
   - Frontend command:
     `npm run dev -- --host 127.0.0.1 --port 5173`
@@ -707,6 +726,34 @@ Completion evidence:
     `bodyScrollWidth: 1366`, `workspaceWidth: 1192`, `editorWidth: 816`,
     `toolbarWidth: 816`, `settingsWidth: 816`, `reviewWidth: 360`, and no
     measured editor/header/settings/toolbar/review overflow.
+- Follow-up manual browser verification on July 6, 2026:
+  - Frontend command:
+    `npm run dev -- --host 127.0.0.1 --port 5173`
+  - Vite URL used by the browser: `http://127.0.0.1:5173/presume/`.
+  - T3 preview narrow viewport: `358x980`.
+  - Narrow observed layout after the follow-up fixes: `bodyClientWidth: 358`,
+    `bodyScrollWidth: 358`, `workspaceWidth: 334`, `toolbarWidth: 334`,
+    `settingsWidth: 334`, `reviewWidth: 326`,
+    `resumeCanvasScrollClientWidth: 334`, and
+    `resumeCanvasScrollScrollWidth: 816`. No app header, editor panel,
+    settings, toolbar, or review panel descendants reported horizontal overflow;
+    only the fixed resume canvas scrolled horizontally inside
+    `.resume-canvas-scroll`.
+  - T3 preview desktop-class viewport: `1366x1024`.
+  - Desktop observed layout after the follow-up fixes:
+    `bodyClientWidth: 1366`, `bodyScrollWidth: 1366`,
+    `workspaceWidth: 1192`, `editorWidth: 816`, `toolbarWidth: 816`,
+    `settingsWidth: 816`, `reviewWidth: 360`, and no measured
+    editor/header/settings/toolbar/review overflow.
+  - PDF/export verification: before clicking `Export PDF`, 41
+    `.resume-page` editor controls were visible to the editor state. During the
+    live export capture, a mutation observer recorded all 41 controls switching
+    to `visibility: hidden`; after export, all controls were restored with
+    `finalHidden: 0`.
+  - Accessibility verification: the collapsed settings toggle text exposed
+    `Constraints`, `1 page`, `1 lines/bullet`, and `8px min`; the
+    `.settings-panel__summary` no longer had an `aria-label` masking those
+    values.
 
 Verification:
 

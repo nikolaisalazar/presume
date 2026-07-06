@@ -97,6 +97,11 @@ describe('App review availability boundaries', () => {
     expect(
       screen.getByRole('toolbar', { name: 'Document actions' })
     ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', {
+        name: /Constraints.*1 page.*1 lines\/bullet.*8px min/,
+      })
+    ).toBeInTheDocument()
     expect(screen.getByText('PDF')).toBeInTheDocument()
     expect(screen.getByText('JSON')).toBeInTheDocument()
     expect(screen.getByText('1 page')).toBeInTheDocument()

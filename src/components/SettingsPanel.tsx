@@ -23,7 +23,7 @@ export function SettingsPanel({ constraints, onChange }: SettingsPanelProps) {
         aria-controls={bodyId}
       >
         <span className="settings-panel__title">Constraints</span>
-        <span className="settings-panel__summary" aria-label="Current constraints">
+        <span className="settings-panel__summary">
           <span>{constraints.maxPages} {constraints.maxPages === 1 ? 'page' : 'pages'}</span>
           <span>{constraints.maxLinesPerBullet} lines/bullet</span>
           <span>{constraints.minFontSize}px min</span>
