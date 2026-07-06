@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "test": "vitest"
+    "test": "vitest",
+    "test:e2e": "npm run test:e2e:unconfigured && npm run test:e2e:configured",
+    "test:e2e:unconfigured": "npm run build && playwright test -c playwright.unconfigured.config.ts",
+    "test:e2e:configured": "VITE_REVIEW_API_URL=http://127.0.0.1:8124 npm run build && playwright test -c playwright.configured.config.ts"
   },
   "dependencies": {
     "@chenglou/pretext": "^0.0.5",
@@ -17,6 +20,7 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.1",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@types/react": "^18.3.1",
