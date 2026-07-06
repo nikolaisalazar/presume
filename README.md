@@ -21,6 +21,10 @@ Working today:
 - Review API client, review state hook, panel, and conservative non-destructive annotations that stay disabled without `VITE_REVIEW_API_URL` or when the configured review service reports review unavailable.
 - FastAPI review service scaffold with safe config projection, Hiring Agent dependency readiness checks, normalized schemas, normalized errors, PDF upload validation, and mocked contract tests.
 - Integration-oriented tests for unconfigured editor behavior, backend-shaped frontend errors, and safe backend error handling.
+- Browser/E2E automation for the critical review and export contracts. The
+  Playwright suite launches the real Vite app in Chromium and uses route
+  interception for `/config` and `/reviews` so tests do not require Ollama,
+  `vendor/hiring-agent`, or third-party network access.
 - Browser-to-backend review flow has been exercised with a running frontend,
   running backend, controlled adapter target, and the real local
   Ollama-backed Hiring Agent path using `vendor/hiring-agent`, `gemma3:4b`, and
@@ -29,7 +33,6 @@ Working today:
 
 Still planned:
 
-- Browser automation for the review and export contracts.
 - Operational hardening for long-running local review requests and deployments
   beyond single-developer local use.
 
@@ -56,6 +59,7 @@ npm install
 npm run dev
 npm test
 npm run build
+npm run test:e2e
 ```
 
 To run the review flow locally, start the backend:
@@ -73,6 +77,8 @@ Then start the frontend from the repository root:
 ```sh
 VITE_REVIEW_API_URL=http://127.0.0.1:8000 npm run dev -- --host 127.0.0.1
 ```
+
+The `npm run test:e2e` command covers `/presume/` base-path app load, nonblank resume rendering, normal PDF export download, unconfigured/disabled/config-error review states, fixture-backed review submission and rendering, stale-after-edit behavior, and narrow viewport fixed-canvas scrolling. It intentionally does not run the real Ollama-backed Hiring Agent path by default because that requires local `vendor/hiring-agent`, its `.venv`, a running Ollama service, a pulled model such as `gemma3:4b`, and multi-minute machine-dependent review latency.
 
 The frontend can also run as a static app without review configured. Review
 submission requires a separate backend service and `VITE_REVIEW_API_URL`; see

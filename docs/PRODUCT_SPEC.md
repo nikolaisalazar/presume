@@ -62,10 +62,16 @@ The product has two separate loops:
 8. When a normalized review result is returned, the frontend displays score, evidence, strengths, improvements, bonuses, deductions, and best-effort annotations.
 9. The user manually edits the resume and re-runs review when ready.
 
-### Still-Planned Review Workflow
+### Automated Browser Review/Export Checks
 
-1. Add automated browser-to-running-backend integration tests if the project
-   adopts a browser test runner.
+1. Run `npm run test:e2e` to launch the real Vite app in Chromium through
+   Playwright.
+2. The suite verifies `/presume/` base-path app load, nonblank resume rendering,
+   normal PDF export download, unconfigured/disabled/config-error review states, fixture-backed
+   review submission and rendering, stale-after-edit behavior, and narrow
+   viewport fixed-canvas scrolling.
+3. The suite uses route interception for `/config` and `/reviews`; it does not
+   run real Ollama-backed Hiring Agent review by default.
 
 ## Current Editor Behavior
 
@@ -108,6 +114,8 @@ The app currently supports:
   stale-after-edit behavior, and safe misconfigured-Ollama failure. The Hiring
   Agent checkout is a local prerequisite and is not vendored into this
   repository.
+- Playwright browser automation for review and export contracts using
+  deterministic route-intercepted `/config` and `/reviews` responses.
 
 Review feedback must be advisory. The first review phase must not rewrite, reorder, or delete resume content automatically.
 
@@ -124,8 +132,10 @@ The review output should include:
 
 Annotations are best effort. If a review finding cannot be matched confidently to a section, entry, or bullet, it should remain visible in the review panel without an inline highlight.
 
-Still-planned review behavior includes automated browser-to-running-backend
-integration tests if a browser test runner is added.
+Real Ollama-backed Hiring Agent browser review remains manual by default because
+it requires local `vendor/hiring-agent`, its `.venv`, a running Ollama service,
+a pulled model such as `gemma3:4b`, and multi-minute machine-dependent review
+latency.
 
 ## UX Principles
 

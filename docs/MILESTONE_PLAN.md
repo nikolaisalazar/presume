@@ -954,7 +954,7 @@ Residual risk:
 
 ### Milestone 15: Browser And E2E Automation For Review And Export Contracts
 
-Status: Planned.
+Status: Complete.
 
 Goal:
 
@@ -963,18 +963,56 @@ Goal:
 
 Scope:
 
-- Add a browser test runner or a small scripted browser harness.
+- Add Playwright as the browser test runner.
 - Cover unconfigured review behavior, configured fixture-backed review success,
   stale-after-edit behavior, disabled-service behavior, backend-unavailable
   behavior, fixed-canvas narrow scrolling, review-panel no-overflow behavior,
-  and export capture hiding editor-only controls.
-- Keep real Ollama execution as a documented/manual verification unless the
-  local environment can run it reliably in automation.
+  and normal PDF export triggering.
+- Keep real Ollama execution as documented/manual verification because the
+  local environment setup and review latency are machine-dependent.
 
-Dependency:
+Completion evidence:
 
-- Follows Milestone 14 so the automated fixture and assertions match the real
-  contract and observed result shape.
+- `package.json` now provides `npm run test:e2e`, with separate unconfigured
+  and configured-review Playwright runs so Vite can build the app with the
+  correct `VITE_REVIEW_API_URL` state for each browser contract group.
+- `playwright.config.ts`, `playwright.unconfigured.config.ts`, and
+  `playwright.configured.config.ts` run the built Vite app in Chromium via
+  `vite preview`.
+- `e2e/unconfigured.spec.ts` verifies that the app loads from the `/presume/`
+  base path in a real browser, the resume page renders nonblank, normal
+  `Export PDF` triggers a `resume.pdf`
+  download, editing still works afterward, review submission stays disabled
+  when unconfigured, and the narrow viewport keeps page-level horizontal
+  overflow absent while `.resume-canvas-scroll` owns the fixed `816px` resume
+  canvas overflow.
+- `e2e/configured-review.spec.ts` uses Playwright route interception for
+  `GET /config` and `POST /reviews` to verify disabled-service state,
+  backend-unavailable/config-error state, multipart review submission with the
+  required PDF `file` field, normalized fixture result rendering, and
+  stale-after-edit behavior with prior results preserved.
+- The automated browser tests do not require real Ollama, `vendor/hiring-agent`,
+  hosted-provider credentials, or third-party network access.
+- Documentation updates record the new command, covered contracts, manual
+  boundaries, and why real Ollama-backed review is not part of automated E2E by
+  default.
+
+Verification:
+
+- Backend verification: `python3 -m pytest review-service/tests -q`
+- Frontend verification: `npm test -- --run`
+- Build verification: `npm run build`
+- Browser/E2E verification: `npm run test:e2e`
+
+Residual risk:
+
+- Browser automation uses controlled route-intercepted review responses. It
+  protects frontend review/export contracts, but it does not prove live CORS,
+  live backend process management, or real Hiring Agent execution.
+- Real Ollama-backed review remains manual/local verification because it
+  requires a local `vendor/hiring-agent` checkout, Hiring Agent `.venv`, running
+  Ollama, a pulled model such as `gemma3:4b`, and multi-minute
+  machine-dependent latency.
 
 ### Milestone 16: Review-Service Operational Hardening
 

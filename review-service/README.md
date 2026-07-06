@@ -180,10 +180,15 @@ backend-shaped response and error payloads, including `upload_too_large`.
 Browser-to-running-backend verification has exercised the actual frontend,
 FastAPI service, CORS preflight, multipart upload, adapter subprocess boundary,
 review result rendering, stale-after-edit behavior, disabled-service state, and
-backend-unavailable state with a controlled temporary adapter target. Milestone
-14 verified the real Ollama-backed PDF execution path with a local
-`vendor/hiring-agent` checkout, its `.venv`, Ollama, `gemma3:4b`, and a
-browser-generated Presume review PDF.
+backend-unavailable state with a controlled temporary adapter target. Playwright
+browser automation is available from the repository root with `npm run
+test:e2e`; it loads the Vite app from `/presume/`, uses route interception for
+`/config` and `/reviews`, and does not require this service, Ollama, or
+`vendor/hiring-agent`. Milestone 14 verified
+the real Ollama-backed PDF execution path with a local `vendor/hiring-agent`
+checkout, its `.venv`, Ollama, `gemma3:4b`, and a browser-generated Presume
+review PDF. That real path remains manual by default because setup and latency
+are machine-dependent.
 
 ## Milestone 14 Real-Stack Evidence
 
