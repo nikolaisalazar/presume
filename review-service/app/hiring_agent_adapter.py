@@ -10,12 +10,12 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
-from .config import Settings, resolve_hiring_agent_path
+from .config import DEFAULT_REVIEW_TIMEOUT_SECONDS, Settings, resolve_hiring_agent_path
 from .errors import ReviewServiceError
 from .schemas import ReviewResult
 
 
-SUBPROCESS_TIMEOUT_SECONDS = 360
+SUBPROCESS_TIMEOUT_SECONDS = DEFAULT_REVIEW_TIMEOUT_SECONDS
 SAFE_SUBPROCESS_ENV_KEYS = {
     "HOME",
     "LANG",
@@ -56,7 +56,7 @@ class HiringAgentAdapter:
         try:
             return await asyncio.wait_for(
                 self._run_hiring_agent(pdf_bytes),
-                timeout=SUBPROCESS_TIMEOUT_SECONDS + 15,
+                timeout=self.settings.review_timeout_seconds + 15,
             )
         except TimeoutError:
             raise ReviewServiceError(
@@ -124,7 +124,7 @@ class HiringAgentAdapter:
                     stdin=subprocess.DEVNULL,
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
-                    timeout=SUBPROCESS_TIMEOUT_SECONDS,
+                    timeout=self.settings.review_timeout_seconds,
                     check=True,
                 )
             except subprocess.TimeoutExpired:

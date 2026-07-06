@@ -231,6 +231,7 @@ def test_upload_size_limit_is_enforced_while_reading():
                 cors_origins=("http://localhost:5173",),
                 hiring_agent_path="../vendor/hiring-agent",
                 max_upload_bytes=8,
+                review_timeout_seconds=360,
             ),
             adapter=SuccessfulAdapter(),
         )
