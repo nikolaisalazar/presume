@@ -74,12 +74,16 @@ Defaults favor local review:
 - `LLM_PROVIDER` defaults to `ollama`.
 - `DEFAULT_MODEL` defaults to `gemma3:4b`.
 - `CORS_ORIGINS` defaults to `http://localhost:5173,http://127.0.0.1:5173`.
-- `MAX_UPLOAD_BYTES` defaults to 25 MiB so the browser-rendered default resume
-  PDF can be posted for review while still bounding upload memory per request.
-  Invalid, zero, negative, tiny, or extremely large values resolve to documented
-  safe limits.
-- `REVIEW_TIMEOUT_SECONDS` defaults to 360 seconds. Invalid, zero, negative,
-  tiny, or extremely large values resolve to documented safe limits.
+- `MAX_UPLOAD_BYTES` defaults to `26214400` bytes / 25 MiB so the
+  browser-rendered default resume PDF can be posted for review while still
+  bounding upload memory per request. Invalid, empty, zero, or negative values
+  fall back to the default. Positive values below `1048576` bytes / 1 MiB clamp
+  up to that minimum. Values above `104857600` bytes / 100 MiB clamp down to
+  that maximum.
+- `REVIEW_TIMEOUT_SECONDS` defaults to `360` seconds. Invalid, empty, zero, or
+  negative values fall back to the default. Positive values below `60` seconds
+  clamp up to that minimum. Values above `900` seconds clamp down to that
+  maximum.
 - Review is enabled only when provider configuration is usable and the local
   Hiring Agent checkout exists as a directory.
 - `GEMINI_API_KEY` is only used when `LLM_PROVIDER=gemini`.

@@ -76,12 +76,14 @@ Rules:
 - The adapter prefers `.venv/bin/python` inside the Hiring Agent checkout when
   present, so its upstream dependencies can remain isolated from the review
   service environment.
-- `MAX_UPLOAD_BYTES` defaults to 25 MiB and is bounded by the service. Invalid,
-  zero, negative, tiny, or extremely large values resolve to documented safe
-  limits instead of creating unbounded or nonsensical upload behavior.
-- `REVIEW_TIMEOUT_SECONDS` defaults to 360 seconds and is bounded by the
-  service. Invalid, zero, negative, tiny, or extremely large values resolve to
-  documented safe limits instead of creating nonsensical timeout behavior.
+- `MAX_UPLOAD_BYTES` defaults to `26214400` bytes / 25 MiB and is bounded by
+  the service. Invalid, empty, zero, or negative values fall back to the
+  default. Positive values below `1048576` bytes / 1 MiB clamp up to that
+  minimum. Values above `104857600` bytes / 100 MiB clamp down to that maximum.
+- `REVIEW_TIMEOUT_SECONDS` defaults to `360` seconds and is bounded by the
+  service. Invalid, empty, zero, or negative values fall back to the default.
+  Positive values below `60` seconds clamp up to that minimum. Values above
+  `900` seconds clamp down to that maximum.
 - The adapter timeout is intentionally several minutes because the real default
   local Ollama path performs multiple Hiring Agent extraction and scoring LLM
   calls. On the verified Apple M2 environment, a successful `/reviews` request

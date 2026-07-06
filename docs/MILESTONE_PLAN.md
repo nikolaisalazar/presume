@@ -1035,9 +1035,12 @@ Scope:
 Completion evidence:
 
 - `review-service/app/config.py` validates bounded upload and timeout settings.
-  `MAX_UPLOAD_BYTES` keeps the 25 MiB default and `REVIEW_TIMEOUT_SECONDS`
-  keeps the 360 second default while rejecting invalid, zero, negative, tiny,
-  and extremely large values into documented safe limits.
+  `MAX_UPLOAD_BYTES` keeps the `26214400` byte / 25 MiB default, clamps positive
+  values to the `1048576` byte / 1 MiB minimum and `104857600` byte / 100 MiB
+  maximum, and falls back to the default for invalid, empty, zero, or negative
+  values. `REVIEW_TIMEOUT_SECONDS` keeps the `360` second default, clamps
+  positive values to the 60 second minimum and 900 second maximum, and falls
+  back to the default for invalid, empty, zero, or negative values.
 - `review-service/app/hiring_agent_adapter.py` uses the validated review timeout
   for the Hiring Agent subprocess and preserves `review_timeout` mapping.
 - `GET /config` exposes only safe readiness and limit information:
