@@ -93,6 +93,9 @@ Defaults favor local review:
 - The public model allowlist is intentionally narrow. Arbitrary local model
   names are not echoed from environment variables; add a safe allowlist entry
   before exposing another model identifier.
+- The adapter timeout is several minutes because the real local Ollama-backed
+  Hiring Agent path makes multiple model calls. On the Milestone 14 verification
+  machine, direct `/reviews` completion took 202.292199 seconds.
 
 Hosted providers are opt-in. When a hosted provider such as Gemini is enabled,
 resume text, extracted resume data, and prompt context may be sent to that
@@ -108,10 +111,19 @@ HackerRank Hiring Agent internals. The expected checkout is
 
 This repository does not vendor Hiring Agent by default. Until that checkout is
 present as a directory, `GET /config` reports `reviewEnabled: false` without
-exposing the configured path. When the checkout is present, the adapter runs a
-small subprocess bridge inside that directory, calls Hiring Agent's `score.main`
+exposing the configured path. The checkout is a local prerequisite under
+`vendor/hiring-agent`, which is ignored by git and should not be committed to
+this repository. When the checkout is present, the adapter runs a small
+subprocess bridge inside that directory, calls Hiring Agent's `score.main`
 entrypoint with the uploaded PDF, captures the returned Pydantic evaluation as
 JSON, and maps it into Presume's normalized `ReviewResult`.
+
+Presume review submissions include a review-only extractable text appendix in
+the generated PDF so Hiring Agent can parse browser-rendered resumes. The
+appendix is built from visible, allowlisted resume content selectors and strips
+hidden, `aria-hidden`, and editor-only descendants, including add/remove
+controls. The regular frontend Export PDF path remains the visual canvas export
+and does not add this review appendix.
 
 Set up the dependency checkout separately:
 
@@ -168,9 +180,55 @@ backend-shaped response and error payloads, including `upload_too_large`.
 Browser-to-running-backend verification has exercised the actual frontend,
 FastAPI service, CORS preflight, multipart upload, adapter subprocess boundary,
 review result rendering, stale-after-edit behavior, disabled-service state, and
-backend-unavailable state with a controlled temporary adapter target. The real
-Ollama-backed PDF execution path has not been manually exercised unless a local
-`vendor/hiring-agent` checkout, `ollama`, and the selected model are installed.
+backend-unavailable state with a controlled temporary adapter target. Milestone
+14 verified the real Ollama-backed PDF execution path with a local
+`vendor/hiring-agent` checkout, its `.venv`, Ollama, `gemma3:4b`, and a
+browser-generated Presume review PDF.
+
+## Milestone 14 Real-Stack Evidence
+
+Verified on July 6, 2026 with:
+
+```sh
+git clone https://github.com/interviewstreet/hiring-agent.git vendor/hiring-agent
+cd vendor/hiring-agent
+/Library/Frameworks/Python.framework/Versions/3.13/bin/python3.13 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+brew install ollama
+OLLAMA_FLASH_ATTENTION="1" OLLAMA_KV_CACHE_TYPE="q8_0" /opt/homebrew/opt/ollama/bin/ollama serve
+/opt/homebrew/opt/ollama/bin/ollama pull gemma3:4b
+```
+
+Service commands:
+
+```sh
+cd review-service
+HIRING_AGENT_PATH=../vendor/hiring-agent \
+LLM_PROVIDER=ollama \
+DEFAULT_MODEL=gemma3:4b \
+uvicorn app.main:app --host 127.0.0.1 --port 8000
+```
+
+```sh
+VITE_REVIEW_API_URL=http://127.0.0.1:8000 npm run dev -- --host 127.0.0.1
+```
+
+Observed:
+
+- `GET /config` returned review enabled with `ollama`, `gemma3:4b`, GitHub
+  enrichment disabled, and `maxUploadBytes` `26214400`; it did not expose
+  paths, secrets, raw environment values, stack traces, or provider internals.
+- Direct `POST /reviews` with a browser-generated Presume review PDF returned
+  HTTP 200 in 202.292199 seconds using multipart form data field `file`.
+- The normalized result included score `81 / 100`, tier `competitive`, four
+  categories, three strengths, one improvement, one bonus, no deductions, no
+  annotations, and `raw: {"source":"hiring-agent"}`.
+- The frontend validator accepted that exact response. The review panel rendered
+  the normalized response, and editing after success displayed stale status
+  while preserving the previous result.
+- With `OLLAMA_HOST=http://127.0.0.1:9`, the same PDF returned HTTP 502 with
+  `hiring_agent_failed` and fixed public message `Resume review failed.`
+  Adapter/provider exception text was not exposed to the client.
 
 ## Browser Flow Troubleshooting
 

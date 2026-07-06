@@ -4,7 +4,7 @@
 
 The review service wraps HackerRank's open-source Hiring Agent behind a small Presume-owned API. The service accepts the rendered resume PDF, runs extraction and evaluation through an adapter boundary, and returns a normalized review contract that the frontend can render without depending on Hiring Agent internals.
 
-The FastAPI service scaffold is implemented in `review-service/`. Hiring Agent execution is isolated in `review-service/app/hiring_agent_adapter.py` and requires a local `vendor/hiring-agent` checkout with its Python dependencies installed.
+The FastAPI service scaffold is implemented in `review-service/`. Hiring Agent execution is isolated in `review-service/app/hiring_agent_adapter.py` and requires a local `vendor/hiring-agent` checkout with its Python dependencies installed. That checkout is a local prerequisite and is not vendored into this repository.
 When the local Hiring Agent checkout directory is unavailable, `GET /config`
 reports `reviewEnabled: false` without exposing the configured filesystem path.
 
@@ -13,11 +13,16 @@ reports `reviewEnabled: false` without exposing the configured filesystem path.
 - Framework: FastAPI.
 - Python: 3.11+.
 - Directory: `review-service/`.
-- Initial Hiring Agent dependency: `vendor/hiring-agent` as a local checkout or git submodule.
+- Initial Hiring Agent dependency: `vendor/hiring-agent` as a local checkout outside the tracked repository contents.
 - Integration style: a subprocess bridge around Hiring Agent's `score.main`
   entrypoint, followed by Presume-owned normalization.
 
 The adapter matters because upstream Hiring Agent APIs may change. Presume should isolate those changes in `hiring_agent_adapter.py`.
+
+Milestone 14 verified the real local path on July 6, 2026 with a local
+`vendor/hiring-agent` checkout, its `.venv`, Ollama 0.31.1, and `gemma3:4b`.
+The successful direct `/reviews` request used a browser-generated Presume review
+PDF and returned HTTP 200 in 202.292199 seconds.
 
 ## Files
 
@@ -66,10 +71,15 @@ Rules:
   must stay explicit; do not allow arbitrary origins by default.
 - Relative `HIRING_AGENT_PATH` values resolve from the repository root. The
   default expects a checkout directory at `vendor/hiring-agent`.
-- `HIRING_AGENT_PATH` points to the local checkout or submodule.
+- `HIRING_AGENT_PATH` points to the local checkout.
 - The adapter prefers `.venv/bin/python` inside the Hiring Agent checkout when
   present, so its upstream dependencies can remain isolated from the review
   service environment.
+- The adapter timeout is intentionally several minutes because the real default
+  local Ollama path performs multiple Hiring Agent extraction and scoring LLM
+  calls. On the verified Apple M2 environment, a successful `/reviews` request
+  took 202.292199 seconds and an uncached diagnostic upstream run took roughly
+  270 seconds.
 - The subprocess receives only allowlisted runtime environment variables plus
   explicit provider settings from service configuration. Ambient parent process
   secrets such as `GITHUB_TOKEN` or `GEMINI_API_KEY` are not inherited.
@@ -186,6 +196,13 @@ The current adapter only exposes `raw: {"source": "hiring-agent"}` and does not
 return raw provider responses, prompts, extracted resume text, or full upstream
 evaluation payloads to clients.
 
+The frontend review submission PDF includes a review-only extractable text
+appendix so Hiring Agent can parse browser-generated resumes. The appendix is
+built from visible, allowlisted resume content selectors and strips hidden,
+`aria-hidden`, and editor-only descendants, including add/remove controls. The
+normal Export PDF button remains the visual canvas export path and does not add
+that review appendix.
+
 ## Privacy
 
 Resumes contain personal information. The default path should be local Ollama inference so a developer can review a resume without sending it to a hosted LLM provider.
@@ -221,7 +238,7 @@ Minimum backend tests:
   stripped from the subprocess environment unless explicitly configured, and
   GitHub enrichment is disabled or enabled consistently with `/config`.
 
-Integration-oriented frontend/backend tests now cover unconfigured editor behavior, configured-service-disabled behavior, config-error behavior, backend-shaped frontend errors, mocked backend review success, documented endpoint behavior, config secrecy, and safe error handling. Browser-to-running-backend verification has exercised the actual frontend, FastAPI service, CORS preflight, multipart upload, adapter subprocess boundary, review result rendering, stale-after-edit behavior, disabled-service state, and backend-unavailable state with a controlled temporary adapter target. Real Ollama-backed Hiring Agent execution still requires a local checkout, `ollama`, and the selected model installed locally.
+Integration-oriented frontend/backend tests now cover unconfigured editor behavior, configured-service-disabled behavior, config-error behavior, backend-shaped frontend errors, mocked backend review success, documented endpoint behavior, config secrecy, and safe error handling. Browser-to-running-backend verification has exercised the actual frontend, FastAPI service, CORS preflight, multipart upload, adapter subprocess boundary, review result rendering, stale-after-edit behavior, disabled-service state, and backend-unavailable state with a controlled temporary adapter target. Milestone 14 also verified a real Ollama-backed Hiring Agent review with a local checkout, `ollama`, `gemma3:4b`, and a browser-generated Presume PDF.
 
 ## Local Browser-To-Backend Runbook
 
@@ -246,6 +263,23 @@ the returned score, categories, strengths, improvements, bonuses, deductions,
 and findings when present. Edit the resume after a successful review and verify
 the previous result remains visible with a stale status.
 
+Verified Milestone 14 result on July 6, 2026:
+
+- `GET /config` returned
+  `{"reviewEnabled":true,"llmProvider":"ollama","defaultModel":"gemma3:4b","githubEnrichmentEnabled":false,"maxUploadBytes":26214400}`.
+- Direct `POST /reviews` with a browser-generated Presume review PDF returned
+  HTTP 200 in 202.292199 seconds.
+- Observed normalized result shape: total score `81 / 100`, tier
+  `competitive`, four categories, three strengths, one improvement, one bonus,
+  no deductions, no annotations, and `raw: {"source":"hiring-agent"}`.
+- The frontend validator accepted the exact response. The review panel rendered
+  that normalized response, and editing after success marked it stale while
+  keeping the previous result visible.
+- Running the backend with `OLLAMA_HOST=http://127.0.0.1:9` returned HTTP 502
+  with `hiring_agent_failed` and the fixed message `Resume review failed.`
+  without exposing secrets, local paths, prompts, provider responses, stack
+  traces, adapter exception text, or raw resume contents.
+
 Common failure modes:
 
 - `GET /config` returns `"reviewEnabled": false`: `HIRING_AGENT_PATH` does not
@@ -260,3 +294,6 @@ Common failure modes:
   successfully. Check Hiring Agent dependencies, `ollama` installation,
   `ollama serve`, and `ollama pull gemma3:4b` locally. Public API responses
   intentionally do not expose adapter exception text.
+- Long review runtime: real local Ollama review can take several minutes,
+  especially on first model use. The verified successful direct request took
+  202.292199 seconds on an Apple M2 machine.

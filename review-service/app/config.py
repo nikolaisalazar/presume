@@ -127,4 +127,12 @@ def resolve_hiring_agent_path(value: str) -> Path:
     if path.is_absolute():
         return path
 
-    return (REPOSITORY_ROOT / path).resolve()
+    repository_relative_path = (REPOSITORY_ROOT / path).resolve()
+    if repository_relative_path.exists():
+        return repository_relative_path
+
+    cwd_relative_path = (Path.cwd() / path).resolve()
+    if cwd_relative_path.exists():
+        return cwd_relative_path
+
+    return repository_relative_path

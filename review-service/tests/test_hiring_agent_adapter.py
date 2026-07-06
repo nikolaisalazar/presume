@@ -335,7 +335,7 @@ async def test_adapter_maps_subprocess_timeout_to_safe_timeout(monkeypatch, tmp_
 
     def raise_timeout(*args, **kwargs):
         assert kwargs["timeout"] == SUBPROCESS_TIMEOUT_SECONDS
-        assert kwargs["timeout"] < 60
+        assert kwargs["timeout"] >= 300
         raise subprocess.TimeoutExpired(cmd=args[0], timeout=kwargs["timeout"])
 
     monkeypatch.setattr("app.hiring_agent_adapter.subprocess.run", raise_timeout)

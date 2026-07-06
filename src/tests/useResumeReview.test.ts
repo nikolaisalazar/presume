@@ -271,7 +271,9 @@ describe('useResumeReview', () => {
       await result.current.requestReview()
     })
 
-    expect(renderResumePageToPDFBlobMock).toHaveBeenCalledWith(ref.current)
+    expect(renderResumePageToPDFBlobMock).toHaveBeenCalledWith(ref.current, {
+      includeExtractableText: true,
+    })
     expect(submitResumeForReviewMock).toHaveBeenCalledWith(pdf)
     expect(result.current.state).toEqual({
       status: 'success',

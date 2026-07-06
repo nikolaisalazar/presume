@@ -140,7 +140,9 @@ export function useResumeReview({
         throw new Error('Resume page is not available for review.')
       }
 
-      const pdf = await renderResumePageToPDFBlob(pageElement)
+      const pdf = await renderResumePageToPDFBlob(pageElement, {
+        includeExtractableText: true,
+      })
       const result = await submitResumeForReview(pdf)
       if (activeRequestIdRef.current !== requestId) {
         return

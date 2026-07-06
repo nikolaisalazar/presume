@@ -72,6 +72,11 @@ All major resume font sizes are expressed as CSS custom properties multiplied by
 
 `src/export.ts` captures the rendered `ResumePage` DOM node with `html2canvas` and writes it to a Letter-sized `jsPDF` document. The captured canvas is sliced by Letter page height. A one-page render produces one PDF page; a taller render produced by `maxPages > 1` produces additional Letter pages rather than one compressed page.
 
+For review submissions only, the PDF helper appends extractable text restricted
+to visible, allowlisted resume content so Hiring Agent can parse the
+browser-rendered resume. The user-facing Export PDF action remains the visual
+canvas/image export and does not include that appendix.
+
 The current renderer does not create visible page-break UI inside the editor. Multi-page export is a canvas slicing operation aligned to the same Letter aspect ratio used by the resume page and resize engine.
 
 ## Current Frontend Data Flow
@@ -99,7 +104,7 @@ The backend should own PDF ingestion, Hiring Agent orchestration, LLM provider c
 
 `VITE_REVIEW_API_URL` is the frontend config variable. If it is missing, the app enters an unconfigured review state and disables review submission without affecting editing, export, import, or persistence. When it is present, the frontend reads `GET /config` at startup and disables review submission if the service reports review unavailable or if readiness cannot be confirmed. The frontend does not poll for later readiness changes; future live readiness changes are handled through normalized review submission errors unless a later milestone adds rechecking.
 
-The first backend implementation provides FastAPI endpoints, safe allowlisted config projection, normalized schemas, template-based normalized errors, bounded upload validation, Hiring Agent dependency readiness checks, and a Hiring Agent adapter boundary. The frontend consumes the public readiness signal before enabling review submission. Integration-oriented tests cover unconfigured, configured-service-disabled, and config-error editor behavior, backend-shaped frontend errors, mocked backend review success, and safe backend error handling. Browser-to-running-backend verification has exercised the actual frontend, FastAPI service, CORS preflight, multipart upload, adapter subprocess boundary, review result rendering, stale-after-edit behavior, disabled-service state, and backend-unavailable state with a controlled temporary adapter target. Real Ollama-backed Hiring Agent execution still requires a local `vendor/hiring-agent` checkout, `ollama`, and the selected model installed locally.
+The first backend implementation provides FastAPI endpoints, safe allowlisted config projection, normalized schemas, template-based normalized errors, bounded upload validation, Hiring Agent dependency readiness checks, and a Hiring Agent adapter boundary. The frontend consumes the public readiness signal before enabling review submission. Integration-oriented tests cover unconfigured, configured-service-disabled, and config-error editor behavior, backend-shaped frontend errors, mocked backend review success, and safe backend error handling. Browser-to-running-backend verification has exercised the actual frontend, FastAPI service, CORS preflight, multipart upload, adapter subprocess boundary, review result rendering, stale-after-edit behavior, disabled-service state, and backend-unavailable state with a controlled temporary adapter target. Milestone 14 verified real Ollama-backed Hiring Agent execution with a local `vendor/hiring-agent` checkout, Ollama, `gemma3:4b`, and a browser-generated Presume review PDF.
 
 ## Review Request Flow
 
@@ -114,7 +119,7 @@ sequenceDiagram
   participant GH as GitHub API
 
   User->>UI: Request review
-  UI->>PDF: Render current ResumePage to PDF Blob using the multi-page export path
+  UI->>PDF: Render current ResumePage to PDF Blob with review-only text appendix
   PDF-->>UI: PDF Blob
   UI->>API: POST /reviews multipart resume.pdf
   API->>HA: Run extraction and scoring through adapter

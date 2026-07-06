@@ -7,7 +7,10 @@ Presume helps job seekers maintain a resume that is both visually controlled and
 The product has two separate loops:
 
 - Formatting loop: deterministic browser-side fitting powered by Pretext.
-- Review loop: advisory evidence display powered by a Presume-owned backend wrapper around HackerRank Hiring Agent. The UI and service scaffold exist; full Hiring Agent execution is still pending adapter wiring.
+- Review loop: advisory evidence display powered by a Presume-owned backend
+  wrapper around HackerRank Hiring Agent. The UI, service scaffold, subprocess
+  adapter, and real local Ollama-backed execution path have been verified in a
+  fully provisioned developer environment.
 
 ## Target Users
 
@@ -61,10 +64,7 @@ The product has two separate loops:
 
 ### Still-Planned Review Workflow
 
-1. Run extraction, scoring, optional GitHub enrichment, and LLM calls through a
-   local Ollama-backed Hiring Agent checkout in a developer environment with
-   `vendor/hiring-agent`, `ollama`, and the selected model installed.
-2. Add automated browser-to-running-backend integration tests if the project
+1. Add automated browser-to-running-backend integration tests if the project
    adopts a browser test runner.
 
 ## Current Editor Behavior
@@ -89,6 +89,9 @@ The app currently supports:
 - A disabled review state when the configured service reports review unavailable through `GET /config`.
 - A config-error review state when `GET /config` cannot confirm readiness; review submission stays disabled and the editor remains usable.
 - A review state hook that generates a PDF blob and submits it to the configured review service.
+- Review submissions add an extractable text appendix restricted to visible,
+  allowlisted resume content so Hiring Agent can parse browser-rendered PDFs;
+  normal exported PDFs remain canvas/image-only.
 - A review panel for advisory score, tier, grouped category evidence and
   suggestions, strengths, improvements, bonuses, deductions, annotation legend,
   and findings with severity and target context.
@@ -99,6 +102,12 @@ The app currently supports:
 - Manual browser-to-backend verification of PDF upload, normalized result
   rendering, stale-after-edit behavior, disabled-service state, and
   backend-unavailable state with a controlled temporary adapter target.
+- Manual real-stack verification of a browser-generated Presume PDF posted to
+  the FastAPI service, real local `vendor/hiring-agent` checkout, local
+  Ollama, `gemma3:4b`, normalized response validation, review panel rendering,
+  stale-after-edit behavior, and safe misconfigured-Ollama failure. The Hiring
+  Agent checkout is a local prerequisite and is not vendored into this
+  repository.
 
 Review feedback must be advisory. The first review phase must not rewrite, reorder, or delete resume content automatically.
 
@@ -115,9 +124,8 @@ The review output should include:
 
 Annotations are best effort. If a review finding cannot be matched confidently to a section, entry, or bullet, it should remain visible in the review panel without an inline highlight.
 
-Still-planned review behavior includes real Ollama-backed Hiring Agent
-execution in a fully provisioned local environment and automated
-browser-to-running-backend integration tests if a browser test runner is added.
+Still-planned review behavior includes automated browser-to-running-backend
+integration tests if a browser test runner is added.
 
 ## UX Principles
 

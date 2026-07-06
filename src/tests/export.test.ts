@@ -4,6 +4,9 @@ import { exportPDF, getPdfPageSlices, renderResumePageToPDFBlob } from '../expor
 const pdfMock = vi.hoisted(() => ({
   addImage: vi.fn(),
   addPage: vi.fn(),
+  setFontSize: vi.fn(),
+  setTextColor: vi.fn(),
+  text: vi.fn(),
   output: vi.fn(),
   save: vi.fn(),
   constructor: vi.fn(),
@@ -21,6 +24,9 @@ vi.mock('jspdf', () => ({
     return {
       addImage: pdfMock.addImage,
       addPage: pdfMock.addPage,
+      setFontSize: pdfMock.setFontSize,
+      setTextColor: pdfMock.setTextColor,
+      text: pdfMock.text,
       output: pdfMock.output,
       save: pdfMock.save,
     }
@@ -62,6 +68,9 @@ describe('exportPDF', () => {
   beforeEach(() => {
     pdfMock.addImage.mockClear()
     pdfMock.addPage.mockClear()
+    pdfMock.setFontSize.mockClear()
+    pdfMock.setTextColor.mockClear()
+    pdfMock.text.mockClear()
     pdfMock.output.mockClear()
     pdfMock.save.mockClear()
     pdfMock.constructor.mockClear()
@@ -251,6 +260,7 @@ describe('exportPDF', () => {
       8.5,
       11
     )
+    expect(pdfMock.text).not.toHaveBeenCalled()
     expect(pdfMock.save).toHaveBeenCalledWith('resume.pdf')
   })
 
@@ -270,6 +280,108 @@ describe('exportPDF', () => {
     expect(pdfMock.addImage).toHaveBeenCalledTimes(3)
     expect(pdfMock.output).toHaveBeenCalledWith('blob')
     expect(pdfMock.save).not.toHaveBeenCalled()
+  })
+
+  it('can add extractable resume text to review PDF blobs without editor controls', async () => {
+    const sourceCanvas = {
+      width: 850,
+      height: 1100,
+    } as HTMLCanvasElement
+    const pageElement = document.createElement('div')
+    pageElement.innerHTML = `
+      <span class="resume-name">Alex Johnson</span>
+      <li class="resume-contact-item">
+        alex@example.com
+        <button class="remove-btn">-</button>
+      </li>
+      <span class="resume-section-title">Experience</span>
+      <span class="entry-title">Software Engineer</span>
+      <span class="entry-date">2023 - Present</span>
+      <span class="entry-subtitle">Acme</span>
+      <span class="entry-location">Remote</span>
+      <li class="bullet-item">
+        Built review tooling.
+        <button class="remove-btn">-</button>
+      </li>
+      <button class="add-btn">+ section</button>
+    `
+    const blob = new Blob(['pdf'], { type: 'application/pdf' })
+    html2canvasMock.mockResolvedValue(sourceCanvas)
+    pdfMock.output.mockReturnValue(blob)
+
+    await expect(
+      renderResumePageToPDFBlob(pageElement, { includeExtractableText: true })
+    ).resolves.toBe(blob)
+
+    expect(pdfMock.addImage).toHaveBeenCalledTimes(1)
+    expect(pdfMock.addPage).toHaveBeenCalledWith('letter', 'portrait')
+    expect(pdfMock.setFontSize).toHaveBeenCalledWith(8)
+    expect(pdfMock.setTextColor).toHaveBeenCalledWith(255, 255, 255)
+    const writtenText = pdfMock.text.mock.calls
+      .map(([text]) => text)
+      .join('\n')
+    expect(writtenText).toContain('Alex Johnson')
+    expect(writtenText).toContain('Experience')
+    expect(writtenText).toContain('Built review tooling.')
+    expect(writtenText).not.toContain('+ section')
+  })
+
+  it('excludes hidden and editor-only resume text from review PDF blobs', async () => {
+    const sourceCanvas = {
+      width: 850,
+      height: 1100,
+    } as HTMLCanvasElement
+    const pageElement = document.createElement('div')
+    pageElement.innerHTML = `
+      <span class="resume-name">Alex Johnson</span>
+      <span class="entry-title">Visible Role</span>
+      <span class="entry-title" hidden>Hidden Role</span>
+      <li class="bullet-item">Visible impact.</li>
+      <li class="bullet-item" style="display: none">Hidden display impact.</li>
+      <li class="bullet-item" style="visibility: hidden">Hidden visibility impact.</li>
+      <section aria-hidden="true">
+        <li class="bullet-item">Aria hidden impact.</li>
+      </section>
+      <section data-editor-only="true">
+        <span class="entry-title">Editor-only draft role</span>
+        <li class="bullet-item">Editor-only draft impact.</li>
+      </section>
+      <li class="bullet-item">
+        Shipped visible work.
+        <span style="display: none">Hidden nested impact.</span>
+        <span style="visibility: hidden">Invisible nested impact.</span>
+        <span hidden>Hidden attr nested impact.</span>
+        <span aria-hidden="true">Aria nested impact.</span>
+        <button class="remove-btn">Remove visible work</button>
+        <span data-editor-only="true">Editor hint</span>
+      </li>
+    `
+    const blob = new Blob(['pdf'], { type: 'application/pdf' })
+    html2canvasMock.mockResolvedValue(sourceCanvas)
+    pdfMock.output.mockReturnValue(blob)
+
+    await expect(
+      renderResumePageToPDFBlob(pageElement, { includeExtractableText: true })
+    ).resolves.toBe(blob)
+
+    const writtenText = pdfMock.text.mock.calls
+      .map(([text]) => text)
+      .join('\n')
+    expect(writtenText).toContain('Visible Role')
+    expect(writtenText).toContain('Visible impact.')
+    expect(writtenText).toContain('Shipped visible work.')
+    expect(writtenText).not.toContain('Hidden Role')
+    expect(writtenText).not.toContain('Hidden display impact.')
+    expect(writtenText).not.toContain('Hidden visibility impact.')
+    expect(writtenText).not.toContain('Aria hidden impact.')
+    expect(writtenText).not.toContain('Editor-only draft role')
+    expect(writtenText).not.toContain('Editor-only draft impact.')
+    expect(writtenText).not.toContain('Hidden nested impact.')
+    expect(writtenText).not.toContain('Invisible nested impact.')
+    expect(writtenText).not.toContain('Hidden attr nested impact.')
+    expect(writtenText).not.toContain('Aria nested impact.')
+    expect(writtenText).not.toContain('Remove visible work')
+    expect(writtenText).not.toContain('Editor hint')
   })
 
   it('surfaces PDF blob generation errors to callers', async () => {

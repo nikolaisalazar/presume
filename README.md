@@ -22,21 +22,22 @@ Working today:
 - FastAPI review service scaffold with safe config projection, Hiring Agent dependency readiness checks, normalized schemas, normalized errors, PDF upload validation, and mocked contract tests.
 - Integration-oriented tests for unconfigured editor behavior, backend-shaped frontend errors, and safe backend error handling.
 - Browser-to-backend review flow has been exercised with a running frontend,
-  running backend, and controlled adapter target. A real local Ollama-backed
-  Hiring Agent run still requires `vendor/hiring-agent`, `ollama`, and the
-  selected model installed locally.
+  running backend, controlled adapter target, and the real local
+  Ollama-backed Hiring Agent path using `vendor/hiring-agent`, `gemma3:4b`, and
+  a browser-generated Presume PDF. `vendor/hiring-agent` is a local prerequisite
+  and is not vendored into this repository.
 
 Still planned:
 
-- Real local Ollama-backed Hiring Agent execution in a fully provisioned
-  developer environment.
-- Browser verification against a real local Ollama-backed Hiring Agent run.
+- Browser automation for the review and export contracts.
+- Operational hardening for long-running local review requests and deployments
+  beyond single-developer local use.
 
 ## How It Works
 
 The frontend renders a US Letter resume page and stores the resume as typed JSON. As the resume changes, `@chenglou/pretext` measures bullet text and the resize engine binary-searches a global CSS scale so the document satisfies the configured page and line constraints. Content that cannot fit within the configured minimum font size is marked with a formatting warning.
 
-PDF export is fully client-side using `html2canvas` and `jsPDF`. The exporter slices the captured resume into Letter-height pages so a resume fitted to multiple pages exports as multiple PDF pages instead of being compressed onto one page. JSON export/import provides a portable save format.
+PDF export is fully client-side using `html2canvas` and `jsPDF`. The exporter slices the captured resume into Letter-height pages so a resume fitted to multiple pages exports as multiple PDF pages instead of being compressed onto one page. JSON export/import provides a portable save format. Review submissions use the same visual capture plus a review-only extractable text appendix restricted to visible, allowlisted resume content; the normal Export PDF action remains canvas/image-only.
 
 The review flow keeps semantic evaluation outside the static frontend. A local or self-hosted FastAPI service accepts the current resume PDF, runs review work through a Hiring Agent adapter boundary, and returns a normalized review result for the frontend to display. If no review endpoint is configured, or if the service reports review disabled because the local Hiring Agent checkout is unavailable, the review UI is disabled rather than breaking the editor.
 
