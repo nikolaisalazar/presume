@@ -114,7 +114,7 @@ describe('resume operation helpers', () => {
 
   it('clones the default section instead of sharing the exported object', () => {
     const updated = addSection(cloneResume(resume))
-    const inserted = updated.sections.at(-1)
+    const inserted = updated.sections[updated.sections.length - 1]
 
     expect(inserted).toEqual(DEFAULT_SECTION)
     expect(inserted).not.toBe(DEFAULT_SECTION)
@@ -134,7 +134,7 @@ describe('resume operation helpers', () => {
     }
 
     const updated = addSection(cloneResume(resume), customSection)
-    const inserted = updated.sections.at(-1)
+    const inserted = updated.sections[updated.sections.length - 1]
 
     expect(inserted).toEqual(customSection)
     expect(inserted).not.toBe(customSection)
@@ -180,7 +180,7 @@ describe('resume operation helpers', () => {
 
   it('clones the default entry instead of sharing the exported object', () => {
     const updated = addEntry(cloneSection(section))
-    const inserted = updated.entries.at(-1)
+    const inserted = updated.entries[updated.entries.length - 1]
 
     expect(inserted).toEqual(DEFAULT_ENTRY)
     expect(inserted).not.toBe(DEFAULT_ENTRY)
@@ -197,7 +197,7 @@ describe('resume operation helpers', () => {
     }
 
     const updated = addEntry(cloneSection(section), customEntry)
-    const inserted = updated.entries.at(-1)
+    const inserted = updated.entries[updated.entries.length - 1]
 
     expect(inserted).toEqual(customEntry)
     expect(inserted).not.toBe(customEntry)
