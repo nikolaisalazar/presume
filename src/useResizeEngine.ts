@@ -21,8 +21,9 @@ export type Warnings = Map<string, boolean>
  * maxLinesPerBullet when measured by the provided measureLines callback.
  *
  * These are "impossible" bullets — ones that can't be made to fit by shrinking
- * the global scale any further. They should be warned about but must not
- * prevent the scale search from finding the best scale for the rest of the page.
+ * the global scale any further. They should be warned about, and their presence
+ * keeps the document at the minimum global scale instead of allowing other
+ * content to scale back up independently.
  *
  * @param resume           - the full resume data
  * @param measureLines     - returns line count for a bullet text

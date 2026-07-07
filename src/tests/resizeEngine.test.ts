@@ -193,6 +193,18 @@ describe('regression: impossible bullet keeps global scale at minScale', () => {
     expect(finalScale).toBe(MIN_SCALE)
   })
 
+  it('uses the binary-search scale path when all bullets are satisfiable', () => {
+    const finalScale = chooseFinalGlobalScale({
+      minScale: 0.7,
+      maxScale: 2.0,
+      impossibleKeys: new Set(),
+      fitsAtScale: scale => scale <= 1.25,
+    })
+
+    expect(finalScale).toBeGreaterThanOrEqual(1.249)
+    expect(finalScale).toBeLessThanOrEqual(1.25)
+  })
+
   it('still produces a warning for the impossible bullet', () => {
     const MIN_SCALE = 0.7
     const MAX_LINES = 2
