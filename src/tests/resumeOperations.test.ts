@@ -112,6 +112,36 @@ describe('resume operation helpers', () => {
     expect(original).toEqual(resume)
   })
 
+  it('clones the default section instead of sharing the exported object', () => {
+    const updated = addSection(cloneResume(resume))
+    const inserted = updated.sections.at(-1)
+
+    expect(inserted).toEqual(DEFAULT_SECTION)
+    expect(inserted).not.toBe(DEFAULT_SECTION)
+  })
+
+  it('clones custom sections deeply when adding them', () => {
+    const customEntry: ResumeEntry = {
+      title: 'Maintainer',
+      subtitle: 'Open Source',
+      location: 'Remote',
+      dateRange: '2024',
+      bullets: ['Reviewed pull requests'],
+    }
+    const customSection: ResumeSection = {
+      title: 'Leadership',
+      entries: [customEntry],
+    }
+
+    const updated = addSection(cloneResume(resume), customSection)
+    const inserted = updated.sections.at(-1)
+
+    expect(inserted).toEqual(customSection)
+    expect(inserted).not.toBe(customSection)
+    expect(inserted?.entries[0]).not.toBe(customEntry)
+    expect(inserted?.entries[0].bullets).not.toBe(customEntry.bullets)
+  })
+
   it('safely ignores out-of-range section operations', () => {
     const original = cloneResume(resume)
     const projects: ResumeSection = { title: 'Projects', entries: [] }
@@ -146,6 +176,32 @@ describe('resume operation helpers', () => {
     })
     expect(removeEntry(original, 0)).toEqual({ ...section, entries: [] })
     expect(original).toEqual(section)
+  })
+
+  it('clones the default entry instead of sharing the exported object', () => {
+    const updated = addEntry(cloneSection(section))
+    const inserted = updated.entries.at(-1)
+
+    expect(inserted).toEqual(DEFAULT_ENTRY)
+    expect(inserted).not.toBe(DEFAULT_ENTRY)
+    expect(inserted?.bullets).not.toBe(DEFAULT_ENTRY.bullets)
+  })
+
+  it('clones custom entry bullet arrays when adding entries', () => {
+    const customEntry: ResumeEntry = {
+      title: 'Project Lead',
+      subtitle: 'Open Source',
+      location: '',
+      dateRange: '2024',
+      bullets: ['Maintained project'],
+    }
+
+    const updated = addEntry(cloneSection(section), customEntry)
+    const inserted = updated.entries.at(-1)
+
+    expect(inserted).toEqual(customEntry)
+    expect(inserted).not.toBe(customEntry)
+    expect(inserted?.bullets).not.toBe(customEntry.bullets)
   })
 
   it('safely ignores out-of-range entry operations', () => {

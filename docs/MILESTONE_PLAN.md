@@ -1117,3 +1117,6 @@ Residual risk:
 - The public resume JSON format remains the original plain shape. Future richer
   fields, stable IDs, reorder operations, or schema-versioned migrations still
   need their own compatibility design before implementation.
+- Review annotations still depend on exact section, entry, and bullet text plus
+  positional matching. The helper layer reduces mutation risks, but it does not
+  solve identity or reordering ambiguity.
