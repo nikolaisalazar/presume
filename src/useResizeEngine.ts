@@ -21,8 +21,9 @@ export type Warnings = Map<string, boolean>
  * maxLinesPerBullet when measured by the provided measureLines callback.
  *
  * These are "impossible" bullets — ones that can't be made to fit by shrinking
- * the global scale any further. They should be warned about but must not
- * prevent the scale search from finding the best scale for the rest of the page.
+ * the global scale any further. They should be warned about, and their presence
+ * keeps the document at the minimum global scale instead of allowing other
+ * content to scale back up independently.
  *
  * @param resume           - the full resume data
  * @param measureLines     - returns line count for a bullet text
@@ -125,6 +126,31 @@ export function binarySearchFontSize(
   return low
 }
 
+export function chooseFinalGlobalScale({
+  minScale,
+  maxScale,
+  impossibleKeys,
+  fitsAtScale,
+}: {
+  minScale: number
+  maxScale: number
+  impossibleKeys: Set<string>
+  fitsAtScale: (scale: number) => boolean
+}): number {
+  if (impossibleKeys.size > 0) {
+    return minScale
+  }
+
+  return binarySearchFontSize(
+    scale => (fitsAtScale(scale) ? 1 : 2),
+    minScale,
+    maxScale,
+    1,
+    0.001,
+    30
+  )
+}
+
 // ── Hook ───────────────────────────────────────────────────────────
 
 /**
@@ -203,9 +229,8 @@ export function useResizeEngine(
       // ── Pre-compute impossible bullets at minScale ───────────────
       // A bullet is "impossible" if it still overflows maxLinesPerBullet even at
       // minScale (the smallest the engine will ever go). Such bullets are warned
-      // about but must NOT constrain the scale search — otherwise a single
-      // impossible bullet would collapse the entire resume to minScale even when
-      // the page has plenty of room.
+      // about and keep the global scale at minScale, preserving a consistent
+      // document-wide size while respecting the configured minimum font-size floor.
       const impossibleKeys = getImpossibleBulletKeys(
         resume,
         text => measureBulletLines(text, minScale),
@@ -224,17 +249,16 @@ export function useResizeEngine(
       }
 
       // ── Find the largest scale where everything fits ─────────────
-      // Binary search across [minScale, MAX_SCALE].
-      // fitsAtScale returns 1 (pass) or 2 (fail); maxLines=1 finds the largest
-      // value that passes, which is the standard binarySearchFontSize contract.
-      const finalScale = binarySearchFontSize(
-        scale => (fitsAtScale(scale) ? 1 : 2),
+      // Binary search across [minScale, MAX_SCALE] when all bullets are
+      // satisfiable. If any bullet is impossible at minScale, keep the whole
+      // resume at minScale so the line-limit failure is represented at the
+      // smallest allowed global font size instead of scaling other content up.
+      const finalScale = chooseFinalGlobalScale({
         minScale,
-        MAX_SCALE,
-        1,
-        0.001,
-        30
-      )
+        maxScale: MAX_SCALE,
+        impossibleKeys,
+        fitsAtScale,
+      })
 
       root.style.setProperty('--global-scale', `${finalScale}`)
 

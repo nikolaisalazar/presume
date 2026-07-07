@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { binarySearchFontSize, getImpossibleBulletKeys, checkBulletsFitAtScale } from '../useResizeEngine'
+import { binarySearchFontSize, getImpossibleBulletKeys, checkBulletsFitAtScale, chooseFinalGlobalScale } from '../useResizeEngine'
 import type { Resume } from '../types'
 
 // ── Helpers ────────────────────────────────────────────────────────
@@ -149,61 +149,60 @@ describe('checkBulletsFitAtScale', () => {
   })
 })
 
-// ── Regression: impossible bullet must not collapse global scale ───
+// ── Regression: impossible bullet keeps the document at minScale ───
 
-describe('regression: impossible bullet does not force scale to minScale', () => {
+describe('regression: impossible bullet keeps global scale at minScale', () => {
   /**
-   * Simulates the scale-search logic used in useResizeEngine without touching
-   * the DOM. We inject:
-   *  - a measureLines mock that knows which bullets are impossible
-   *  - a fake page-height check that always passes (page fits at all scales)
-   *
-   * We then verify that the chosen finalScale is above minScale even though
-   * one bullet can never fit within maxLinesPerBullet.
+   * Simulates the scale-search decision used in useResizeEngine without touching
+   * the DOM. When any bullet cannot fit within maxLinesPerBullet at minScale,
+   * the global scale must stay at minScale so all resume elements resize
+   * consistently to the smallest allowed size.
    */
-  it('chooses a scale above minScale when an impossible bullet exists but the page fits', () => {
+  it('chooses minScale when an impossible bullet exists even if the page otherwise fits', () => {
     const MIN_SCALE = 0.7
     const MAX_SCALE = 2.0
     const MAX_LINES = 2
 
-    // One impossible bullet (always 3 lines at any scale), one normal bullet
-    // (fits at 1 line when scale >= 1.0, overflows at 2 lines when scale < 1.0).
+    // One impossible bullet always exceeds the line limit. The other bullet
+    // would allow a larger scale, but the impossible bullet should keep the
+    // global scale at the hard minimum font-size floor.
     const resume = makeResume([['impossible', 'normal']])
 
     const measureLines = (text: string, scale: number): number => {
-      if (text === 'impossible') return 3        // always overflows
-      return scale >= 1.0 ? 1 : 2               // 'normal': fits at scale>=1, overflows below
+      if (text === 'impossible') return 3
+      return scale >= 1.0 ? 1 : 2
     }
 
-    // Pre-compute impossible keys at minScale (mirrors what the hook does).
     const impossibleKeys = getImpossibleBulletKeys(
       resume,
       text => measureLines(text, MIN_SCALE),
       MAX_LINES
     )
 
-    // 'impossible' should be the only impossible bullet.
     expect(impossibleKeys.has('bullet-0-0-0')).toBe(true)
     expect(impossibleKeys.has('bullet-0-0-1')).toBe(false)
 
-    // fitsAtScale: page always fits; only check satisfiable bullets.
-    const fitsAtScale = (scale: number): boolean =>
-      checkBulletsFitAtScale(resume, scale, impossibleKeys, MAX_LINES, measureLines)
+    const finalScale = chooseFinalGlobalScale({
+      minScale: MIN_SCALE,
+      maxScale: MAX_SCALE,
+      impossibleKeys,
+      fitsAtScale: scale =>
+        checkBulletsFitAtScale(resume, scale, impossibleKeys, MAX_LINES, measureLines),
+    })
 
-    // Run the same binary search the hook uses.
-    const finalScale = binarySearchFontSize(
-      scale => (fitsAtScale(scale) ? 1 : 2),
-      MIN_SCALE,
-      MAX_SCALE,
-      1,
-      0.001,
-      30
-    )
+    expect(finalScale).toBe(MIN_SCALE)
+  })
 
-    // The chosen scale should be well above minScale.
-    // 'normal' fits at scale>=1.0, so the search should converge near 1.0.
-    expect(finalScale).toBeGreaterThan(MIN_SCALE + 0.1)
-    expect(finalScale).toBeGreaterThanOrEqual(1.0 - 0.01)
+  it('uses the binary-search scale path when all bullets are satisfiable', () => {
+    const finalScale = chooseFinalGlobalScale({
+      minScale: 0.7,
+      maxScale: 2.0,
+      impossibleKeys: new Set(),
+      fitsAtScale: scale => scale <= 1.25,
+    })
+
+    expect(finalScale).toBeGreaterThanOrEqual(1.249)
+    expect(finalScale).toBeLessThanOrEqual(1.25)
   })
 
   it('still produces a warning for the impossible bullet', () => {
