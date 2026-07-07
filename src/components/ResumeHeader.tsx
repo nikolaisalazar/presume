@@ -1,53 +1,44 @@
 import { EditableText } from './EditableText'
 import type { Resume } from '../types'
+import {
+  addContactItem,
+  removeContactItem,
+  updateContactItem,
+  updateResumeName,
+} from '../resumeOperations'
 
 interface ResumeHeaderProps {
   name: Resume['name']
   contact: Resume['contact']
-  onNameChange: (name: string) => void
-  onContactChange: (contact: string[]) => void
+  resume: Resume
+  onResumeChange: (resume: Resume) => void
 }
 
 export function ResumeHeader({
-  name,
-  contact,
-  onNameChange,
-  onContactChange,
+  resume,
+  onResumeChange,
 }: ResumeHeaderProps) {
-  const updateContact = (index: number, value: string) => {
-    const updated = [...contact]
-    updated[index] = value
-    onContactChange(updated)
-  }
-
-  const addContact = () => {
-    onContactChange([...contact, 'contact@example.com'])
-  }
-
-  const removeContact = (index: number) => {
-    onContactChange(contact.filter((_, i) => i !== index))
-  }
 
   return (
     <header className="resume-header" role="presentation">
       <EditableText
-        value={name}
-        onChange={onNameChange}
+        value={resume.name}
+        onChange={name => onResumeChange(updateResumeName(resume, name))}
         className="resume-name"
         placeholder="Your Name"
       />
       <div className="resume-header-contact-row">
         <ul className="resume-contact">
-          {contact.map((item, i) => (
+          {resume.contact.map((item, i) => (
             <li key={i} className="resume-contact-item">
               <EditableText
                 value={item}
-                onChange={v => updateContact(i, v)}
+                onChange={v => onResumeChange(updateContactItem(resume, i, v))}
                 placeholder="contact"
               />
               <button
                 className="remove-btn"
-                onClick={() => removeContact(i)}
+                onClick={() => onResumeChange(removeContactItem(resume, i))}
                 aria-label="Remove contact item"
               >
                 −
@@ -55,7 +46,7 @@ export function ResumeHeader({
             </li>
           ))}
         </ul>
-        <button className="add-btn" onClick={addContact}>
+        <button className="add-btn" onClick={() => onResumeChange(addContactItem(resume))}>
           + contact
         </button>
       </div>
