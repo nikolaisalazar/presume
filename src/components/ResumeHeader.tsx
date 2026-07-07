@@ -8,17 +8,11 @@ import {
 } from '../resumeOperations'
 
 interface ResumeHeaderProps {
-  name: Resume['name']
-  contact: Resume['contact']
   resume: Resume
   onResumeChange: (resume: Resume) => void
 }
 
-export function ResumeHeader({
-  resume,
-  onResumeChange,
-}: ResumeHeaderProps) {
-
+export function ResumeHeader({ resume, onResumeChange }: ResumeHeaderProps) {
   return (
     <header className="resume-header" role="presentation">
       <EditableText
@@ -46,7 +40,10 @@ export function ResumeHeader({
             </li>
           ))}
         </ul>
-        <button className="add-btn" onClick={() => onResumeChange(addContactItem(resume))}>
+        <button
+          className="add-btn"
+          onClick={() => onResumeChange(addContactItem(resume))}
+        >
           + contact
         </button>
       </div>
