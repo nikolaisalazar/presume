@@ -8,6 +8,7 @@ import {
   getReviewSeverityClass,
   type ReviewAnnotationTargets,
 } from './ReviewAnnotations'
+import { addBullet, removeBullet, updateBullet } from '../resumeOperations'
 
 interface EntryProps {
   entry: ResumeEntry
@@ -28,20 +29,6 @@ export function Entry({
   onChange,
   onRemove,
 }: EntryProps) {
-  const updateBullet = (bulletIdx: number, text: string) => {
-    const bullets = [...entry.bullets]
-    bullets[bulletIdx] = text
-    onChange({ ...entry, bullets })
-  }
-
-  const addBullet = () => {
-    onChange({ ...entry, bullets: [...entry.bullets, 'New bullet point'] })
-  }
-
-  const removeBullet = (bulletIdx: number) => {
-    onChange({ ...entry, bullets: entry.bullets.filter((_, i) => i !== bulletIdx) })
-  }
-
   const reviewAnnotations = getReviewAnnotationsForTarget(
     reviewAnnotationTargets,
     `entry-${sectionIdx}-${entryIdx}`
@@ -88,13 +75,13 @@ export function Entry({
               reviewAnnotationTargets,
               `bullet-${sectionIdx}-${entryIdx}-${bIdx}`
             )}
-            onChange={v => updateBullet(bIdx, v)}
-            onDelete={() => removeBullet(bIdx)}
+            onChange={text => onChange(updateBullet(entry, bIdx, text))}
+            onDelete={() => onChange(removeBullet(entry, bIdx))}
           />
         ))}
       </ul>
       <div className="controls-row">
-        <button className="add-btn" onClick={addBullet}>
+        <button className="add-btn" onClick={() => onChange(addBullet(entry))}>
           + bullet
         </button>
         <button className="remove-btn" onClick={onRemove}>

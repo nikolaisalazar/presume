@@ -1,10 +1,11 @@
 import { forwardRef } from 'react'
-import type { Resume, ResumeSection } from '../types'
+import type { Resume } from '../types'
 import { ResumeHeader } from './ResumeHeader'
 import { Section } from './Section'
 import type { Warnings } from '../useResizeEngine'
 import type { ReviewAnnotation } from '../reviewTypes'
 import { getReviewAnnotationTargets } from './ReviewAnnotations'
+import { addSection, removeSection, updateSection } from '../resumeOperations'
 
 interface ResumePageProps {
   resume: Resume
@@ -20,36 +21,11 @@ export const ResumePage = forwardRef<HTMLDivElement, ResumePageProps>(
       reviewAnnotations
     )
 
-    const updateSection = (sectionIdx: number, section: ResumeSection) => {
-      const sections = [...resume.sections]
-      sections[sectionIdx] = section
-      onResumeChange({ ...resume, sections })
-    }
-
-    const addSection = () => {
-      onResumeChange({
-        ...resume,
-        sections: [
-          ...resume.sections,
-          { title: 'New Section', entries: [] },
-        ],
-      })
-    }
-
-    const removeSection = (sectionIdx: number) => {
-      onResumeChange({
-        ...resume,
-        sections: resume.sections.filter((_, i) => i !== sectionIdx),
-      })
-    }
-
     return (
       <div ref={ref} className="resume-page">
         <ResumeHeader
-          name={resume.name}
-          contact={resume.contact}
-          onNameChange={name => onResumeChange({ ...resume, name })}
-          onContactChange={contact => onResumeChange({ ...resume, contact })}
+          resume={resume}
+          onResumeChange={onResumeChange}
         />
         {resume.sections.map((section, sIdx) => (
           <Section
@@ -58,12 +34,12 @@ export const ResumePage = forwardRef<HTMLDivElement, ResumePageProps>(
             sectionIdx={sIdx}
             warnings={warnings}
             reviewAnnotationTargets={reviewAnnotationTargets}
-            onChange={s => updateSection(sIdx, s)}
-            onRemove={() => removeSection(sIdx)}
+            onChange={section => onResumeChange(updateSection(resume, sIdx, section))}
+            onRemove={() => onResumeChange(removeSection(resume, sIdx))}
           />
         ))}
         <div className="controls-row" style={{ marginTop: 8 }}>
-          <button className="add-btn" onClick={addSection}>
+          <button className="add-btn" onClick={() => onResumeChange(addSection(resume))}>
             + section
           </button>
         </div>

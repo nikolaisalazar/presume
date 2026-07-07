@@ -31,10 +31,11 @@ Working today:
   a browser-generated Presume PDF. `vendor/hiring-agent` is a local prerequisite
   and is not vendored into this repository.
 
-Still planned:
+Recently completed:
 
-- Resume editing model improvements after the review loop has been proven and
-  protected by automated browser contracts.
+- Resume editing model helpers for contact, section, entry, and bullet
+  operations. These are internal pure functions that preserve the current JSON
+  format and inline editing UI while making future editor improvements safer.
 
 Operational note: the review service now validates bounded upload and timeout
 configuration and documents proxy, process, rate, and concurrency controls for

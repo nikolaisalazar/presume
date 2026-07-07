@@ -1,6 +1,6 @@
 import { EditableText } from './EditableText'
 import { Entry } from './Entry'
-import type { ResumeSection, ResumeEntry } from '../types'
+import type { ResumeSection } from '../types'
 import type { Warnings } from '../useResizeEngine'
 import {
   ReviewAnnotations,
@@ -8,6 +8,7 @@ import {
   getReviewSeverityClass,
   type ReviewAnnotationTargets,
 } from './ReviewAnnotations'
+import { addEntry, removeEntry, updateEntry } from '../resumeOperations'
 
 interface SectionProps {
   section: ResumeSection
@@ -26,27 +27,6 @@ export function Section({
   onChange,
   onRemove,
 }: SectionProps) {
-  const updateEntry = (entryIdx: number, entry: ResumeEntry) => {
-    const entries = [...section.entries]
-    entries[entryIdx] = entry
-    onChange({ ...section, entries })
-  }
-
-  const addEntry = () => {
-    const newEntry: ResumeEntry = {
-      title: 'Job Title',
-      subtitle: 'Company',
-      location: 'City, ST',
-      dateRange: 'Jan 2020 – Present',
-      bullets: [],
-    }
-    onChange({ ...section, entries: [...section.entries, newEntry] })
-  }
-
-  const removeEntry = (entryIdx: number) => {
-    onChange({ ...section, entries: section.entries.filter((_, i) => i !== entryIdx) })
-  }
-
   const reviewAnnotations = getReviewAnnotationsForTarget(
     reviewAnnotationTargets,
     `section-${sectionIdx}`
@@ -76,12 +56,12 @@ export function Section({
           entryIdx={eIdx}
           warnings={warnings}
           reviewAnnotationTargets={reviewAnnotationTargets}
-          onChange={e => updateEntry(eIdx, e)}
-          onRemove={() => removeEntry(eIdx)}
+          onChange={entry => onChange(updateEntry(section, eIdx, entry))}
+          onRemove={() => onChange(removeEntry(section, eIdx))}
         />
       ))}
       <div className="controls-row">
-        <button className="add-btn" onClick={addEntry}>
+        <button className="add-btn" onClick={() => onChange(addEntry(section))}>
           + entry
         </button>
       </div>

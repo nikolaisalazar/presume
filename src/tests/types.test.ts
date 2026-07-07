@@ -28,6 +28,50 @@ describe('validateResume', () => {
     expect(validateResume(null)).toBeNull()
   })
 
+  it('strips unknown fields from valid resume JSON', () => {
+    const resume = validateResume({
+      schemaVersion: 99,
+      name: 'Jake Ryan',
+      contact: ['jake@example.com'],
+      sections: [
+        {
+          id: 'section_1',
+          title: 'Experience',
+          entries: [
+            {
+              id: 'entry_1',
+              title: 'Engineer',
+              subtitle: 'Acme',
+              location: 'NYC',
+              dateRange: '2020–2022',
+              bullets: ['Did things'],
+              metadata: { hidden: true },
+            },
+          ],
+        },
+      ],
+    })
+
+    expect(resume).toEqual({
+      name: 'Jake Ryan',
+      contact: ['jake@example.com'],
+      sections: [
+        {
+          title: 'Experience',
+          entries: [
+            {
+              title: 'Engineer',
+              subtitle: 'Acme',
+              location: 'NYC',
+              dateRange: '2020–2022',
+              bullets: ['Did things'],
+            },
+          ],
+        },
+      ],
+    })
+  })
+
   it('rejects missing name', () => {
     expect(validateResume({ contact: [], sections: [] })).toBeNull()
   })

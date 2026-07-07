@@ -1072,7 +1072,7 @@ Residual risk:
 
 ### Milestone 17: Resume Editing Model Improvements
 
-Status: Planned.
+Status: Complete.
 
 Goal:
 
@@ -1081,12 +1081,42 @@ Goal:
 
 Scope:
 
-- Revisit structured fields, section/entry operations, import/export
-  compatibility, and any migration strategy needed for richer editing.
-- Keep the resume directly editable and preserve JSON portability.
-- Keep review feedback advisory and non-mutating.
+- Extract contact, section, entry, and bullet editing operations into pure,
+  tested helpers.
+- Keep the current public `Resume` JSON schema unchanged and portable.
+- Keep the resume directly editable and preserve review feedback as advisory and
+  non-mutating.
 
-Dependency:
+Completion evidence:
 
-- Follows Milestones 14 and 15 so editor model changes do not obscure unresolved
-  review integration or browser/export contract issues.
+- `src/resumeOperations.ts` now owns immutable helpers for updating the resume
+  name, contact items, sections, entries, and bullets, plus the default values
+  used when adding new editor content.
+- `src/components/ResumeHeader.tsx`, `src/components/ResumePage.tsx`,
+  `src/components/Section.tsx`, and `src/components/Entry.tsx` now route
+  editor mutations through those helpers while preserving the existing inline
+  editing UI and rendered DOM contracts.
+- `src/tests/resumeOperations.test.ts` covers operation results, default added
+  values, input immutability, and safe out-of-range no-op behavior.
+- `src/tests/types.test.ts` covers current plain resume JSON compatibility and
+  unknown-field stripping.
+- Documentation updates in `README.md`, `docs/README.md`,
+  `docs/PRODUCT_SPEC.md`, and `docs/ARCHITECTURE.md` clarify that Milestone 17
+  did not introduce a full data-format migration, stable IDs, or editor
+  redesign.
+
+Verification:
+
+- Backend verification: `python3 -m pytest review-service/tests -q`
+- Frontend verification: `npm test -- --run`
+- Build verification: `npm run build`
+- Browser/E2E verification: `npm run test:e2e`
+
+Residual risk:
+
+- The public resume JSON format remains the original plain shape. Future richer
+  fields, stable IDs, reorder operations, or schema-versioned migrations still
+  need their own compatibility design before implementation.
+- Review annotations still depend on exact section, entry, and bullet text plus
+  positional matching. The helper layer reduces mutation risks, but it does not
+  solve identity or reordering ambiguity.
