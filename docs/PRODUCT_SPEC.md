@@ -75,7 +75,7 @@ The product has two separate loops:
 
 ## Current Editor Behavior
 
-The editor stores resume content in a typed JSON model with a name, contact items, sections, entries, and bullets. All editable content is rendered in place with `contenteditable` components.
+The editor stores resume content in a typed JSON model with a name, contact items, sections, entries, and bullets. All editable content is rendered in place with `contenteditable` components. Contact, section, entry, and bullet edits are applied through pure helper functions so the inline editor remains easy to extend without changing the saved JSON shape.
 
 The app currently supports:
 

@@ -30,5 +30,7 @@ the FastAPI service, the frontend validator, and the review panel. Milestone
 15 added Playwright browser automation for the review and export contracts with
 route-intercepted `/config` and `/reviews` fixture responses. Milestone 16 added
 bounded operational config validation, safe readiness diagnostics, and deployment
-guidance for running the review service beyond a single local happy path. The
-next milestone is [Milestone 17: Resume Editing Model Improvements](MILESTONE_PLAN.md#milestone-17-resume-editing-model-improvements).
+guidance for running the review service beyond a single local happy path.
+Milestone 17 improved the resume editing model internally by extracting tested
+pure helpers for contact, section, entry, and bullet operations while preserving
+the current public JSON format, inline editing UI, and review/export contracts.
