@@ -614,6 +614,16 @@ body {
   margin-top: 2px;
 }
 
+.bullet-item {
+  position: relative;
+}
+
+.bullet-item > .remove-btn {
+  position: absolute;
+  top: -1px;
+  right: -28px;
+}
+
 /* ── Resume header contact row ───────────────────────────────────── */
 .resume-header-contact-row {
   position: relative;
