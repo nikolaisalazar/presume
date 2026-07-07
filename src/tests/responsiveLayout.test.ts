@@ -26,6 +26,12 @@ describe('responsive review layout CSS', () => {
     expect(appCss).toContain(':focus-visible')
   })
 
+  it('keeps bullet editor controls out of the inline bullet text flow', () => {
+    expect(appCss).toContain('.bullet-item > .remove-btn')
+    expect(appCss).toContain('position: absolute;')
+    expect(appCss).toContain('data-editor-only')
+  })
+
   it('hides editor-only controls in print styles', () => {
     expect(appCss).toContain('@media print')
     expect(appCss).toContain('[data-editor-only=\'true\']')
