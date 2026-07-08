@@ -54,6 +54,55 @@ describe('App review availability boundaries', () => {
     vi.clearAllMocks()
     resizeWarningsMock.warnings = new Map()
     localStorage.clear()
+    window.history.pushState({}, '', '/')
+  })
+
+  it('renders a minimal product landing page at the root and opens the editor', () => {
+    vi.stubEnv('VITE_REVIEW_API_URL', '')
+    window.history.pushState({}, '', '/presume/')
+
+    render(<App />)
+
+    expect(screen.getByRole('heading', { name: 'Edit your resume like the final document.' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Direct inline editing' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Fit constraints' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'PDF + JSON export' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Optional advisory review' })).toBeInTheDocument()
+    expect(screen.getByText('Saved locally in your browser')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Why direct editing?' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Form-first builders' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Presume keeps the document live' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Private by default' })).toBeInTheDocument()
+    expect(screen.getByText('Not a job board, account-gated builder, or resume content farm.')).toBeInTheDocument()
+    expect(screen.queryByRole('toolbar', { name: 'Document actions' })).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Start editing' }))
+
+    expect(window.location.pathname).toBe('/presume/editor/')
+    expect(screen.getByRole('toolbar', { name: 'Document actions' })).toBeInTheDocument()
+  })
+
+  it('returns to the landing page when the editor brand is clicked', () => {
+    vi.stubEnv('VITE_REVIEW_API_URL', '')
+    window.history.pushState({}, '', '/presume/editor/')
+
+    render(<App />)
+
+    fireEvent.click(screen.getByRole('link', { name: 'Presume home' }))
+
+    expect(window.location.pathname).toBe('/presume/')
+    expect(screen.getByRole('heading', { name: 'Edit your resume like the final document.' })).toBeInTheDocument()
+    expect(screen.queryByRole('toolbar', { name: 'Document actions' })).not.toBeInTheDocument()
+  })
+
+  it('shows continue editing on the landing page when a saved resume exists', () => {
+    vi.stubEnv('VITE_REVIEW_API_URL', '')
+    localStorage.setItem('presume:resume', JSON.stringify(importedResume))
+    window.history.pushState({}, '', '/presume/')
+
+    render(<App />)
+
+    expect(screen.getAllByRole('button', { name: 'Continue editing' }).length).toBeGreaterThan(0)
   })
 
   it('keeps editing, persistence, export, and import available', async () => {

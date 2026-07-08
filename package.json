@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && node scripts/create-spa-fallback.mjs",
     "preview": "vite preview",
     "test": "vitest",
     "test:e2e": "npm run test:e2e:unconfigured && npm run test:e2e:configured",

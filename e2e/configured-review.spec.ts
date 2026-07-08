@@ -16,8 +16,8 @@ test.describe('configured review browser contracts', () => {
       })
     )
 
-    await page.goto('./')
-    await expect(page).toHaveURL(/\/presume\/$/)
+    await page.goto('./editor/')
+    await expect(page).toHaveURL(/\/presume\/editor\/$/)
 
     await expect(page.getByRole('button', { name: 'Review unavailable — setup needed' })).toBeEnabled()
     await expect(page.getByRole('complementary', { name: 'Resume review' })).toHaveCount(0)
@@ -29,8 +29,8 @@ test.describe('configured review browser contracts', () => {
   test('renders config-error state when backend cannot be reached', async ({ page }) => {
     await page.route('http://127.0.0.1:8124/config', route => route.abort('failed'))
 
-    await page.goto('./')
-    await expect(page).toHaveURL(/\/presume\/$/)
+    await page.goto('./editor/')
+    await expect(page).toHaveURL(/\/presume\/editor\/$/)
 
     await expect(page.getByRole('button', { name: 'Review unavailable — connection issue' })).toBeEnabled()
     await expect(page.getByRole('complementary', { name: 'Resume review' })).toHaveCount(0)
@@ -75,8 +75,8 @@ test.describe('configured review browser contracts', () => {
       })
     })
 
-    await page.goto('./')
-    await expect(page).toHaveURL(/\/presume\/$/)
+    await page.goto('./editor/')
+    await expect(page).toHaveURL(/\/presume\/editor\/$/)
     await expect(page.getByRole('button', { name: 'Review resume' })).toBeVisible()
     await expect(page.getByRole('complementary', { name: 'Resume review' })).toHaveCount(0)
 
