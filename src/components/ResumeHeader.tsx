@@ -31,20 +31,23 @@ export function ResumeHeader({ resume, onResumeChange }: ResumeHeaderProps) {
                 placeholder="contact"
               />
               <button
-                className="remove-btn"
+                className="editor-control editor-control--remove remove-btn"
                 onClick={() => onResumeChange(removeContactItem(resume, i))}
-                aria-label="Remove contact item"
+                aria-label={`Remove contact item${item ? `: ${item}` : ''}`}
+                data-editor-only="true"
               >
-                −
+                ×
               </button>
             </li>
           ))}
         </ul>
         <button
-          className="add-btn"
+          className="editor-control editor-control--add add-btn"
           onClick={() => onResumeChange(addContactItem(resume))}
+          aria-label="Add contact item"
+          data-editor-only="true"
         >
-          + contact
+          Add contact
         </button>
       </div>
     </header>

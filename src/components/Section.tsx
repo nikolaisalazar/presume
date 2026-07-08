@@ -44,9 +44,16 @@ export function Section({
           placeholder="SECTION"
         />
         <ReviewAnnotations annotations={reviewAnnotations} />
-        <button className="remove-btn" onClick={onRemove} aria-label="Remove section">
-          − section
-        </button>
+        <div className="section-actions editor-rail" data-editor-only="true">
+          <button
+            className="editor-control editor-control--remove remove-btn"
+            onClick={onRemove}
+            aria-label={`Remove section: ${section.title || 'Untitled section'}`}
+            data-editor-only="true"
+          >
+            ×
+          </button>
+        </div>
       </div>
       {section.entries.map((entry, eIdx) => (
         <Entry
@@ -60,9 +67,14 @@ export function Section({
           onRemove={() => onChange(removeEntry(section, eIdx))}
         />
       ))}
-      <div className="controls-row">
-        <button className="add-btn" onClick={() => onChange(addEntry(section))}>
-          + entry
+      <div className="controls-row" data-editor-only="true">
+        <button
+          className="editor-control editor-control--add add-btn"
+          onClick={() => onChange(addEntry(section))}
+          aria-label={`Add entry to ${section.title || 'section'}`}
+          data-editor-only="true"
+        >
+          Add entry
         </button>
       </div>
     </section>

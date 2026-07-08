@@ -80,12 +80,22 @@ export function Entry({
           />
         ))}
       </ul>
-      <div className="controls-row">
-        <button className="add-btn" onClick={() => onChange(addBullet(entry))}>
-          + bullet
+      <div className="entry-actions editor-rail" data-editor-only="true">
+        <button
+          className="editor-control editor-control--add add-btn"
+          onClick={() => onChange(addBullet(entry))}
+          aria-label={`Add bullet to ${entry.title || 'entry'}`}
+          data-editor-only="true"
+        >
+          Add bullet
         </button>
-        <button className="remove-btn" onClick={onRemove}>
-          − entry
+        <button
+          className="editor-control editor-control--remove remove-btn"
+          onClick={onRemove}
+          aria-label={`Remove entry: ${entry.title || 'Untitled entry'}`}
+          data-editor-only="true"
+        >
+          ×
         </button>
       </div>
     </div>

@@ -38,9 +38,14 @@ export const ResumePage = forwardRef<HTMLDivElement, ResumePageProps>(
             onRemove={() => onResumeChange(removeSection(resume, sIdx))}
           />
         ))}
-        <div className="controls-row" style={{ marginTop: 8 }}>
-          <button className="add-btn" onClick={() => onResumeChange(addSection(resume))}>
-            + section
+        <div className="document-actions-row" data-editor-only="true">
+          <button
+            className="editor-control editor-control--add add-btn"
+            onClick={() => onResumeChange(addSection(resume))}
+            aria-label="Add section"
+            data-editor-only="true"
+          >
+            Add section
           </button>
         </div>
       </div>
