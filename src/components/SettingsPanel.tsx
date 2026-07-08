@@ -39,46 +39,48 @@ export function SettingsPanel({ constraints, onChange }: SettingsPanelProps) {
           {open ? '▲' : '▼'}
         </span>
       </button>
-      <div className="settings-panel__body" id={bodyId} hidden={!open}>
-        <div className="settings-panel__body-inner">
-          <ConstraintStepper
-            label="Page limit"
-            value={constraints.maxPages}
-            unit={constraints.maxPages === 1 ? 'page' : 'pages'}
-            help="Resume length target"
-            onDecrease={() => step('maxPages', -1, 1, 10)}
-            onIncrease={() => step('maxPages', 1, 1, 10)}
-            decreaseLabel="Decrease max pages"
-            increaseLabel="Increase max pages"
-            decreaseDisabled={constraints.maxPages <= 1}
-            increaseDisabled={constraints.maxPages >= 10}
-          />
-          <ConstraintStepper
-            label="Bullet lines"
-            value={constraints.maxLinesPerBullet}
-            unit={constraints.maxLinesPerBullet === 1 ? 'line' : 'lines'}
-            help="Maximum wrapped lines per bullet"
-            onDecrease={() => step('maxLinesPerBullet', -1, 1, 10)}
-            onIncrease={() => step('maxLinesPerBullet', 1, 1, 10)}
-            decreaseLabel="Decrease max lines per bullet"
-            increaseLabel="Increase max lines per bullet"
-            decreaseDisabled={constraints.maxLinesPerBullet <= 1}
-            increaseDisabled={constraints.maxLinesPerBullet >= 10}
-          />
-          <ConstraintStepper
-            label="Minimum type"
-            value={constraints.minFontSize}
-            unit="px"
-            help="Do not shrink below this size"
-            onDecrease={() => step('minFontSize', -1, 4, 16)}
-            onIncrease={() => step('minFontSize', 1, 4, 16)}
-            decreaseLabel="Decrease minimum font size"
-            increaseLabel="Increase minimum font size"
-            decreaseDisabled={constraints.minFontSize <= 4}
-            increaseDisabled={constraints.minFontSize >= 16}
-          />
+      {open ? (
+        <div className="settings-panel__body" id={bodyId}>
+          <div className="settings-panel__body-inner">
+            <ConstraintStepper
+              label="Page limit"
+              value={constraints.maxPages}
+              unit={constraints.maxPages === 1 ? 'page' : 'pages'}
+              help="Resume length target"
+              onDecrease={() => step('maxPages', -1, 1, 10)}
+              onIncrease={() => step('maxPages', 1, 1, 10)}
+              decreaseLabel="Decrease max pages"
+              increaseLabel="Increase max pages"
+              decreaseDisabled={constraints.maxPages <= 1}
+              increaseDisabled={constraints.maxPages >= 10}
+            />
+            <ConstraintStepper
+              label="Bullet lines"
+              value={constraints.maxLinesPerBullet}
+              unit={constraints.maxLinesPerBullet === 1 ? 'line' : 'lines'}
+              help="Maximum wrapped lines per bullet"
+              onDecrease={() => step('maxLinesPerBullet', -1, 1, 10)}
+              onIncrease={() => step('maxLinesPerBullet', 1, 1, 10)}
+              decreaseLabel="Decrease max lines per bullet"
+              increaseLabel="Increase max lines per bullet"
+              decreaseDisabled={constraints.maxLinesPerBullet <= 1}
+              increaseDisabled={constraints.maxLinesPerBullet >= 10}
+            />
+            <ConstraintStepper
+              label="Minimum type"
+              value={constraints.minFontSize}
+              unit="px"
+              help="Do not shrink below this size"
+              onDecrease={() => step('minFontSize', -1, 4, 16)}
+              onIncrease={() => step('minFontSize', 1, 4, 16)}
+              decreaseLabel="Decrease minimum font size"
+              increaseLabel="Increase minimum font size"
+              decreaseDisabled={constraints.minFontSize <= 4}
+              increaseDisabled={constraints.minFontSize >= 16}
+            />
+          </div>
         </div>
-      </div>
+      ) : null}
     </div>
   )
 }

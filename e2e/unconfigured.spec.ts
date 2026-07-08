@@ -25,6 +25,37 @@ test.describe('unconfigured browser contracts', () => {
     await expect(name).toHaveText('Ada Browser')
   })
 
+  test('keeps expanded fit constraints usable at narrow widths', async ({ page }) => {
+    await page.setViewportSize({ width: 358, height: 980 })
+    await page.goto('./')
+    await page.getByRole('button', { name: /Fit constraints/ }).click()
+
+    const metrics = await page.evaluate(() => {
+      const row = document.querySelector('.settings-control-row') as HTMLElement
+      const stepper = document.querySelector('.settings-stepper') as HTMLElement
+      const decrease = document.querySelector('.settings-stepper__button') as HTMLElement
+      const rowRect = row.getBoundingClientRect()
+      const stepperRect = stepper.getBoundingClientRect()
+      const decreaseRect = decrease.getBoundingClientRect()
+      return {
+        bodyClientWidth: document.documentElement.clientWidth,
+        documentScrollWidth: document.documentElement.scrollWidth,
+        rowLeft: Math.round(rowRect.left),
+        rowRight: Math.round(rowRect.right),
+        stepperWidth: Math.round(stepperRect.width),
+        buttonWidth: Math.round(decreaseRect.width),
+        buttonHeight: Math.round(decreaseRect.height),
+      }
+    })
+
+    expect(metrics.documentScrollWidth).toBeLessThanOrEqual(metrics.bodyClientWidth)
+    expect(metrics.rowLeft).toBeGreaterThanOrEqual(0)
+    expect(metrics.rowRight).toBeLessThanOrEqual(metrics.bodyClientWidth)
+    expect(metrics.stepperWidth).toBeGreaterThanOrEqual(132)
+    expect(metrics.buttonWidth).toBeGreaterThanOrEqual(44)
+    expect(metrics.buttonHeight).toBeGreaterThanOrEqual(44)
+  })
+
   test('keeps viewport overflow inside the fixed resume canvas scroller at narrow widths', async ({ page }) => {
     for (const width of [358, 860, 861, 880, 900, 960]) {
       await page.setViewportSize({ width, height: 980 })

@@ -107,6 +107,7 @@ describe('App review availability boundaries', () => {
     const constraints = screen.getByRole('button', {
       name: /Fit constraints.*1 page.*1 line per bullet.*8px minimum/i,
     })
+    expect(screen.queryByRole('button', { name: 'Increase max pages' })).not.toBeInTheDocument()
     fireEvent.click(constraints)
     expect(screen.getByText('Page limit')).toBeInTheDocument()
     expect(screen.getByText('Bullet lines')).toBeInTheDocument()

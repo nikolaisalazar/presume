@@ -1379,12 +1379,6 @@ body {
   transition: grid-template-rows 0.2s ease, border-color 0.2s ease;
 }
 
-.settings-panel__body[hidden] {
-  display: grid;
-  grid-template-rows: 0fr;
-  border-top-color: transparent;
-}
-
 .settings-panel__body-inner {
   display: grid;
   gap: 0;
@@ -1514,8 +1508,24 @@ body {
 }
 
 @media (max-width: 720px) {
-  .settings-panel__body-inner {
+  .settings-control-row {
     grid-template-columns: 1fr;
+    gap: 8px;
+    align-items: stretch;
+  }
+
+  .settings-stepper {
+    width: 100%;
+    grid-template-columns: 44px minmax(0, 1fr) 44px;
+  }
+
+  .settings-stepper__button {
+    width: 44px;
+    height: 44px;
+  }
+
+  .settings-control-row__note {
+    display: none;
   }
 }
 
