@@ -3,6 +3,7 @@ import type { ResumeReviewState } from '../useResumeReview'
 interface ReviewStatusControlProps {
   state: ResumeReviewState
   panelOpen: boolean
+  panelDismissedKey: string | null
   panelId?: string
   onTogglePanel: () => void
   onRequestReview: () => void
@@ -10,9 +11,36 @@ interface ReviewStatusControlProps {
 
 export function shouldShowReviewPanel(
   state: ResumeReviewState,
-  panelOpen: boolean
+  panelOpen: boolean,
+  panelDismissedKey: string | null
 ): boolean {
-  return state.status !== 'unconfigured' && panelOpen
+  if (state.status === 'unconfigured') return false
+  if (panelOpen) return true
+
+  const usefulKey = getUsefulReviewPanelKey(state)
+  return Boolean(usefulKey && usefulKey !== panelDismissedKey)
+}
+
+export function getUsefulReviewPanelKey(
+  state: ResumeReviewState
+): string | null {
+  if (state.status === 'loading') {
+    return `loading:${getResultKey(state.result)}`
+  }
+
+  if (state.status === 'success') {
+    return `success:${getResultKey(state.result)}`
+  }
+
+  if (state.status === 'stale') {
+    return `stale:${getResultKey(state.result)}`
+  }
+
+  if (state.status === 'error' && state.result) {
+    return `error:${getResultKey(state.result)}:${state.error.message}`
+  }
+
+  return null
 }
 
 export function canToggleReviewPanel(state: ResumeReviewState): boolean {
@@ -29,6 +57,7 @@ export function canToggleReviewPanel(state: ResumeReviewState): boolean {
 export function ReviewStatusControl({
   state,
   panelOpen,
+  panelDismissedKey,
   panelId,
   onTogglePanel,
   onRequestReview,
@@ -43,7 +72,11 @@ export function ReviewStatusControl({
     )
   }
 
-  const panelVisible = shouldShowReviewPanel(state, panelOpen)
+  const panelVisible = shouldShowReviewPanel(
+    state,
+    panelOpen,
+    panelDismissedKey
+  )
   const canToggle = canToggleReviewPanel(state)
 
   return (
@@ -58,6 +91,10 @@ export function ReviewStatusControl({
       {getReviewStatusLabel(state)}
     </button>
   )
+}
+
+function getResultKey(result: { id: string; reviewedAt: string } | undefined): string {
+  return result ? `${result.id}:${result.reviewedAt}` : 'none'
 }
 
 function getReviewStatusLabel(state: ResumeReviewState): string {

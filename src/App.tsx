@@ -9,6 +9,7 @@ import { ReviewPanel } from './components/ReviewPanel'
 import { FormattingWarningSummary } from './components/FormattingWarningSummary'
 import {
   ReviewStatusControl,
+  getUsefulReviewPanelKey,
   shouldShowReviewPanel,
 } from './components/ReviewStatusControl'
 import { useResumeReview } from './useResumeReview'
@@ -19,6 +20,7 @@ export default function App() {
   const { resume, setResume, constraints, setConstraints } = useResume()
   const pageRef = useRef<HTMLDivElement>(null)
   const [reviewPanelOpen, setReviewPanelOpen] = useState(false)
+  const [reviewPanelDismissedKey, setReviewPanelDismissedKey] = useState<string | null>(null)
   const warnings = useResizeEngine(resume, constraints, pageRef)
   const review = useResumeReview({ resume, pageRef })
   const reviewAnnotations =
@@ -30,11 +32,30 @@ export default function App() {
     .map(([key]) => key)
   const bulletWarningCount = activeWarningKeys.filter(key => key.startsWith('bullet-')).length
   const hasGlobalOverflowWarning = activeWarningKeys.includes('global-overflow')
-  const showReviewPanel = shouldShowReviewPanel(review.state, reviewPanelOpen)
+  const showReviewPanel = shouldShowReviewPanel(
+    review.state,
+    reviewPanelOpen,
+    reviewPanelDismissedKey
+  )
   const reviewPanelId = 'resume-review-panel'
   const requestReview = () => {
+    setReviewPanelDismissedKey(null)
     setReviewPanelOpen(true)
     void review.requestReview()
+  }
+  const toggleReviewPanel = () => {
+    if (showReviewPanel) {
+      setReviewPanelOpen(false)
+      setReviewPanelDismissedKey(getUsefulReviewPanelKey(review.state))
+      return
+    }
+
+    setReviewPanelDismissedKey(null)
+    setReviewPanelOpen(true)
+  }
+  const closeReviewPanel = () => {
+    setReviewPanelOpen(false)
+    setReviewPanelDismissedKey(getUsefulReviewPanelKey(review.state))
   }
 
   return (
@@ -49,8 +70,9 @@ export default function App() {
           <ReviewStatusControl
             state={review.state}
             panelOpen={reviewPanelOpen}
+            panelDismissedKey={reviewPanelDismissedKey}
             panelId={reviewPanelId}
-            onTogglePanel={() => setReviewPanelOpen(open => !open)}
+            onTogglePanel={toggleReviewPanel}
             onRequestReview={requestReview}
           />
         </div>
@@ -86,7 +108,7 @@ export default function App() {
             id={reviewPanelId}
             state={review.state}
             onRequestReview={requestReview}
-            onClose={() => setReviewPanelOpen(false)}
+            onClose={closeReviewPanel}
           />
         ) : null}
       </main>

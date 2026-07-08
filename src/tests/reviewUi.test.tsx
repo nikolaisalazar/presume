@@ -671,10 +671,12 @@ describe('review annotations', () => {
 })
 
 describe('ReviewStatusControl', () => {
-  it('lets a closed success/stale/error panel stay closed while remaining reopenable', () => {
-    expect(shouldShowReviewPanel({ status: 'success', result: reviewResult }, false)).toBe(false)
-    expect(shouldShowReviewPanel({ status: 'success', result: reviewResult }, true)).toBe(true)
-    expect(shouldShowReviewPanel({ status: 'stale', result: reviewResult }, false)).toBe(false)
+  it('auto-shows useful review states unless the current state was dismissed', () => {
+    const successKey = 'success:review_123:2026-06-29T12:00:00Z'
+
+    expect(shouldShowReviewPanel({ status: 'loading' }, false, null)).toBe(true)
+    expect(shouldShowReviewPanel({ status: 'success', result: reviewResult }, false, null)).toBe(true)
+    expect(shouldShowReviewPanel({ status: 'stale', result: reviewResult }, false, null)).toBe(true)
     expect(
       shouldShowReviewPanel(
         {
@@ -682,18 +684,34 @@ describe('ReviewStatusControl', () => {
           error: new Error('Review failed.'),
           result: reviewResult,
         },
-        false
+        false,
+        null
       )
-    ).toBe(false)
+    ).toBe(true)
+    expect(shouldShowReviewPanel({ status: 'success', result: reviewResult }, false, successKey)).toBe(false)
+    expect(shouldShowReviewPanel({ status: 'success', result: reviewResult }, true, successKey)).toBe(true)
   })
 
-  it('reopens a closed successful review from the compact affordance', () => {
+  it('does not let a dismissed successful review suppress a later successful review', () => {
+    const dismissedKey = 'success:review_123:2026-06-29T12:00:00Z'
+    const laterResult = {
+      ...reviewResult,
+      id: 'review_456',
+      reviewedAt: '2026-06-30T12:00:00Z',
+    }
+
+    expect(shouldShowReviewPanel({ status: 'success', result: reviewResult }, false, dismissedKey)).toBe(false)
+    expect(shouldShowReviewPanel({ status: 'success', result: laterResult }, false, dismissedKey)).toBe(true)
+  })
+
+  it('reopens a dismissed successful review from the compact affordance', () => {
     const onTogglePanel = vi.fn()
 
     render(
       <ReviewStatusControl
         state={{ status: 'success', result: reviewResult }}
         panelOpen={false}
+        panelDismissedKey="success:review_123:2026-06-29T12:00:00Z"
         panelId="resume-review-panel"
         onTogglePanel={onTogglePanel}
         onRequestReview={vi.fn()}
@@ -716,6 +734,7 @@ describe('ReviewStatusControl', () => {
       <ReviewStatusControl
         state={{ status: 'disabled' }}
         panelOpen={false}
+        panelDismissedKey={null}
         panelId="resume-review-panel"
         onTogglePanel={onTogglePanel}
         onRequestReview={vi.fn()}
@@ -744,6 +763,7 @@ describe('ReviewStatusControl', () => {
           error: new Error('Could not reach the review service.'),
         }}
         panelOpen={false}
+        panelDismissedKey={null}
         panelId="resume-review-panel"
         onTogglePanel={onTogglePanel}
         onRequestReview={vi.fn()}
