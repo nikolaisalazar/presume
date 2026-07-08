@@ -1371,7 +1371,9 @@ body {
 
 .settings-panel__body {
   display: grid;
+  grid-template-columns: 1fr;
   grid-template-rows: 1fr;
+  gap: 0;
   overflow: hidden;
   padding: 0;
   transition: grid-template-rows 0.2s ease, border-color 0.2s ease;
@@ -1385,7 +1387,7 @@ body {
 
 .settings-panel__body-inner {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(220px, 1fr));
   gap: 12px;
   min-height: 0;
   padding: 14px 16px;
@@ -1400,6 +1402,13 @@ body {
   background: rgba(255, 255, 255, 0.58);
 }
 
+.settings-fieldset .settings-field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px 12px;
+  align-items: center;
+}
+
 .settings-fieldset legend {
   padding: 0 6px;
   color: #334155;
@@ -1410,9 +1419,15 @@ body {
 
 .settings-field input[type='number'] {
   min-height: 34px;
+  max-width: 86px;
   border-radius: 9px;
   background: rgba(255, 255, 255, 0.9);
   transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.settings-fieldset .settings-field__help {
+  grid-column: 1 / -1;
+  max-width: 42ch;
 }
 
 .settings-field input[type='number']:focus {

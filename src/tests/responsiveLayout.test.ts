@@ -37,6 +37,8 @@ describe('responsive review layout CSS', () => {
     expect(appCss).toContain('.settings-panel + .toolbar')
     expect(appCss).toContain('.settings-panel__body-inner')
     expect(appCss).toContain('.settings-fieldset')
+    expect(appCss).toContain('grid-template-columns: 1fr;')
+    expect(appCss).toContain('grid-template-columns: repeat(3, minmax(220px, 1fr));')
     expect(appCss).toContain('.resume-stage__chrome')
     expect(appCss).toContain('transition: grid-template-rows')
   })
