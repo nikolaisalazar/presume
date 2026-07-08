@@ -1334,3 +1334,29 @@ body {
     min-width: 0;
   }
 }
+
+/* ── Visual Pass 2: unified command deck and stage width ─────────── */
+:root {
+  --editor-shell-width: calc(var(--page-width) + (var(--stage-padding) * 2) + 32px);
+}
+
+.workspace {
+  grid-template-columns: minmax(0, var(--editor-shell-width));
+  width: min(var(--editor-shell-width), 100%);
+}
+
+.workspace--with-review {
+  grid-template-columns: minmax(0, var(--editor-shell-width)) minmax(320px, 360px);
+  width: min(calc(var(--editor-shell-width) + 382px), 100%);
+}
+
+.editor-panel {
+  max-width: var(--editor-shell-width);
+}
+
+@media (max-width: 1220px) {
+  .workspace,
+  .workspace--with-review {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
