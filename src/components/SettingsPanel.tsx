@@ -35,50 +35,59 @@ export function SettingsPanel({ constraints, onChange }: SettingsPanelProps) {
           {open ? '▲' : '▼'}
         </span>
       </button>
-      {open && (
-        <div className="settings-panel__body" id={bodyId}>
-          <div className="settings-field">
-            <label htmlFor="max-pages">Max pages</label>
-            <input
-              id="max-pages"
-              type="number"
-              min={1}
-              max={10}
-              value={constraints.maxPages}
-              onChange={e => update('maxPages', Math.max(1, parseInt(e.target.value) || 1))}
-            />
-            <p className="settings-field__help">PDF exports one Letter page per page-height segment.</p>
-          </div>
-          <div className="settings-field">
-            <label htmlFor="max-lines">Max lines per bullet</label>
-            <input
-              id="max-lines"
-              type="number"
-              min={1}
-              max={10}
-              value={constraints.maxLinesPerBullet}
-              onChange={e =>
-                update('maxLinesPerBullet', Math.max(1, parseInt(e.target.value) || 1))
-              }
-            />
-            <p className="settings-field__help">Bullets that cannot fit are marked.</p>
-          </div>
-          <div className="settings-field">
-            <label htmlFor="min-font">Min font size (px)</label>
-            <input
-              id="min-font"
-              type="number"
-              min={4}
-              max={16}
-              value={constraints.minFontSize}
-              onChange={e =>
-                update('minFontSize', Math.max(4, parseInt(e.target.value) || 8))
-              }
-            />
-            <p className="settings-field__help">Presume will not shrink text below this size.</p>
-          </div>
+      <div className="settings-panel__body" id={bodyId} hidden={!open}>
+        <div className="settings-panel__body-inner">
+          <fieldset className="settings-fieldset">
+            <legend>Page fit</legend>
+            <div className="settings-field">
+              <label htmlFor="max-pages">Max pages</label>
+              <input
+                id="max-pages"
+                type="number"
+                min={1}
+                max={10}
+                value={constraints.maxPages}
+                onChange={e => update('maxPages', Math.max(1, parseInt(e.target.value) || 1))}
+              />
+              <p className="settings-field__help">PDF exports one Letter page per page-height segment.</p>
+            </div>
+          </fieldset>
+          <fieldset className="settings-fieldset">
+            <legend>Density</legend>
+            <div className="settings-field">
+              <label htmlFor="max-lines">Max lines per bullet</label>
+              <input
+                id="max-lines"
+                type="number"
+                min={1}
+                max={10}
+                value={constraints.maxLinesPerBullet}
+                onChange={e =>
+                  update('maxLinesPerBullet', Math.max(1, parseInt(e.target.value) || 1))
+                }
+              />
+              <p className="settings-field__help">Bullets that cannot fit are marked.</p>
+            </div>
+          </fieldset>
+          <fieldset className="settings-fieldset">
+            <legend>Typography</legend>
+            <div className="settings-field">
+              <label htmlFor="min-font">Min font size (px)</label>
+              <input
+                id="min-font"
+                type="number"
+                min={4}
+                max={16}
+                value={constraints.minFontSize}
+                onChange={e =>
+                  update('minFontSize', Math.max(4, parseInt(e.target.value) || 8))
+                }
+              />
+              <p className="settings-field__help">Presume will not shrink text below this size.</p>
+            </div>
+          </fieldset>
         </div>
-      )}
+      </div>
     </div>
   )
 }

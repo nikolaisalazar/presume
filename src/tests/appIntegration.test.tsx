@@ -107,6 +107,11 @@ describe('App review availability boundaries', () => {
     const constraints = screen.getByRole('button', {
       name: /Fit constraints.*1 page.*1 line per bullet.*8px minimum/i,
     })
+    fireEvent.click(constraints)
+    expect(screen.getByText('Page fit')).toBeInTheDocument()
+    expect(screen.getByText('Typography')).toBeInTheDocument()
+    expect(screen.getByText('Density')).toBeInTheDocument()
+
     const toolbar = screen.getByRole('toolbar', { name: 'Document actions' })
     expect(constraints.compareDocumentPosition(toolbar)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING
@@ -116,6 +121,7 @@ describe('App review availability boundaries', () => {
     expect(screen.getByRole('button', { name: 'Export JSON' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Import JSON' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Reset template' })).toBeInTheDocument()
+    expect(screen.getByText('Letter · fixed canvas')).toBeInTheDocument()
   })
 
   it('explains impossible fitting warnings near the constraints strip', () => {

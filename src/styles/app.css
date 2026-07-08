@@ -1356,6 +1356,119 @@ body {
   max-width: none;
 }
 
+/* ── Premium polish pass: constraints, motion, document chrome ───── */
+.settings-panel {
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.settings-panel__chevron {
+  transition: transform 0.18s ease;
+}
+
+.settings-panel__toggle[aria-expanded='true'] .settings-panel__chevron {
+  transform: rotate(180deg);
+}
+
+.settings-panel__body {
+  display: grid;
+  grid-template-rows: 1fr;
+  overflow: hidden;
+  padding: 0;
+  transition: grid-template-rows 0.2s ease, border-color 0.2s ease;
+}
+
+.settings-panel__body[hidden] {
+  display: grid;
+  grid-template-rows: 0fr;
+  border-top-color: transparent;
+}
+
+.settings-panel__body-inner {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  min-height: 0;
+  padding: 14px 16px;
+}
+
+.settings-fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.34);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.58);
+}
+
+.settings-fieldset legend {
+  padding: 0 6px;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.settings-field input[type='number'] {
+  min-height: 34px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.9);
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.settings-field input[type='number']:focus {
+  border-color: var(--focus);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  outline: none;
+}
+
+.formatting-warning-summary,
+.review-panel {
+  transition: opacity 0.18s ease, transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.toolbar-btn:active,
+.review-status-control:active {
+  transform: translateY(1px);
+}
+
+.resume-stage {
+  margin-top: 16px;
+}
+
+.resume-stage__chrome {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 6px 8px;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 0.02em;
+}
+
+.resume-canvas-scroll {
+  margin-top: 0;
+}
+
+@media (max-width: 720px) {
+  .settings-panel__body-inner {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .settings-panel,
+  .settings-panel__chevron,
+  .settings-panel__body,
+  .settings-field input[type='number'],
+  .formatting-warning-summary,
+  .review-panel,
+  .toolbar-btn,
+  .review-status-control {
+    transition-duration: 0.01ms !important;
+  }
+}
+
 @media (max-width: 1220px) {
   .workspace,
   .workspace--with-review {

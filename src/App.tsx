@@ -94,15 +94,21 @@ export default function App() {
             onImport={setResume}
             onReset={() => setResume(DEFAULT_RESUME)}
           />
-          <div className="resume-canvas-scroll" aria-label="Fixed-width resume canvas">
-            <div className="resume-canvas">
-              <ResumePage
-                ref={pageRef}
-                resume={resume}
-                onResumeChange={setResume}
-                warnings={warnings}
-                reviewAnnotations={reviewAnnotations}
-              />
+          <div className="resume-stage">
+            <div className="resume-stage__chrome" aria-hidden="true">
+              <span>Letter · fixed canvas</span>
+              <span>Direct edit</span>
+            </div>
+            <div className="resume-canvas-scroll" aria-label="Fixed-width resume canvas">
+              <div className="resume-canvas">
+                <ResumePage
+                  ref={pageRef}
+                  resume={resume}
+                  onResumeChange={setResume}
+                  warnings={warnings}
+                  reviewAnnotations={reviewAnnotations}
+                />
+              </div>
             </div>
           </div>
         </section>
