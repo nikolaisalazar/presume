@@ -7,8 +7,8 @@ test.describe('unconfigured browser contracts', () => {
     await expect(page).toHaveURL(/\/presume\/$/)
     await expect(page.getByRole('banner')).toContainText('Presume')
     await expect(page.locator('.resume-page')).toBeVisible()
-    await expect(page.getByText('Review service not configured')).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Review resume' })).toBeDisabled()
+    await expect(page.getByRole('complementary', { name: 'Resume review' })).toHaveCount(0)
+    await expect(page.getByRole('button', { name: 'Review resume' })).toHaveCount(0)
 
     const screenshot = await page.locator('.resume-page').screenshot()
     expect(hasNonblankPngBytes(screenshot)).toBe(true)
@@ -32,19 +32,19 @@ test.describe('unconfigured browser contracts', () => {
 
     const metrics = await page.evaluate(() => {
       const workspace = document.querySelector('.workspace') as HTMLElement
-      const panel = document.querySelector('.review-panel') as HTMLElement
+      const panel = document.querySelector('.review-panel') as HTMLElement | null
       const scroller = document.querySelector('.resume-canvas-scroll') as HTMLElement
       const resume = document.querySelector('.resume-page') as HTMLElement
       const workspaceStyle = window.getComputedStyle(workspace)
-      const panelRect = panel.getBoundingClientRect()
+      const panelRect = panel?.getBoundingClientRect()
       return {
         bodyClientWidth: document.documentElement.clientWidth,
         bodyScrollWidth: document.documentElement.scrollWidth,
         workspaceMinWidth: workspaceStyle.minWidth,
         workspaceWidth: Math.round(workspace.getBoundingClientRect().width),
-        panelWidth: Math.round(panelRect.width),
-        panelLeft: Math.round(panelRect.left),
-        panelRight: Math.round(panelRect.right),
+        panelWidth: panelRect ? Math.round(panelRect.width) : 0,
+        panelLeft: panelRect ? Math.round(panelRect.left) : 0,
+        panelRight: panelRect ? Math.round(panelRect.right) : 0,
         scrollerClientWidth: scroller.clientWidth,
         scrollerScrollWidth: scroller.scrollWidth,
         resumeWidth: Math.round(resume.getBoundingClientRect().width),
@@ -56,7 +56,7 @@ test.describe('unconfigured browser contracts', () => {
     expect(metrics.workspaceWidth).toBeLessThanOrEqual(metrics.bodyClientWidth)
     expect(metrics.panelLeft).toBeGreaterThanOrEqual(0)
     expect(metrics.panelRight).toBeLessThanOrEqual(metrics.bodyClientWidth)
-    expect(metrics.panelWidth).toBeLessThanOrEqual(326)
+    expect(metrics.panelWidth).toBe(0)
     expect(metrics.scrollerClientWidth).toBeLessThan(metrics.scrollerScrollWidth)
     expect(metrics.resumeWidth).toBe(816)
   })

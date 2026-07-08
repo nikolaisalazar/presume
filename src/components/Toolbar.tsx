@@ -67,14 +67,14 @@ export function Toolbar({ resume, pageRef, onImport, onReset }: ToolbarProps) {
           onClick={handleExportPDF}
           aria-label="Export PDF"
         >
-          PDF
+          Export PDF
         </button>
         <button
           className="toolbar-btn"
           onClick={handleExportJSON}
           aria-label="Export JSON"
         >
-          JSON
+          Export JSON
         </button>
       </div>
       <div className="toolbar__group" aria-label="File actions">
@@ -83,10 +83,10 @@ export function Toolbar({ resume, pageRef, onImport, onReset }: ToolbarProps) {
           onClick={handleImportClick}
           aria-label="Import JSON"
         >
-          Import
+          Import JSON
         </button>
         <button className="toolbar-btn toolbar-btn--danger" onClick={handleReset}>
-          Reset to Template
+          Reset template
         </button>
       </div>
       <input

@@ -19,8 +19,8 @@ test.describe('configured review browser contracts', () => {
     await page.goto('./')
     await expect(page).toHaveURL(/\/presume\/$/)
 
-    await expect(page.getByText('Review service unavailable')).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Review resume' })).toBeDisabled()
+    await expect(page.getByRole('button', { name: 'Review unavailable' })).toBeDisabled()
+    await expect(page.getByRole('complementary', { name: 'Resume review' })).toHaveCount(0)
   })
 
   test('renders config-error state when backend cannot be reached', async ({ page }) => {
@@ -29,9 +29,8 @@ test.describe('configured review browser contracts', () => {
     await page.goto('./')
     await expect(page).toHaveURL(/\/presume\/$/)
 
-    await expect(page.getByText('Review service unavailable')).toBeVisible()
-    await expect(page.getByText('Could not reach the review service.')).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Review resume' })).toBeDisabled()
+    await expect(page.getByRole('button', { name: 'Review unavailable' })).toBeDisabled()
+    await expect(page.getByRole('complementary', { name: 'Resume review' })).toHaveCount(0)
   })
 
   test('submits a PDF review, renders normalized result, and marks it stale after edit', async ({ page }) => {
@@ -72,10 +71,12 @@ test.describe('configured review browser contracts', () => {
 
     await page.goto('./')
     await expect(page).toHaveURL(/\/presume\/$/)
-    await expect(page.getByText('Ready for review')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Review resume' })).toBeVisible()
+    await expect(page.getByRole('complementary', { name: 'Resume review' })).toHaveCount(0)
 
     await page.getByRole('button', { name: 'Review resume' }).click()
 
+    await expect(page.getByRole('complementary', { name: 'Resume review' })).toBeVisible()
     await expect(page.getByText('81 / 100')).toBeVisible()
     await expect(page.getByText('Competitive')).toBeVisible()
     await expect(page.getByText('Open Source', { exact: true })).toBeVisible()

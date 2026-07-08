@@ -37,12 +37,12 @@ export function Bullet({
       <EditableText value={text} onChange={onChange} placeholder="Bullet point" />
       <ReviewAnnotations annotations={reviewAnnotations} />
       <button
-        className="remove-btn"
+        className="editor-control editor-control--remove remove-btn bullet-remove"
         onClick={onDelete}
         aria-label="Delete bullet"
         data-editor-only="true"
       >
-        −
+        ×
       </button>
     </li>
   )

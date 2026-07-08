@@ -9,7 +9,7 @@ const appCss = readFileSync(
 describe('responsive review layout CSS', () => {
   it('lets the fixed resume overflow without sizing the narrow review panel', () => {
     expect(appCss).toContain('grid-template-columns: minmax(0, 1fr);')
-    expect(appCss).toContain('max-width: min(816px, calc(100vw - 32px));')
+    expect(appCss).toContain('max-width: min(816px, calc(100vw - 40px));')
   })
 
   it('keeps editor controls within the viewport while the fixed canvas scrolls intentionally', () => {
@@ -24,6 +24,22 @@ describe('responsive review layout CSS', () => {
     expect(appCss).toContain('--editor-control-resting-opacity')
     expect(appCss).toContain('opacity: var(--editor-control-resting-opacity);')
     expect(appCss).toContain(':focus-visible')
+  })
+
+  it('uses one contextual editor-control language with touch-safe fallbacks', () => {
+    expect(appCss).toContain('.editor-control')
+    expect(appCss).toContain('.editor-rail')
+    expect(appCss).toContain('focus-within')
+    expect(appCss).toContain('min-height: 44px')
+    expect(appCss).toContain('@media (hover: none)')
+  })
+
+  it('defines semantic colors for warning danger review and focus states', () => {
+    expect(appCss).toContain('--warning-bg')
+    expect(appCss).toContain('--warning-border')
+    expect(appCss).toContain('--danger')
+    expect(appCss).toContain('--review')
+    expect(appCss).toContain('--focus')
   })
 
   it('keeps bullet editor controls out of the inline bullet text flow', () => {

@@ -22,11 +22,14 @@ export function SettingsPanel({ constraints, onChange }: SettingsPanelProps) {
         aria-expanded={open}
         aria-controls={bodyId}
       >
-        <span className="settings-panel__title">Constraints</span>
+        <span className="settings-panel__title">Fit constraints</span>
         <span className="settings-panel__summary">
           <span>{constraints.maxPages} {constraints.maxPages === 1 ? 'page' : 'pages'}</span>
-          <span>{constraints.maxLinesPerBullet} lines/bullet</span>
-          <span>{constraints.minFontSize}px min</span>
+          <span>
+            {constraints.maxLinesPerBullet}{' '}
+            {constraints.maxLinesPerBullet === 1 ? 'line per bullet' : 'lines per bullet'}
+          </span>
+          <span>{constraints.minFontSize}px minimum</span>
         </span>
         <span className="settings-panel__chevron" aria-hidden="true">
           {open ? '▲' : '▼'}
@@ -44,6 +47,7 @@ export function SettingsPanel({ constraints, onChange }: SettingsPanelProps) {
               value={constraints.maxPages}
               onChange={e => update('maxPages', Math.max(1, parseInt(e.target.value) || 1))}
             />
+            <p className="settings-field__help">PDF exports one Letter page per page-height segment.</p>
           </div>
           <div className="settings-field">
             <label htmlFor="max-lines">Max lines per bullet</label>
@@ -57,6 +61,7 @@ export function SettingsPanel({ constraints, onChange }: SettingsPanelProps) {
                 update('maxLinesPerBullet', Math.max(1, parseInt(e.target.value) || 1))
               }
             />
+            <p className="settings-field__help">Bullets that cannot fit are marked.</p>
           </div>
           <div className="settings-field">
             <label htmlFor="min-font">Min font size (px)</label>
@@ -70,6 +75,7 @@ export function SettingsPanel({ constraints, onChange }: SettingsPanelProps) {
                 update('minFontSize', Math.max(4, parseInt(e.target.value) || 8))
               }
             />
+            <p className="settings-field__help">Presume will not shrink text below this size.</p>
           </div>
         </div>
       )}

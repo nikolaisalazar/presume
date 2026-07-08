@@ -9,9 +9,10 @@ import type { ResumeReviewState } from '../useResumeReview'
 interface ReviewPanelProps {
   state: ResumeReviewState
   onRequestReview: () => void
+  onClose?: () => void
 }
 
-export function ReviewPanel({ state, onRequestReview }: ReviewPanelProps) {
+export function ReviewPanel({ state, onRequestReview, onClose }: ReviewPanelProps) {
   const result = 'result' in state ? state.result : undefined
   const resultIsStale =
     'resultIsStale' in state ? state.resultIsStale : false
@@ -30,13 +31,24 @@ export function ReviewPanel({ state, onRequestReview }: ReviewPanelProps) {
           <h2>Review</h2>
           <span className="review-panel__advisory">Advisory only</span>
         </div>
-        <button
-          className="toolbar-btn review-panel__action"
-          onClick={onRequestReview}
-          disabled={actionDisabled}
-        >
-          {isLoading ? 'Reviewing...' : 'Review resume'}
-        </button>
+        <div className="review-panel__actions">
+          <button
+            className="toolbar-btn review-panel__action"
+            onClick={onRequestReview}
+            disabled={actionDisabled}
+          >
+            {isLoading ? 'Reviewing...' : 'Review resume'}
+          </button>
+          {onClose ? (
+            <button
+              className="toolbar-btn review-panel__close"
+              onClick={onClose}
+              aria-label="Close review panel"
+            >
+              Close
+            </button>
+          ) : null}
+        </div>
       </div>
 
       {state.status === 'unconfigured' ? (
