@@ -1529,14 +1529,17 @@ body {
 .landing-features {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: stretch;
   gap: 14px;
 }
 
 .landing-features article {
+  height: 100%;
   padding: 18px;
   border: 1px solid rgba(148, 163, 184, 0.38);
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.74);
+  background-clip: padding-box;
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.92), 0 12px 30px rgba(15, 23, 42, 0.06);
 }
 
@@ -1578,6 +1581,7 @@ body {
   border: 1px solid rgba(148, 163, 184, 0.28);
   border-radius: 8px;
   background: rgba(248, 250, 252, 0.82);
+  background-clip: padding-box;
 }
 
 .landing-why__contrast strong {
@@ -1594,6 +1598,7 @@ body {
 .landing-workflow ol {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
   gap: 10px;
   margin: 0;
   padding: 0;
@@ -1601,10 +1606,12 @@ body {
 }
 
 .landing-workflow li {
+  height: 100%;
   padding: 14px;
   border: 1px solid rgba(148, 163, 184, 0.28);
   border-radius: 8px;
   background: rgba(248, 250, 252, 0.82);
+  background-clip: padding-box;
 }
 
 .landing-workflow strong,
