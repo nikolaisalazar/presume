@@ -1589,11 +1589,14 @@ body {
 }
 
 .landing-workflow {
-  display: grid;
-  grid-template-columns: minmax(240px, 0.58fr) minmax(0, 1fr);
-  gap: 30px;
-  align-items: center;
-  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 30px;
+}
+
+.landing-workflow__intro {
+  max-width: 760px;
 }
 
 .landing-workflow__steps {
@@ -1603,16 +1606,16 @@ body {
   align-items: stretch;
   gap: 0;
   margin: 0;
-  padding: 4px 0;
+  padding: 6px 0 0;
   list-style: none;
 }
 
 .landing-workflow__steps::before {
   content: '';
   position: absolute;
-  left: 12%;
-  right: 12%;
-  top: 25px;
+  left: 7%;
+  right: 7%;
+  top: 27px;
   height: 1px;
   background: linear-gradient(90deg, rgba(15, 95, 92, 0.16), rgba(15, 95, 92, 0.42), rgba(15, 95, 92, 0.16));
 }
@@ -1620,17 +1623,18 @@ body {
 .landing-workflow__steps li {
   position: relative;
   display: grid;
+  grid-template-rows: auto auto 1fr;
   align-content: start;
-  gap: 8px;
-  min-height: 148px;
-  padding: 0 18px 0 0;
+  gap: 9px;
+  min-height: 132px;
+  padding: 0 28px 0 0;
 }
 
 .landing-workflow__steps li:not(:last-child)::after {
   content: '→';
   position: absolute;
-  top: 13px;
-  right: 18px;
+  top: 15px;
+  right: 22px;
   color: rgba(15, 95, 92, 0.55);
   font-size: 18px;
   font-weight: 800;
@@ -1666,7 +1670,7 @@ body {
 }
 
 .landing-workflow li > span:not(.landing-workflow__step-index) {
-  max-width: 22ch;
+  max-width: 28ch;
   margin-top: 0;
   color: #64748b;
   font-size: 13px;
@@ -1697,7 +1701,6 @@ body {
 
 @media (max-width: 920px) {
   .landing-hero,
-  .landing-workflow,
   .landing-why,
   .landing-privacy {
     grid-template-columns: 1fr;

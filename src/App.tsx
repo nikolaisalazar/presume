@@ -138,7 +138,7 @@ function LandingPage({
         </section>
 
         <section className="landing-workflow" aria-labelledby="workflow-title">
-          <div>
+          <div className="landing-workflow__intro">
             <p className="landing-kicker">Workflow</p>
             <h2 id="workflow-title">From draft to export without leaving the page.</h2>
           </div>
