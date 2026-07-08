@@ -142,10 +142,22 @@ function LandingPage({
             <p className="landing-kicker">Workflow</p>
             <h2 id="workflow-title">From draft to export without leaving the page.</h2>
           </div>
-          <ol>
-            <li><strong>Edit directly</strong><span>Click into names, bullets, sections, and dates.</span></li>
-            <li><strong>Keep it fitting</strong><span>Use fit warnings and constraints as guardrails.</span></li>
-            <li><strong>Export when ready</strong><span>Save a PDF or carry your data forward as JSON.</span></li>
+          <ol className="landing-workflow__steps">
+            <li>
+              <span className="landing-workflow__step-index">01</span>
+              <strong>Edit directly</strong>
+              <span>Click into names, bullets, sections, and dates.</span>
+            </li>
+            <li>
+              <span className="landing-workflow__step-index">02</span>
+              <strong>Keep it fitting</strong>
+              <span>Use fit warnings and constraints as guardrails.</span>
+            </li>
+            <li>
+              <span className="landing-workflow__step-index">03</span>
+              <strong>Export when ready</strong>
+              <span>Save a PDF or carry your data forward as JSON.</span>
+            </li>
           </ol>
         </section>
 

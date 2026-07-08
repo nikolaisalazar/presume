@@ -1590,28 +1590,69 @@ body {
 
 .landing-workflow {
   display: grid;
-  grid-template-columns: minmax(220px, 0.7fr) minmax(0, 1fr);
-  gap: 24px;
-  padding: 26px;
+  grid-template-columns: minmax(240px, 0.58fr) minmax(0, 1fr);
+  gap: 30px;
+  align-items: center;
+  padding: 28px;
 }
 
-.landing-workflow ol {
+.landing-workflow__steps {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: stretch;
-  gap: 10px;
+  gap: 0;
   margin: 0;
-  padding: 0;
+  padding: 4px 0;
   list-style: none;
 }
 
-.landing-workflow li {
-  height: 100%;
-  padding: 14px;
-  border: 1px solid rgba(148, 163, 184, 0.28);
-  border-radius: 8px;
-  background: rgba(248, 250, 252, 0.82);
-  background-clip: padding-box;
+.landing-workflow__steps::before {
+  content: '';
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  top: 25px;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(15, 95, 92, 0.16), rgba(15, 95, 92, 0.42), rgba(15, 95, 92, 0.16));
+}
+
+.landing-workflow__steps li {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-height: 148px;
+  padding: 0 18px 0 0;
+}
+
+.landing-workflow__steps li:not(:last-child)::after {
+  content: '→';
+  position: absolute;
+  top: 13px;
+  right: 18px;
+  color: rgba(15, 95, 92, 0.55);
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.landing-workflow__step-index {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(15, 95, 92, 0.28);
+  border-radius: 4px;
+  background: #ffffff;
+  color: #0f5f5c;
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: -0.02em;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.07);
 }
 
 .landing-workflow strong,
@@ -1621,11 +1662,12 @@ body {
 
 .landing-workflow strong {
   color: #1e293b;
-  font-size: 13px;
+  font-size: 14px;
 }
 
-.landing-workflow span {
-  margin-top: 6px;
+.landing-workflow li > span:not(.landing-workflow__step-index) {
+  max-width: 22ch;
+  margin-top: 0;
   color: #64748b;
   font-size: 13px;
   line-height: 1.45;
@@ -1661,9 +1703,38 @@ body {
     grid-template-columns: 1fr;
   }
 
-  .landing-features,
-  .landing-workflow ol {
+  .landing-features {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .landing-workflow__steps {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    padding-left: 26px;
+  }
+
+  .landing-workflow__steps::before {
+    left: 21px;
+    right: auto;
+    top: 20px;
+    bottom: 20px;
+    width: 1px;
+    height: auto;
+    background: linear-gradient(180deg, rgba(15, 95, 92, 0.16), rgba(15, 95, 92, 0.42), rgba(15, 95, 92, 0.16));
+  }
+
+  .landing-workflow__steps li {
+    min-height: auto;
+    padding: 0 0 0 28px;
+  }
+
+  .landing-workflow__steps li:not(:last-child)::after {
+    content: '↓';
+    top: auto;
+    right: auto;
+    left: -11px;
+    bottom: -18px;
+    font-size: 16px;
   }
 }
 
@@ -1686,8 +1757,7 @@ body {
     font-size: 42px;
   }
 
-  .landing-features,
-  .landing-workflow ol {
+  .landing-features {
     grid-template-columns: 1fr;
   }
 
