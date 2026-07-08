@@ -14,6 +14,10 @@ export function SettingsPanel({ constraints, onChange }: SettingsPanelProps) {
     onChange({ ...constraints, [key]: value })
   }
 
+  const step = (key: keyof Constraints, delta: number, min: number, max: number) => {
+    update(key, Math.min(max, Math.max(min, constraints[key] + delta)))
+  }
+
   return (
     <div className="settings-panel">
       <button
@@ -37,57 +41,104 @@ export function SettingsPanel({ constraints, onChange }: SettingsPanelProps) {
       </button>
       <div className="settings-panel__body" id={bodyId} hidden={!open}>
         <div className="settings-panel__body-inner">
-          <fieldset className="settings-fieldset">
-            <legend>Page fit</legend>
-            <div className="settings-field">
-              <label htmlFor="max-pages">Max pages</label>
-              <input
-                id="max-pages"
-                type="number"
-                min={1}
-                max={10}
-                value={constraints.maxPages}
-                onChange={e => update('maxPages', Math.max(1, parseInt(e.target.value) || 1))}
-              />
-              <p className="settings-field__help">PDF exports one Letter page per page-height segment.</p>
-            </div>
-          </fieldset>
-          <fieldset className="settings-fieldset">
-            <legend>Density</legend>
-            <div className="settings-field">
-              <label htmlFor="max-lines">Max lines per bullet</label>
-              <input
-                id="max-lines"
-                type="number"
-                min={1}
-                max={10}
-                value={constraints.maxLinesPerBullet}
-                onChange={e =>
-                  update('maxLinesPerBullet', Math.max(1, parseInt(e.target.value) || 1))
-                }
-              />
-              <p className="settings-field__help">Bullets that cannot fit are marked.</p>
-            </div>
-          </fieldset>
-          <fieldset className="settings-fieldset">
-            <legend>Typography</legend>
-            <div className="settings-field">
-              <label htmlFor="min-font">Min font size (px)</label>
-              <input
-                id="min-font"
-                type="number"
-                min={4}
-                max={16}
-                value={constraints.minFontSize}
-                onChange={e =>
-                  update('minFontSize', Math.max(4, parseInt(e.target.value) || 8))
-                }
-              />
-              <p className="settings-field__help">Presume will not shrink text below this size.</p>
-            </div>
-          </fieldset>
+          <ConstraintStepper
+            label="Page limit"
+            value={constraints.maxPages}
+            unit={constraints.maxPages === 1 ? 'page' : 'pages'}
+            help="Resume length target"
+            onDecrease={() => step('maxPages', -1, 1, 10)}
+            onIncrease={() => step('maxPages', 1, 1, 10)}
+            decreaseLabel="Decrease max pages"
+            increaseLabel="Increase max pages"
+            decreaseDisabled={constraints.maxPages <= 1}
+            increaseDisabled={constraints.maxPages >= 10}
+          />
+          <ConstraintStepper
+            label="Bullet lines"
+            value={constraints.maxLinesPerBullet}
+            unit={constraints.maxLinesPerBullet === 1 ? 'line' : 'lines'}
+            help="Maximum wrapped lines per bullet"
+            onDecrease={() => step('maxLinesPerBullet', -1, 1, 10)}
+            onIncrease={() => step('maxLinesPerBullet', 1, 1, 10)}
+            decreaseLabel="Decrease max lines per bullet"
+            increaseLabel="Increase max lines per bullet"
+            decreaseDisabled={constraints.maxLinesPerBullet <= 1}
+            increaseDisabled={constraints.maxLinesPerBullet >= 10}
+          />
+          <ConstraintStepper
+            label="Minimum type"
+            value={constraints.minFontSize}
+            unit="px"
+            help="Do not shrink below this size"
+            onDecrease={() => step('minFontSize', -1, 4, 16)}
+            onIncrease={() => step('minFontSize', 1, 4, 16)}
+            decreaseLabel="Decrease minimum font size"
+            increaseLabel="Increase minimum font size"
+            decreaseDisabled={constraints.minFontSize <= 4}
+            increaseDisabled={constraints.minFontSize >= 16}
+          />
         </div>
       </div>
+    </div>
+  )
+}
+
+interface ConstraintStepperProps {
+  label: string
+  value: number
+  unit: string
+  help: string
+  onDecrease: () => void
+  onIncrease: () => void
+  decreaseLabel: string
+  increaseLabel: string
+  decreaseDisabled: boolean
+  increaseDisabled: boolean
+}
+
+function ConstraintStepper({
+  label,
+  value,
+  unit,
+  help,
+  onDecrease,
+  onIncrease,
+  decreaseLabel,
+  increaseLabel,
+  decreaseDisabled,
+  increaseDisabled,
+}: ConstraintStepperProps) {
+  return (
+    <div className="settings-control-row">
+      <div className="settings-control-row__label">
+        <span>{label}</span>
+        <small>{help}</small>
+      </div>
+      <div className="settings-stepper" aria-label={label}>
+        <button
+          type="button"
+          className="settings-stepper__button"
+          onClick={onDecrease}
+          disabled={decreaseDisabled}
+          aria-label={decreaseLabel}
+        >
+          −
+        </button>
+        <span className="settings-stepper__value" aria-live="polite">
+          <strong>{value}</strong>
+          <span>{unit}</span>
+        </span>
+        <button
+          type="button"
+          className="settings-stepper__button"
+          onClick={onIncrease}
+          disabled={increaseDisabled}
+          aria-label={increaseLabel}
+        >
+          +
+        </button>
+      </div>
+      <p className="settings-control-row__note">{help}</p>
     </div>
   )
 }

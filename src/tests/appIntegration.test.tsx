@@ -108,9 +108,11 @@ describe('App review availability boundaries', () => {
       name: /Fit constraints.*1 page.*1 line per bullet.*8px minimum/i,
     })
     fireEvent.click(constraints)
-    expect(screen.getByText('Page fit')).toBeInTheDocument()
-    expect(screen.getByText('Typography')).toBeInTheDocument()
-    expect(screen.getByText('Density')).toBeInTheDocument()
+    expect(screen.getByText('Page limit')).toBeInTheDocument()
+    expect(screen.getByText('Bullet lines')).toBeInTheDocument()
+    expect(screen.getByText('Minimum type')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Increase max pages' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Decrease max pages' })).toBeInTheDocument()
 
     const toolbar = screen.getByRole('toolbar', { name: 'Document actions' })
     expect(constraints.compareDocumentPosition(toolbar)).toBe(
