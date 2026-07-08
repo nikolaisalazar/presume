@@ -1331,6 +1331,304 @@ body {
   }
 }
 
+/* ── Product landing page ────────────────────────────────────────── */
+.app--landing {
+  align-items: center;
+  padding-block: 24px 56px;
+}
+
+.landing-nav,
+.landing-shell {
+  width: min(1120px, 100%);
+}
+
+.landing-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 auto 18px;
+  padding: 12px 14px;
+  border: 1px solid rgba(148, 163, 184, 0.42);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.95), 0 18px 42px rgba(15, 23, 42, 0.07);
+}
+
+.landing-nav__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 850;
+}
+
+.landing-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.landing-hero,
+.landing-workflow,
+.landing-privacy {
+  border: 1px solid rgba(148, 163, 184, 0.42);
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.74);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.96), 0 28px 70px rgba(15, 23, 42, 0.1);
+}
+
+.landing-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(340px, 0.75fr);
+  gap: 36px;
+  align-items: center;
+  padding: 32px;
+}
+
+.landing-hero__copy {
+  max-width: 670px;
+}
+
+.landing-kicker {
+  margin: 0 0 10px;
+  color: #0f5f5c;
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.landing-hero h1 {
+  margin: 0;
+  max-width: 11ch;
+  color: var(--ink);
+  font-size: 58px;
+  line-height: 0.95;
+  letter-spacing: -0.065em;
+}
+
+.landing-lede {
+  margin: 22px 0 0;
+  max-width: 60ch;
+  color: #475569;
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+.landing-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+}
+
+.landing-primary-action {
+  min-height: 44px;
+  padding-inline: 18px;
+}
+
+.landing-local-note {
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.landing-preview {
+  padding: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.38);
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(246, 249, 252, 0.94), rgba(226, 234, 244, 0.88));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 24px 50px rgba(15, 23, 42, 0.12);
+}
+
+.landing-preview__chrome {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.36);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.84);
+  color: #334155;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.landing-preview__stage {
+  padding: 20px;
+  border-radius: 18px;
+  background: var(--stage-surface);
+}
+
+.landing-preview__page {
+  width: min(100%, 330px);
+  min-height: 426px;
+  margin: 0 auto;
+  padding: 34px 32px;
+  border-radius: 4px;
+  background: #ffffff;
+  box-shadow: var(--shadow-page-premium);
+}
+
+.landing-preview__line,
+.landing-preview__rule {
+  height: 8px;
+  margin-top: 12px;
+  border-radius: 999px;
+  background: #d8dee8;
+}
+
+.landing-preview__line--title {
+  width: 62%;
+  height: 13px;
+  margin-top: 0;
+  background: #0f172a;
+}
+
+.landing-preview__line--short {
+  width: 44%;
+}
+
+.landing-preview__line--medium {
+  width: 72%;
+}
+
+.landing-preview__rule {
+  width: 100%;
+  height: 2px;
+  margin: 22px 0 16px;
+  background: #0f172a;
+  border-radius: 0;
+}
+
+.landing-features {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.landing-features article {
+  padding: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.38);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.74);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.92), 0 12px 30px rgba(15, 23, 42, 0.06);
+}
+
+.landing-features h2,
+.landing-workflow h2,
+.landing-privacy h2 {
+  margin: 0;
+  color: #172033;
+  font-size: 18px;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+}
+
+.landing-features p,
+.landing-privacy p {
+  margin: 10px 0 0;
+  color: #536173;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.landing-workflow {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.7fr) minmax(0, 1fr);
+  gap: 24px;
+  padding: 26px;
+}
+
+.landing-workflow ol {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.landing-workflow li {
+  padding: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 16px;
+  background: rgba(248, 250, 252, 0.82);
+}
+
+.landing-workflow strong,
+.landing-workflow span {
+  display: block;
+}
+
+.landing-workflow strong {
+  color: #1e293b;
+  font-size: 13px;
+}
+
+.landing-workflow span {
+  margin-top: 6px;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.landing-privacy {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 24px 26px;
+}
+
+.landing-privacy p {
+  max-width: 62ch;
+}
+
+@media (max-width: 920px) {
+  .landing-hero,
+  .landing-workflow {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-features,
+  .landing-workflow ol {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .app--landing {
+    padding: 14px 12px 40px;
+  }
+
+  .landing-nav,
+  .landing-privacy {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .landing-hero {
+    padding: 22px;
+    border-radius: 22px;
+  }
+
+  .landing-hero h1 {
+    font-size: 42px;
+  }
+
+  .landing-features,
+  .landing-workflow ol {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-preview {
+    display: none;
+  }
+}
+
 /* ── Visual Pass 2: unified command deck and stage width ─────────── */
 :root {
   --editor-shell-width: calc(var(--page-width) + (var(--stage-padding) * 2) + 32px);

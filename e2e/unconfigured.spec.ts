@@ -5,6 +5,12 @@ test.describe('unconfigured browser contracts', () => {
     await page.goto('./')
 
     await expect(page).toHaveURL(/\/presume\/$/)
+    await expect(page.getByRole('heading', { name: 'Edit your resume like the final document.' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Start editing' })).toBeVisible()
+
+    await page.getByRole('button', { name: 'Start editing' }).click()
+
+    await expect(page).toHaveURL(/\/presume\/editor\/$/)
     await expect(page.getByRole('banner')).toContainText('Presume')
     await expect(page.locator('.resume-page')).toBeVisible()
     await expect(page.getByRole('complementary', { name: 'Resume review' })).toHaveCount(0)
@@ -27,7 +33,7 @@ test.describe('unconfigured browser contracts', () => {
 
   test('keeps expanded fit constraints usable at narrow widths', async ({ page }) => {
     await page.setViewportSize({ width: 358, height: 980 })
-    await page.goto('./')
+    await page.goto('./editor/')
     await page.getByRole('button', { name: /Fit constraints/ }).click()
 
     const metrics = await page.evaluate(() => {
@@ -59,8 +65,8 @@ test.describe('unconfigured browser contracts', () => {
   test('keeps viewport overflow inside the fixed resume canvas scroller at narrow widths', async ({ page }) => {
     for (const width of [358, 860, 861, 880, 900, 960]) {
       await page.setViewportSize({ width, height: 980 })
-      await page.goto('./')
-      await expect(page).toHaveURL(/\/presume\/$/)
+      await page.goto('./editor/')
+      await expect(page).toHaveURL(/\/presume\/editor\/$/)
 
       const metrics = await page.evaluate(() => {
         const workspace = document.querySelector('.workspace') as HTMLElement

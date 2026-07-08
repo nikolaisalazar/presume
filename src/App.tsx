@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useResume } from './useResume'
 import { useResizeEngine } from './useResizeEngine'
 import { DEFAULT_RESUME } from './defaultResume'
@@ -16,7 +16,136 @@ import { useResumeReview } from './useResumeReview'
 import './styles/app.css'
 import './styles/resume.css'
 
+function getCurrentRoute() {
+  return window.location.pathname
+}
+
+function hasSavedResume() {
+  return Boolean(localStorage.getItem('presume:resume'))
+}
+
 export default function App() {
+  const [route, setRoute] = useState(getCurrentRoute)
+  const isLandingRoute = route === '/presume/' || route === '/presume'
+  const openEditor = () => {
+    window.history.pushState({}, '', '/presume/editor/')
+    setRoute(getCurrentRoute())
+  }
+
+  useEffect(() => {
+    const handlePopState = () => setRoute(getCurrentRoute())
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [])
+
+  if (isLandingRoute) {
+    return <LandingPage hasSavedResume={hasSavedResume()} onOpenEditor={openEditor} />
+  }
+
+  return <EditorApp />
+}
+
+function LandingPage({
+  hasSavedResume,
+  onOpenEditor,
+}: {
+  hasSavedResume: boolean
+  onOpenEditor: () => void
+}) {
+  return (
+    <div className="app app--landing">
+      <header className="landing-nav" aria-label="Presume landing navigation">
+        <div className="landing-nav__brand">
+          <span className="app-header__brand-mark" aria-hidden="true">P</span>
+          <span>Presume</span>
+        </div>
+        <button className="toolbar-btn" onClick={onOpenEditor}>
+          {hasSavedResume ? 'Continue editing' : 'Open editor'}
+        </button>
+      </header>
+
+      <main className="landing-shell">
+        <section className="landing-hero" aria-labelledby="landing-title">
+          <div className="landing-hero__copy">
+            <p className="landing-kicker">Direct-editing resume workspace</p>
+            <h1 id="landing-title">Edit your resume like the final document.</h1>
+            <p className="landing-lede">
+              Presume gives you a fixed resume canvas, inline editing, fit guidance, and export tools in one focused workspace.
+            </p>
+            <div className="landing-actions">
+              <button className="toolbar-btn toolbar-btn--primary landing-primary-action" onClick={onOpenEditor}>
+                {hasSavedResume ? 'Continue editing' : 'Start editing'}
+              </button>
+              <span className="landing-local-note">No account required · Stored locally in your browser</span>
+            </div>
+          </div>
+
+          <div className="landing-preview" aria-label="Presume editor preview">
+            <div className="landing-preview__chrome">
+              <span>Fit constraints</span>
+              <span>1 page · 1 line · 8px</span>
+            </div>
+            <div className="landing-preview__stage">
+              <div className="landing-preview__page">
+                <div className="landing-preview__line landing-preview__line--title" />
+                <div className="landing-preview__line landing-preview__line--short" />
+                <div className="landing-preview__rule" />
+                <div className="landing-preview__line" />
+                <div className="landing-preview__line" />
+                <div className="landing-preview__line landing-preview__line--medium" />
+                <div className="landing-preview__rule" />
+                <div className="landing-preview__line" />
+                <div className="landing-preview__line landing-preview__line--short" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="landing-features" aria-label="Features">
+          <article>
+            <h2>Direct inline editing</h2>
+            <p>Edit the resume itself instead of translating your history through a long form.</p>
+          </article>
+          <article>
+            <h2>Fit constraints</h2>
+            <p>Keep page count, bullet wrapping, and type size visible while you shape content.</p>
+          </article>
+          <article>
+            <h2>PDF + JSON export</h2>
+            <p>Export a polished PDF and keep a portable JSON backup of your resume data.</p>
+          </article>
+          <article>
+            <h2>Optional advisory review</h2>
+            <p>When configured, request a non-mutating review without changing your document.</p>
+          </article>
+        </section>
+
+        <section className="landing-workflow" aria-labelledby="workflow-title">
+          <div>
+            <p className="landing-kicker">Workflow</p>
+            <h2 id="workflow-title">From draft to export without leaving the page.</h2>
+          </div>
+          <ol>
+            <li><strong>Edit directly</strong><span>Click into names, bullets, sections, and dates.</span></li>
+            <li><strong>Keep it fitting</strong><span>Use fit warnings and constraints as guardrails.</span></li>
+            <li><strong>Export when ready</strong><span>Save a PDF or carry your data forward as JSON.</span></li>
+          </ol>
+        </section>
+
+        <section className="landing-privacy" aria-label="Privacy and storage">
+          <h2>Stored locally in your browser</h2>
+          <p>
+            Presume is built as a convenient local-first editor. Your resume is saved in browser storage,
+            and JSON export gives you an explicit backup you control.
+          </p>
+          <button className="toolbar-btn toolbar-btn--primary" onClick={onOpenEditor}>Open the editor</button>
+        </section>
+      </main>
+    </div>
+  )
+}
+
+function EditorApp() {
   const { resume, setResume, constraints, setConstraints } = useResume()
   const pageRef = useRef<HTMLDivElement>(null)
   const [reviewPanelOpen, setReviewPanelOpen] = useState(false)
