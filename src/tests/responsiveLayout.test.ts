@@ -19,7 +19,7 @@ describe('responsive review layout CSS', () => {
     expect(appCss).toContain('--editor-shell-width: calc(var(--page-width) + (var(--stage-padding) * 2) + 32px);')
     expect(appCss).toContain('grid-template-columns: minmax(0, var(--editor-shell-width));')
     expect(appCss).toContain('max-width: var(--editor-shell-width);')
-    expect(appCss).toContain('min-width: calc(var(--page-width) + (var(--stage-padding) * 2));')
+    expect(appCss).toContain('width: 100%;\n  max-width: 100%;\n  min-width: 0;\n  padding: var(--stage-padding);')
     expect(appCss).toContain('.settings-panel,\n.toolbar,\n.formatting-warning-summary')
     expect(appCss).toContain('max-width: none;')
   })
@@ -37,11 +37,11 @@ describe('responsive review layout CSS', () => {
     expect(appCss).toContain('.settings-panel + .toolbar')
   })
 
-  it('uses one desktop column by default and adds a review column only with an active panel', () => {
+  it('uses one editor-shell column by default and adds a review column only with an active panel', () => {
     expect(appCss).toContain('.workspace {')
-    expect(appCss).toContain('grid-template-columns: minmax(0, var(--page-width));')
+    expect(appCss).toContain('grid-template-columns: minmax(0, var(--editor-shell-width));')
     expect(appCss).toContain('.workspace--with-review')
-    expect(appCss).toContain('grid-template-columns: minmax(0, var(--page-width)) minmax(320px, 360px);')
+    expect(appCss).toContain('grid-template-columns: minmax(0, var(--editor-shell-width)) minmax(320px, 360px);')
   })
 
   it('lets the fixed resume overflow without sizing the narrow review panel', () => {
@@ -54,7 +54,7 @@ describe('responsive review layout CSS', () => {
     expect(appCss).toContain('overflow-x: auto;')
     expect(appCss).toContain('.resume-canvas-scroll')
     expect(appCss).toContain('width: max-content;')
-    expect(appCss).toContain('max-width: var(--page-width);')
+    expect(appCss).toContain('max-width: 100%;')
   })
 
   it('keeps in-document edit controls discoverable without dominating the printable resume', () => {

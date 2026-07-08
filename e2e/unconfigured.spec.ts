@@ -25,40 +25,49 @@ test.describe('unconfigured browser contracts', () => {
     await expect(name).toHaveText('Ada Browser')
   })
 
-  test('keeps narrow viewport overflow inside the fixed resume canvas scroller', async ({ page }) => {
-    await page.setViewportSize({ width: 358, height: 980 })
-    await page.goto('./')
-    await expect(page).toHaveURL(/\/presume\/$/)
+  test('keeps viewport overflow inside the fixed resume canvas scroller at narrow widths', async ({ page }) => {
+    for (const width of [358, 860, 861, 880, 900, 960]) {
+      await page.setViewportSize({ width, height: 980 })
+      await page.goto('./')
+      await expect(page).toHaveURL(/\/presume\/$/)
 
-    const metrics = await page.evaluate(() => {
-      const workspace = document.querySelector('.workspace') as HTMLElement
-      const panel = document.querySelector('.review-panel') as HTMLElement | null
-      const scroller = document.querySelector('.resume-canvas-scroll') as HTMLElement
-      const resume = document.querySelector('.resume-page') as HTMLElement
-      const workspaceStyle = window.getComputedStyle(workspace)
-      const panelRect = panel?.getBoundingClientRect()
-      return {
-        bodyClientWidth: document.documentElement.clientWidth,
-        bodyScrollWidth: document.documentElement.scrollWidth,
-        workspaceMinWidth: workspaceStyle.minWidth,
-        workspaceWidth: Math.round(workspace.getBoundingClientRect().width),
-        panelWidth: panelRect ? Math.round(panelRect.width) : 0,
-        panelLeft: panelRect ? Math.round(panelRect.left) : 0,
-        panelRight: panelRect ? Math.round(panelRect.right) : 0,
-        scrollerClientWidth: scroller.clientWidth,
-        scrollerScrollWidth: scroller.scrollWidth,
-        resumeWidth: Math.round(resume.getBoundingClientRect().width),
+      const metrics = await page.evaluate(() => {
+        const workspace = document.querySelector('.workspace') as HTMLElement
+        const panel = document.querySelector('.review-panel') as HTMLElement | null
+        const scroller = document.querySelector('.resume-canvas-scroll') as HTMLElement
+        const resume = document.querySelector('.resume-page') as HTMLElement
+        const workspaceStyle = window.getComputedStyle(workspace)
+        const scrollerStyle = window.getComputedStyle(scroller)
+        const panelRect = panel?.getBoundingClientRect()
+        return {
+          bodyClientWidth: document.documentElement.clientWidth,
+          documentScrollWidth: document.documentElement.scrollWidth,
+          bodyScrollWidth: document.body.scrollWidth,
+          workspaceMinWidth: workspaceStyle.minWidth,
+          workspaceWidth: Math.round(workspace.getBoundingClientRect().width),
+          panelWidth: panelRect ? Math.round(panelRect.width) : 0,
+          panelLeft: panelRect ? Math.round(panelRect.left) : 0,
+          panelRight: panelRect ? Math.round(panelRect.right) : 0,
+          scrollerClientWidth: scroller.clientWidth,
+          scrollerScrollWidth: scroller.scrollWidth,
+          scrollerOverflowX: scrollerStyle.overflowX,
+          resumeWidth: Math.round(resume.getBoundingClientRect().width),
+        }
+      })
+
+      expect(metrics.documentScrollWidth, `document overflow at ${width}px`).toBeLessThanOrEqual(metrics.bodyClientWidth)
+      expect(metrics.bodyScrollWidth, `body overflow at ${width}px`).toBeLessThanOrEqual(metrics.bodyClientWidth)
+      expect(metrics.workspaceMinWidth).toBe('0px')
+      expect(metrics.workspaceWidth).toBeLessThanOrEqual(metrics.bodyClientWidth)
+      expect(metrics.panelLeft).toBeGreaterThanOrEqual(0)
+      expect(metrics.panelRight).toBeLessThanOrEqual(metrics.bodyClientWidth)
+      expect(metrics.panelWidth).toBe(0)
+      expect(metrics.scrollerOverflowX).toBe('auto')
+      if (metrics.scrollerClientWidth < metrics.resumeWidth) {
+        expect(metrics.scrollerClientWidth).toBeLessThan(metrics.scrollerScrollWidth)
       }
-    })
-
-    expect(metrics.bodyScrollWidth).toBe(metrics.bodyClientWidth)
-    expect(metrics.workspaceMinWidth).toBe('0px')
-    expect(metrics.workspaceWidth).toBeLessThanOrEqual(metrics.bodyClientWidth)
-    expect(metrics.panelLeft).toBeGreaterThanOrEqual(0)
-    expect(metrics.panelRight).toBeLessThanOrEqual(metrics.bodyClientWidth)
-    expect(metrics.panelWidth).toBe(0)
-    expect(metrics.scrollerClientWidth).toBeLessThan(metrics.scrollerScrollWidth)
-    expect(metrics.resumeWidth).toBe(816)
+      expect(metrics.resumeWidth).toBe(816)
+    }
   })
 })
 

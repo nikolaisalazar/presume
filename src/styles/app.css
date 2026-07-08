@@ -1310,8 +1310,10 @@ body {
 }
 
 .resume-canvas-scroll {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   padding: var(--stage-padding);
-  min-width: calc(var(--page-width) + (var(--stage-padding) * 2));
 }
 
 @media (max-width: 960px) {
@@ -1326,12 +1328,6 @@ body {
   .editor-panel {
     padding-inline: 10px;
     max-width: calc(var(--page-width) + (var(--stage-padding) * 2) + 20px);
-  }
-}
-
-@media (max-width: 860px) {
-  .resume-canvas-scroll {
-    min-width: 0;
   }
 }
 
