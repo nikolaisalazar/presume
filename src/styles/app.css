@@ -1299,3 +1299,38 @@ body {
     border-radius: 18px;
   }
 }
+
+/* ── Visual Pass 2: full-width desktop resume stage ──────────────── */
+:root {
+  --stage-padding: 24px;
+}
+
+.editor-panel {
+  max-width: calc(var(--page-width) + (var(--stage-padding) * 2) + 32px);
+}
+
+.resume-canvas-scroll {
+  padding: var(--stage-padding);
+  min-width: calc(var(--page-width) + (var(--stage-padding) * 2));
+}
+
+@media (max-width: 960px) {
+  :root {
+    --stage-padding: 10px;
+  }
+
+  .app {
+    padding-inline: 16px;
+  }
+
+  .editor-panel {
+    padding-inline: 10px;
+    max-width: calc(var(--page-width) + (var(--stage-padding) * 2) + 20px);
+  }
+}
+
+@media (max-width: 860px) {
+  .resume-canvas-scroll {
+    min-width: 0;
+  }
+}

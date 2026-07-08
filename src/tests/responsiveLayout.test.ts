@@ -15,11 +15,13 @@ describe('responsive review layout CSS', () => {
     expect(appCss).toContain('.app-header__brand-mark')
   })
 
-  it('stages the resume canvas as the strongest physical surface', () => {
+  it('stages the resume canvas as the strongest physical surface without desktop horizontal scroll', () => {
     expect(appCss).toContain('.resume-canvas-scroll')
     expect(appCss).toContain('background: var(--stage-surface)')
     expect(appCss).toContain('box-shadow: var(--shadow-stage)')
-    expect(appCss).toContain('padding: 24px')
+    expect(appCss).toContain('--stage-padding: 24px')
+    expect(appCss).toContain('max-width: calc(var(--page-width) + (var(--stage-padding) * 2) + 32px);')
+    expect(appCss).toContain('min-width: calc(var(--page-width) + (var(--stage-padding) * 2));')
   })
 
   it('composes constraints and toolbar as a command deck', () => {
