@@ -31,6 +31,10 @@ export default function App() {
     window.history.pushState({}, '', '/presume/editor/')
     setRoute(getCurrentRoute())
   }
+  const openLanding = () => {
+    window.history.pushState({}, '', '/presume/')
+    setRoute(getCurrentRoute())
+  }
 
   useEffect(() => {
     const handlePopState = () => setRoute(getCurrentRoute())
@@ -42,7 +46,7 @@ export default function App() {
     return <LandingPage hasSavedResume={hasSavedResume()} onOpenEditor={openEditor} />
   }
 
-  return <EditorApp />
+  return <EditorApp onOpenLanding={openLanding} />
 }
 
 function LandingPage({
@@ -55,10 +59,10 @@ function LandingPage({
   return (
     <div className="app app--landing">
       <header className="landing-nav" aria-label="Presume landing navigation">
-        <div className="landing-nav__brand">
+        <a className="landing-nav__brand" href="/presume/" aria-label="Presume home">
           <span className="app-header__brand-mark" aria-hidden="true">P</span>
           <span>Presume</span>
-        </div>
+        </a>
         <button className="toolbar-btn" onClick={onOpenEditor}>
           {hasSavedResume ? 'Continue editing' : 'Open editor'}
         </button>
@@ -120,6 +124,19 @@ function LandingPage({
           </article>
         </section>
 
+        <section className="landing-why" aria-labelledby="why-title">
+          <div>
+            <h2 id="why-title">Why direct editing?</h2>
+            <p>
+              Most resume builders make you edit a form and hope the final document behaves. Presume keeps the document in front of you, so every line, section, and fit decision happens where it will actually be read.
+            </p>
+          </div>
+          <div className="landing-why__contrast">
+            <p><strong>Presume is</strong> a focused resume editor, direct-editing workspace, portable JSON format, and local-first tool.</p>
+            <p>Presume is not a job board, an account-gated builder, or a resume content farm.</p>
+          </div>
+        </section>
+
         <section className="landing-workflow" aria-labelledby="workflow-title">
           <div>
             <p className="landing-kicker">Workflow</p>
@@ -133,11 +150,18 @@ function LandingPage({
         </section>
 
         <section className="landing-privacy" aria-label="Privacy and storage">
-          <h2>Stored locally in your browser</h2>
-          <p>
-            Presume is built as a convenient local-first editor. Your resume is saved in browser storage,
-            and JSON export gives you an explicit backup you control.
-          </p>
+          <div>
+            <h2>Private by default</h2>
+            <p>
+              Presume is built as a convenient local-first editor. Your resume is saved in browser storage,
+              and JSON export gives you an explicit backup you control.
+            </p>
+          </div>
+          <ul className="landing-privacy__list">
+            <li>No account required</li>
+            <li>Saved locally in your browser</li>
+            <li>Optional review only when configured</li>
+          </ul>
           <button className="toolbar-btn toolbar-btn--primary" onClick={onOpenEditor}>Open the editor</button>
         </section>
       </main>
@@ -145,7 +169,7 @@ function LandingPage({
   )
 }
 
-function EditorApp() {
+function EditorApp({ onOpenLanding }: { onOpenLanding: () => void }) {
   const { resume, setResume, constraints, setConstraints } = useResume()
   const pageRef = useRef<HTMLDivElement>(null)
   const [reviewPanelOpen, setReviewPanelOpen] = useState(false)
@@ -190,13 +214,21 @@ function EditorApp() {
   return (
     <div className="app">
       <header className="app-header">
-        <div className="app-header__brand">
+        <a
+          className="app-header__brand app-header__brand-link"
+          href="/presume/"
+          aria-label="Presume home"
+          onClick={event => {
+            event.preventDefault()
+            onOpenLanding()
+          }}
+        >
           <span className="app-header__brand-mark" aria-hidden="true">P</span>
           <div>
             <h1>Presume</h1>
             <p>Edit the final resume directly. Presume keeps it fitting.</p>
           </div>
-        </div>
+        </a>
         <div className="app-header__meta" aria-label="Editor status">
           <span className="app-status-pill">Saved locally</span>
           <ReviewStatusControl

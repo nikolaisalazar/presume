@@ -1063,6 +1063,28 @@ body {
   min-width: 0;
 }
 
+.app-header__brand-link,
+.landing-nav__brand {
+  color: inherit;
+  text-decoration: none;
+}
+
+.app-header__brand-link {
+  border-radius: 8px;
+}
+
+.app-header__brand-link:hover .app-header__brand-mark,
+.landing-nav__brand:hover .app-header__brand-mark {
+  border-color: rgba(15, 95, 92, 0.52);
+  box-shadow: 0 12px 28px rgba(15, 95, 92, 0.3);
+}
+
+.app-header__brand-link:focus-visible,
+.landing-nav__brand:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 4px;
+}
+
 .app-header__brand-mark {
   display: inline-flex;
   align-items: center;
@@ -1372,7 +1394,8 @@ body {
 
 .landing-hero,
 .landing-workflow,
-.landing-privacy {
+.landing-privacy,
+.landing-why {
   border: 1px solid rgba(148, 163, 184, 0.42);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.74);
@@ -1519,7 +1542,8 @@ body {
 
 .landing-features h2,
 .landing-workflow h2,
-.landing-privacy h2 {
+.landing-privacy h2,
+.landing-why h2 {
   margin: 0;
   color: #172033;
   font-size: 18px;
@@ -1528,11 +1552,36 @@ body {
 }
 
 .landing-features p,
-.landing-privacy p {
+.landing-privacy p,
+.landing-why p {
   margin: 10px 0 0;
   color: #536173;
   font-size: 14px;
   line-height: 1.55;
+}
+
+.landing-why {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr);
+  gap: 24px;
+  padding: 26px;
+}
+
+.landing-why__contrast {
+  display: grid;
+  gap: 10px;
+}
+
+.landing-why__contrast p {
+  margin: 0;
+  padding: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 8px;
+  background: rgba(248, 250, 252, 0.82);
+}
+
+.landing-why__contrast strong {
+  color: #172033;
 }
 
 .landing-workflow {
@@ -1576,9 +1625,9 @@ body {
 }
 
 .landing-privacy {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
-  justify-content: space-between;
   gap: 18px;
   padding: 24px 26px;
 }
@@ -1587,9 +1636,21 @@ body {
   max-width: 62ch;
 }
 
+.landing-privacy__list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 18px;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
 @media (max-width: 920px) {
   .landing-hero,
-  .landing-workflow {
+  .landing-workflow,
+  .landing-why,
+  .landing-privacy {
     grid-template-columns: 1fr;
   }
 
@@ -1604,8 +1665,7 @@ body {
     padding: 14px 12px 40px;
   }
 
-  .landing-nav,
-  .landing-privacy {
+  .landing-nav {
     align-items: stretch;
     flex-direction: column;
   }
