@@ -7,6 +7,13 @@ const appCss = readFileSync(
 )
 
 describe('responsive review layout CSS', () => {
+  it('uses one desktop column by default and adds a review column only with an active panel', () => {
+    expect(appCss).toContain('.workspace {')
+    expect(appCss).toContain('grid-template-columns: minmax(0, var(--page-width));')
+    expect(appCss).toContain('.workspace--with-review')
+    expect(appCss).toContain('grid-template-columns: minmax(0, var(--page-width)) minmax(320px, 360px);')
+  })
+
   it('lets the fixed resume overflow without sizing the narrow review panel', () => {
     expect(appCss).toContain('grid-template-columns: minmax(0, 1fr);')
     expect(appCss).toContain('max-width: min(816px, calc(100vw - 40px));')

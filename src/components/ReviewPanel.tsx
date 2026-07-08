@@ -7,12 +7,13 @@ import type {
 import type { ResumeReviewState } from '../useResumeReview'
 
 interface ReviewPanelProps {
+  id?: string
   state: ResumeReviewState
   onRequestReview: () => void
   onClose?: () => void
 }
 
-export function ReviewPanel({ state, onRequestReview, onClose }: ReviewPanelProps) {
+export function ReviewPanel({ id, state, onRequestReview, onClose }: ReviewPanelProps) {
   const result = 'result' in state ? state.result : undefined
   const resultIsStale =
     'resultIsStale' in state ? state.resultIsStale : false
@@ -25,7 +26,7 @@ export function ReviewPanel({ state, onRequestReview, onClose }: ReviewPanelProp
     isLoading
 
   return (
-    <aside className="review-panel" aria-label="Resume review">
+    <aside id={id} className="review-panel" aria-label="Resume review">
       <div className="review-panel__header">
         <div>
           <h2>Review</h2>

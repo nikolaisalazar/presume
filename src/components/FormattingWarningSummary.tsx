@@ -1,17 +1,18 @@
 import type { Constraints } from '../types'
 
 interface FormattingWarningSummaryProps {
-  warningCount: number
+  bulletWarningCount: number
+  hasGlobalOverflow: boolean
   constraints: Constraints
 }
 
 export function FormattingWarningSummary({
-  warningCount,
+  bulletWarningCount,
+  hasGlobalOverflow,
   constraints,
 }: FormattingWarningSummaryProps) {
-  if (warningCount === 0) return null
+  if (bulletWarningCount === 0 && !hasGlobalOverflow) return null
 
-  const bulletLabel = warningCount === 1 ? 'bullet exceeds' : 'bullets exceed'
   const lineLabel =
     constraints.maxLinesPerBullet === 1
       ? '1 line per bullet'
@@ -20,10 +21,21 @@ export function FormattingWarningSummary({
   return (
     <div className="formatting-warning-summary" role="status" aria-live="polite">
       <strong>Cannot fit under current constraints</strong>
-      <p>
-        {warningCount} {bulletLabel} {lineLabel} even at the{' '}
-        {constraints.minFontSize}px minimum. Shorten it or loosen constraints.
-      </p>
+      {hasGlobalOverflow ? (
+        <p>
+          The resume exceeds {constraints.maxPages}{' '}
+          {constraints.maxPages === 1 ? 'page' : 'pages'} even at the{' '}
+          {constraints.minFontSize}px minimum. Shorten content or loosen constraints.
+        </p>
+      ) : null}
+      {bulletWarningCount > 0 ? (
+        <p>
+          {bulletWarningCount}{' '}
+          {bulletWarningCount === 1 ? 'bullet exceeds' : 'bullets exceed'}{' '}
+          {lineLabel} even at the {constraints.minFontSize}px minimum. Shorten{' '}
+          {bulletWarningCount === 1 ? 'it' : 'them'} or loosen constraints.
+        </p>
+      ) : null}
     </div>
   )
 }

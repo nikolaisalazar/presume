@@ -2,6 +2,10 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { ResumePage } from '../components/ResumePage'
 import { ReviewPanel } from '../components/ReviewPanel'
+import {
+  ReviewStatusControl,
+  shouldShowReviewPanel,
+} from '../components/ReviewStatusControl'
 import type { ResumeReviewState } from '../useResumeReview'
 import type { ReviewResult } from '../reviewTypes'
 import type { Resume } from '../types'
@@ -663,5 +667,97 @@ describe('review annotations', () => {
 
     expect(bullet).toHaveClass('bullet-item--warning')
     expect(bullet).toHaveClass('bullet-item--review-warning')
+  })
+})
+
+describe('ReviewStatusControl', () => {
+  it('lets a closed success/stale/error panel stay closed while remaining reopenable', () => {
+    expect(shouldShowReviewPanel({ status: 'success', result: reviewResult }, false)).toBe(false)
+    expect(shouldShowReviewPanel({ status: 'success', result: reviewResult }, true)).toBe(true)
+    expect(shouldShowReviewPanel({ status: 'stale', result: reviewResult }, false)).toBe(false)
+    expect(
+      shouldShowReviewPanel(
+        {
+          status: 'error',
+          error: new Error('Review failed.'),
+          result: reviewResult,
+        },
+        false
+      )
+    ).toBe(false)
+  })
+
+  it('reopens a closed successful review from the compact affordance', () => {
+    const onTogglePanel = vi.fn()
+
+    render(
+      <ReviewStatusControl
+        state={{ status: 'success', result: reviewResult }}
+        panelOpen={false}
+        panelId="resume-review-panel"
+        onTogglePanel={onTogglePanel}
+        onRequestReview={vi.fn()}
+      />
+    )
+
+    const button = screen.getByRole('button', { name: 'View review' })
+    expect(button).toHaveAttribute('aria-expanded', 'false')
+    expect(button).toHaveAttribute('aria-controls', 'resume-review-panel')
+
+    fireEvent.click(button)
+
+    expect(onTogglePanel).toHaveBeenCalledTimes(1)
+  })
+
+  it('opens unavailable review details from the compact disabled-service affordance', () => {
+    const onTogglePanel = vi.fn()
+
+    render(
+      <ReviewStatusControl
+        state={{ status: 'disabled' }}
+        panelOpen={false}
+        panelId="resume-review-panel"
+        onTogglePanel={onTogglePanel}
+        onRequestReview={vi.fn()}
+      />
+    )
+
+    const button = screen.getByRole('button', {
+      name: 'Review unavailable — setup needed',
+    })
+    expect(button).toBeEnabled()
+    expect(button).toHaveAttribute('aria-expanded', 'false')
+    expect(button).toHaveAttribute('aria-controls', 'resume-review-panel')
+
+    fireEvent.click(button)
+
+    expect(onTogglePanel).toHaveBeenCalledTimes(1)
+  })
+
+  it('opens config-error details from the compact unavailable affordance', () => {
+    const onTogglePanel = vi.fn()
+
+    render(
+      <ReviewStatusControl
+        state={{
+          status: 'config_error',
+          error: new Error('Could not reach the review service.'),
+        }}
+        panelOpen={false}
+        panelId="resume-review-panel"
+        onTogglePanel={onTogglePanel}
+        onRequestReview={vi.fn()}
+      />
+    )
+
+    const button = screen.getByRole('button', {
+      name: 'Review unavailable — connection issue',
+    })
+    expect(button).toBeEnabled()
+    expect(button).toHaveAttribute('title', 'Could not reach the review service.')
+
+    fireEvent.click(button)
+
+    expect(onTogglePanel).toHaveBeenCalledTimes(1)
   })
 })

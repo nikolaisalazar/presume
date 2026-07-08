@@ -81,11 +81,18 @@ body {
 
 .workspace {
   display: grid;
-  grid-template-columns: minmax(0, var(--page-width)) minmax(320px, 360px);
+  grid-template-columns: minmax(0, var(--page-width));
+  justify-content: center;
   align-items: start;
   gap: 22px;
-  width: min(1198px, 100%);
+  width: min(var(--page-width), 100%);
   min-width: 0;
+}
+
+.workspace--with-review {
+  grid-template-columns: minmax(0, var(--page-width)) minmax(320px, 360px);
+  justify-content: stretch;
+  width: min(1198px, 100%);
 }
 
 .editor-panel {
@@ -442,7 +449,8 @@ body {
 }
 
 @media (max-width: 1220px) {
-  .workspace {
+  .workspace,
+  .workspace--with-review {
     grid-template-columns: minmax(0, 1fr);
     justify-items: center;
     width: 100%;

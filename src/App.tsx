@@ -25,8 +25,13 @@ export default function App() {
     'result' in review.state && review.state.result
       ? review.state.result.annotations
       : []
-  const formattingWarningCount = Array.from(warnings.values()).filter(Boolean).length
+  const activeWarningKeys = Array.from(warnings.entries())
+    .filter(([, active]) => active)
+    .map(([key]) => key)
+  const bulletWarningCount = activeWarningKeys.filter(key => key.startsWith('bullet-')).length
+  const hasGlobalOverflowWarning = activeWarningKeys.includes('global-overflow')
   const showReviewPanel = shouldShowReviewPanel(review.state, reviewPanelOpen)
+  const reviewPanelId = 'resume-review-panel'
   const requestReview = () => {
     setReviewPanelOpen(true)
     void review.requestReview()
@@ -44,16 +49,18 @@ export default function App() {
           <ReviewStatusControl
             state={review.state}
             panelOpen={reviewPanelOpen}
+            panelId={reviewPanelId}
             onTogglePanel={() => setReviewPanelOpen(open => !open)}
             onRequestReview={requestReview}
           />
         </div>
       </header>
-      <main className="workspace">
+      <main className={`workspace ${showReviewPanel ? 'workspace--with-review' : ''}`}>
         <section className="editor-panel" aria-label="Resume editor">
           <SettingsPanel constraints={constraints} onChange={setConstraints} />
           <FormattingWarningSummary
-            warningCount={formattingWarningCount}
+            bulletWarningCount={bulletWarningCount}
+            hasGlobalOverflow={hasGlobalOverflowWarning}
             constraints={constraints}
           />
           <Toolbar
@@ -76,6 +83,7 @@ export default function App() {
         </section>
         {showReviewPanel ? (
           <ReviewPanel
+            id={reviewPanelId}
             state={review.state}
             onRequestReview={requestReview}
             onClose={() => setReviewPanelOpen(false)}

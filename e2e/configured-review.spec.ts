@@ -19,8 +19,11 @@ test.describe('configured review browser contracts', () => {
     await page.goto('./')
     await expect(page).toHaveURL(/\/presume\/$/)
 
-    await expect(page.getByRole('button', { name: 'Review unavailable' })).toBeDisabled()
+    await expect(page.getByRole('button', { name: 'Review unavailable — setup needed' })).toBeEnabled()
     await expect(page.getByRole('complementary', { name: 'Resume review' })).toHaveCount(0)
+    await page.getByRole('button', { name: 'Review unavailable — setup needed' }).click()
+    await expect(page.getByRole('complementary', { name: 'Resume review' })).toBeVisible()
+    await expect(page.getByText('Review service unavailable')).toBeVisible()
   })
 
   test('renders config-error state when backend cannot be reached', async ({ page }) => {
@@ -29,8 +32,11 @@ test.describe('configured review browser contracts', () => {
     await page.goto('./')
     await expect(page).toHaveURL(/\/presume\/$/)
 
-    await expect(page.getByRole('button', { name: 'Review unavailable' })).toBeDisabled()
+    await expect(page.getByRole('button', { name: 'Review unavailable — connection issue' })).toBeEnabled()
     await expect(page.getByRole('complementary', { name: 'Resume review' })).toHaveCount(0)
+    await page.getByRole('button', { name: 'Review unavailable — connection issue' }).click()
+    await expect(page.getByRole('complementary', { name: 'Resume review' })).toBeVisible()
+    await expect(page.getByText('Could not reach the review service.')).toBeVisible()
   })
 
   test('submits a PDF review, renders normalized result, and marks it stale after edit', async ({ page }) => {

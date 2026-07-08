@@ -3,6 +3,7 @@ import type { ResumeReviewState } from '../useResumeReview'
 interface ReviewStatusControlProps {
   state: ResumeReviewState
   panelOpen: boolean
+  panelId?: string
   onTogglePanel: () => void
   onRequestReview: () => void
 }
@@ -11,18 +12,24 @@ export function shouldShowReviewPanel(
   state: ResumeReviewState,
   panelOpen: boolean
 ): boolean {
-  if (state.status === 'unconfigured') return false
-  if (panelOpen) return true
-  if (state.status === 'loading') return true
-  if (state.status === 'success') return true
-  if (state.status === 'stale') return true
-  if (state.status === 'error' && 'result' in state && state.result) return true
-  return false
+  return state.status !== 'unconfigured' && panelOpen
+}
+
+export function canToggleReviewPanel(state: ResumeReviewState): boolean {
+  return (
+    state.status === 'disabled' ||
+    state.status === 'config_error' ||
+    state.status === 'loading' ||
+    state.status === 'success' ||
+    state.status === 'stale' ||
+    state.status === 'error'
+  )
 }
 
 export function ReviewStatusControl({
   state,
   panelOpen,
+  panelId,
   onTogglePanel,
   onRequestReview,
 }: ReviewStatusControlProps) {
@@ -37,18 +44,16 @@ export function ReviewStatusControl({
   }
 
   const panelVisible = shouldShowReviewPanel(state, panelOpen)
-  const disabled =
-    state.status === 'checking' ||
-    state.status === 'disabled' ||
-    state.status === 'config_error' ||
-    (state.status === 'loading' && !panelVisible)
+  const canToggle = canToggleReviewPanel(state)
 
   return (
     <button
       className="review-status-control"
-      onClick={onTogglePanel}
-      disabled={disabled && !panelVisible}
-      aria-expanded={panelVisible}
+      onClick={canToggle ? onTogglePanel : undefined}
+      disabled={!canToggle}
+      aria-expanded={canToggle ? panelVisible : undefined}
+      aria-controls={canToggle && panelId ? panelId : undefined}
+      title={getReviewStatusDescription(state)}
     >
       {getReviewStatusLabel(state)}
     </button>
@@ -60,9 +65,9 @@ function getReviewStatusLabel(state: ResumeReviewState): string {
     case 'checking':
       return 'Checking review'
     case 'disabled':
-      return 'Review unavailable'
+      return 'Review unavailable — setup needed'
     case 'config_error':
-      return 'Review unavailable'
+      return 'Review unavailable — connection issue'
     case 'loading':
       return 'Reviewing...'
     case 'success':
@@ -74,4 +79,16 @@ function getReviewStatusLabel(state: ResumeReviewState): string {
     default:
       return 'Review'
   }
+}
+
+function getReviewStatusDescription(state: ResumeReviewState): string | undefined {
+  if (state.status === 'disabled') {
+    return 'The configured review service is reachable, but review is disabled. Open for details.'
+  }
+
+  if (state.status === 'config_error') {
+    return state.error.message
+  }
+
+  return undefined
 }

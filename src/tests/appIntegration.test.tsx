@@ -130,6 +130,37 @@ describe('App review availability boundaries', () => {
     ).toBeInTheDocument()
   })
 
+  it('explains global overflow warnings without calling them bullet warnings', () => {
+    vi.stubEnv('VITE_REVIEW_API_URL', '')
+    resizeWarningsMock.warnings = new Map([['global-overflow', true]])
+
+    render(<App />)
+
+    expect(screen.getByText('Cannot fit under current constraints')).toBeInTheDocument()
+    expect(
+      screen.getByText('The resume exceeds 1 page even at the 8px minimum. Shorten content or loosen constraints.')
+    ).toBeInTheDocument()
+    expect(screen.queryByText(/bullet exceeds/)).not.toBeInTheDocument()
+  })
+
+  it('explains mixed global and bullet fitting warnings together', () => {
+    vi.stubEnv('VITE_REVIEW_API_URL', '')
+    resizeWarningsMock.warnings = new Map([
+      ['global-overflow', true],
+      ['bullet-0-0-0', true],
+      ['bullet-0-0-1', true],
+    ])
+
+    render(<App />)
+
+    expect(
+      screen.getByText('The resume exceeds 1 page even at the 8px minimum. Shorten content or loosen constraints.')
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText('2 bullets exceed 1 line per bullet even at the 8px minimum. Shorten them or loosen constraints.')
+    ).toBeInTheDocument()
+  })
+
   it('renders contextual editor controls with accessible labels outside resume text flow', () => {
     vi.stubEnv('VITE_REVIEW_API_URL', '')
 
@@ -206,7 +237,22 @@ describe('App review availability boundaries', () => {
 
     const { container } = render(<App />)
 
-    expect(await screen.findByRole('button', { name: 'Review unavailable' })).toBeDisabled()
+    const reviewStatus = await screen.findByRole('button', {
+      name: 'Review unavailable — setup needed',
+    })
+    expect(reviewStatus).toBeEnabled()
+    expect(screen.queryByRole('complementary', { name: 'Resume review' })).not.toBeInTheDocument()
+
+    fireEvent.click(reviewStatus)
+
+    expect(await screen.findByRole('complementary', { name: 'Resume review' })).toBeInTheDocument()
+    expect(screen.getByText('Review service unavailable')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'The configured service is reachable, but review is disabled. Check provider setup and Hiring Agent readiness.'
+      )
+    ).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Close review panel' }))
     expect(screen.queryByRole('complementary', { name: 'Resume review' })).not.toBeInTheDocument()
 
     const name = screen.getByText(DEFAULT_RESUME.name)
@@ -242,12 +288,16 @@ describe('App review availability boundaries', () => {
 
     render(<App />)
 
-    const button = await screen.findByRole('button', { name: 'Review unavailable' })
-    expect(button).toBeDisabled()
+    const button = await screen.findByRole('button', {
+      name: 'Review unavailable — connection issue',
+    })
+    expect(button).toBeEnabled()
     expect(screen.queryByRole('complementary', { name: 'Resume review' })).not.toBeInTheDocument()
 
     fireEvent.click(button)
 
+    expect(await screen.findByRole('complementary', { name: 'Resume review' })).toBeInTheDocument()
+    expect(screen.getByText('Could not reach the review service.')).toBeInTheDocument()
     expect(fetchMock).toHaveBeenCalledTimes(1)
     expect(fetchMock).toHaveBeenCalledWith('https://reviews.example.test/config', {
       method: 'GET',
