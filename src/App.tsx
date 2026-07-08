@@ -62,8 +62,11 @@ export default function App() {
     <div className="app">
       <header className="app-header">
         <div className="app-header__brand">
-          <h1>Presume</h1>
-          <p>Edit the final resume directly. Presume keeps it fitting.</p>
+          <span className="app-header__brand-mark" aria-hidden="true">P</span>
+          <div>
+            <h1>Presume</h1>
+            <p>Edit the final resume directly. Presume keeps it fitting.</p>
+          </div>
         </div>
         <div className="app-header__meta" aria-label="Editor status">
           <span className="app-status-pill">Saved locally</span>

@@ -1008,3 +1008,294 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* ── Visual Pass 2: premium document workbench ───────────────────── */
+:root {
+  --app-bg: #e7ecf3;
+  --app-bg-deep: #d6e0eb;
+  --ink: #0f172a;
+  --muted: #536173;
+  --surface: #ffffff;
+  --surface-subtle: #f6f8fb;
+  --line: #c8d2de;
+  --border: #cbd5e1;
+  --border-strong: #9fb0c2;
+  --accent: #0f5f5c;
+  --accent-strong: #0a4543;
+  --command-surface: rgba(255, 255, 255, 0.9);
+  --stage-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(229, 236, 245, 0.72));
+  --shadow-stage: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 20px 60px rgba(15, 23, 42, 0.13);
+  --shadow-panel: 0 1px 0 rgba(255, 255, 255, 0.95), 0 18px 42px rgba(15, 23, 42, 0.09);
+  --shadow-page-premium: 0 34px 80px rgba(15, 23, 42, 0.24), 0 8px 18px rgba(15, 23, 42, 0.12);
+  --shadow-page: var(--shadow-page-premium);
+  --radius-lg: 18px;
+  --radius-md: 14px;
+  --radius-sm: 9px;
+}
+
+body {
+  background:
+    radial-gradient(circle at 20% 0%, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0) 34rem),
+    radial-gradient(circle at 78% 12%, rgba(15, 95, 92, 0.12), rgba(15, 95, 92, 0) 28rem),
+    linear-gradient(180deg, var(--app-bg), var(--app-bg-deep));
+}
+
+.app {
+  align-items: stretch;
+  padding: 28px 28px 64px;
+  gap: 22px;
+}
+
+.app-header {
+  align-self: center;
+  width: min(1220px, 100%);
+  padding: 14px 16px;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.95), 0 18px 50px rgba(15, 23, 42, 0.08);
+}
+
+.app-header__brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.app-header__brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  border: 1px solid rgba(15, 95, 92, 0.28);
+  border-radius: 12px;
+  background: linear-gradient(145deg, #123d3b, var(--accent));
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  box-shadow: 0 10px 26px rgba(15, 95, 92, 0.24);
+}
+
+.app-header__brand h1 {
+  font-size: 25px;
+  line-height: 1;
+  letter-spacing: -0.045em;
+}
+
+.app-header__brand p {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 550;
+}
+
+.app-header__meta {
+  gap: 10px;
+}
+
+.app-status-pill,
+.review-status-control {
+  min-height: 34px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.review-status-control {
+  border-color: rgba(14, 116, 144, 0.34);
+  background: #e8f6fb;
+  color: #155e75;
+}
+
+.workspace {
+  align-self: center;
+  width: min(1040px, 100%);
+}
+
+.workspace--with-review {
+  width: min(1240px, 100%);
+}
+
+.editor-panel {
+  position: relative;
+  gap: 0;
+  padding: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.42);
+  border-radius: 24px;
+  background: rgba(246, 249, 252, 0.62);
+  box-shadow: var(--shadow-panel);
+}
+
+.editor-panel::before {
+  content: 'Command deck';
+  display: block;
+  margin: 0 0 8px 4px;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.settings-panel,
+.toolbar,
+.formatting-warning-summary {
+  box-shadow: none;
+}
+
+.settings-panel {
+  border-radius: 16px 16px 0 0;
+  border-color: rgba(148, 163, 184, 0.48);
+  background: var(--command-surface);
+}
+
+.settings-panel__toggle {
+  min-height: 48px;
+  padding: 12px 16px;
+}
+
+.settings-panel__title {
+  color: #1e293b;
+  font-size: 13px;
+  letter-spacing: -0.01em;
+}
+
+.settings-panel__summary span {
+  border-color: rgba(15, 95, 92, 0.16);
+  background: rgba(15, 95, 92, 0.07);
+  color: #164e4b;
+}
+
+.settings-panel + .formatting-warning-summary,
+.settings-panel + .toolbar {
+  margin-top: -1px;
+}
+
+.formatting-warning-summary {
+  border-radius: 0;
+}
+
+.formatting-warning-summary + .toolbar,
+.settings-panel + .toolbar {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.toolbar {
+  justify-content: space-between;
+  padding: 12px;
+  border-color: rgba(148, 163, 184, 0.48);
+  border-radius: 0 0 16px 16px;
+  background: var(--command-surface);
+}
+
+.toolbar__group-label {
+  margin-right: 2px;
+  color: #64748b;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.toolbar-btn {
+  min-height: 36px;
+  padding: 8px 13px;
+  border-color: rgba(148, 163, 184, 0.6);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.84);
+  color: #1e293b;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
+.toolbar-btn--primary {
+  border-color: var(--accent);
+  background: linear-gradient(180deg, #15716d, var(--accent));
+  color: #ffffff;
+  box-shadow: 0 10px 22px rgba(15, 95, 92, 0.2);
+}
+
+.resume-canvas-scroll {
+  margin-top: 16px;
+  padding: 24px;
+  border: 1px solid rgba(148, 163, 184, 0.38);
+  border-radius: 24px;
+  background: var(--stage-surface);
+  box-shadow: var(--shadow-stage);
+}
+
+.resume-canvas {
+  filter: drop-shadow(0 28px 30px rgba(15, 23, 42, 0.12));
+}
+
+.review-panel {
+  border: 1px solid rgba(2, 132, 199, 0.2);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: var(--shadow-panel);
+}
+
+.review-panel__advisory {
+  color: #0369a1;
+}
+
+.review-score {
+  border-color: rgba(2, 132, 199, 0.22);
+  background: linear-gradient(180deg, #eef9ff, #f8fcff);
+}
+
+.editor-control,
+.add-btn,
+.remove-btn {
+  border-radius: 999px;
+  border-color: rgba(15, 95, 92, 0.22);
+  background: rgba(255, 255, 255, 0.94);
+  color: #334155;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+}
+
+.editor-control--add {
+  border-color: rgba(15, 95, 92, 0.28);
+  color: #0f5f5c;
+}
+
+@media (max-width: 1220px) {
+  .workspace,
+  .workspace--with-review {
+    width: 100%;
+  }
+
+  .editor-panel {
+    width: 100%;
+    max-width: min(900px, 100%);
+  }
+}
+
+@media (max-width: 560px) {
+  .app {
+    padding: 14px 12px 40px;
+  }
+
+  .app-header {
+    padding: 12px;
+    border-radius: 18px;
+  }
+
+  .app-header__brand-mark {
+    width: 34px;
+    height: 34px;
+  }
+
+  .editor-panel {
+    padding: 10px;
+    border-radius: 18px;
+  }
+
+  .resume-canvas-scroll {
+    padding: 16px 10px 18px;
+    border-radius: 18px;
+  }
+}
