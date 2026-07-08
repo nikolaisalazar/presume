@@ -125,16 +125,31 @@ function LandingPage({
         </section>
 
         <section className="landing-why" aria-labelledby="why-title">
-          <div>
+          <div className="landing-why__intro">
             <h2 id="why-title">Why direct editing?</h2>
             <p>
-              Most resume builders make you edit a form and hope the final document behaves. Presume keeps the document in front of you, so every line, section, and fit decision happens where it will actually be read.
+              Resume editing should happen where the resume is actually read. Presume keeps layout, fit, and content decisions on the same surface.
             </p>
           </div>
-          <div className="landing-why__contrast">
-            <p><strong>Presume is</strong> a focused resume editor, direct-editing workspace, portable JSON format, and local-first tool.</p>
-            <p>Presume is not a job board, an account-gated builder, or a resume content farm.</p>
+          <div className="landing-why__comparison" aria-label="Direct editing comparison">
+            <article>
+              <h3>Form-first builders</h3>
+              <ul>
+                <li>Edit fields somewhere else</li>
+                <li>Guess how bullets will wrap</li>
+                <li>Find layout surprises at export</li>
+              </ul>
+            </article>
+            <article className="landing-why__comparison-featured">
+              <h3>Presume keeps the document live</h3>
+              <ul>
+                <li>Edit directly on the resume</li>
+                <li>See fit constraints while writing</li>
+                <li>Export from the same surface</li>
+              </ul>
+            </article>
           </div>
+          <p className="landing-why__footer">Not a job board, account-gated builder, or resume content farm.</p>
         </section>
 
         <section className="landing-workflow" aria-labelledby="workflow-title">
@@ -144,17 +159,17 @@ function LandingPage({
           </div>
           <ol className="landing-workflow__steps">
             <li>
-              <span className="landing-workflow__step-index">01</span>
+              <span className="landing-workflow__step-dot" aria-hidden="true" />
               <strong>Edit directly</strong>
               <span>Click into names, bullets, sections, and dates.</span>
             </li>
             <li>
-              <span className="landing-workflow__step-index">02</span>
+              <span className="landing-workflow__step-dot" aria-hidden="true" />
               <strong>Keep it fitting</strong>
               <span>Use fit warnings and constraints as guardrails.</span>
             </li>
             <li>
-              <span className="landing-workflow__step-index">03</span>
+              <span className="landing-workflow__step-dot" aria-hidden="true" />
               <strong>Export when ready</strong>
               <span>Save a PDF or carry your data forward as JSON.</span>
             </li>

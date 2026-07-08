@@ -97,7 +97,7 @@ describe('responsive review layout CSS', () => {
     expect(appCss).toContain('.landing-workflow__steps')
     expect(appCss).toContain('grid-template-columns: repeat(3, minmax(0, 1fr));')
     expect(appCss).toContain('.landing-workflow__steps li:not(:last-child)::after')
-    expect(appCss).toContain('.landing-workflow__step-index')
+    expect(appCss).toContain('.landing-workflow__step-dot')
     expect(appCss).toContain('flex-direction: column;')
   })
 

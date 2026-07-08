@@ -70,8 +70,10 @@ describe('App review availability boundaries', () => {
     expect(screen.getByRole('heading', { name: 'Optional advisory review' })).toBeInTheDocument()
     expect(screen.getByText('Saved locally in your browser')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Why direct editing?' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Form-first builders' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Presume keeps the document live' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Private by default' })).toBeInTheDocument()
-    expect(screen.getByText('Presume is not a job board, an account-gated builder, or a resume content farm.')).toBeInTheDocument()
+    expect(screen.getByText('Not a job board, account-gated builder, or resume content farm.')).toBeInTheDocument()
     expect(screen.queryByRole('toolbar', { name: 'Document actions' })).not.toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Start editing' }))
