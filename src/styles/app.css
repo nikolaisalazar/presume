@@ -1354,6 +1354,12 @@ body {
   max-width: var(--editor-shell-width);
 }
 
+.settings-panel,
+.toolbar,
+.formatting-warning-summary {
+  max-width: none;
+}
+
 @media (max-width: 1220px) {
   .workspace,
   .workspace--with-review {

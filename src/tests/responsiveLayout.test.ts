@@ -15,11 +15,13 @@ describe('responsive review layout CSS', () => {
     expect(appCss).toContain('.app-header__brand-mark')
   })
 
-  it('sizes the command deck to the staged resume width on desktop', () => {
+  it('sizes the command deck and its children to the staged resume width on desktop', () => {
     expect(appCss).toContain('--editor-shell-width: calc(var(--page-width) + (var(--stage-padding) * 2) + 32px);')
     expect(appCss).toContain('grid-template-columns: minmax(0, var(--editor-shell-width));')
     expect(appCss).toContain('max-width: var(--editor-shell-width);')
     expect(appCss).toContain('min-width: calc(var(--page-width) + (var(--stage-padding) * 2));')
+    expect(appCss).toContain('.settings-panel,\n.toolbar,\n.formatting-warning-summary')
+    expect(appCss).toContain('max-width: none;')
   })
 
   it('stages the resume canvas as the strongest physical surface without desktop horizontal scroll', () => {
