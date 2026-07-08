@@ -71,7 +71,7 @@ body {
 .app-header__status {
   padding: 5px 9px;
   border: 1px solid #cbd5e1;
-  border-radius: 999px;
+  border-radius: 4px;
   background: #ffffff;
   color: #475569;
   font-size: 12px;
@@ -422,7 +422,7 @@ body {
 
 .review-finding__severity {
   padding: 1px 6px;
-  border-radius: 999px;
+  border-radius: 3px;
   font-size: 11px;
   font-weight: 700;
   line-height: 1.4;
@@ -535,7 +535,7 @@ body {
 .settings-panel__summary span {
   padding: 2px 7px;
   border: 1px solid #e2e8f0;
-  border-radius: 999px;
+  border-radius: 4px;
   background: #f8fafc;
   color: #475569;
   font-size: 12px;
@@ -716,7 +716,7 @@ body {
   justify-content: center;
   min-height: 28px;
   padding: 5px 10px;
-  border-radius: 999px;
+  border-radius: 4px;
   font-size: 12px;
   font-weight: 700;
   line-height: 1.2;
@@ -861,7 +861,7 @@ body {
   min-height: 28px;
   padding: 3px 8px;
   border: 1px solid rgba(148, 163, 184, 0.68);
-  border-radius: 999px;
+  border-radius: 4px;
   background: rgba(255, 255, 255, 0.96);
   color: #475569;
   cursor: pointer;
@@ -1028,9 +1028,9 @@ body {
   --shadow-panel: 0 1px 0 rgba(255, 255, 255, 0.95), 0 18px 42px rgba(15, 23, 42, 0.09);
   --shadow-page-premium: 0 34px 80px rgba(15, 23, 42, 0.24), 0 8px 18px rgba(15, 23, 42, 0.12);
   --shadow-page: var(--shadow-page-premium);
-  --radius-lg: 18px;
-  --radius-md: 14px;
-  --radius-sm: 9px;
+  --radius-lg: 12px;
+  --radius-md: 8px;
+  --radius-sm: 4px;
 }
 
 body {
@@ -1051,7 +1051,7 @@ body {
   width: min(1220px, 100%);
   padding: 14px 16px;
   border: 1px solid rgba(148, 163, 184, 0.45);
-  border-radius: 22px;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.72);
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.95), 0 18px 50px rgba(15, 23, 42, 0.08);
 }
@@ -1071,7 +1071,7 @@ body {
   height: 38px;
   flex: 0 0 auto;
   border: 1px solid rgba(15, 95, 92, 0.28);
-  border-radius: 12px;
+  border-radius: 6px;
   background: linear-gradient(145deg, #123d3b, var(--accent));
   color: #ffffff;
   font-size: 18px;
@@ -1101,7 +1101,7 @@ body {
 .review-status-control {
   min-height: 34px;
   padding: 7px 12px;
-  border-radius: 999px;
+  border-radius: 4px;
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
@@ -1125,7 +1125,7 @@ body {
   gap: 0;
   padding: 16px;
   border: 1px solid rgba(148, 163, 184, 0.42);
-  border-radius: 24px;
+  border-radius: 12px;
   background: rgba(246, 249, 252, 0.62);
   box-shadow: var(--shadow-panel);
 }
@@ -1148,7 +1148,7 @@ body {
 }
 
 .settings-panel {
-  border-radius: 16px 16px 0 0;
+  border-radius: 8px 8px 0 0;
   border-color: rgba(148, 163, 184, 0.48);
   background: var(--command-surface);
 }
@@ -1189,7 +1189,7 @@ body {
   justify-content: space-between;
   padding: 12px;
   border-color: rgba(148, 163, 184, 0.48);
-  border-radius: 0 0 16px 16px;
+  border-radius: 0 0 8px 8px;
   background: var(--command-surface);
 }
 
@@ -1205,7 +1205,7 @@ body {
   min-height: 36px;
   padding: 8px 13px;
   border-color: rgba(148, 163, 184, 0.6);
-  border-radius: 11px;
+  border-radius: 4px;
   background: rgba(255, 255, 255, 0.84);
   color: #1e293b;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 1px 2px rgba(15, 23, 42, 0.05);
@@ -1222,7 +1222,7 @@ body {
   margin-top: 16px;
   padding: 24px;
   border: 1px solid rgba(148, 163, 184, 0.38);
-  border-radius: 24px;
+  border-radius: 12px;
   background: var(--stage-surface);
   box-shadow: var(--shadow-stage);
 }
@@ -1233,7 +1233,7 @@ body {
 
 .review-panel {
   border: 1px solid rgba(2, 132, 199, 0.2);
-  border-radius: 22px;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.92);
   box-shadow: var(--shadow-panel);
 }
@@ -1250,7 +1250,7 @@ body {
 .editor-control,
 .add-btn,
 .remove-btn {
-  border-radius: 999px;
+  border-radius: 4px;
   border-color: rgba(15, 95, 92, 0.22);
   background: rgba(255, 255, 255, 0.94);
   color: #334155;
@@ -1281,7 +1281,7 @@ body {
 
   .app-header {
     padding: 12px;
-    border-radius: 18px;
+    border-radius: 10px;
   }
 
   .app-header__brand-mark {
@@ -1291,12 +1291,12 @@ body {
 
   .editor-panel {
     padding: 10px;
-    border-radius: 18px;
+    border-radius: 10px;
   }
 
   .resume-canvas-scroll {
     padding: 16px 10px 18px;
-    border-radius: 18px;
+    border-radius: 10px;
   }
 }
 
@@ -1350,7 +1350,7 @@ body {
   margin: 0 auto 18px;
   padding: 12px 14px;
   border: 1px solid rgba(148, 163, 184, 0.42);
-  border-radius: 20px;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.72);
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.95), 0 18px 42px rgba(15, 23, 42, 0.07);
 }
@@ -1374,7 +1374,7 @@ body {
 .landing-workflow,
 .landing-privacy {
   border: 1px solid rgba(148, 163, 184, 0.42);
-  border-radius: 28px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.74);
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.96), 0 28px 70px rgba(15, 23, 42, 0.1);
 }
@@ -1437,7 +1437,7 @@ body {
 .landing-preview {
   padding: 14px;
   border: 1px solid rgba(148, 163, 184, 0.38);
-  border-radius: 22px;
+  border-radius: 12px;
   background: linear-gradient(180deg, rgba(246, 249, 252, 0.94), rgba(226, 234, 244, 0.88));
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 24px 50px rgba(15, 23, 42, 0.12);
 }
@@ -1449,7 +1449,7 @@ body {
   margin-bottom: 14px;
   padding: 10px 12px;
   border: 1px solid rgba(148, 163, 184, 0.36);
-  border-radius: 14px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.84);
   color: #334155;
   font-size: 12px;
@@ -1458,7 +1458,7 @@ body {
 
 .landing-preview__stage {
   padding: 20px;
-  border-radius: 18px;
+  border-radius: 10px;
   background: var(--stage-surface);
 }
 
@@ -1512,7 +1512,7 @@ body {
 .landing-features article {
   padding: 18px;
   border: 1px solid rgba(148, 163, 184, 0.38);
-  border-radius: 20px;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.74);
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.92), 0 12px 30px rgba(15, 23, 42, 0.06);
 }
@@ -1554,7 +1554,7 @@ body {
 .landing-workflow li {
   padding: 14px;
   border: 1px solid rgba(148, 163, 184, 0.28);
-  border-radius: 16px;
+  border-radius: 8px;
   background: rgba(248, 250, 252, 0.82);
 }
 
@@ -1612,7 +1612,7 @@ body {
 
   .landing-hero {
     padding: 22px;
-    border-radius: 22px;
+    border-radius: 12px;
   }
 
   .landing-hero h1 {
@@ -1728,7 +1728,7 @@ body {
   align-items: center;
   overflow: hidden;
   border: 1px solid rgba(148, 163, 184, 0.52);
-  border-radius: 999px;
+  border-radius: 4px;
   background: rgba(255, 255, 255, 0.86);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92), 0 1px 2px rgba(15, 23, 42, 0.04);
 }
