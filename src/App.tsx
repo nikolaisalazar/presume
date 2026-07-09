@@ -13,6 +13,7 @@ import {
   shouldShowReviewPanel,
 } from './components/ReviewStatusControl'
 import { useResumeReview } from './useResumeReview'
+import './styles/globals.css'
 import './styles/app.css'
 import './styles/resume.css'
 

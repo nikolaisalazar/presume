@@ -33,7 +33,7 @@
 **Interfaces:**
 - Produces: the long-lived roadmap and this first-PR execution contract.
 
-- [ ] **Step 1: Validate the documents are linked and contain no placeholders**
+- [x] **Step 1: Validate the documents are linked and contain no placeholders**
 
 Run:
 
@@ -44,7 +44,7 @@ rg -n "T[B]D|T[O]DO|implement lat[e]r|fill i[n]" docs/SHADCN_MIGRATION.md docs/s
 
 Expected: the first command finds the links; the second command returns no matches.
 
-- [ ] **Step 2: Commit the documentation**
+- [x] **Step 2: Commit the documentation**
 
 ```sh
 git add docs/README.md docs/SHADCN_MIGRATION.md docs/superpowers/plans/2026-07-09-shadcn-base-landing.md
@@ -72,7 +72,7 @@ git commit -m "docs: plan incremental shadcn migration"
 **Interfaces:**
 - Produces: `@/*` imports, semantic Tailwind tokens, Base UI components under `@/components/ui/*`, and `cn()` under `@/lib/utils`.
 
-- [ ] **Step 1: Install and configure Tailwind v4 for Vite**
+- [x] **Step 1: Install and configure Tailwind v4 for Vite**
 
 Run:
 
@@ -82,7 +82,7 @@ npm install -D tailwindcss@^4.3.2 @tailwindcss/vite@^4.3.2 @types/node
 
 Add `tailwindcss()` to the Vite plugins and map `@` to `./src`. Add the matching `baseUrl` and `paths` entries to `tsconfig.json` and `tsconfig.app.json`.
 
-- [ ] **Step 2: Create the global Tailwind entry and import it first**
+- [x] **Step 2: Create the global Tailwind entry and import it first**
 
 Create `src/styles/globals.css` with the Tailwind import, shadcn component CSS import, semantic tokens, and `@theme inline` mappings produced by the CLI. Ensure the stylesheet order in `App.tsx` is:
 
@@ -92,18 +92,18 @@ import './styles/app.css'
 import './styles/resume.css'
 ```
 
-- [ ] **Step 3: Initialize the approved Base UI preset**
+- [x] **Step 3: Initialize the approved Base UI preset**
 
 Run:
 
 ```sh
-npx shadcn@latest init --base base --preset base-nova --pointer
+npx shadcn@latest init --base base --preset nova --pointer
 npx shadcn@latest info --json
 ```
 
 Expected info: Vite, TypeScript, Tailwind v4, `rsc: false`, Base UI, `@/*` aliases, and no installed components yet.
 
-- [ ] **Step 4: Add only the four approved primitives**
+- [x] **Step 4: Add only the four approved primitives**
 
 Run:
 
@@ -114,7 +114,7 @@ npx shadcn@latest info --json
 
 Expected: the components list contains exactly `button`, `card`, `badge`, and `separator`.
 
-- [ ] **Step 5: Review generated source and reconcile tokens**
+- [x] **Step 5: Review generated source and reconcile tokens**
 
 Read every generated file. Verify Base UI imports, `render` APIs, full Card composition exports, `data-slot` attributes, semantic classes, and the configured icon library. In `app.css`, replace legacy variable collisions without changing computed colors:
 
@@ -127,7 +127,7 @@ var(--accent-strong) -> var(--primary-hover)
 
 Set `--radius: 0.375rem`, `--primary: #0f5f5c`, `--primary-hover: #0a4543`, `--primary-foreground: #ffffff`, `--foreground: #0f172a`, `--muted-foreground: #536173`, `--border: #cbd5e1`, `--ring: #2563eb`, and `--destructive: #dc2626` in the global semantic theme.
 
-- [ ] **Step 6: Verify the foundation before landing usage**
+- [x] **Step 6: Verify the foundation before landing usage**
 
 Run:
 
@@ -138,7 +138,7 @@ NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage npm test -- --
 
 Expected: build succeeds and all 158 baseline tests pass.
 
-- [ ] **Step 7: Commit the foundation**
+- [x] **Step 7: Commit the foundation**
 
 ```sh
 git add components.json package.json package-lock.json vite.config.ts tsconfig.json tsconfig.app.json src/styles/globals.css src/styles/app.css src/App.tsx src/lib src/components/ui
