@@ -32,6 +32,7 @@ test.describe('unconfigured browser contracts', () => {
   })
 
   test('keeps the landing workflow and feature cards responsive', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' })
     await page.setViewportSize({ width: 1120, height: 980 })
     await page.goto('./')
 
@@ -70,6 +71,102 @@ test.describe('unconfigured browser contracts', () => {
     expect(mobileMetrics.documentScrollWidth).toBeLessThanOrEqual(mobileMetrics.bodyClientWidth)
     expect(new Set(mobileMetrics.cardLefts).size).toBe(1)
     expect(mobileMetrics.cardTops).toEqual([...mobileMetrics.cardTops].sort((a, b) => a - b))
+
+    const collectBoundaryMetrics = async (width: number) => {
+      await page.setViewportSize({ width, height: 980 })
+      await page.evaluate(() => new Promise<void>(resolve => {
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+      }))
+
+      return page.evaluate(() => {
+        const header = document.querySelector<HTMLElement>(
+          'header[aria-label="Presume landing navigation"]'
+        )!
+        const headerAction = header.querySelector<HTMLElement>('[data-slot="button"]')!
+        const preview = document.querySelector<HTMLElement>(
+          '[role="img"][aria-label="Presume editor preview"]'
+        )!
+        const hero = preview.parentElement!
+        const heroCopy = preview.previousElementSibling as HTMLElement
+        const cards = Array.from(
+          document.querySelectorAll<HTMLElement>('[data-slot="card"]')
+        ).map(card => card.getBoundingClientRect())
+        const steps = Array.from(
+          document.querySelectorAll<HTMLElement>('section[aria-labelledby="workflow-title"] ol > li')
+        ).map(step => step.getBoundingClientRect())
+        const previewRect = preview.getBoundingClientRect()
+        const heroRect = hero.getBoundingClientRect()
+        const heroCopyRect = heroCopy.getBoundingClientRect()
+        const previewVisible = getComputedStyle(preview).display !== 'none'
+        const previewOverlapsCopy = previewVisible && !(
+          heroCopyRect.right <= previewRect.left ||
+          previewRect.right <= heroCopyRect.left ||
+          heroCopyRect.bottom <= previewRect.top ||
+          previewRect.bottom <= heroCopyRect.top
+        )
+
+        return {
+          bodyClientWidth: document.documentElement.clientWidth,
+          documentScrollWidth: document.documentElement.scrollWidth,
+          headerActionHeight: Math.round(headerAction.getBoundingClientRect().height),
+          headerFlexDirection: getComputedStyle(header).flexDirection,
+          previewVisible,
+          featureLefts: cards.map(card => Math.round(card.left)),
+          featureTops: cards.map(card => Math.round(card.top)),
+          workflowLefts: steps.map(step => Math.round(step.left)),
+          workflowTops: steps.map(step => Math.round(step.top)),
+          heroColumnCount: getComputedStyle(hero).gridTemplateColumns.split(' ').length,
+          previewOverlapsCopy,
+          previewWithinHero: !previewVisible || (
+            previewRect.left >= heroRect.left &&
+            previewRect.right <= heroRect.right &&
+            previewRect.top >= heroRect.top &&
+            previewRect.bottom <= heroRect.bottom
+          ),
+        }
+      })
+    }
+
+    const at640 = await collectBoundaryMetrics(640)
+    expect.soft(at640.headerActionHeight, 'header action height at 640px').toBeGreaterThanOrEqual(44)
+    expect.soft(at640.headerFlexDirection, 'header direction at 640px').toBe('column')
+    expect.soft(at640.previewVisible, 'preview visibility at 640px').toBe(false)
+    expect.soft(new Set(at640.featureLefts).size, 'feature columns at 640px').toBe(1)
+    expect.soft(new Set(at640.featureTops).size, 'feature rows at 640px').toBe(4)
+    expect.soft(at640.documentScrollWidth, 'document overflow at 640px').toBeLessThanOrEqual(
+      at640.bodyClientWidth
+    )
+
+    const at641 = await collectBoundaryMetrics(641)
+    expect.soft(at641.headerActionHeight, 'header action height at 641px').toBe(32)
+    expect.soft(at641.headerFlexDirection, 'header direction at 641px').toBe('row')
+    expect.soft(at641.previewVisible, 'preview visibility at 641px').toBe(true)
+    expect.soft(new Set(at641.featureLefts).size, 'feature columns at 641px').toBe(2)
+    expect.soft(new Set(at641.featureTops).size, 'feature rows at 641px').toBe(2)
+
+    const at920 = await collectBoundaryMetrics(920)
+    expect.soft(new Set(at920.featureLefts).size, 'feature columns at 920px').toBe(2)
+    expect.soft(new Set(at920.featureTops).size, 'feature rows at 920px').toBe(2)
+    expect.soft(new Set(at920.workflowLefts).size, 'workflow columns at 920px').toBe(1)
+    expect.soft(new Set(at920.workflowTops).size, 'workflow rows at 920px').toBe(3)
+    expect.soft(at920.documentScrollWidth, 'document overflow at 920px').toBeLessThanOrEqual(
+      at920.bodyClientWidth
+    )
+
+    const at921 = await collectBoundaryMetrics(921)
+    expect.soft(new Set(at921.featureLefts).size, 'feature columns at 921px').toBe(4)
+    expect.soft(new Set(at921.featureTops).size, 'feature rows at 921px').toBe(1)
+    expect.soft(new Set(at921.workflowTops).size, 'workflow rows at 921px').toBe(1)
+    expect.soft(at921.workflowLefts[0], 'first workflow step at 921px').toBeLessThan(
+      at921.workflowLefts[1]
+    )
+    expect.soft(at921.workflowLefts[1], 'second workflow step at 921px').toBeLessThan(
+      at921.workflowLefts[2]
+    )
+    expect.soft(at921.previewVisible, 'preview visibility at 921px').toBe(true)
+    expect.soft(at921.heroColumnCount, 'hero columns at 921px').toBe(2)
+    expect.soft(at921.previewOverlapsCopy, 'hero overlap at 921px').toBe(false)
+    expect.soft(at921.previewWithinHero, 'preview bounds at 921px').toBe(true)
   })
 
   test('keeps expanded fit constraints usable at narrow widths', async ({ page }) => {

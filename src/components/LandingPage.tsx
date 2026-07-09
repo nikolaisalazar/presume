@@ -15,9 +15,9 @@ export interface LandingPageProps {
 
 export function LandingPage({ hasSavedResume, onOpenEditor }: LandingPageProps) {
   return (
-    <div className="flex min-h-screen flex-col items-center gap-[18px] px-7 pt-6 pb-14 text-foreground max-[960px]:px-4 max-[640px]:px-3 max-[640px]:pt-3.5 max-[640px]:pb-10">
+    <div className="flex min-h-screen flex-col items-center gap-[18px] px-3 pt-3.5 pb-10 text-foreground min-[641px]:px-4 min-[641px]:pt-6 min-[641px]:pb-14 min-[961px]:px-7">
       <header
-        className="flex w-full max-w-[1120px] items-center justify-between gap-4 rounded-xl border border-border/80 bg-card/75 p-3.5 shadow-[var(--shadow-panel)] max-[640px]:flex-col max-[640px]:items-stretch"
+        className="flex w-full max-w-[1120px] flex-col items-stretch justify-between gap-4 rounded-xl border border-border/80 bg-card/75 p-3.5 shadow-[var(--shadow-panel)] min-[641px]:flex-row min-[641px]:items-center"
         aria-label="Presume landing navigation"
       >
         <a
@@ -28,14 +28,18 @@ export function LandingPage({ hasSavedResume, onOpenEditor }: LandingPageProps) 
           <span className="app-header__brand-mark" aria-hidden="true">P</span>
           <span>Presume</span>
         </a>
-        <Button variant="outline" onClick={onOpenEditor}>
+        <Button
+          variant="outline"
+          className="h-11 min-[641px]:h-8"
+          onClick={onOpenEditor}
+        >
           {hasSavedResume ? 'Continue editing' : 'Open editor'}
         </Button>
       </header>
 
       <main className="flex w-full max-w-[1120px] flex-col gap-[18px]">
         <section
-          className="grid grid-cols-1 items-center gap-9 rounded-xl border border-border/80 bg-card/75 p-8 shadow-[var(--shadow-panel)] min-[921px]:grid-cols-[minmax(0,0.95fr)_minmax(340px,0.75fr)] max-[640px]:p-[22px]"
+          className="grid grid-cols-1 items-center gap-9 rounded-xl border border-border/80 bg-card/75 p-[22px] shadow-[var(--shadow-panel)] min-[641px]:p-8 min-[921px]:grid-cols-[minmax(0,0.95fr)_minmax(340px,0.75fr)]"
           aria-labelledby="landing-title"
         >
           <div className="max-w-[670px]">
@@ -63,7 +67,7 @@ export function LandingPage({ hasSavedResume, onOpenEditor }: LandingPageProps) 
           </div>
 
           <div
-            className="rounded-2xl border border-border/75 bg-[image:var(--stage-surface)] p-3.5 shadow-[var(--shadow-stage)] max-[640px]:hidden"
+            className="hidden rounded-2xl border border-border/75 bg-[image:var(--stage-surface)] p-3.5 shadow-[var(--shadow-stage)] min-[641px]:block"
             role="img"
             aria-label="Presume editor preview"
           >
@@ -88,7 +92,7 @@ export function LandingPage({ hasSavedResume, onOpenEditor }: LandingPageProps) 
         </section>
 
         <section
-          className="grid grid-cols-1 items-stretch gap-3.5 sm:grid-cols-2 lg:grid-cols-4"
+          className="grid grid-cols-1 items-stretch gap-3.5 min-[641px]:grid-cols-2 min-[921px]:grid-cols-4"
           aria-label="Features"
         >
           <Card size="sm" className="h-full">
@@ -177,18 +181,18 @@ export function LandingPage({ hasSavedResume, onOpenEditor }: LandingPageProps) 
               From draft to export without leaving the page.
             </h2>
           </div>
-          <ol className="relative grid list-none grid-cols-3 items-stretch gap-0 pt-1.5 before:absolute before:top-[27px] before:right-[7%] before:left-[7%] before:h-px before:bg-primary/30 before:content-[''] max-[920px]:grid-cols-1 max-[920px]:gap-[18px] max-[920px]:pl-[26px] max-[920px]:before:top-5 max-[920px]:before:bottom-5 max-[920px]:before:left-[21px] max-[920px]:before:h-auto max-[920px]:before:w-px">
-            <li className="relative grid min-h-[132px] grid-rows-[auto_auto_1fr] content-start gap-2.5 pr-7 after:absolute after:top-[15px] after:right-[22px] after:text-lg after:font-extrabold after:leading-none after:text-primary/60 after:content-['→'] max-[920px]:min-h-0 max-[920px]:pl-7 max-[920px]:after:top-auto max-[920px]:after:right-auto max-[920px]:after:bottom-[-18px] max-[920px]:after:left-[-11px] max-[920px]:after:text-base max-[920px]:after:content-['↓']">
+          <ol className="relative grid list-none grid-cols-1 items-stretch gap-[18px] pt-1.5 pl-[26px] before:absolute before:top-5 before:bottom-5 before:left-[21px] before:w-px before:bg-primary/30 before:content-[''] min-[921px]:grid-cols-3 min-[921px]:gap-0 min-[921px]:pl-0 min-[921px]:before:top-[27px] min-[921px]:before:right-[7%] min-[921px]:before:bottom-auto min-[921px]:before:left-[7%] min-[921px]:before:h-px min-[921px]:before:w-auto">
+            <li className="relative grid min-h-0 grid-rows-[auto_auto_1fr] content-start gap-2.5 pl-7 after:absolute after:bottom-[-18px] after:left-[-11px] after:text-base after:font-extrabold after:leading-none after:text-primary/60 after:content-['↓'] min-[921px]:min-h-[132px] min-[921px]:pr-7 min-[921px]:pl-0 min-[921px]:after:top-[15px] min-[921px]:after:right-[22px] min-[921px]:after:bottom-auto min-[921px]:after:left-auto min-[921px]:after:text-lg min-[921px]:after:content-['→']">
               <span className="relative z-[1] block size-[18px] border-[3px] border-card bg-primary shadow-[0_0_0_1px_color-mix(in_oklch,var(--primary),transparent_72%),0_10px_24px_rgba(15,23,42,0.08)]" aria-hidden="true" />
               <strong className="text-sm text-secondary-foreground">Edit directly</strong>
               <span className="max-w-[28ch] text-[13px] leading-[1.45] text-muted-foreground">Click into names, bullets, sections, and dates.</span>
             </li>
-            <li className="relative grid min-h-[132px] grid-rows-[auto_auto_1fr] content-start gap-2.5 pr-7 after:absolute after:top-[15px] after:right-[22px] after:text-lg after:font-extrabold after:leading-none after:text-primary/60 after:content-['→'] max-[920px]:min-h-0 max-[920px]:pl-7 max-[920px]:after:top-auto max-[920px]:after:right-auto max-[920px]:after:bottom-[-18px] max-[920px]:after:left-[-11px] max-[920px]:after:text-base max-[920px]:after:content-['↓']">
+            <li className="relative grid min-h-0 grid-rows-[auto_auto_1fr] content-start gap-2.5 pl-7 after:absolute after:bottom-[-18px] after:left-[-11px] after:text-base after:font-extrabold after:leading-none after:text-primary/60 after:content-['↓'] min-[921px]:min-h-[132px] min-[921px]:pr-7 min-[921px]:pl-0 min-[921px]:after:top-[15px] min-[921px]:after:right-[22px] min-[921px]:after:bottom-auto min-[921px]:after:left-auto min-[921px]:after:text-lg min-[921px]:after:content-['→']">
               <span className="relative z-[1] block size-[18px] border-[3px] border-card bg-primary shadow-[0_0_0_1px_color-mix(in_oklch,var(--primary),transparent_72%),0_10px_24px_rgba(15,23,42,0.08)]" aria-hidden="true" />
               <strong className="text-sm text-secondary-foreground">Keep it fitting</strong>
               <span className="max-w-[28ch] text-[13px] leading-[1.45] text-muted-foreground">Use fit warnings and constraints as guardrails.</span>
             </li>
-            <li className="relative grid min-h-[132px] grid-rows-[auto_auto_1fr] content-start gap-2.5 pr-7 after:hidden max-[920px]:min-h-0 max-[920px]:pl-7">
+            <li className="relative grid min-h-0 grid-rows-[auto_auto_1fr] content-start gap-2.5 pl-7 after:hidden min-[921px]:min-h-[132px] min-[921px]:pr-7 min-[921px]:pl-0">
               <span className="relative z-[1] block size-[18px] border-[3px] border-card bg-primary shadow-[0_0_0_1px_color-mix(in_oklch,var(--primary),transparent_72%),0_10px_24px_rgba(15,23,42,0.08)]" aria-hidden="true" />
               <strong className="text-sm text-secondary-foreground">Export when ready</strong>
               <span className="max-w-[28ch] text-[13px] leading-[1.45] text-muted-foreground">Save a PDF or carry your data forward as JSON.</span>
