@@ -31,6 +31,47 @@ test.describe('unconfigured browser contracts', () => {
     await expect(name).toHaveText('Ada Browser')
   })
 
+  test('keeps the landing workflow and feature cards responsive', async ({ page }) => {
+    await page.setViewportSize({ width: 1120, height: 980 })
+    await page.goto('./')
+
+    const workflow = page.getByRole('region', {
+      name: 'From draft to export without leaving the page.',
+    })
+    const workflowSteps = workflow.locator('ol > li')
+    const desktopSteps = await workflowSteps.evaluateAll(items =>
+      items.map(item => {
+        const rect = item.getBoundingClientRect()
+        return { left: Math.round(rect.left), top: Math.round(rect.top) }
+      })
+    )
+
+    expect(desktopSteps).toHaveLength(3)
+    expect(new Set(desktopSteps.map(step => step.top)).size).toBe(1)
+    expect(desktopSteps[0].left).toBeLessThan(desktopSteps[1].left)
+    expect(desktopSteps[1].left).toBeLessThan(desktopSteps[2].left)
+
+    await page.setViewportSize({ width: 358, height: 980 })
+
+    await expect(page.getByRole('img', { name: 'Presume editor preview' })).toBeHidden()
+    await expect(page.getByRole('button', { name: 'Start editing' })).toBeVisible()
+
+    const mobileMetrics = await page.evaluate(() => {
+      const cards = Array.from(document.querySelectorAll('[data-slot="card"]'))
+        .map(card => card.getBoundingClientRect())
+      return {
+        bodyClientWidth: document.documentElement.clientWidth,
+        documentScrollWidth: document.documentElement.scrollWidth,
+        cardLefts: cards.map(card => Math.round(card.left)),
+        cardTops: cards.map(card => Math.round(card.top)),
+      }
+    })
+
+    expect(mobileMetrics.documentScrollWidth).toBeLessThanOrEqual(mobileMetrics.bodyClientWidth)
+    expect(new Set(mobileMetrics.cardLefts).size).toBe(1)
+    expect(mobileMetrics.cardTops).toEqual([...mobileMetrics.cardTops].sort((a, b) => a - b))
+  })
+
   test('keeps expanded fit constraints usable at narrow widths', async ({ page }) => {
     await page.setViewportSize({ width: 358, height: 980 })
     await page.goto('./editor/')

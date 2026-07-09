@@ -92,15 +92,6 @@ describe('responsive review layout CSS', () => {
     expect(appCss).toContain('data-editor-only')
   })
 
-  it('formats the landing workflow as a full-width horizontal process rail', () => {
-    expect(appCss).toContain('.landing-workflow__intro')
-    expect(appCss).toContain('.landing-workflow__steps')
-    expect(appCss).toContain('grid-template-columns: repeat(3, minmax(0, 1fr));')
-    expect(appCss).toContain('.landing-workflow__steps li:not(:last-child)::after')
-    expect(appCss).toContain('.landing-workflow__step-dot')
-    expect(appCss).toContain('flex-direction: column;')
-  })
-
   it('hides editor-only controls in print styles', () => {
     expect(appCss).toContain('@media print')
     expect(appCss).toContain('[data-editor-only=\'true\']')

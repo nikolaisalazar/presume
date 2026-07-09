@@ -82,6 +82,25 @@ describe('App review availability boundaries', () => {
     expect(screen.getByRole('toolbar', { name: 'Document actions' })).toBeInTheDocument()
   })
 
+  it('composes the landing page from the approved design-system primitives', () => {
+    vi.stubEnv('VITE_REVIEW_API_URL', '')
+    window.history.pushState({}, '', '/presume/')
+
+    const { container } = render(<App />)
+
+    expect(container.querySelectorAll('[data-slot="button"]')).toHaveLength(3)
+    expect(container.querySelectorAll('[data-slot="card"]')).toHaveLength(4)
+    expect(container.querySelector('[data-slot="badge"]')).toHaveTextContent(
+      'No account required'
+    )
+    expect(container.querySelector('[data-slot="separator"]')).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', {
+        name: 'Edit your resume like the final document.',
+      })
+    ).toBeInTheDocument()
+  })
+
   it('returns to the landing page when the editor brand is clicked', () => {
     vi.stubEnv('VITE_REVIEW_API_URL', '')
     window.history.pushState({}, '', '/presume/editor/')

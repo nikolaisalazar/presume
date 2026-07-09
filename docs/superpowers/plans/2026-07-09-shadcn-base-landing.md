@@ -153,7 +153,7 @@ git commit -m "chore: initialize shadcn base ui"
 **Interfaces:**
 - Produces: a behavioral/structural contract proving the landing uses the four approved primitives while retaining accessible content.
 
-- [ ] **Step 1: Add the primitive-composition test**
+- [x] **Step 1: Add the primitive-composition test**
 
 Add this test in the landing-page section of `src/tests/appIntegration.test.tsx`:
 
@@ -176,7 +176,7 @@ it('composes the landing page from the approved design-system primitives', () =>
 })
 ```
 
-- [ ] **Step 2: Run the test and verify RED**
+- [x] **Step 2: Run the test and verify RED**
 
 Run:
 
@@ -199,7 +199,7 @@ Expected: FAIL because the current landing page has no `data-slot` primitives.
 - Consumes: `Button`, `Card`, `CardHeader`, `CardTitle`, `CardDescription`, `Badge`, and `Separator`.
 - Produces: `LandingPage({ hasSavedResume, onOpenEditor }: LandingPageProps)` with unchanged routing callbacks and copy.
 
-- [ ] **Step 1: Extract `LandingPage` without changing its public behavior**
+- [x] **Step 1: Extract `LandingPage` without changing its public behavior**
 
 Move the complete current `LandingPage` function from `App.tsx` into `src/components/LandingPage.tsx`. Export both the component and this exact props interface:
 
@@ -212,22 +212,22 @@ export interface LandingPageProps {
 
 The exported function must remain `export function LandingPage({ hasSavedResume, onOpenEditor }: LandingPageProps)`. Import it into `App.tsx`; keep `hasSavedResume()` and the route callbacks in `App`. Do not alter the moved JSX until Steps 2-5 so the extraction and migration remain separately reviewable in the diff.
 
-- [ ] **Step 2: Replace the three landing actions with Button**
+- [x] **Step 2: Replace the three landing actions with Button**
 
 - Navigation action: `variant="outline"`, default size.
 - Hero and privacy actions: default variant, `size="lg"`.
 - Preserve `Continue editing`, `Open editor`, `Start editing`, and `Open the editor` selection exactly.
 
-- [ ] **Step 3: Replace feature articles with full Card composition**
+- [x] **Step 3: Replace feature articles with full Card composition**
 
 Render four explicit `Card size="sm"` components using `CardHeader`, `CardTitle`, and `CardDescription`. Preserve the four current headings and descriptions. Use `className="h-full"` only for grid layout.
 
-- [ ] **Step 4: Use Badge and Separator in their approved locations**
+- [x] **Step 4: Use Badge and Separator in their approved locations**
 
 - Render `Badge variant="outline"` for `No account required` next to `Stored locally in your browser`.
 - Replace the custom top border above `Not a job board, account-gated builder, or resume content farm.` with a decorative `Separator`.
 
-- [ ] **Step 5: Convert landing presentation to semantic Tailwind utilities**
+- [x] **Step 5: Convert landing presentation to semantic Tailwind utilities**
 
 Remove the `app app--landing` dependency from the landing root. Preserve:
 
@@ -241,11 +241,11 @@ Remove the `app app--landing` dependency from the landing root. Preserve:
 
 Use semantic tokens for colors and component variants. Arbitrary utilities are allowed only for established layout dimensions, the document preview illustration, and the workflow connector geometry.
 
-- [ ] **Step 6: Remove obsolete landing CSS and update the CSS source contract**
+- [x] **Step 6: Remove obsolete landing CSS and update the CSS source contract**
 
 Delete `.app--landing` and `.landing-*` rules from `app.css`, retaining only selectors still shared by the editor brand mark. Remove the obsolete `formats the landing workflow as a full-width horizontal process rail` source-string test from `responsiveLayout.test.ts`; browser behavior replaces it.
 
-- [ ] **Step 7: Add a responsive browser contract**
+- [x] **Step 7: Add a responsive browser contract**
 
 In `e2e/unconfigured.spec.ts`, add a test that:
 
@@ -253,7 +253,7 @@ In `e2e/unconfigured.spec.ts`, add a test that:
 - Changes to 358px and verifies no document overflow, the preview is hidden, feature cards stack vertically, and the Start/Continue action remains visible.
 - Uses accessible regions/headings plus `[data-slot="card"]`; do not use screenshot snapshots.
 
-- [ ] **Step 8: Run the focused tests and verify GREEN**
+- [x] **Step 8: Run the focused tests and verify GREEN**
 
 Run:
 
@@ -264,7 +264,7 @@ npm run test:e2e:unconfigured
 
 Expected: all focused unit tests and unconfigured browser tests pass.
 
-- [ ] **Step 9: Commit the landing migration**
+- [x] **Step 9: Commit the landing migration**
 
 ```sh
 git add src/App.tsx src/components/LandingPage.tsx src/styles/app.css src/tests/appIntegration.test.tsx src/tests/responsiveLayout.test.ts e2e/unconfigured.spec.ts
