@@ -60,7 +60,7 @@ The migration must not introduce backend, provider, auth, database, queue, stabl
 
 ### PR 1: Foundation and landing page
 
-Status: planned.
+Status: implemented; automated verification complete, manual visual review pending.
 
 - Add Tailwind v4, Base UI shadcn configuration, semantic tokens, and the `@/*` alias.
 - Add and use `Button`, `Card`, `Badge`, and `Separator`.

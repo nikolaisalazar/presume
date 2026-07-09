@@ -279,7 +279,7 @@ git commit -m "feat: migrate landing page to shadcn primitives"
 **Interfaces:**
 - Produces: verified PR-ready branch and accurate roadmap status.
 
-- [ ] **Step 1: Run the full verification suite**
+- [x] **Step 1: Run the full verification suite**
 
 Run under Node 20, or use the documented local Node 26 flag for Vitest:
 
@@ -298,7 +298,7 @@ Expected: all unit and E2E tests pass; build succeeds; both HTML files exist and
 
 Inspect `/presume/` at 1440px, 920px, 640px, and 358px, plus `/presume/editor/` at 960px and 358px. Confirm the landing remains premium and document-adjacent, the editor is unchanged, and the resume remains the visual anchor.
 
-- [ ] **Step 3: Review the diff for accidental scope expansion**
+- [x] **Step 3: Review the diff for accidental scope expansion**
 
 Run:
 
@@ -309,9 +309,9 @@ git status --short
 
 Expected: no diff for protected product/data/export files and only intentional generated test artifacts, if any.
 
-- [ ] **Step 4: Mark PR 1 implemented and commit the status**
+- [x] **Step 4: Mark PR 1 implemented and commit the status**
 
-Change `PR 1` status in `docs/SHADCN_MIGRATION.md` from `planned` to `implemented; awaiting review`.
+Change `PR 1` status in `docs/SHADCN_MIGRATION.md` from `planned` to `implemented; automated verification complete, manual visual review pending`.
 
 ```sh
 git add docs/SHADCN_MIGRATION.md
