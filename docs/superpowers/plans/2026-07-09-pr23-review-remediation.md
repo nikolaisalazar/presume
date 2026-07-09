@@ -92,7 +92,7 @@ Tailwind v4 compiles arbitrary `max-[640px]` and `max-[920px]` variants as stric
 
 ## Manual QA Status
 
-Status: automated exact-width QA is complete. Visual QA is complete in cmux at the nearest controllable CSS viewport widths; the embedded browser exposed no exact viewport control, so exact-width visual confirmation remains pending for the review agent or user before merge. At the time this QA evidence was recorded, no commit or push had occurred.
+Status: automated and manual exact-width QA are complete. Because the embedded browser exposed no exact viewport control, the final visual pass used the project's local Chromium/Playwright installation to render the production build at the required CSS viewport widths. The screenshots and live layout metrics showed no overlap, clipping, awkward responsive transition, or page-level overflow.
 
 Exact automated landing checks:
 
@@ -116,6 +116,7 @@ Editor spot checks:
 - [x] `/presume/editor/` visually at 996px and automatically at 960px: command deck, fixed canvas, and desktop density remain intact.
 - [x] `/presume/editor/` visually at 355px and automatically at 358px: document width is 355px, resume width remains 816px, scroller client/scroll widths are 300px/836px, and horizontal overflow is contained by `overflow-x: auto`.
 - [x] Header action navigation opens `/presume/editor/`; browser back returns to `/presume/`.
-- [ ] Exact-width manual visual confirmation at 1120/921/920/641/640/358px in a browser with viewport controls.
+- [x] Exact-width manual visual confirmation at 1120/921/920/641/640/358px using local Chromium viewport controls. The desktop widths preserve the document-led hierarchy; the 920/921px and 640/641px transitions match their contracts; focus indication, editor navigation, and browser-back navigation work.
+- [x] Exact-width editor confirmation at 960px and 358px. At 358px the resume remains 816px wide and its horizontal overflow stays inside `.resume-canvas-scroll` (302px client width, 836px scroll width), with no document-level overflow.
 
-The latest remediation review reported no actionable findings and authorized commit and push. Exact-width manual visual confirmation remains a pre-merge release gate.
+The latest remediation review reported no actionable findings and authorized commit and push. Exact-width manual visual confirmation is complete; the remaining pre-merge gates are the final verification run and the PR's mergeability state.
