@@ -71,7 +71,15 @@ Status: complete; merged in PR #23 with automated and exact-width manual visual 
 
 ### PR 2: Header and command deck
 
-Status: planned in `docs/superpowers/plans/2026-07-10-shadcn-shared-editor-controls.md`; implementation not started.
+Status: implementation and automated verification complete on `feat/shadcn-shared-editor-controls`; exact-width manual cmux visual QA and whole-branch review remain pending before the PR is opened.
+
+Automated evidence (2026-07-10):
+
+- Vitest: 13 files and 161 tests passed with the documented Node local-storage workaround.
+- Playwright: 7 tests passed (4 unconfigured and 3 configured-review). The release-gate run used `CI=1` so Playwright started its own port-4173 preview instead of reusing an unrelated server.
+- The production build completed after 353 modules were transformed. The default unconfigured build was restored after configured-review E2E, and `dist/index.html` and `dist/404.html` were byte-identical.
+- Protected resume, data, export, and review implementation files remained unchanged; `git diff --check` passed.
+- Manual QA remains pending at 1120px, 960px, 561px, 560px, and 358px, including the landing spot-checks, review states, reduced motion, direct navigation, import/export, PDF export, and browser back. Do not mark this PR complete until that controller-owned check passes.
 
 - Migrate the non-interactive saved status to `Badge` and the interactive Review status to semantic `Button` variants.
 - Add `Collapsible` and rebuild Fit Constraints as a compact command strip while preserving its local closed-by-default state and custom steppers.
@@ -83,6 +91,7 @@ Status: planned in `docs/superpowers/plans/2026-07-10-shadcn-shared-editor-contr
 
 Status: not started.
 
+- This is the next presentation-only surface PR after PR 2.
 - Compose `Card`, `Alert`, `Badge`, `Button`, and `Separator` around the existing review state machine.
 - Preserve every configured, checking, disabled, config-error, loading, success, stale, and request-error state.
 - Keep review advisory and non-mutating.
@@ -91,6 +100,7 @@ Status: not started.
 
 Status: not started.
 
+- This is the shell-consolidation follow-up after the ReviewPanel presentation PR.
 - Convert remaining workspace and resume-stage application chrome to utilities where doing so removes meaningful legacy CSS.
 - Audit and remove dead application-chrome selectors after PRs 2 and 3.
 - Preserve the fixed resume canvas, scroller, print/export behavior, and `src/styles/resume.css` as custom layout infrastructure.
