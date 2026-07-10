@@ -38,7 +38,7 @@ export function ReviewPanel({ id, state, onRequestReview, onClose }: ReviewPanel
             onClick={onRequestReview}
             disabled={actionDisabled}
           >
-            {isLoading ? 'Reviewing...' : 'Review resume'}
+            {isLoading ? 'Reviewing' : 'Review resume'}
           </button>
           {onClose ? (
             <button

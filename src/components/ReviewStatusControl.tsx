@@ -1,4 +1,5 @@
 import type { ResumeReviewState } from '../useResumeReview'
+import { Button } from './ui/button'
 
 interface ReviewStatusControlProps {
   state: ResumeReviewState
@@ -54,6 +55,17 @@ export function canToggleReviewPanel(state: ResumeReviewState): boolean {
   )
 }
 
+export function getReviewButtonVariant(state: ResumeReviewState) {
+  switch (state.status) {
+    case 'success': return 'reviewSuccess' as const
+    case 'stale':
+    case 'disabled': return 'reviewWarning' as const
+    case 'error':
+    case 'config_error': return 'reviewError' as const
+    default: return 'review' as const
+  }
+}
+
 export function ReviewStatusControl({
   state,
   panelOpen,
@@ -66,9 +78,14 @@ export function ReviewStatusControl({
 
   if (state.status === 'idle') {
     return (
-      <button className="review-status-control" onClick={onRequestReview}>
+      <Button
+        className="review-status-control"
+        variant={getReviewButtonVariant(state)}
+        size="editor"
+        onClick={onRequestReview}
+      >
         Review resume
-      </button>
+      </Button>
     )
   }
 
@@ -80,16 +97,19 @@ export function ReviewStatusControl({
   const canToggle = canToggleReviewPanel(state)
 
   return (
-    <button
+    <Button
       className="review-status-control"
+      variant={getReviewButtonVariant(state)}
+      size="editor"
       onClick={canToggle ? onTogglePanel : undefined}
       disabled={!canToggle}
       aria-expanded={canToggle ? panelVisible : undefined}
       aria-controls={canToggle && panelId ? panelId : undefined}
       title={getReviewStatusDescription(state)}
+      {...(state.status === 'loading' ? { 'data-loading': '' } : {})}
     >
       {getReviewStatusLabel(state)}
-    </button>
+    </Button>
   )
 }
 
@@ -106,7 +126,7 @@ function getReviewStatusLabel(state: ResumeReviewState): string {
     case 'config_error':
       return 'Review unavailable — connection issue'
     case 'loading':
-      return 'Reviewing...'
+      return 'Reviewing'
     case 'success':
       return 'View review'
     case 'stale':

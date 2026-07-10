@@ -8,6 +8,7 @@ import { ResumePage } from './components/ResumePage'
 import { ReviewPanel } from './components/ReviewPanel'
 import { FormattingWarningSummary } from './components/FormattingWarningSummary'
 import { LandingPage } from './components/LandingPage'
+import { Badge } from './components/ui/badge'
 import {
   ReviewStatusControl,
   getUsefulReviewPanelKey,
@@ -112,7 +113,7 @@ function EditorApp({ onOpenLanding }: { onOpenLanding: () => void }) {
           </div>
         </a>
         <div className="app-header__meta" aria-label="Editor status">
-          <span className="app-status-pill">Saved locally</span>
+          <Badge variant="secondary" size="status">Saved locally</Badge>
           <ReviewStatusControl
             state={review.state}
             panelOpen={reviewPanelOpen}

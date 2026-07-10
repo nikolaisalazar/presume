@@ -170,7 +170,7 @@ describe('App review availability boundaries', () => {
     expect(
       screen.getByText('Edit the final resume directly. Presume keeps it fitting.')
     ).toBeInTheDocument()
-    expect(screen.getByText('Saved locally')).toBeInTheDocument()
+    expect(screen.getByText('Saved locally')).toHaveAttribute('data-slot', 'badge')
 
     const constraints = screen.getByRole('button', {
       name: /Fit constraints.*1 page.*1 line per bullet.*8px minimum/i,
@@ -285,7 +285,7 @@ describe('App review availability boundaries', () => {
 
     render(<App />)
 
-    expect(await screen.findByRole('button', { name: 'Review resume' })).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Review resume' })).toHaveAttribute('data-slot', 'button')
     expect(screen.queryByRole('complementary', { name: 'Resume review' })).not.toBeInTheDocument()
   })
 
