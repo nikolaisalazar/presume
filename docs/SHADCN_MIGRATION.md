@@ -100,7 +100,7 @@ Manual QA evidence (2026-07-10):
 
 ### PR 3: Review panel presentation
 
-Status: design approved; implementation plan pending. See [`docs/superpowers/specs/2026-07-10-shadcn-review-panel-design.md`](superpowers/specs/2026-07-10-shadcn-review-panel-design.md).
+Status: design approved and implementation plan complete; implementation pending. See [`docs/superpowers/specs/2026-07-10-shadcn-review-panel-design.md`](superpowers/specs/2026-07-10-shadcn-review-panel-design.md) and [`docs/superpowers/plans/2026-07-10-shadcn-review-panel.md`](superpowers/plans/2026-07-10-shadcn-review-panel.md).
 
 - This is the next presentation-only surface PR after PR 2.
 - Compose `Card`, `Alert`, `Badge`, `Button`, and `Separator` around the existing review state machine.
