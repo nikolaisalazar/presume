@@ -373,6 +373,64 @@ describe('ReviewPanel', () => {
     expect(screen.getByText('Clear technical ownership.')).toBeVisible()
   })
 
+  it('renders only populated adjustment ledger sides', () => {
+    const { rerender } = render(
+      <ReviewPanel
+        state={{ status: 'success', result: { ...reviewResult, bonuses: [], deductions: [{ label: 'Penalty', points: -2 }] } }}
+        onRequestReview={vi.fn()}
+      />
+    )
+
+    expect(screen.getByText('Deductions').parentElement).toHaveTextContent('Deductions −2')
+    expect(screen.queryByText('Bonus')).not.toBeInTheDocument()
+    expect(screen.queryByText('·')).not.toBeInTheDocument()
+
+    rerender(
+      <ReviewPanel
+        state={{ status: 'success', result: { ...reviewResult, bonuses: [{ label: 'Signal', points: 3 }], deductions: [] } }}
+        onRequestReview={vi.fn()}
+      />
+    )
+
+    expect(screen.getByText('Bonus').parentElement).toHaveTextContent('Bonus +3')
+    expect(screen.queryByText('Deductions')).not.toBeInTheDocument()
+    expect(screen.queryByText('·')).not.toBeInTheDocument()
+  })
+
+  it('preserves signed adjustment values in totals and details', () => {
+    render(
+      <ReviewPanel
+        state={{
+          status: 'success',
+          result: {
+            ...reviewResult,
+            bonuses: [
+              { label: 'Negative bonus', points: -2 },
+              { label: 'Positive bonus', points: 3 },
+              { label: 'Zero bonus', points: 0 },
+            ],
+            deductions: [
+              { label: 'Positive deduction', points: 2 },
+              { label: 'Negative deduction', points: -4 },
+              { label: 'Zero deduction', points: 0 },
+            ],
+          },
+        }}
+        onRequestReview={vi.fn()}
+      />
+    )
+
+    expect(screen.getByText('Bonus').parentElement).toHaveTextContent(
+      'Bonus +1 · Deductions −2'
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: /Adjustment details/i }))
+    expect(screen.getByText('Negative bonus').parentElement).toHaveTextContent('(−2)')
+    expect(screen.getByText('Positive deduction').parentElement).toHaveTextContent('(+2)')
+    expect(screen.getByText('Zero bonus').parentElement).toHaveTextContent('(0)')
+    expect(screen.getByText('Zero deduction').parentElement).toHaveTextContent('(0)')
+  })
+
   it('groups evidence under the selected category result', () => {
     render(
       <ReviewPanel
@@ -425,9 +483,10 @@ describe('ReviewPanel', () => {
 
     expect(screen.getByText('Review request failed')).toBeInTheDocument()
     expect(screen.getByText('Could not reach the review service.')).toBeInTheDocument()
-    expect(
-      screen.getByText('Previous stale results remain visible below.')
-    ).toBeInTheDocument()
+    expect(screen.getByText('Review is stale')).toBeInTheDocument()
+    expect(screen.getByText(
+      'Previous results are still shown. Re-run review after editing.'
+    )).toBeInTheDocument()
     expect(screen.getByText('72 / 100')).toBeInTheDocument()
   })
 

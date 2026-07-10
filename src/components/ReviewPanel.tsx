@@ -159,19 +159,29 @@ function totalAdjustmentPoints(adjustments: ReviewAdjustment[]): number {
   return adjustments.reduce((total, adjustment) => total + adjustment.points, 0)
 }
 
+function formatSignedPoints(points: number): string {
+  if (points > 0) return `+${points}`
+  if (points < 0) return `−${-points}`
+  return '0'
+}
+
 function ReviewAdjustmentLedger({ bonuses, deductions }: {
   bonuses: ReviewAdjustment[]
   deductions: ReviewAdjustment[]
 }) {
   if (bonuses.length === 0 && deductions.length === 0) return null
-  const bonus = totalAdjustmentPoints(bonuses)
-  const deduction = Math.abs(totalAdjustmentPoints(deductions))
+  const hasBonuses = bonuses.length > 0
+  const hasDeductions = deductions.length > 0
 
   return (
     <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-y border-border py-2 text-xs">
-      <span>Bonus <strong className="text-primary">+{bonus}</strong></span>
-      {' '}<span aria-hidden="true">·</span>{' '}
-      <span>Deductions <strong className="text-destructive">−{deduction}</strong></span>
+      {hasBonuses ? (
+        <span>Bonus <strong className="text-primary">{formatSignedPoints(totalAdjustmentPoints(bonuses))}</strong></span>
+      ) : null}
+      {hasBonuses && hasDeductions ? <> <span aria-hidden="true">·</span> </> : null}
+      {hasDeductions ? (
+        <span>Deductions <strong className="text-destructive">{formatSignedPoints(totalAdjustmentPoints(deductions))}</strong></span>
+      ) : null}
     </div>
   )
 }
@@ -206,7 +216,7 @@ function ReviewAdjustmentDetails({ bonuses, deductions }: {
           {adjustments.map((adjustment, index) => (
             <li key={`${adjustment.label}-${index}`}>
               <span>{adjustment.label}</span>{' '}
-              <span>({adjustment.points > 0 ? '+' : ''}{adjustment.points})</span>
+              <span>({formatSignedPoints(adjustment.points)})</span>
               {adjustment.evidence ? <p>{adjustment.evidence}</p> : null}
             </li>
           ))}
@@ -318,7 +328,12 @@ function renderReviewStateAlert(
     case 'idle': return <ReviewStateAlert title="Ready for review" message="Run a review to see score, evidence, and annotations." />
     case 'loading': return <ReviewStateAlert message="Review request is in progress." />
     case 'stale': return <ReviewStateAlert title="Review is stale" message="Previous results are still shown. Re-run review after editing." variant="reviewWarning" />
-    case 'error': return <ReviewStateAlert title="Review request failed" message={state.error.message} detail={result ? resultIsStale ? 'Previous stale results remain visible below.' : 'Previous results remain visible below.' : undefined} variant="destructive" />
+    case 'error': return (
+      <>
+        <ReviewStateAlert title="Review request failed" message={state.error.message} detail={result && !resultIsStale ? 'Previous results remain visible below.' : undefined} variant="destructive" />
+        {result && resultIsStale ? <ReviewStateAlert title="Review is stale" message="Previous results are still shown. Re-run review after editing." variant="reviewWarning" /> : null}
+      </>
+    )
     case 'success': return resultIsStale ? <ReviewStateAlert title="Review is stale" message="Previous results are still shown. Re-run review after editing." variant="reviewWarning" /> : null
   }
 }
