@@ -680,7 +680,7 @@ Expected: all unit and E2E tests pass; the final default unconfigured build succ
 
 Evidence (2026-07-10): 13 Vitest files / 168 tests and 7 Playwright tests passed (4 unconfigured, 3 configured-review). The final default build transformed 354 modules and emitted `index.html` 0.70 kB (0.39 kB gzip), CSS 65.21 kB (12.83 kB gzip), and JavaScript chunks of 22.03/159.64/202.38/299.48/358.14 kB (8.72/53.38/47.71/94.52/116.81 kB gzip). The SPA files were byte-identical, protected files were unchanged, `git diff --check` passed, and generated `test-results` was removed.
 
-- [ ] **Step 4: Complete exact-width manual QA**
+- [x] **Step 4: Complete exact-width manual QA**
 
 Use the configured and unconfigured builds as appropriate:
 
@@ -695,20 +695,22 @@ Use the configured and unconfigured builds as appropriate:
 
 Record observed measurements and any unavailable manual checks accurately.
 
-Status (2026-07-10): pending controller verification. The implementing agent did not perform the complete prescribed visual/state/interaction matrix and therefore does not claim this step complete.
+Evidence (2026-07-10): controller-owned exact-width browser QA passed. At 1440px and 1221px the inspector measured 360px wide and remained to the right of the document-led editor; at 1220px it stacked above with the same left edge and 896px width. At 960/561/560/358px it remained stacked with no document-level overflow. Review/Close measured 36px at 561px and 44px at 560px and 358px. The resume remained 816px; at 358px its scroller measured 302px client width and 836px scroll width. Category selection/evidence replacement, both disclosures, focus-visible styling, success, loading, disabled, config-error, stale, request error with and without prior results, and empty results rendered coherently. Reduced motion reported no loading animation (`animation-name: none`, effective duration `0.01ms`). Checking and unconfigured copy/semantics remain covered by component tests; those transient/unavailable states are not directly reachable as stable configured-browser destinations. Landing screenshots at 1120px and 358px showed no overflow, and direct editor navigation plus browser back returned to `/presume/`.
 
-- [ ] **Step 5: Update the roadmap with evidence**
+- [x] **Step 5: Update the roadmap with evidence**
 
 Change PR #3 status in `docs/SHADCN_MIGRATION.md` to implementation complete only after Steps 3 and 4 pass. Record exact unit/E2E counts, build module count and bundle sizes, SPA identity, protected-file result, review result, and exact-width QA. Leave PR publication or merge language pending until those actions occur.
 
-Progress (2026-07-10): automated evidence is recorded in the roadmap, while exact-width manual QA, publication, and merge remain explicitly pending.
+Evidence (2026-07-10): automated and manual evidence are recorded in the roadmap. Publication and merge remain pending.
 
-- [ ] **Step 6: Commit documentation and verification evidence**
+- [x] **Step 6: Commit documentation and verification evidence**
 
 ```sh
 git add e2e/configured-review.spec.ts docs/SHADCN_MIGRATION.md docs/superpowers/plans/2026-07-10-shadcn-review-panel.md
 git commit -m "docs: record review panel migration verification"
 ```
+
+Evidence (2026-07-10): automated evidence was committed in `e26c84f`; controller-owned manual evidence is recorded in the follow-up QA commit.
 
 - [ ] **Step 7: Request whole-branch review before publishing**
 

@@ -100,7 +100,7 @@ Manual QA evidence (2026-07-10):
 
 ### PR 3: Review panel presentation
 
-Status: implementation awaiting exact-width manual acceptance; automated verification complete, with publication and merge pending. See [`docs/superpowers/specs/2026-07-10-shadcn-review-panel-design.md`](superpowers/specs/2026-07-10-shadcn-review-panel-design.md) and [`docs/superpowers/plans/2026-07-10-shadcn-review-panel.md`](superpowers/plans/2026-07-10-shadcn-review-panel.md).
+Status: implementation, automated verification, task-level review, and exact-width manual QA complete; whole-branch review and publication remain pending. See [`docs/superpowers/specs/2026-07-10-shadcn-review-panel-design.md`](superpowers/specs/2026-07-10-shadcn-review-panel-design.md) and [`docs/superpowers/plans/2026-07-10-shadcn-review-panel.md`](superpowers/plans/2026-07-10-shadcn-review-panel.md).
 
 Automated evidence (2026-07-10):
 
@@ -110,7 +110,13 @@ Automated evidence (2026-07-10):
 - The default build was restored after configured-review E2E; `dist/index.html` and `dist/404.html` were byte-identical. Protected resume, data, export, and review implementation files were unchanged, `git diff --check` passed, and `test-results` was removed.
 - The new boundary contract initially caught a 1220px left-edge mismatch. The stacked ReviewPanel now shares `--editor-shell-width` with the editor, and the focused contract and full release gate pass.
 
-Manual QA status (2026-07-10): pending controller verification. No claim is made yet for the prescribed 1440/1221/1220/960/561/560/358px visual measurements, full review-state matrix, category/disclosure/reduced-motion interactions, or `/presume/` spot-checks.
+Manual QA evidence (2026-07-10):
+
+- At 1440px and 1221px, the Review inspector measured 360px and remained to the right of the document-led editor. At 1220px it stacked above the editor with the same left edge and an 896px width.
+- At 960px, 561px, 560px, and 358px the panel remained stacked with no document-level overflow. Review/Close measured 36px at 561px and 44px at 560px and 358px.
+- The resume remained 816px at every width. At 358px, overflow stayed inside `.resume-canvas-scroll` (302px client width / 836px scroll width) while the document width remained 358px.
+- Successful category selection and evidence replacement, closed/open strengths and adjustment disclosures, keyboard focus, loading, disabled, config-error, stale, request-error with and without preserved results, and empty-result presentation rendered coherently. Reduced motion removed the loading sweep animation.
+- Checking and unconfigured copy/semantics are covered by component tests; they are not stable configured-browser destinations for visual capture. Landing pages at 1120px and 358px retained their approved composition with no overflow, and direct editor navigation/browser back remained functional.
 
 - This is the next presentation-only surface PR after PR 2.
 - Compose `Card`, `Alert`, `Badge`, `Button`, and `Separator` around the existing review state machine.
