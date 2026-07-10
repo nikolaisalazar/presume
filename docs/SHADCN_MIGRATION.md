@@ -60,7 +60,7 @@ The migration must not introduce backend, provider, auth, database, queue, stabl
 
 ### PR 1: Foundation and landing page
 
-Status: implemented; automated verification complete, manual visual review pending.
+Status: complete; merged in PR #23 with automated and exact-width manual visual verification complete.
 
 - Add Tailwind v4, Base UI shadcn configuration, semantic tokens, and the `@/*` alias.
 - Add and use `Button`, `Card`, `Badge`, and `Separator`.
@@ -71,12 +71,12 @@ Status: implemented; automated verification complete, manual visual review pendi
 
 ### PR 2: Shared editor controls and feedback
 
-Status: not started.
+Status: planned in `docs/superpowers/plans/2026-07-10-shadcn-shared-editor-controls.md`; implementation not started.
 
 - Migrate Toolbar actions to `Button`.
-- Migrate saved/review status chips to `Badge`.
+- Migrate the non-interactive saved status to `Badge`; migrate the interactive review status control to `Button` while preserving its compact status treatment.
 - Migrate formatting warnings to `Alert`.
-- Replace genuine visual dividers with `Separator`.
+- Replace genuine visual dividers with `Separator`. The PR 2 inventory found no editor divider that benefits from replacement, so PR 2 must not add a decorative separator merely to consume the primitive.
 - Remove the replaced toolbar/status/warning CSS in the same PR.
 
 ### PR 3: Fit constraints
