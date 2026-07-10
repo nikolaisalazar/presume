@@ -71,7 +71,7 @@ Status: complete; merged in PR #23 with automated and exact-width manual visual 
 
 ### PR 2: Header and command deck
 
-Status: implementation, automated verification, whole-branch review, and exact-width manual QA are complete on `feat/shadcn-shared-editor-controls`; the branch is ready for PR publication.
+Status: complete; merged in PR #24 with automated verification, exact-width manual QA, and independent whole-branch review complete.
 
 Automated evidence (2026-07-10):
 
@@ -80,6 +80,7 @@ Automated evidence (2026-07-10):
 - The production build completed after 353 modules were transformed. The default unconfigured build was restored after configured-review E2E, and `dist/index.html` and `dist/404.html` were byte-identical.
 - Protected resume, data, export, and review implementation files remained unchanged; `git diff --check` passed.
 - Whole-branch review found one Review-focus defect; commit `3b6c1d3` removed the state-specific override so every Review tone inherits the shared blue keyboard ring. Re-review found no remaining code-level issues.
+- Final independent PR review found that ReviewPanel actions still referenced the removed legacy `toolbar-btn` class. Commit `17a4264` migrated both actions to the shared `Button` primitive and added exact-560px touch-target coverage; re-review approved the corrected branch with no actionable findings.
 
 Manual QA evidence (2026-07-10):
 
