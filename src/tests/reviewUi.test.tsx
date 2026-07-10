@@ -3,12 +3,16 @@ import { describe, expect, it, vi } from 'vitest'
 import { ResumePage } from '../components/ResumePage'
 import { ReviewPanel } from '../components/ReviewPanel'
 import {
+  ReviewCategorySelector,
+  selectLargestDeficitCategory,
+} from '../components/ReviewCategorySelector'
+import {
   getReviewButtonVariant,
   ReviewStatusControl,
   shouldShowReviewPanel,
 } from '../components/ReviewStatusControl'
 import type { ResumeReviewState } from '../useResumeReview'
-import type { ReviewResult } from '../reviewTypes'
+import type { ReviewCategory, ReviewResult } from '../reviewTypes'
 import type { Resume } from '../types'
 
 const resume: Resume = {
@@ -96,6 +100,60 @@ const emptyReviewResult: ReviewResult = {
 }
 
 describe('ReviewPanel', () => {
+  it('selects the largest raw point deficit in stock rubric order', () => {
+    const tiedCategories: ReviewCategory[] = [
+      { key: 'technical_skills', label: 'Technical Skills', score: 5, maxScore: 10, evidence: ['Technical evidence'], suggestions: [] },
+      { key: 'production', label: 'Production', score: 20, maxScore: 25, evidence: ['Production evidence'], suggestions: [] },
+      { key: 'open_source', label: 'Open Source', score: 30, maxScore: 35, evidence: ['Open-source evidence'], suggestions: [] },
+    ]
+
+    expect(selectLargestDeficitCategory(tiedCategories)).toBe('open_source')
+    expect(selectLargestDeficitCategory([])).toBeNull()
+  })
+
+  it('shows evidence for the selected category without mutating scores', () => {
+    const onSelect = vi.fn()
+    const categories = [
+      reviewResult.categories[0],
+      {
+        key: 'technical_skills' as const,
+        label: 'Technical Skills',
+        score: 8,
+        maxScore: 10,
+        evidence: ['Broad supported toolset.'],
+        suggestions: ['Add systems evidence.'],
+      },
+    ]
+
+    const { rerender } = render(
+      <ReviewCategorySelector
+        categories={categories}
+        selectedKey="production"
+        onSelect={onSelect}
+      />
+    )
+
+    expect(screen.getByRole('button', { name: /Production Experience, 18 of 25/i }))
+      .toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('heading', { name: 'Production Experience evidence' }))
+      .toBeInTheDocument()
+    expect(screen.getByText('Experience section shows engineering work.'))
+      .toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /Technical Skills, 8 of 10/i }))
+    expect(onSelect).toHaveBeenCalledWith('technical_skills')
+
+    rerender(
+      <ReviewCategorySelector
+        categories={categories}
+        selectedKey="technical_skills"
+        onSelect={onSelect}
+      />
+    )
+    expect(screen.getByText('Broad supported toolset.')).toBeInTheDocument()
+    expect(categories[1].score).toBe(8)
+  })
+
   it('renders the idle state with an enabled review action', () => {
     const onRequestReview = vi.fn()
 
