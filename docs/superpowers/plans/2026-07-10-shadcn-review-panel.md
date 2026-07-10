@@ -712,9 +712,11 @@ git commit -m "docs: record review panel migration verification"
 
 Evidence (2026-07-10): automated evidence was committed in `e26c84f`; controller-owned manual evidence is recorded in the follow-up QA commit.
 
-- [ ] **Step 7: Request whole-branch review before publishing**
+- [x] **Step 7: Request whole-branch review before publishing**
 
 Review `origin/main...HEAD` for behavior preservation, React 18/Base UI composition, state coverage, accessibility, exact 1221/1220 and 561/560 boundaries, dead CSS, protected files, and repository hygiene. Resolve actionable findings with focused regression tests and rerun the relevant focused test plus the full gate.
+
+Evidence (2026-07-10): whole-branch review found three adjustment/stale-state edge cases. Commit `7e4759c` made one-sided ledgers conditional, preserved arbitrary signed values, and restored a separate stale warning beside request errors with stale prior results. Focused tests passed 39/39, the full unit suite passed 170/170, and re-review returned `Ready` with no remaining findings.
 
 ---
 
