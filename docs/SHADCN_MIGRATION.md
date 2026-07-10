@@ -71,15 +71,25 @@ Status: complete; merged in PR #23 with automated and exact-width manual visual 
 
 ### PR 2: Header and command deck
 
-Status: implementation and automated verification complete on `feat/shadcn-shared-editor-controls`; exact-width manual cmux visual QA and whole-branch review remain pending before the PR is opened.
+Status: implementation, automated verification, whole-branch review, and exact-width manual QA are complete on `feat/shadcn-shared-editor-controls`; the branch is ready for PR publication.
 
 Automated evidence (2026-07-10):
 
-- Vitest: 13 files and 161 tests passed with the documented Node local-storage workaround.
+- Vitest: 13 files and 162 tests passed with the documented Node local-storage workaround.
 - Playwright: 7 tests passed (4 unconfigured and 3 configured-review). The release-gate run used `CI=1` so Playwright started its own port-4173 preview instead of reusing an unrelated server.
 - The production build completed after 353 modules were transformed. The default unconfigured build was restored after configured-review E2E, and `dist/index.html` and `dist/404.html` were byte-identical.
 - Protected resume, data, export, and review implementation files remained unchanged; `git diff --check` passed.
-- Manual QA remains pending at 1120px, 960px, 561px, 560px, and 358px, including the landing spot-checks, review states, reduced motion, direct navigation, import/export, PDF export, and browser back. Do not mark this PR complete until that controller-owned check passes.
+- Whole-branch review found one Review-focus defect; commit `3b6c1d3` removed the state-specific override so every Review tone inherits the shared blue keyboard ring. Re-review found no remaining code-level issues.
+
+Manual QA evidence (2026-07-10):
+
+- At 1120px and 960px, the command deck remains subordinate to the fixed 816px resume, the desktop hierarchy stays document-led, and no overlap or page-level horizontal overflow appears.
+- At 561px, Toolbar and stepper controls measure 36px high. At the inclusive 560px boundary and at 358px, they measure 44px; action groups remain coherent and the collapsed Fit Constraints summary stays usable.
+- At 358px, the document width remains 358px, the resume remains 816px, and the intentional canvas scroller measures 302px client width / 836px scroll width with no document-level overflow.
+- Fit Constraints starts closed, reveals in 180ms, preserves every bound, and becomes effectively instant under reduced motion. The integrated warning remains readable at 960px and 358px.
+- Review idle/loading/success/stale/setup-needed/connection-error tones render blue/blue/green/amber/amber/red as approved. The one-pixel loading sweep runs only while reviewing, becomes static under reduced motion, and every tone shows the shared blue keyboard focus ring.
+- JSON export downloaded `resume.json`, PDF export downloaded `resume.pdf`, JSON import replaced the resume and persisted it to LocalStorage, and Reset displayed the existing confirmation without mutating after cancellation.
+- Landing routes at 1120px and 358px retained their approved PR #23 composition with no page-level overflow.
 
 - Migrate the non-interactive saved status to `Badge` and the interactive Review status to semantic `Button` variants.
 - Add `Collapsible` and rebuild Fit Constraints as a compact command strip while preserving its local closed-by-default state and custom steppers.
