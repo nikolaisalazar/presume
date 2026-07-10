@@ -173,11 +173,6 @@ body {
   flex: 0 0 auto;
 }
 
-.review-panel__action:disabled {
-  cursor: not-allowed;
-  opacity: 0.55;
-}
-
 .review-empty,
 .review-status {
   padding: 10px;
@@ -532,7 +527,6 @@ body {
   box-shadow: var(--shadow-panel);
 }
 
-.review-panel__close:focus-visible,
 .add-btn:focus-visible,
 .remove-btn:focus-visible,
 .editor-control:focus-visible {
@@ -552,10 +546,6 @@ body {
   gap: 6px;
   flex-wrap: wrap;
   justify-content: flex-end;
-}
-
-.review-panel__close {
-  padding-inline: 10px;
 }
 
 /* ── Contextual editor controls ─────────────────────────────────── */

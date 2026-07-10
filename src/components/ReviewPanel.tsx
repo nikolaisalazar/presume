@@ -5,6 +5,7 @@ import type {
   ReviewCategory,
 } from '../reviewTypes'
 import type { ResumeReviewState } from '../useResumeReview'
+import { Button } from './ui/button'
 
 interface ReviewPanelProps {
   id?: string
@@ -33,21 +34,23 @@ export function ReviewPanel({ id, state, onRequestReview, onClose }: ReviewPanel
           <span className="review-panel__advisory">Advisory only</span>
         </div>
         <div className="review-panel__actions">
-          <button
-            className="toolbar-btn review-panel__action"
+          <Button
+            className="review-panel__action"
+            size="editor"
             onClick={onRequestReview}
             disabled={actionDisabled}
           >
             {isLoading ? 'Reviewing' : 'Review resume'}
-          </button>
+          </Button>
           {onClose ? (
-            <button
-              className="toolbar-btn review-panel__close"
+            <Button
+              variant="outline"
+              size="editor"
               onClick={onClose}
               aria-label="Close review panel"
             >
               Close
-            </button>
+            </Button>
           ) : null}
         </div>
       </div>
