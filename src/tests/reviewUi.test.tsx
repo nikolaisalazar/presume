@@ -309,6 +309,48 @@ describe('ReviewPanel', () => {
       .toHaveAttribute('aria-pressed', 'true')
   })
 
+  it('preserves a valid category selection when the same review gets a new categories array', () => {
+    const categories: ReviewCategory[] = [
+      ...reviewResult.categories,
+      {
+        key: 'technical_skills',
+        label: 'Technical Skills',
+        score: 8,
+        maxScore: 10,
+        evidence: ['Broad supported toolset.'],
+        suggestions: [],
+      },
+    ]
+    const result = { ...reviewResult, categories }
+    const { rerender } = render(
+      <ReviewPanel state={{ status: 'success', result }} onRequestReview={vi.fn()} />
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: /Technical Skills, 8 of 10/i }))
+    expect(screen.getByText('Broad supported toolset.')).toBeVisible()
+
+    const normalizedResult = { ...result, categories: [...categories] }
+    rerender(
+      <ReviewPanel
+        state={{ status: 'stale', result: normalizedResult }}
+        onRequestReview={vi.fn()}
+      />
+    )
+
+    expect(screen.getByRole('button', { name: /Technical Skills, 8 of 10/i }))
+      .toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByText('Broad supported toolset.')).toBeVisible()
+
+    rerender(
+      <ReviewPanel
+        state={{ status: 'success', result: { ...normalizedResult, id: 'review_new' } }}
+        onRequestReview={vi.fn()}
+      />
+    )
+    expect(screen.getByRole('button', { name: /Production Experience, 18 of 25/i }))
+      .toHaveAttribute('aria-pressed', 'true')
+  })
+
   it('keeps improvements visible and supporting details closed by default', () => {
     render(
       <ReviewPanel
@@ -321,7 +363,9 @@ describe('ReviewPanel', () => {
     expect(screen.getByRole('button', { name: /Key strengths/i }))
       .toHaveAttribute('aria-expanded', 'false')
     expect(screen.queryByText('Clear technical ownership.')).not.toBeInTheDocument()
-    expect(screen.getByText(/Bonus \+3 · Deductions −2/)).toBeVisible()
+    expect(screen.getByText('Bonus').parentElement).toHaveTextContent(
+      'Bonus +3 · Deductions −2'
+    )
     expect(screen.getByRole('button', { name: /Adjustment details/i }))
       .toHaveAttribute('aria-expanded', 'false')
 

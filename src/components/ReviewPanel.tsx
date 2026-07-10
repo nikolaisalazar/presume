@@ -2,7 +2,6 @@ import type {
   ReviewAdjustment,
   ReviewAnnotation,
   ReviewAnnotationSeverity,
-  ReviewCategory,
 } from '../reviewTypes'
 import type { ResumeReviewState } from '../useResumeReview'
 import { useEffect, useState } from 'react'
@@ -140,7 +139,15 @@ function ReviewResultDetails({ state }: { state: ResumeReviewState }) {
 
   useEffect(() => {
     setSelectedCategoryKey(selectLargestDeficitCategory(result.categories))
-  }, [result.id, result.categories])
+  }, [result.id])
+
+  useEffect(() => {
+    setSelectedCategoryKey(selectedKey =>
+      selectedKey && result.categories.some(category => category.key === selectedKey)
+        ? selectedKey
+        : selectLargestDeficitCategory(result.categories)
+    )
+  }, [result.categories])
 
   return (
     <div className="review-result flex flex-col gap-3">
@@ -213,7 +220,9 @@ function ReviewAdjustmentLedger({ bonuses, deductions }: {
 
   return (
     <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-y border-border py-2 text-xs">
-      <span>Bonus +{bonus} · Deductions −{deduction}</span>
+      <span>Bonus <strong className="text-primary">+{bonus}</strong></span>
+      {' '}<span aria-hidden="true">·</span>{' '}
+      <span>Deductions <strong className="text-destructive">−{deduction}</strong></span>
     </div>
   )
 }
@@ -386,7 +395,7 @@ function formatAnnotationTarget(annotation: ReviewAnnotation): string {
 }
 
 function hasNoDetailedFindings(result: {
-  categories: ReviewCategory[]
+  categories: { length: number }
   strengths: string[]
   improvements: string[]
   bonuses: ReviewAdjustment[]
