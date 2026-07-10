@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import type { Resume } from '../types'
 import { exportJSON, exportPDF, importJSON } from '../export'
+import { Button } from './ui/button'
 
 interface ToolbarProps {
   resume: Resume
@@ -59,35 +60,15 @@ export function Toolbar({ resume, pageRef, onImport, onReset }: ToolbarProps) {
   }
 
   return (
-    <div className="toolbar" role="toolbar" aria-label="Document actions">
-      <div className="toolbar__group" aria-label="Export actions">
-        <span className="toolbar__group-label">Export</span>
-        <button
-          className="toolbar-btn toolbar-btn--primary"
-          onClick={handleExportPDF}
-          aria-label="Export PDF"
-        >
-          Export PDF
-        </button>
-        <button
-          className="toolbar-btn"
-          onClick={handleExportJSON}
-          aria-label="Export JSON"
-        >
-          Export JSON
-        </button>
+    <div className="flex flex-col gap-2 p-3 min-[561px]:flex-row min-[561px]:items-center min-[561px]:justify-between" role="toolbar" aria-label="Document actions">
+      <div className="toolbar__group flex min-w-0 flex-wrap items-center gap-1.5" aria-label="Export actions">
+        <span className="mr-0.5 basis-full text-[11px] font-bold uppercase tracking-[0.04em] text-muted-foreground min-[561px]:basis-auto">Export</span>
+        <Button size="editor" onClick={handleExportPDF}>Export PDF</Button>
+        <Button variant="outline" size="editor" onClick={handleExportJSON}>Export JSON</Button>
       </div>
-      <div className="toolbar__group" aria-label="File actions">
-        <button
-          className="toolbar-btn"
-          onClick={handleImportClick}
-          aria-label="Import JSON"
-        >
-          Import JSON
-        </button>
-        <button className="toolbar-btn toolbar-btn--danger" onClick={handleReset}>
-          Reset template
-        </button>
+      <div className="toolbar__group flex min-w-0 flex-wrap items-center gap-1.5" aria-label="File actions">
+        <Button variant="outline" size="editor" onClick={handleImportClick}>Import JSON</Button>
+        <Button variant="dangerOutline" size="editor" onClick={handleReset}>Reset template</Button>
       </div>
       <input
         ref={fileInputRef}

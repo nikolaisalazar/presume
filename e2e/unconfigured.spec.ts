@@ -16,6 +16,17 @@ test.describe('unconfigured browser contracts', () => {
     await expect(page.getByRole('complementary', { name: 'Resume review' })).toHaveCount(0)
     await expect(page.getByRole('button', { name: 'Review resume' })).toHaveCount(0)
 
+    const commandDeck = page.locator('[data-slot="command-deck"]')
+    await expect(commandDeck).toBeVisible()
+    await expect(commandDeck.locator('[data-slot="button"]')).toHaveCount(4)
+    await expect(commandDeck.locator('[data-slot="separator"]')).toHaveCount(1)
+    await expect(commandDeck.locator('[data-slot="button"]')).toHaveText([
+      'Export PDF',
+      'Export JSON',
+      'Import JSON',
+      'Reset template',
+    ])
+
     const screenshot = await page.locator('.resume-page').screenshot()
     expect(hasNonblankPngBytes(screenshot)).toBe(true)
 
@@ -178,6 +189,11 @@ test.describe('unconfigured browser contracts', () => {
       const content = document.querySelector('[data-slot="collapsible-content"]') as HTMLElement
       const row = content.firstElementChild?.firstElementChild as HTMLElement
       const stepper = row.querySelector('[aria-label="Page limit"]') as HTMLElement
+      const toolbar = document.querySelector('[role="toolbar"]') as HTMLElement
+      const actionGroups = Array.from(toolbar.children)
+        .filter(child => (child as HTMLElement).classList.contains('toolbar__group'))
+        .map(group => Array.from(group.querySelectorAll('[data-slot="button"]'))
+          .map(button => button.textContent?.trim()))
       const decrease = stepper.querySelector('button') as HTMLElement
       const rowRect = row.getBoundingClientRect()
       const stepperRect = stepper.getBoundingClientRect()
@@ -190,6 +206,7 @@ test.describe('unconfigured browser contracts', () => {
         stepperWidth: Math.round(stepperRect.width),
         buttonWidth: Math.round(decreaseRect.width),
         buttonHeight: Math.round(decreaseRect.height),
+        actionGroups,
       }
     })
 
@@ -199,6 +216,10 @@ test.describe('unconfigured browser contracts', () => {
     expect(metrics.stepperWidth).toBeGreaterThanOrEqual(132)
     expect(metrics.buttonWidth).toBeGreaterThanOrEqual(44)
     expect(metrics.buttonHeight).toBeGreaterThanOrEqual(44)
+    expect(metrics.actionGroups).toEqual([
+      ['Export PDF', 'Export JSON'],
+      ['Import JSON', 'Reset template'],
+    ])
   })
 
   test('keeps viewport overflow inside the fixed resume canvas scroller at narrow widths', async ({ page }) => {
