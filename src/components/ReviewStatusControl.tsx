@@ -79,7 +79,6 @@ export function ReviewStatusControl({
   if (state.status === 'idle') {
     return (
       <Button
-        className="review-status-control"
         variant={getReviewButtonVariant(state)}
         size="editor"
         onClick={onRequestReview}
@@ -98,7 +97,6 @@ export function ReviewStatusControl({
 
   return (
     <Button
-      className="review-status-control"
       variant={getReviewButtonVariant(state)}
       size="editor"
       onClick={canToggle ? onTogglePanel : undefined}

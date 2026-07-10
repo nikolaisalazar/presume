@@ -717,7 +717,9 @@ describe('ReviewStatusControl', () => {
         onRequestReview={vi.fn()}
       />
     )
-    expect(screen.getByRole('button', { name: 'Reviewing' })).toHaveAttribute('data-loading', '')
+    const loadingButton = screen.getByRole('button', { name: 'Reviewing' })
+    expect(loadingButton).toHaveAttribute('data-loading', '')
+    expect(loadingButton).not.toHaveClass('review-status-control')
   })
 
   it('does not let a dismissed successful review suppress a later successful review', () => {
