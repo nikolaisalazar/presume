@@ -1,148 +1,128 @@
-# shadcn Shared Editor Controls Implementation Plan
+# shadcn Header and Command Deck Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Migrate Presume's shared editor actions, saved/review status chrome, and formatting warning surface to the existing shadcn/Base UI primitives without changing editor behavior or the desktop-first document workbench.
+**Goal:** Complete Presume's first editor-surface migration by rebuilding the header status area and full command deck with shadcn/Base UI primitives while preserving editor behavior and the fixed resume canvas.
 
-**Architecture:** Extend the already-installed local primitives with narrowly reusable editor variants, add the upstream Base UI `Alert` source with React 18 ref forwarding, and then migrate one editor surface at a time. Keep layout classes on the command deck so Tailwind/shadcn owns component presentation while `app.css` continues to own shell geometry and the connected settings-warning-toolbar composition.
+**Architecture:** Treat the header and command deck as one coherent surface. Add semantic variants to the local primitives, migrate Fit Constraints to Base UI Collapsible, compose the connected deck from SettingsPanel, Alert, Separator, and Toolbar, then remove the replaced presentation CSS in the same PR. Leave the full ReviewPanel and remaining workspace/stage shell for the next two surface PRs.
 
 **Tech Stack:** Vite 6, React 18, TypeScript, Tailwind CSS v4, shadcn `base-nova` on Base UI, CVA, Vitest/Testing Library, Playwright.
 
 ## Global Constraints
 
-- Presume remains desktop-first; narrow-screen changes are breakpoint resilience and graceful degradation, not a mobile redesign.
-- Preserve the fixed 816px resume canvas, direct editing, resizing, PDF export, JSON import/export, LocalStorage, review state machine, and `/presume/` plus `/presume/editor/` routing.
-- Do not change `src/styles/resume.css`, the resume JSON format, persistence keys, export internals, review API/state hooks, or resume-document components.
-- Do not migrate `SettingsPanel` or `ReviewPanel` presentation in this PR; those remain PR 3 and PR 4.
-- Use `Button` for interactive controls and `Badge` only for non-interactive status text. A control that visually resembles a status chip remains a semantic button.
-- Keep 36px toolbar actions on desktop and at least 44px toolbar/review actions through 560px, matching the existing inclusive breakpoint contract.
-- Preserve review configured/unconfigured, checking, disabled, config-error, loading, success, stale, and error behavior exactly.
-- Preserve `role="status"` and `aria-live="polite"` on formatting warnings; do not replace them with an interruptive `role="alert"`.
-- Do not force `Separator` into the editor: the inventory found no genuine divider whose replacement improves the command deck.
-- Use semantic tokens and primitive variants for color, typography, and control sizing. Consumer `className` values may retain layout hooks only.
-- Do not add visual snapshots or network-dependent tests.
+- Presume remains desktop-first. Narrow behavior is graceful degradation, not a mobile redesign.
+- Preserve direct editing, resizing, PDF export, JSON import/export, LocalStorage, routing, review behavior, and the fixed 816px resume canvas.
+- Do not change `src/styles/resume.css`, resume-document components, data schemas, storage keys, export internals, or review API/state hooks.
+- Keep `ReviewPanel` presentation custom in this PR. Only its loading label may change from `Reviewing...` to `Reviewing` for consistency.
+- Keep Fit Constraints closed by default and do not persist its open state.
+- Use Button for actions and Badge only for passive status.
+- Use no icons in the document-action toolbar.
+- Do not add PDF import; it is a separate parsing/reconstruction feature.
+- Do not add GSAP, visual snapshots, or network-dependent tests.
 
----
+## Approved Visual Contract
 
-## Execution Branch Setup
+- Export PDF: solid primary teal, no gradient or shadow.
+- Export JSON and Import JSON: neutral outline.
+- Reset template: neutral at rest, restrained red on hover/focus.
+- Editor buttons and saved Badge: 3px corners.
+- Keyboard focus: blue outer ring.
+- Saved locally: muted filled secondary Badge.
+- Review tones: blue normal/loading, green result-ready, amber stale/setup-needed, red request/connection failure.
+- Review loading: label `Reviewing` plus a one-pixel feathered bottom sweep with a pause; static under reduced motion.
+- Formatting warning: integrated amber strip, polite live region, non-dismissible while unresolved.
+- Fit Constraints: compact one-line command strip when closed; three rows when open; 180ms restrained reveal.
+- Constraint values: custom plus/minus steppers with bare numbers. Units live in `Page limit`, `Lines per bullet`, and `Minimum font size (px)` labels.
+- Narrow toolbar: preserve Export and file-action groups; controls are at least 44px through 560px and 36px from 561px.
+- Remove the decorative `Command deck` pseudo-label.
 
-This plan is committed on the feature branch created from merged PR #23. Before Task 1, confirm the execution context:
+## Test Budget
 
-```sh
-git branch --show-current
-git merge-base --is-ancestor origin/main HEAD
-git status --short
-```
-
-Expected: the branch is `feat/shadcn-shared-editor-controls`, `origin/main` is an ancestor, and the worktree is clean. Do not recreate or rebase the branch unless the user explicitly requests it.
+- Prefer extending existing tests over adding new test cases.
+- Add new test cases conservatively, only when they protect a distinct regression or public contract that does not fit clearly into an existing test.
+- Do not assert complete Tailwind class strings or implementation trivia.
+- Protect public contracts: refs, slots, accessible state, callbacks, exact critical dimensions, overflow containment, and existing behavior.
 
 ## File Map
 
-- Create `src/components/ui/alert.tsx`: local shadcn Alert family, adapted for React 18 refs and a semantic warning variant.
-- Modify `src/components/ui/button.tsx`: add reusable `review` and restrained `dangerOutline` variants plus an `editor` size.
-- Modify `src/components/ui/badge.tsx`: add a `status` size without changing existing landing-page defaults.
-- Modify `src/styles/globals.css`: expose warning and review semantic colors to Tailwind.
-- Modify `src/styles/app.css`: remove semantic warning-token duplicates after moving them to the Tailwind theme source, then progressively remove migrated presentation rules.
-- Modify `src/components/Toolbar.tsx`: replace four native action buttons with `Button`.
-- Modify `src/components/ReviewStatusControl.tsx`: replace native interactive status controls with `Button`.
-- Modify `src/App.tsx`: replace the saved-status span with `Badge`.
-- Modify `src/components/FormattingWarningSummary.tsx`: compose `Alert`, `AlertTitle`, and `AlertDescription`.
-- Modify `src/tests/uiPrimitives.test.tsx`: lock primitive slots, variants, and React 18 ref contracts.
-- Modify `src/tests/appIntegration.test.tsx`: lock migrated editor composition and preserve action behavior.
-- Modify `src/tests/reviewUi.test.tsx`: lock review-control composition and state semantics.
-- Modify `e2e/unconfigured.spec.ts`: verify desktop/narrow control sizing, overflow containment, and document actions.
-- Modify `docs/SHADCN_MIGRATION.md`: mark PR 2 complete only after verification and link the eventual PR.
+- Create `src/components/ui/alert.tsx`: React 18-safe Alert family with integrated warning variant.
+- Create `src/components/ui/collapsible.tsx`: React 18-safe Base UI Collapsible wrappers.
+- Modify `src/components/ui/button.tsx`: editor size and semantic action/review variants.
+- Modify `src/components/ui/badge.tsx`: status size.
+- Modify `src/styles/globals.css`: semantic warning/review tokens and approved keyframes.
+- Modify `src/App.tsx`: saved Badge and unified command-deck composition.
+- Modify `src/components/ReviewStatusControl.tsx`: semantic Button mapping and loading state.
+- Modify `src/components/ReviewPanel.tsx`: loading-label consistency only.
+- Modify `src/components/SettingsPanel.tsx`: Collapsible command strip and simplified steppers.
+- Modify `src/components/Toolbar.tsx`: shared Buttons with unchanged callbacks.
+- Modify `src/components/FormattingWarningSummary.tsx`: Alert composition.
+- Modify `src/styles/app.css`: delete replaced header/settings/toolbar/warning/deck presentation; keep shell geometry.
+- Modify `src/tests/uiPrimitives.test.tsx`, `src/tests/appIntegration.test.tsx`, `src/tests/reviewUi.test.tsx`, and `e2e/unconfigured.spec.ts`: focused contract updates within the test budget.
+- Modify `docs/SHADCN_MIGRATION.md`: completion status and verification evidence.
 
-### Task 1: Add semantic editor primitive contracts
+---
+
+### Task 1: Add the command-deck primitive contracts
 
 **Files:**
 - Create: `src/components/ui/alert.tsx`
+- Create: `src/components/ui/collapsible.tsx`
 - Modify: `src/components/ui/button.tsx`
 - Modify: `src/components/ui/badge.tsx`
 - Modify: `src/styles/globals.css`
-- Modify: `src/styles/app.css`
 - Test: `src/tests/uiPrimitives.test.tsx`
 
 **Interfaces:**
-- Consumes: existing `ButtonProps`, `BadgeProps`, `cn()`, Base UI, CVA, and semantic CSS variables.
-- Produces: `Button variant="review" | "dangerOutline"`, `Button size="editor"`, `Badge size="status"`, and `Alert`, `AlertTitle`, `AlertDescription`, `AlertAction` with React 18-compatible refs.
+- Produces: Alert family; Collapsible family; `Button size="editor"`; Button variants `review`, `reviewSuccess`, `reviewWarning`, `reviewError`, `dangerOutline`; `Badge size="status"`.
+- Preserves: all existing Button, Badge, Card, and Separator APIs plus React 18 ref behavior.
 
-- [ ] **Step 1: Add failing primitive contract tests**
+- [ ] **Step 1: Extend the existing primitive ref test before adding components**
 
-Extend `src/tests/uiPrimitives.test.tsx` to render the new variants and Alert family. Assert the stable public contract rather than full class snapshots:
+Add Alert and Collapsible refs to the existing React 18 contract test rather than creating a separate test:
 
 ```tsx
 const alertRef = createRef<HTMLDivElement>()
-const alertTitleRef = createRef<HTMLDivElement>()
-const alertDescriptionRef = createRef<HTMLDivElement>()
+const triggerRef = createRef<HTMLButtonElement>()
+const panelRef = createRef<HTMLDivElement>()
 
-const { container } = render(
+render(
   <>
-    <Button variant="review" size="editor">View review</Button>
-    <Button variant="dangerOutline" size="editor">Reset template</Button>
-    <Badge variant="outline" size="status">Saved locally</Badge>
-    <Alert ref={alertRef} variant="warning" role="status">
-      <AlertTitle ref={alertTitleRef}>Cannot fit</AlertTitle>
-      <AlertDescription ref={alertDescriptionRef}>Shorten content.</AlertDescription>
+    <Alert ref={alertRef} variant="warningDeck" role="status">
+      <AlertTitle>Cannot fit</AlertTitle>
+      <AlertDescription>Shorten content.</AlertDescription>
     </Alert>
+    <Collapsible defaultOpen>
+      <CollapsibleTrigger ref={triggerRef}>Fit constraints</CollapsibleTrigger>
+      <CollapsibleContent ref={panelRef}>Controls</CollapsibleContent>
+    </Collapsible>
   </>
 )
 
-expect(container.querySelectorAll('[data-slot="button"]')).toHaveLength(2)
-expect(container.querySelector('[data-slot="badge"]')).toHaveTextContent('Saved locally')
-expect(container.querySelector('[data-slot="alert"]')).toHaveAttribute('role', 'status')
-expect(container.querySelector('[data-slot="alert-title"]')).toHaveTextContent('Cannot fit')
-expect(container.querySelector('[data-slot="alert-description"]')).toHaveTextContent('Shorten content.')
 expect(alertRef.current).toBeInstanceOf(HTMLDivElement)
-expect(alertTitleRef.current).toBeInstanceOf(HTMLDivElement)
-expect(alertDescriptionRef.current).toBeInstanceOf(HTMLDivElement)
+expect(triggerRef.current).toBeInstanceOf(HTMLButtonElement)
+expect(panelRef.current).toBeInstanceOf(HTMLDivElement)
 ```
 
-- [ ] **Step 2: Run the focused test and confirm the missing contracts fail**
-
-Run:
+- [ ] **Step 2: Run the focused test and confirm the missing imports fail**
 
 ```sh
 NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage npm test -- --run src/tests/uiPrimitives.test.tsx
 ```
 
-Expected: FAIL because Alert is not installed and the editor variants/sizes do not exist.
+Expected: FAIL because Alert and Collapsible do not exist.
 
-- [ ] **Step 3: Add Alert from the configured registry and inspect it before adapting**
-
-Run:
+- [ ] **Step 3: Add the upstream components and adapt every wrapper for React 18**
 
 ```sh
-npx shadcn@latest add alert --dry-run
-npx shadcn@latest add alert
+npx shadcn@latest add alert collapsible --dry-run
+npx shadcn@latest add alert collapsible
 ```
 
-Read the generated file. Preserve its Base UI-compatible slots and CVA structure, then convert `Alert`, `AlertTitle`, `AlertDescription`, and `AlertAction` to `React.forwardRef` wrappers. This is required because the project remains on React 18; accepting a `ref` in component props is not sufficient.
+Read both generated files. Convert Alert, AlertTitle, AlertDescription, AlertAction, Collapsible, CollapsibleTrigger, and CollapsibleContent to `React.forwardRef` using their actual DOM element types. Preserve all `data-slot` attributes and caller prop ordering. Remove the generated `"use client"`; this Vite project has `rsc: false`.
 
-Add `warning` to `alertVariants` using semantic utilities:
+- [ ] **Step 4: Add semantic tokens and primitive variants**
 
-```tsx
-warning:
-  "border-warning-border bg-warning-bg text-warning-ink *:data-[slot=alert-description]:text-warning-ink",
-```
-
-Keep the default `role="alert"` supplied by shadcn, but ensure caller props are spread after it so `FormattingWarningSummary` can override it with `role="status"`.
-
-- [ ] **Step 4: Add semantic Tailwind mappings and component variants**
-
-In `src/styles/globals.css`, add these `@theme inline` mappings:
-
-```css
---color-warning-bg: var(--warning-bg);
---color-warning-border: var(--warning-border);
---color-warning-ink: var(--warning-ink);
---color-review-bg: var(--review-bg);
---color-review-border: var(--review-border);
---color-review-ink: var(--review-ink);
---color-review-hover: var(--review-hover);
-```
-
-Add the corresponding `:root` values, preserving the existing editor appearance:
+In `globals.css`, expose warning, review, and review-success tokens through `@theme inline`. Add the approved values:
 
 ```css
 --warning-bg: #fff7ed;
@@ -152,200 +132,292 @@ Add the corresponding `:root` values, preserving the existing editor appearance:
 --review-border: rgb(14 116 144 / 34%);
 --review-ink: #155e75;
 --review-hover: #e0f2fe;
+--review-success-bg: #ecfdf5;
+--review-success-border: #99d5be;
+--review-success-ink: #166534;
 ```
 
-Remove `--warning-bg`, `--warning-border`, and `--warning-ink` from the later `:root` block in `app.css` so `globals.css` is their single source of truth. Keep `--danger`, `--review`, and `--focus` because untouched legacy editor/review selectors still consume them.
+Add `warningDeck` to Alert: amber semantic colors, no outer radius/border, compact typography suitable inside the deck. Keep caller props after the default `role="alert"` so the warning can override it with `role="status"`.
 
-Add these variants to `buttonVariants`:
+Add these Button contracts:
 
 ```tsx
-review:
-  "border-review-border bg-review-bg text-review-ink hover:bg-review-hover aria-expanded:bg-review-hover",
-dangerOutline:
-  "border-border bg-background text-foreground hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive",
+variant: {
+  review: "border-review-border bg-review-bg text-review-ink hover:bg-review-hover",
+  reviewSuccess: "border-review-success-border bg-review-success-bg text-review-success-ink",
+  reviewWarning: "border-warning-border bg-warning-bg text-warning-ink",
+  reviewError: "border-destructive/40 bg-destructive/10 text-destructive",
+  dangerOutline: "border-border bg-background text-foreground hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive",
+},
+size: {
+  editor: "h-11 rounded-[3px] px-3 text-[13px] min-[561px]:h-9",
+},
 ```
 
-Add an `editor` size that makes the inclusive narrow contract deterministic with a narrow base and a desktop enhancement:
+Factor the common Review border/hover/focus and loading pseudo-element classes into one local constant before composing variants. The loading pseudo-element activates only under `data-loading` and uses `review-progress-sweep`; other states have no motion.
 
-```tsx
-editor: "h-11 gap-1.5 px-3 text-[13px] min-[561px]:h-9",
+Add `Badge size="status"` as `h-[34px] rounded-[3px] px-3 text-xs font-bold` without changing the default Badge used on the landing page.
+
+- [ ] **Step 5: Add the approved sweep and reduced-motion fallback**
+
+```css
+@keyframes review-progress-sweep {
+  0% { transform: translateX(-120%); }
+  72%, 100% { transform: translateX(260%); }
+}
 ```
 
-Refactor `badgeVariants` to include a `size` axis while leaving `size="default"` visually identical to the current Badge. Add:
+Use a one-pixel, 46%-wide transparent-to-review-ink-to-transparent pseudo-element. Under reduced motion, disable animation and leave a static centered line.
 
-```tsx
-status: "h-[34px] px-3 text-xs font-bold",
-```
-
-Update `BadgeProps`, the component defaults, and the CVA call so `size="status"` is typed and applied. Do not change existing landing Badge output.
-
-- [ ] **Step 5: Run primitive and landing regression tests**
-
-Run:
+- [ ] **Step 6: Run the focused test and commit**
 
 ```sh
-NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage npm test -- --run src/tests/uiPrimitives.test.tsx src/tests/appIntegration.test.tsx
+NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage npm test -- --run src/tests/uiPrimitives.test.tsx
+git add src/components/ui/alert.tsx src/components/ui/collapsible.tsx src/components/ui/button.tsx src/components/ui/badge.tsx src/styles/globals.css src/tests/uiPrimitives.test.tsx
+git commit -m "feat: add command deck primitives"
 ```
 
-Expected: PASS; the existing landing primitive counts and React 18 ref tests remain green.
+Expected: existing primitive test count remains unchanged and all tests pass.
 
-- [ ] **Step 6: Commit the primitive foundation**
-
-```sh
-git add src/components/ui/alert.tsx src/components/ui/button.tsx src/components/ui/badge.tsx src/styles/globals.css src/styles/app.css src/tests/uiPrimitives.test.tsx
-git commit -m "feat: add shared editor primitive variants"
-```
-
-### Task 2: Migrate toolbar actions and editor status chrome
+### Task 2: Migrate the editor header status surface
 
 **Files:**
-- Modify: `src/components/Toolbar.tsx`
-- Modify: `src/components/ReviewStatusControl.tsx`
 - Modify: `src/App.tsx`
-- Modify: `src/styles/app.css`
-- Test: `src/tests/appIntegration.test.tsx`
-- Test: `src/tests/reviewUi.test.tsx`
+- Modify: `src/components/ReviewStatusControl.tsx`
+- Modify: `src/components/ReviewPanel.tsx`
+- Modify: `src/tests/appIntegration.test.tsx`
+- Modify: `src/tests/reviewUi.test.tsx`
 
 **Interfaces:**
-- Consumes: `Button` editor size and variants plus `Badge size="status"` from Task 1.
-- Produces: unchanged Toolbar and ReviewStatusControl props/behavior implemented with shared primitives; non-interactive saved status implemented with Badge.
+- Consumes: semantic Button variants and Badge status size from Task 1.
+- Produces: `getReviewButtonVariant(state)` and unchanged ReviewStatusControl behavior.
 
-- [ ] **Step 1: Add failing composition assertions**
+- [ ] **Step 1: Extend existing header and review-state assertions**
 
-In the editor integration test, assert that the four toolbar actions, saved status, and configured review control use the intended slots without changing accessible names:
+In existing tests, add only these public-contract assertions:
 
 ```tsx
-const toolbar = screen.getByRole('toolbar', { name: 'Document actions' })
-expect(toolbar.querySelectorAll('[data-slot="button"]')).toHaveLength(4)
 expect(screen.getByText('Saved locally')).toHaveAttribute('data-slot', 'badge')
-expect(screen.getByRole('button', { name: 'Export PDF' })).toHaveAttribute('data-slot', 'button')
-expect(screen.getByRole('button', { name: 'Reset template' })).toHaveAttribute('data-slot', 'button')
+expect(screen.getByRole('button', { name: 'Review resume' })).toHaveAttribute('data-slot', 'button')
 ```
 
-In `src/tests/reviewUi.test.tsx`, extend the idle and toggleable-state tests:
+Extend existing loading tests to expect `Reviewing` in both locations and `data-loading` only on ReviewStatusControl. Add a table inside the existing ReviewStatusControl test for the semantic mapping; do not create one test per state.
 
-```tsx
-expect(screen.getByRole('button', { name: 'Review resume' })).toHaveAttribute(
-  'data-slot',
-  'button'
-)
-```
-
-Retain all existing assertions for `disabled`, `aria-expanded`, `aria-controls`, titles, panel visibility, and callbacks.
-
-- [ ] **Step 2: Run focused tests and confirm native controls fail the slot assertions**
+- [ ] **Step 2: Run focused tests and confirm native markup fails the slot assertions**
 
 ```sh
 NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage npm test -- --run src/tests/appIntegration.test.tsx src/tests/reviewUi.test.tsx
 ```
 
-Expected: FAIL because the editor still renders native toolbar/review buttons and a plain saved-status span.
+- [ ] **Step 3: Migrate passive and interactive status correctly**
 
-- [ ] **Step 3: Migrate Toolbar without changing its event flow**
-
-Import `Button` from `@/components/ui/button` and replace only the four native `<button>` elements:
+In `App.tsx`:
 
 ```tsx
-<Button size="editor" onClick={handleExportPDF} aria-label="Export PDF">
-  Export PDF
-</Button>
-<Button variant="outline" size="editor" onClick={handleExportJSON} aria-label="Export JSON">
-  Export JSON
-</Button>
-<Button variant="outline" size="editor" onClick={handleImportClick} aria-label="Import JSON">
-  Import JSON
-</Button>
-<Button variant="dangerOutline" size="editor" onClick={handleReset}>
-  Reset template
-</Button>
+<Badge variant="secondary" size="status">Saved locally</Badge>
 ```
 
-Do not alter `handleExportPDF`, `handleExportJSON`, file-input activation/reset, confirmation dialogs, error alerts, `accept`, or the hidden input ref.
-
-- [ ] **Step 4: Migrate status chrome with correct semantics**
-
-In `src/App.tsx`, replace the saved span with:
+In `ReviewStatusControl.tsx`, export:
 
 ```tsx
-<Badge variant="outline" size="status">Saved locally</Badge>
+export function getReviewButtonVariant(state: ResumeReviewState) {
+  switch (state.status) {
+    case 'success': return 'reviewSuccess' as const
+    case 'stale':
+    case 'disabled': return 'reviewWarning' as const
+    case 'error':
+    case 'config_error': return 'reviewError' as const
+    default: return 'review' as const
+  }
+}
 ```
 
-In `ReviewStatusControl.tsx`, replace both native buttons with `Button variant="review" size="editor"`. Keep every conditional, label, disabled state, click handler, `aria-expanded`, `aria-controls`, and `title` unchanged. Do not render the interactive review control through Badge.
+Render both idle and status controls with Button `size="editor"`. Preserve callbacks, disabled state, `aria-expanded`, `aria-controls`, and titles. For loading, set `data-loading=""` and change the label to `Reviewing`.
 
-- [ ] **Step 5: Remove only superseded button/status presentation CSS**
+Change only ReviewPanel's loading expression to `{isLoading ? 'Reviewing' : 'Review resume'}`.
 
-Delete rules whose complete responsibility moved to primitives:
-
-- `.toolbar-btn` base/hover/primary/danger/active/focus rules and their duplicate premium-pass declarations.
-- `.app-status-pill` presentation rules.
-- `.review-status-control` presentation/hover/disabled/active/focus rules.
-- The `.toolbar-btn` and `.review-status-control` entries in narrow and reduced-motion selector lists.
-
-Retain `.toolbar`, `.toolbar__group`, `.toolbar__group-label`, `.app-header__meta`, all connected-deck adjacency/radius rules, and unrelated focus/reduced-motion selectors. Do not rename these layout classes in this PR.
-
-- [ ] **Step 6: Run focused behavior tests**
+- [ ] **Step 4: Run focused tests and commit**
 
 ```sh
-NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage npm test -- --run src/tests/appIntegration.test.tsx src/tests/reviewUi.test.tsx src/tests/export.test.ts
+NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage npm test -- --run src/tests/appIntegration.test.tsx src/tests/reviewUi.test.tsx
+git add src/App.tsx src/components/ReviewStatusControl.tsx src/components/ReviewPanel.tsx src/tests/appIntegration.test.tsx src/tests/reviewUi.test.tsx
+git commit -m "refactor: migrate editor status controls"
 ```
 
-Expected: PASS. Export/import/reset and all review-state behavior remain unchanged.
-
-- [ ] **Step 7: Commit the control migration**
-
-```sh
-git add src/App.tsx src/components/Toolbar.tsx src/components/ReviewStatusControl.tsx src/styles/app.css src/tests/appIntegration.test.tsx src/tests/reviewUi.test.tsx
-git commit -m "refactor: migrate shared editor controls"
-```
-
-### Task 3: Migrate formatting warnings to Alert
+### Task 3: Rebuild Fit Constraints with Collapsible
 
 **Files:**
-- Modify: `src/components/FormattingWarningSummary.tsx`
-- Modify: `src/styles/app.css`
-- Test: `src/tests/appIntegration.test.tsx`
+- Modify: `src/components/SettingsPanel.tsx`
+- Modify: `src/tests/appIntegration.test.tsx`
+- Modify: `e2e/unconfigured.spec.ts`
 
 **Interfaces:**
-- Consumes: React 18-safe `Alert`, `AlertTitle`, and `AlertDescription` with `variant="warning"` from Task 1.
-- Produces: the same warning copy and polite live-region behavior composed from shadcn slots.
+- Consumes: Collapsible wrappers and existing SettingsPanel props.
+- Produces: the same constraint updates and limits with a local closed-by-default disclosure.
 
-- [ ] **Step 1: Add failing Alert composition assertions to all warning cases**
+- [ ] **Step 1: Extend the existing SettingsPanel integration and narrow E2E tests**
 
-For the single-bullet warning case, add:
+Do not add a new test. Extend the existing test that opens Fit Constraints to assert:
 
 ```tsx
-const warning = screen.getByRole('status')
-expect(warning).toHaveAttribute('data-slot', 'alert')
-expect(warning).toHaveAttribute('aria-live', 'polite')
-expect(warning.querySelector('[data-slot="alert-title"]')).toHaveTextContent(
-  'Cannot fit under current constraints'
-)
-expect(warning.querySelector('[data-slot="alert-description"]')).toHaveTextContent(
-  '1 bullet exceeds 1 line per bullet even at the 8px minimum.'
-)
+expect(constraints).toHaveAttribute('data-slot', 'collapsible-trigger')
+expect(screen.getByText('Page limit')).toBeInTheDocument()
+expect(screen.getByText('Lines per bullet')).toBeInTheDocument()
+expect(screen.getByText('Minimum font size (px)')).toBeInTheDocument()
+expect(screen.getByLabelText('Page limit')).toHaveTextContent('1')
+expect(screen.getByLabelText('Page limit')).not.toHaveTextContent('page')
 ```
 
-Keep the current copy assertions for global-only and mixed warnings, and add `expect(screen.getAllByRole('status')).toHaveLength(1)` to ensure mixed warnings remain one live region.
+Extend the existing 358px Fit Constraints E2E test to use `data-slot="collapsible-content"` and retain its 44px stepper and no-overflow assertions.
 
-- [ ] **Step 2: Run focused tests and confirm the slot assertions fail**
+- [ ] **Step 2: Run focused tests and confirm the slot/label assertions fail**
 
 ```sh
 NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage npm test -- --run src/tests/appIntegration.test.tsx
+npx playwright test -c playwright.unconfigured.config.ts -g "expanded fit constraints"
 ```
 
-Expected: FAIL because the warning uses custom markup without Alert slots.
+- [ ] **Step 3: Replace the custom disclosure with Collapsible**
 
-- [ ] **Step 3: Compose the warning from Alert primitives**
-
-Replace the outer custom markup with:
+Keep `const [open, setOpen] = useState(false)`. Compose:
 
 ```tsx
-<Alert
-  className="formatting-warning-summary"
-  variant="warning"
-  role="status"
-  aria-live="polite"
+<Collapsible open={open} onOpenChange={setOpen}>
+  <CollapsibleTrigger className="flex min-h-12 w-full items-center justify-between gap-3 px-4 py-3 text-left">
+    <span className="text-[13px] font-bold">Fit constraints</span>
+    <span className="flex items-center gap-2 text-xs text-muted-foreground">
+      {constraints.maxPages} page · {constraints.maxLinesPerBullet} line/bullet · {constraints.minFontSize}px min
+      <span aria-hidden="true">{open ? '▴' : '▾'}</span>
+    </span>
+  </CollapsibleTrigger>
+  <CollapsibleContent
+    keepMounted
+    className="h-[var(--collapsible-panel-height)] overflow-hidden opacity-100 transition-[height,opacity] duration-[180ms] ease-out data-[closed]:h-0 data-[closed]:opacity-0 motion-reduce:transition-none"
+  >
+    <div className="border-t border-border bg-muted/30 px-4 py-2">
+      <ConstraintStepper
+        label="Page limit"
+        value={constraints.maxPages}
+        help="Number of resume pages"
+        onDecrease={() => step('maxPages', -1, 1, 10)}
+        onIncrease={() => step('maxPages', 1, 1, 10)}
+        decreaseLabel="Decrease max pages"
+        increaseLabel="Increase max pages"
+        decreaseDisabled={constraints.maxPages <= 1}
+        increaseDisabled={constraints.maxPages >= 10}
+      />
+      <ConstraintStepper
+        label="Lines per bullet"
+        value={constraints.maxLinesPerBullet}
+        help="Maximum wrapped lines"
+        onDecrease={() => step('maxLinesPerBullet', -1, 1, 10)}
+        onIncrease={() => step('maxLinesPerBullet', 1, 1, 10)}
+        decreaseLabel="Decrease max lines per bullet"
+        increaseLabel="Increase max lines per bullet"
+        decreaseDisabled={constraints.maxLinesPerBullet <= 1}
+        increaseDisabled={constraints.maxLinesPerBullet >= 10}
+      />
+      <ConstraintStepper
+        label="Minimum font size (px)"
+        value={constraints.minFontSize}
+        help="Do not shrink below"
+        onDecrease={() => step('minFontSize', -1, 4, 16)}
+        onIncrease={() => step('minFontSize', 1, 4, 16)}
+        decreaseLabel="Decrease minimum font size"
+        increaseLabel="Increase minimum font size"
+        decreaseDisabled={constraints.minFontSize <= 4}
+        increaseDisabled={constraints.minFontSize >= 16}
+      />
+    </div>
+  </CollapsibleContent>
+</Collapsible>
+```
+
+Keep the three existing min/max bounds and callbacks. Rename row labels to the approved copy. Simplify `ConstraintStepper` so its center cell renders only `<strong>{value}</strong>`; remove the `unit` prop. Keep descriptive `aria-label`s on plus/minus buttons and `aria-live="polite"` on the number.
+
+Use utilities for the three rows and steppers. Stepper buttons are 44px at narrow widths and 36px from 561px. Use 3px only on the two outer corners of the segmented control.
+
+- [ ] **Step 4: Run focused tests and commit**
+
+```sh
+NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage npm test -- --run src/tests/appIntegration.test.tsx
+npx playwright test -c playwright.unconfigured.config.ts -g "expanded fit constraints"
+git add src/components/SettingsPanel.tsx src/tests/appIntegration.test.tsx e2e/unconfigured.spec.ts
+git commit -m "refactor: migrate fit constraints to collapsible"
+```
+
+### Task 4: Compose Toolbar and formatting feedback into one command deck
+
+**Files:**
+- Modify: `src/App.tsx`
+- Modify: `src/components/Toolbar.tsx`
+- Modify: `src/components/FormattingWarningSummary.tsx`
+- Modify: `src/styles/app.css`
+- Modify: `src/tests/appIntegration.test.tsx`
+- Modify: `src/tests/responsiveLayout.test.ts`
+- Modify: `e2e/unconfigured.spec.ts`
+
+**Interfaces:**
+- Consumes: SettingsPanel, Separator, Alert, and Button contracts.
+- Produces: one connected command deck with unchanged document-action behavior.
+
+- [ ] **Step 1: Extend existing composition assertions**
+
+In the existing editor-shell integration test, assert the command deck contains four Button slots, one Separator without a warning or two with a warning, and the existing action names. In the existing warning cases, assert one `role="status"` Alert with title/description slots. Update existing responsive CSS assertions to stop requiring selectors that this task deletes.
+
+Do not add a new test case.
+
+- [ ] **Step 2: Run focused tests and confirm the primitive composition assertions fail**
+
+```sh
+NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage npm test -- --run src/tests/appIntegration.test.tsx src/tests/responsiveLayout.test.ts
+```
+
+- [ ] **Step 3: Compose the connected deck in App**
+
+Wrap the three surfaces:
+
+```tsx
+<div
+  data-slot="command-deck"
+  className="w-full overflow-hidden rounded-lg border border-border bg-background"
 >
+  <SettingsPanel constraints={constraints} onChange={setConstraints} />
+  <Separator />
+  <FormattingWarningSummary
+    bulletWarningCount={bulletWarningCount}
+    hasGlobalOverflow={hasGlobalOverflowWarning}
+    constraints={constraints}
+  />
+  {bulletWarningCount > 0 || hasGlobalOverflowWarning ? <Separator /> : null}
+  <Toolbar
+    resume={resume}
+    pageRef={pageRef}
+    onImport={setResume}
+    onReset={() => setResume(DEFAULT_RESUME)}
+  />
+</div>
+```
+
+This is now a genuine use of Separator: it owns the boundaries between complete command-deck regions.
+
+- [ ] **Step 4: Migrate Toolbar without changing handlers**
+
+Use text-only Buttons:
+
+```tsx
+<Button size="editor" onClick={handleExportPDF}>Export PDF</Button>
+<Button variant="outline" size="editor" onClick={handleExportJSON}>Export JSON</Button>
+<Button variant="outline" size="editor" onClick={handleImportClick}>Import JSON</Button>
+<Button variant="dangerOutline" size="editor" onClick={handleReset}>Reset template</Button>
+```
+
+Preserve the toolbar role, group labels, hidden file input, confirm flows, error alerts, and every handler. At narrow widths keep Export actions together and file actions together; do not convert them into an undifferentiated grid or four-button stack.
+
+- [ ] **Step 5: Migrate the warning to Alert**
+
+```tsx
+<Alert variant="warningDeck" role="status" aria-live="polite">
   <AlertTitle>Cannot fit under current constraints</AlertTitle>
   <AlertDescription>
     {hasGlobalOverflow ? (
@@ -367,73 +439,29 @@ Replace the outer custom markup with:
 </Alert>
 ```
 
-Keep the early `null` return and pluralization logic unchanged.
+Use the existing copy expressions verbatim. Keep the early null return. The warning is non-dismissible and never mutates content.
 
-- [ ] **Step 4: Reduce warning CSS to layout and deck adjacency**
+- [ ] **Step 6: Remove replaced CSS, not protected layout**
 
-Keep `.formatting-warning-summary` only where it controls command-deck geometry: width/max-width, connected border radius, adjacency, max-width grouping, and transition behavior. Remove warning color, border, padding, shadow, title typography, and paragraph spacing rules now owned by `Alert` and `AlertDescription`.
+Delete component presentation for `.toolbar-btn`, `.app-status-pill`, `.review-status-control`, `.settings-panel*`, `.settings-control-row*`, `.settings-stepper*`, and `.formatting-warning-summary*`, plus the `.editor-panel::before` Command deck label. Remove obsolete adjacency selectors now owned by the command-deck wrapper and Separator.
 
-If the generated Alert's paragraph selector needs compact spacing, put that spacing in the Alert component's `warning` variant or shared AlertDescription source—not in the consumer class.
+Keep `.app-header`, `.app-header__meta`, `.workspace`, `.editor-panel`, `.resume-stage`, `.resume-canvas-scroll`, `.resume-canvas`, ReviewPanel rules, in-document editor controls, and all print/export-related selectors.
 
-- [ ] **Step 5: Run integration and responsive CSS tests**
-
-```sh
-NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage npm test -- --run src/tests/appIntegration.test.tsx src/tests/responsiveLayout.test.ts
-```
-
-Expected: PASS. The warning remains between SettingsPanel and Toolbar and the command-deck CSS contract remains intact.
-
-- [ ] **Step 6: Commit the warning migration**
+- [ ] **Step 7: Run focused tests and commit**
 
 ```sh
-git add src/components/FormattingWarningSummary.tsx src/styles/app.css src/tests/appIntegration.test.tsx
-git commit -m "refactor: compose formatting warnings with alert"
+NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage npm test -- --run src/tests/appIntegration.test.tsx src/tests/responsiveLayout.test.ts src/tests/export.test.ts
+npx playwright test -c playwright.unconfigured.config.ts -g "loads, renders|landing workflow|expanded fit constraints|fixed resume canvas"
+git add src/App.tsx src/components/Toolbar.tsx src/components/FormattingWarningSummary.tsx src/styles/app.css src/tests/appIntegration.test.tsx src/tests/responsiveLayout.test.ts e2e/unconfigured.spec.ts
+git commit -m "refactor: compose the editor command deck"
 ```
 
-### Task 4: Add responsive browser coverage and verify the PR
+### Task 5: Verify, visually review, document, and open the PR
 
 **Files:**
-- Modify: `e2e/unconfigured.spec.ts`
 - Modify: `docs/SHADCN_MIGRATION.md`
 
-**Interfaces:**
-- Consumes: migrated editor primitives and existing unconfigured Playwright configuration.
-- Produces: browser-level regression coverage, completed roadmap status, and release evidence for PR review.
-
-- [ ] **Step 1: Add exact desktop and narrow editor control assertions**
-
-Extend the existing fixed-canvas narrow-width E2E test or add one editor-control test that uses the production app only. At 960px assert:
-
-```ts
-await page.setViewportSize({ width: 960, height: 900 })
-await expect(page.getByRole('button', { name: 'Export PDF' })).toHaveCSS('height', '36px')
-await expect(page.getByText('Saved locally')).toBeVisible()
-await expect(page.getByRole('toolbar', { name: 'Document actions' })).toBeVisible()
-```
-
-At 358px assert:
-
-```ts
-await page.setViewportSize({ width: 358, height: 900 })
-for (const name of ['Export PDF', 'Export JSON', 'Import JSON', 'Reset template']) {
-  const box = await page.getByRole('button', { name }).boundingBox()
-  expect(box?.height).toBeGreaterThanOrEqual(44)
-}
-await expect(page.locator('.resume-page')).toHaveCSS('width', '816px')
-expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(358)
-```
-
-Keep existing PDF download, JSON behavior, review-state, and canvas-scroller assertions. Do not add screenshots.
-
-- [ ] **Step 2: Run the focused browser test**
-
-```sh
-npx playwright test -c playwright.unconfigured.config.ts -g "fixed resume canvas|editor controls"
-```
-
-Expected: PASS with the exact name selected in the final test.
-
-- [ ] **Step 3: Run the full verification contract**
+- [ ] **Step 1: Run the complete verification contract**
 
 ```sh
 NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage npm test -- --run
@@ -444,73 +472,62 @@ test -f dist/index.html
 test -f dist/404.html
 cmp dist/index.html dist/404.html
 git diff --exit-code origin/main...HEAD -- \
-  src/styles/resume.css \
-  src/types.ts \
-  src/storage.ts \
-  src/export.ts \
-  src/reviewApi.ts \
-  src/useResumeReview.ts
+  src/styles/resume.css src/types.ts src/storage.ts src/export.ts \
+  src/reviewApi.ts src/useResumeReview.ts
 git diff --check
 rm -rf test-results
 git status --short --branch
 ```
 
-Expected: all unit and E2E tests pass; the default production build is restored after configured E2E; SPA files are byte-identical; protected files are unchanged; only intended source, test, and documentation changes remain.
+Expected: all existing and deliberately added tests pass; the default build is restored; SPA files are byte-identical; protected files are unchanged.
 
-- [ ] **Step 4: Perform desktop-first manual QA**
+- [ ] **Step 2: Perform layered manual QA**
 
-Check `/presume/editor/` at 1120px and 960px first:
+Desktop first at 1120px and 960px:
 
-- The resume remains the visual anchor and 816px wide.
-- Toolbar density and the connected command-deck composition remain intact.
-- Export PDF is clearly primary; reset is restrained until hover/focus.
-- Saved status is non-interactive; review status remains operable and exposes correct expanded/disabled state.
-- Keyboard focus indicators are visible and reduced-motion behavior remains quiet.
+- Resume remains the visual anchor and 816px wide.
+- Header status and semantic Review tones match the approved contract.
+- Fit Constraints starts closed, reveals smoothly, and all bounds work.
+- Toolbar hierarchy, warning integration, focus, import/export/reset, and review navigation work.
 
-Then check 560px, 561px, and 358px:
+Then 561px, 560px, and 358px:
 
-- Toolbar/review actions are at least 44px through 560px and return to 36px at 561px.
-- Controls wrap without clipping or page-level horizontal overflow.
-- The 816px resume still scrolls only inside `.resume-canvas-scroll`.
+- Controls transition from 36px to at least 44px at the inclusive boundary.
+- Action groups remain intact with no document-level overflow.
+- Resume overflow stays inside `.resume-canvas-scroll`.
 
-Spot-check `/presume/` at 1120px and 358px to ensure primitive changes did not alter landing buttons or Badge styling.
+Spot-check landing at 1120px and 358px, configured/unconfigured review states, reduced motion, direct editor navigation, PDF export, JSON import/export, and browser back.
 
-- [ ] **Step 5: Update the roadmap with actual results**
+- [ ] **Step 3: Update roadmap with actual evidence**
 
-In `docs/SHADCN_MIGRATION.md`, mark PR 2 complete only after automated and manual checks pass. Add the PR number/link and actual test counts. Leave PR 3 and PR 4 unchanged.
+Mark PR 2 complete only after automated and manual QA pass. Record the PR link, actual test counts, and that PR 3 is ReviewPanel presentation while PR 4 is shell consolidation.
 
-- [ ] **Step 6: Commit tests and documentation**
-
-```sh
-git add e2e/unconfigured.spec.ts docs/SHADCN_MIGRATION.md
-git commit -m "test: cover shared editor primitive migration"
-```
-
-- [ ] **Step 7: Push and open the focused PR**
+- [ ] **Step 4: Commit documentation, push, and open the PR**
 
 ```sh
+git add docs/SHADCN_MIGRATION.md
+git commit -m "docs: record command deck migration"
 git push -u origin feat/shadcn-shared-editor-controls
-gh pr create \
-  --base main \
-  --head feat/shadcn-shared-editor-controls \
-  --title "Migrate shared editor controls to shadcn" \
+gh pr create --base main --head feat/shadcn-shared-editor-controls \
+  --title "Migrate the editor header and command deck to shadcn" \
   --body-file /tmp/presume-pr2-body.md
 ```
 
-The PR description must summarize the primitive additions, semantic distinctions between Button and Badge, preserved behavior, CSS removed, exact verification results, manual QA status, and the deliberate decision not to force Separator into the command deck.
+The PR description must list the approved design decisions, behavior preserved, CSS removed, test count, manual QA status, protected files, and follow-up surface PRs.
 
 ## Rollback Strategy
 
-- Each task is independently revertible: primitive additions, control migration, warning migration, and browser/docs coverage are separate commits.
-- If a surface regresses visually, revert that surface commit while retaining the reviewed primitive foundation for repair.
-- Reverting the entire PR restores the existing handcrafted editor presentation without affecting data, storage, export, review, or resume-document behavior.
+- Primitive, header, Fit Constraints, and command-deck commits are independently revertible.
+- Revert a surface commit if its visual migration regresses while retaining the reviewed primitives.
+- Reverting the full PR restores the handcrafted header/command deck without data or schema rollback.
 
 ## Review Focus
 
-- React 18 ref behavior for every new Alert wrapper.
-- No Badge used as an interactive control.
-- No changed toolbar/import/export/reset or review-state behavior.
-- Exact 560/561px control-height transition and no document-level overflow.
-- No `src/styles/resume.css` or protected behavior-file changes.
-- No duplicate component presentation left in `app.css` after a surface migrates.
-- Landing primitives retain their PR #23 appearance and behavior.
+- No interactive Badge; no decorative icons; no PDF import.
+- Correct semantic Review tone mapping and C1 loading motion.
+- React 18 refs for every new wrapper.
+- Collapsible closed by default, non-persisted, bounded steppers, and reduced-motion fallback.
+- No duplicate migrated presentation CSS.
+- No change to ReviewPanel presentation beyond loading copy.
+- No change to fixed-canvas, resume, export, data, or review behavior.
+- Test additions remain proportional: existing cases are extended first, and each new case protects a distinct regression or public contract.

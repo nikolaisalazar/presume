@@ -69,31 +69,31 @@ Status: complete; merged in PR #23 with automated and exact-width manual visual 
 - Remove landing-only CSS after the replacement is verified.
 - Do not migrate editor or resume-document components.
 
-### PR 2: Shared editor controls and feedback
+### PR 2: Header and command deck
 
 Status: planned in `docs/superpowers/plans/2026-07-10-shadcn-shared-editor-controls.md`; implementation not started.
 
-- Migrate Toolbar actions to `Button`.
-- Migrate the non-interactive saved status to `Badge`; migrate the interactive review status control to `Button` while preserving its compact status treatment.
-- Migrate formatting warnings to `Alert`.
-- Replace genuine visual dividers with `Separator`. The PR 2 inventory found no editor divider that benefits from replacement, so PR 2 must not add a decorative separator merely to consume the primitive.
-- Remove the replaced toolbar/status/warning CSS in the same PR.
+- Migrate the non-interactive saved status to `Badge` and the interactive Review status to semantic `Button` variants.
+- Add `Collapsible` and rebuild Fit Constraints as a compact command strip while preserving its local closed-by-default state and custom steppers.
+- Migrate Toolbar actions to `Button` and formatting warnings to `Alert`.
+- Use `Separator` only for the genuine boundaries inside the newly unified command deck.
+- Remove all replaced header, settings, toolbar, warning, and command-deck presentation CSS in the same PR while keeping editor-shell geometry custom.
 
-### PR 3: Fit constraints
-
-Status: not started.
-
-- Add `Collapsible` and migrate `SettingsPanel` disclosure behavior.
-- Preserve controlled open state, helper copy, steppers, 44px narrow-screen targets, and reduced-motion behavior.
-- Keep the custom numeric stepper unless a separate evaluation proves a shadcn primitive improves it.
-
-### PR 4: Review panel presentation
+### PR 3: Review panel presentation
 
 Status: not started.
 
 - Compose `Card`, `Alert`, `Badge`, `Button`, and `Separator` around the existing review state machine.
 - Preserve every configured, checking, disabled, config-error, loading, success, stale, and request-error state.
 - Keep review advisory and non-mutating.
+
+### PR 4: Editor-shell consolidation
+
+Status: not started.
+
+- Convert remaining workspace and resume-stage application chrome to utilities where doing so removes meaningful legacy CSS.
+- Audit and remove dead application-chrome selectors after PRs 2 and 3.
+- Preserve the fixed resume canvas, scroller, print/export behavior, and `src/styles/resume.css` as custom layout infrastructure.
 
 ### Later evaluation
 
