@@ -60,7 +60,7 @@ The migration must not introduce backend, provider, auth, database, queue, stabl
 
 ### PR 1: Foundation and landing page
 
-Status: implemented; automated verification complete, manual visual review pending.
+Status: complete; merged in PR #23 with automated and exact-width manual visual verification complete.
 
 - Add Tailwind v4, Base UI shadcn configuration, semantic tokens, and the `@/*` alias.
 - Add and use `Button`, `Card`, `Badge`, and `Separator`.
@@ -69,31 +69,51 @@ Status: implemented; automated verification complete, manual visual review pendi
 - Remove landing-only CSS after the replacement is verified.
 - Do not migrate editor or resume-document components.
 
-### PR 2: Shared editor controls and feedback
+### PR 2: Header and command deck
+
+Status: implementation, automated verification, whole-branch review, and exact-width manual QA are complete on `feat/shadcn-shared-editor-controls`; the branch is ready for PR publication.
+
+Automated evidence (2026-07-10):
+
+- Vitest: 13 files and 162 tests passed with the documented Node local-storage workaround.
+- Playwright: 7 tests passed (4 unconfigured and 3 configured-review). The release-gate run used `CI=1` so Playwright started its own port-4173 preview instead of reusing an unrelated server.
+- The production build completed after 353 modules were transformed. The default unconfigured build was restored after configured-review E2E, and `dist/index.html` and `dist/404.html` were byte-identical.
+- Protected resume, data, export, and review implementation files remained unchanged; `git diff --check` passed.
+- Whole-branch review found one Review-focus defect; commit `3b6c1d3` removed the state-specific override so every Review tone inherits the shared blue keyboard ring. Re-review found no remaining code-level issues.
+
+Manual QA evidence (2026-07-10):
+
+- At 1120px and 960px, the command deck remains subordinate to the fixed 816px resume, the desktop hierarchy stays document-led, and no overlap or page-level horizontal overflow appears.
+- At 561px, Toolbar and stepper controls measure 36px high. At the inclusive 560px boundary and at 358px, they measure 44px; action groups remain coherent and the collapsed Fit Constraints summary stays usable.
+- At 358px, the document width remains 358px, the resume remains 816px, and the intentional canvas scroller measures 302px client width / 836px scroll width with no document-level overflow.
+- Fit Constraints starts closed, reveals in 180ms, preserves every bound, and becomes effectively instant under reduced motion. The integrated warning remains readable at 960px and 358px.
+- Review idle/loading/success/stale/setup-needed/connection-error tones render blue/blue/green/amber/amber/red as approved. The one-pixel loading sweep runs only while reviewing, becomes static under reduced motion, and every tone shows the shared blue keyboard focus ring.
+- JSON export downloaded `resume.json`, PDF export downloaded `resume.pdf`, JSON import replaced the resume and persisted it to LocalStorage, and Reset displayed the existing confirmation without mutating after cancellation.
+- Landing routes at 1120px and 358px retained their approved PR #23 composition with no page-level overflow.
+
+- Migrate the non-interactive saved status to `Badge` and the interactive Review status to semantic `Button` variants.
+- Add `Collapsible` and rebuild Fit Constraints as a compact command strip while preserving its local closed-by-default state and custom steppers.
+- Migrate Toolbar actions to `Button` and formatting warnings to `Alert`.
+- Use `Separator` only for the genuine boundaries inside the newly unified command deck.
+- Remove all replaced header, settings, toolbar, warning, and command-deck presentation CSS in the same PR while keeping editor-shell geometry custom.
+
+### PR 3: Review panel presentation
 
 Status: not started.
 
-- Migrate Toolbar actions to `Button`.
-- Migrate saved/review status chips to `Badge`.
-- Migrate formatting warnings to `Alert`.
-- Replace genuine visual dividers with `Separator`.
-- Remove the replaced toolbar/status/warning CSS in the same PR.
-
-### PR 3: Fit constraints
-
-Status: not started.
-
-- Add `Collapsible` and migrate `SettingsPanel` disclosure behavior.
-- Preserve controlled open state, helper copy, steppers, 44px narrow-screen targets, and reduced-motion behavior.
-- Keep the custom numeric stepper unless a separate evaluation proves a shadcn primitive improves it.
-
-### PR 4: Review panel presentation
-
-Status: not started.
-
+- This is the next presentation-only surface PR after PR 2.
 - Compose `Card`, `Alert`, `Badge`, `Button`, and `Separator` around the existing review state machine.
 - Preserve every configured, checking, disabled, config-error, loading, success, stale, and request-error state.
 - Keep review advisory and non-mutating.
+
+### PR 4: Editor-shell consolidation
+
+Status: not started.
+
+- This is the shell-consolidation follow-up after the ReviewPanel presentation PR.
+- Convert remaining workspace and resume-stage application chrome to utilities where doing so removes meaningful legacy CSS.
+- Audit and remove dead application-chrome selectors after PRs 2 and 3.
+- Preserve the fixed resume canvas, scroller, print/export behavior, and `src/styles/resume.css` as custom layout infrastructure.
 
 ### Later evaluation
 

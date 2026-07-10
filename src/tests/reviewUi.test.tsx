@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { ResumePage } from '../components/ResumePage'
 import { ReviewPanel } from '../components/ReviewPanel'
 import {
+  getReviewButtonVariant,
   ReviewStatusControl,
   shouldShowReviewPanel,
 } from '../components/ReviewStatusControl'
@@ -185,8 +186,9 @@ describe('ReviewPanel', () => {
     render(<ReviewPanel state={{ status: 'loading' }} onRequestReview={onRequestReview} />)
 
     expect(screen.getByText('Review request is in progress.')).toBeInTheDocument()
-    const button = screen.getByRole('button', { name: 'Reviewing...' })
+    const button = screen.getByRole('button', { name: 'Reviewing' })
     expect(button).toBeDisabled()
+    expect(button).not.toHaveAttribute('data-loading')
 
     fireEvent.click(button)
 
@@ -690,6 +692,34 @@ describe('ReviewStatusControl', () => {
     ).toBe(true)
     expect(shouldShowReviewPanel({ status: 'success', result: reviewResult }, false, successKey)).toBe(false)
     expect(shouldShowReviewPanel({ status: 'success', result: reviewResult }, true, successKey)).toBe(true)
+
+    const variants: Array<[ResumeReviewState, ReturnType<typeof getReviewButtonVariant>]> = [
+      [{ status: 'idle' }, 'review'],
+      [{ status: 'loading' }, 'review'],
+      [{ status: 'success', result: reviewResult }, 'reviewSuccess'],
+      [{ status: 'stale', result: reviewResult }, 'reviewWarning'],
+      [{ status: 'disabled' }, 'reviewWarning'],
+      [{ status: 'error', error: new Error('Review failed.') }, 'reviewError'],
+      [{ status: 'config_error', error: new Error('Connection failed.') }, 'reviewError'],
+    ]
+
+    variants.forEach(([state, expected]) => {
+      expect(getReviewButtonVariant(state)).toBe(expected)
+    })
+
+    render(
+      <ReviewStatusControl
+        state={{ status: 'loading' }}
+        panelOpen={false}
+        panelDismissedKey={null}
+        panelId="resume-review-panel"
+        onTogglePanel={vi.fn()}
+        onRequestReview={vi.fn()}
+      />
+    )
+    const loadingButton = screen.getByRole('button', { name: 'Reviewing' })
+    expect(loadingButton).toHaveAttribute('data-loading', '')
+    expect(loadingButton).not.toHaveClass('review-status-control')
   })
 
   it('does not let a dismissed successful review suppress a later successful review', () => {

@@ -20,8 +20,7 @@ describe('responsive review layout CSS', () => {
     expect(appCss).toContain('grid-template-columns: minmax(0, var(--editor-shell-width));')
     expect(appCss).toContain('max-width: var(--editor-shell-width);')
     expect(appCss).toContain('width: 100%;\n  max-width: 100%;\n  min-width: 0;\n  padding: var(--stage-padding);')
-    expect(appCss).toContain('.settings-panel,\n.toolbar,\n.formatting-warning-summary')
-    expect(appCss).toContain('max-width: none;')
+    expect(appCss).not.toContain('.settings-panel,\n.toolbar,\n.formatting-warning-summary')
   })
 
   it('stages the resume canvas as the strongest physical surface without desktop horizontal scroll', () => {
@@ -32,16 +31,12 @@ describe('responsive review layout CSS', () => {
   })
 
   it('composes constraints toolbar and stage as a polished command deck', () => {
-    expect(appCss).toContain('.editor-panel::before')
-    expect(appCss).toContain('Command deck')
-    expect(appCss).toContain('.settings-panel + .toolbar')
-    expect(appCss).toContain('.settings-panel__body-inner')
-    expect(appCss).toContain('.settings-control-row')
-    expect(appCss).toContain('.settings-stepper')
-    expect(appCss).toContain('.settings-stepper__value')
-    expect(appCss).toContain('grid-template-columns: minmax(160px, 0.8fr) auto minmax(220px, 1fr);')
+    expect(appCss).not.toContain('.editor-panel::before')
+    expect(appCss).not.toContain('.settings-panel + .toolbar')
+    expect(appCss).not.toContain('.settings-panel__body-inner')
+    expect(appCss).not.toContain('.settings-control-row')
+    expect(appCss).not.toContain('.settings-stepper')
     expect(appCss).toContain('.resume-stage__chrome')
-    expect(appCss).toContain('transition: grid-template-rows')
   })
 
   it('uses one editor-shell column by default and adds a review column only with an active panel', () => {

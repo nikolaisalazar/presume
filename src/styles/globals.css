@@ -33,6 +33,16 @@
     --color-primary-hover: var(--primary-hover);
     --color-primary-foreground: var(--primary-foreground);
     --color-primary: var(--primary);
+    --color-warning-bg: var(--warning-bg);
+    --color-warning-border: var(--warning-border);
+    --color-warning-ink: var(--warning-ink);
+    --color-review-bg: var(--review-bg);
+    --color-review-border: var(--review-border);
+    --color-review-ink: var(--review-ink);
+    --color-review-hover: var(--review-hover);
+    --color-review-success-bg: var(--review-success-bg);
+    --color-review-success-border: var(--review-success-border);
+    --color-review-success-ink: var(--review-success-ink);
     --color-popover-foreground: var(--popover-foreground);
     --color-popover: var(--popover);
     --color-card-foreground: var(--card-foreground);
@@ -68,6 +78,16 @@
     --border: #cbd5e1;
     --input: #9fb0c2;
     --ring: #2563eb;
+    --warning-bg: #fff7ed;
+    --warning-border: #fdba74;
+    --warning-ink: #9a3412;
+    --review-bg: #e8f6fb;
+    --review-border: rgb(14 116 144 / 34%);
+    --review-ink: #155e75;
+    --review-hover: #e0f2fe;
+    --review-success-bg: #ecfdf5;
+    --review-success-border: #99d5be;
+    --review-success-ink: #166534;
     --chart-1: oklch(0.87 0 0);
     --chart-2: oklch(0.556 0 0);
     --chart-3: oklch(0.439 0 0);
@@ -82,6 +102,11 @@
     --sidebar-accent-foreground: oklch(0.205 0 0);
     --sidebar-border: oklch(0.922 0 0);
     --sidebar-ring: oklch(0.708 0 0);
+}
+
+@keyframes review-progress-sweep {
+  0% { transform: translateX(-120%); }
+  72%, 100% { transform: translateX(260%); }
 }
 
 .dark {

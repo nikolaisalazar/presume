@@ -8,6 +8,8 @@ import { ResumePage } from './components/ResumePage'
 import { ReviewPanel } from './components/ReviewPanel'
 import { FormattingWarningSummary } from './components/FormattingWarningSummary'
 import { LandingPage } from './components/LandingPage'
+import { Badge } from './components/ui/badge'
+import { Separator } from './components/ui/separator'
 import {
   ReviewStatusControl,
   getUsefulReviewPanelKey,
@@ -112,7 +114,7 @@ function EditorApp({ onOpenLanding }: { onOpenLanding: () => void }) {
           </div>
         </a>
         <div className="app-header__meta" aria-label="Editor status">
-          <span className="app-status-pill">Saved locally</span>
+          <Badge variant="secondary" size="status">Saved locally</Badge>
           <ReviewStatusControl
             state={review.state}
             panelOpen={reviewPanelOpen}
@@ -125,18 +127,25 @@ function EditorApp({ onOpenLanding }: { onOpenLanding: () => void }) {
       </header>
       <main className={`workspace ${showReviewPanel ? 'workspace--with-review' : ''}`}>
         <section className="editor-panel" aria-label="Resume editor">
-          <SettingsPanel constraints={constraints} onChange={setConstraints} />
-          <FormattingWarningSummary
-            bulletWarningCount={bulletWarningCount}
-            hasGlobalOverflow={hasGlobalOverflowWarning}
-            constraints={constraints}
-          />
-          <Toolbar
-            resume={resume}
-            pageRef={pageRef}
-            onImport={setResume}
-            onReset={() => setResume(DEFAULT_RESUME)}
-          />
+          <div
+            data-slot="command-deck"
+            className="w-full overflow-hidden rounded-lg border border-border bg-background"
+          >
+            <SettingsPanel constraints={constraints} onChange={setConstraints} />
+            <Separator />
+            <FormattingWarningSummary
+              bulletWarningCount={bulletWarningCount}
+              hasGlobalOverflow={hasGlobalOverflowWarning}
+              constraints={constraints}
+            />
+            {bulletWarningCount > 0 || hasGlobalOverflowWarning ? <Separator /> : null}
+            <Toolbar
+              resume={resume}
+              pageRef={pageRef}
+              onImport={setResume}
+              onReset={() => setResume(DEFAULT_RESUME)}
+            />
+          </div>
           <div className="resume-stage">
             <div className="resume-stage__chrome" aria-hidden="true">
               <span>Letter · fixed canvas</span>

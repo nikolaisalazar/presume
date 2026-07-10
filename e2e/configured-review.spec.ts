@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test'
 
 test.describe('configured review browser contracts', () => {
   test('renders disabled service state from safe config', async ({ page }) => {
+    await page.setViewportSize({ width: 560, height: 900 })
     await page.route('http://127.0.0.1:8124/config', route =>
       route.fulfill({
         status: 200,
@@ -24,6 +25,14 @@ test.describe('configured review browser contracts', () => {
     await page.getByRole('button', { name: 'Review unavailable — setup needed' }).click()
     await expect(page.getByRole('complementary', { name: 'Resume review' })).toBeVisible()
     await expect(page.getByText('Review service unavailable')).toBeVisible()
+
+    const panel = page.getByRole('complementary', { name: 'Resume review' })
+    for (const action of [
+      panel.getByRole('button', { name: 'Review resume' }),
+      panel.getByRole('button', { name: 'Close review panel' }),
+    ]) {
+      await expect(action).toHaveCSS('height', '44px')
+    }
   })
 
   test('renders config-error state when backend cannot be reached', async ({ page }) => {
