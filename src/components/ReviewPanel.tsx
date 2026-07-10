@@ -5,7 +5,17 @@ import type {
   ReviewCategory,
 } from '../reviewTypes'
 import type { ResumeReviewState } from '../useResumeReview'
+import { useEffect, useState } from 'react'
+import {
+  ReviewCategorySelector,
+  selectLargestDeficitCategory,
+} from './ReviewCategorySelector'
 import { Button } from './ui/button'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from './ui/collapsible'
 
 interface ReviewPanelProps {
   id?: string
@@ -125,54 +135,44 @@ export function ReviewPanel({ id, state, onRequestReview, onClose }: ReviewPanel
 function ReviewResultDetails({ state }: { state: ResumeReviewState }) {
   const result = 'result' in state ? state.result : undefined
   if (!result) return null
+  const defaultCategoryKey = selectLargestDeficitCategory(result.categories)
+  const [selectedCategoryKey, setSelectedCategoryKey] = useState(defaultCategoryKey)
+
+  useEffect(() => {
+    setSelectedCategoryKey(selectLargestDeficitCategory(result.categories))
+  }, [result.id, result.categories])
 
   return (
-    <div className="review-result">
-      <div className="review-score">
-        <div>
-          <span className="review-score__value">
-            {result.totalScore} / {result.maxScore}
-          </span>
-          <p className="review-score__note">Advisory score, not an ATS guarantee.</p>
-        </div>
-        <span className="review-score__tier">{formatTier(result.tier)}</span>
-      </div>
-
-      <ReviewCategories categories={result.categories} />
-      <ReviewList title="Strengths" items={result.strengths} />
-      <ReviewList title="Improvements" items={result.improvements} />
-      <ReviewAdjustments title="Bonuses" adjustments={result.bonuses} />
-      <ReviewAdjustments title="Deductions" adjustments={result.deductions} />
-      <ReviewAnnotationLegend annotations={result.annotations} />
+    <div className="review-result flex flex-col gap-3">
+      <ReviewScore result={result} />
+      <ReviewCategorySelector
+        categories={result.categories}
+        selectedKey={selectedCategoryKey}
+        onSelect={setSelectedCategoryKey}
+      />
+      <ReviewAdjustmentLedger bonuses={result.bonuses} deductions={result.deductions} />
+      <ReviewList title="Areas for improvement" items={result.improvements} />
       <ReviewFindings annotations={result.annotations} />
+      <ReviewDisclosure title="Key strengths" items={result.strengths} />
+      <ReviewAdjustmentDetails bonuses={result.bonuses} deductions={result.deductions} />
       {hasNoDetailedFindings(result) ? (
-        <p className="review-empty-detail">No detailed findings returned.</p>
+        <p className="rounded-[4px] border border-dashed border-border p-2.5 text-xs text-muted-foreground">
+          No detailed findings returned.
+        </p>
       ) : null}
     </div>
   )
 }
 
-function ReviewCategories({ categories }: { categories: ReviewCategory[] }) {
-  if (categories.length === 0) return null
-
+function ReviewScore({ result }: { result: { totalScore: number; maxScore: number; tier: string } }) {
   return (
-    <section className="review-section">
-      <h3>Categories</h3>
-      {categories.map(category => (
-        <article key={category.key} className="review-category">
-          <div className="review-category__header">
-            <span>{category.label}</span>
-            <span>
-              {category.score} / {category.maxScore}
-            </span>
-          </div>
-          <div className="review-category__body">
-            <ReviewList title="Evidence" items={category.evidence} compact />
-            <ReviewList title="Suggestions" items={category.suggestions} compact />
-          </div>
-        </article>
-      ))}
-    </section>
+    <div className="review-score">
+      <div>
+        <span className="review-score__value">{result.totalScore} / {result.maxScore}</span>
+        <p className="review-score__note">Advisory score, not an ATS guarantee.</p>
+      </div>
+      <span className="review-score__tier">{formatTier(result.tier)}</span>
+    </div>
   )
 }
 
@@ -199,31 +199,62 @@ function ReviewList({
   )
 }
 
-function ReviewAdjustments({
-  title,
-  adjustments,
-}: {
-  title: string
-  adjustments: ReviewAdjustment[]
+function totalAdjustmentPoints(adjustments: ReviewAdjustment[]): number {
+  return adjustments.reduce((total, adjustment) => total + adjustment.points, 0)
+}
+
+function ReviewAdjustmentLedger({ bonuses, deductions }: {
+  bonuses: ReviewAdjustment[]
+  deductions: ReviewAdjustment[]
 }) {
-  if (adjustments.length === 0) return null
+  if (bonuses.length === 0 && deductions.length === 0) return null
+  const bonus = totalAdjustmentPoints(bonuses)
+  const deduction = Math.abs(totalAdjustmentPoints(deductions))
 
   return (
-    <section className="review-section">
-      <h3>{title}</h3>
-      <ul>
-        {adjustments.map((adjustment, index) => (
-          <li key={`${adjustment.label}-${index}`}>
-            <span>{adjustment.label}</span>
-            <span className="review-adjustment-points">
-              {adjustment.points > 0 ? '+' : ''}
-              {adjustment.points}
-            </span>
-            {adjustment.evidence ? <p>{adjustment.evidence}</p> : null}
-          </li>
-        ))}
-      </ul>
-    </section>
+    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-y border-border py-2 text-xs">
+      <span>Bonus +{bonus} · Deductions −{deduction}</span>
+    </div>
+  )
+}
+
+function ReviewDisclosure({ title, items }: { title: string; items: string[] }) {
+  const [open, setOpen] = useState(false)
+  if (items.length === 0) return null
+  return (
+    <Collapsible open={open} onOpenChange={setOpen}>
+      <CollapsibleTrigger className="flex w-full items-center justify-between text-xs font-semibold">
+        <span>{title}</span><span>{open ? 'Hide' : 'Show'}</span>
+      </CollapsibleTrigger>
+      <CollapsibleContent><ReviewList title={title} items={items} /></CollapsibleContent>
+    </Collapsible>
+  )
+}
+
+function ReviewAdjustmentDetails({ bonuses, deductions }: {
+  bonuses: ReviewAdjustment[]
+  deductions: ReviewAdjustment[]
+}) {
+  const [open, setOpen] = useState(false)
+  const adjustments = [...bonuses, ...deductions]
+  if (adjustments.length === 0) return null
+  return (
+    <Collapsible open={open} onOpenChange={setOpen}>
+      <CollapsibleTrigger className="flex w-full items-center justify-between text-xs font-semibold">
+        <span>Adjustment details</span><span>{open ? 'Hide' : 'Show'}</span>
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <ul className="mt-2 flex list-disc flex-col gap-1 pl-4 text-xs">
+          {adjustments.map((adjustment, index) => (
+            <li key={`${adjustment.label}-${index}`}>
+              <span>{adjustment.label}</span>{' '}
+              <span>({adjustment.points > 0 ? '+' : ''}{adjustment.points})</span>
+              {adjustment.evidence ? <p>{adjustment.evidence}</p> : null}
+            </li>
+          ))}
+        </ul>
+      </CollapsibleContent>
+    </Collapsible>
   )
 }
 
@@ -273,6 +304,7 @@ function ReviewFindings({
 
   return (
     <section className="review-section review-findings">
+      <ReviewAnnotationLegend annotations={annotations} />
       <h3>Findings</h3>
       <ul>
         {annotations.map(annotation => (

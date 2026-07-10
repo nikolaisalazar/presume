@@ -264,15 +264,52 @@ describe('ReviewPanel', () => {
     expect(screen.getByText('72 / 100')).toBeInTheDocument()
     expect(screen.getByText('Competitive')).toBeInTheDocument()
     expect(screen.getByText('Production Experience')).toBeInTheDocument()
-    expect(screen.getByText('Clear technical ownership.')).toBeInTheDocument()
     expect(screen.getByText('Quantify production impact.')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /Adjustment details/i }))
     expect(screen.getByText('Open source signal')).toBeInTheDocument()
     expect(screen.getByText('Missing scale')).toBeInTheDocument()
     expect(screen.getByText('Add measurable impact.')).toBeInTheDocument()
     expect(screen.getByText('Advisory only')).toBeInTheDocument()
   })
 
-  it('groups category evidence and suggestions under the category result', () => {
+  it('defaults to the largest-deficit category and resets for a new review', () => {
+    const { rerender } = render(
+      <ReviewPanel
+        state={{ status: 'success', result: reviewResult }}
+        onRequestReview={vi.fn()}
+      />
+    )
+
+    expect(screen.getByRole('button', { name: /Production Experience, 18 of 25/i }))
+      .toHaveAttribute('aria-pressed', 'true')
+
+    const nextResult: ReviewResult = {
+      ...reviewResult,
+      id: 'review_456',
+      categories: [
+        ...reviewResult.categories,
+        {
+          key: 'open_source',
+          label: 'Open Source',
+          score: 5,
+          maxScore: 35,
+          evidence: ['External contributions are limited.'],
+          suggestions: [],
+        },
+      ],
+    }
+
+    rerender(
+      <ReviewPanel
+        state={{ status: 'success', result: nextResult }}
+        onRequestReview={vi.fn()}
+      />
+    )
+    expect(screen.getByRole('button', { name: /Open Source, 5 of 35/i }))
+      .toHaveAttribute('aria-pressed', 'true')
+  })
+
+  it('keeps improvements visible and supporting details closed by default', () => {
     render(
       <ReviewPanel
         state={{ status: 'success', result: reviewResult }}
@@ -280,16 +317,30 @@ describe('ReviewPanel', () => {
       />
     )
 
-    const category = screen
-      .getByText('Production Experience')
-      .closest('.review-category')
+    expect(screen.getByText('Quantify production impact.')).toBeVisible()
+    expect(screen.getByRole('button', { name: /Key strengths/i }))
+      .toHaveAttribute('aria-expanded', 'false')
+    expect(screen.queryByText('Clear technical ownership.')).not.toBeInTheDocument()
+    expect(screen.getByText(/Bonus \+3 · Deductions −2/)).toBeVisible()
+    expect(screen.getByRole('button', { name: /Adjustment details/i }))
+      .toHaveAttribute('aria-expanded', 'false')
 
-    expect(category).not.toBeNull()
-    expect(category).toHaveTextContent('18 / 25')
-    expect(category).toHaveTextContent('Evidence')
-    expect(category).toHaveTextContent('Experience section shows engineering work.')
-    expect(category).toHaveTextContent('Suggestions')
-    expect(category).toHaveTextContent('Clarify user or business impact.')
+    fireEvent.click(screen.getByRole('button', { name: /Key strengths/i }))
+    expect(screen.getByText('Clear technical ownership.')).toBeVisible()
+  })
+
+  it('groups evidence under the selected category result', () => {
+    render(
+      <ReviewPanel
+        state={{ status: 'success', result: reviewResult }}
+        onRequestReview={vi.fn()}
+      />
+    )
+
+    expect(screen.getByRole('heading', { name: 'Production Experience evidence' }))
+      .toBeInTheDocument()
+    expect(screen.getByText('Experience section shows engineering work.'))
+      .toBeInTheDocument()
   })
 
   it('renders a clean empty-result state when no detailed review arrays are returned', () => {
