@@ -100,7 +100,7 @@ Manual QA evidence (2026-07-10):
 
 ### PR 3: Review panel presentation
 
-Status: not started.
+Status: design approved; implementation plan pending. See [`docs/superpowers/specs/2026-07-10-shadcn-review-panel-design.md`](superpowers/specs/2026-07-10-shadcn-review-panel-design.md).
 
 - This is the next presentation-only surface PR after PR 2.
 - Compose `Card`, `Alert`, `Badge`, `Button`, and `Separator` around the existing review state machine.
