@@ -13,6 +13,8 @@ const alertVariants = cva(
           "bg-card text-destructive *:data-[slot=alert-description]:text-destructive/90 *:[svg]:text-current",
         warningDeck:
           "rounded-none border-0 bg-warning-bg px-3 py-2 text-[13px] text-warning-ink *:data-[slot=alert-description]:text-warning-ink/90",
+        reviewWarning:
+          "border-warning-border bg-warning-bg text-warning-ink *:data-[slot=alert-description]:text-warning-ink/90",
       },
     },
     defaultVariants: {
@@ -32,6 +34,7 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
     <div
       ref={ref}
       data-slot="alert"
+      data-variant={variant ?? "default"}
       role="alert"
       className={cn(alertVariants({ variant }), className)}
       {...props}

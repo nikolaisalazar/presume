@@ -2,6 +2,7 @@ import type {
   ReviewAdjustment,
   ReviewAnnotation,
   ReviewAnnotationSeverity,
+  ReviewResult,
 } from '../reviewTypes'
 import type { ResumeReviewState } from '../useResumeReview'
 import { useEffect, useState } from 'react'
@@ -10,6 +11,15 @@ import {
   selectLargestDeficitCategory,
 } from './ReviewCategorySelector'
 import { Button } from './ui/button'
+import { Alert, AlertDescription, AlertTitle } from './ui/alert'
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from './ui/card'
 import {
   Collapsible,
   CollapsibleContent,
@@ -26,7 +36,7 @@ interface ReviewPanelProps {
 export function ReviewPanel({ id, state, onRequestReview, onClose }: ReviewPanelProps) {
   const result = 'result' in state ? state.result : undefined
   const resultIsStale =
-    'resultIsStale' in state ? state.resultIsStale : false
+    'resultIsStale' in state ? Boolean(state.resultIsStale) : false
   const isLoading = state.status === 'loading'
   const actionDisabled =
     state.status === 'unconfigured' ||
@@ -37,14 +47,12 @@ export function ReviewPanel({ id, state, onRequestReview, onClose }: ReviewPanel
 
   return (
     <aside id={id} className="review-panel" aria-label="Resume review">
-      <div className="review-panel__header">
-        <div>
-          <h2>Review</h2>
-          <span className="review-panel__advisory">Advisory only</span>
-        </div>
-        <div className="review-panel__actions">
+      <Card size="sm" variant="reviewPanel" className="max-h-[inherit] overflow-auto">
+        <CardHeader className="border-b">
+          <CardTitle>Review</CardTitle>
+          <CardDescription>Advisory evaluation</CardDescription>
+          <CardAction className="flex flex-wrap justify-end gap-1.5">
           <Button
-            className="review-panel__action"
             size="editor"
             onClick={onRequestReview}
             disabled={actionDisabled}
@@ -61,72 +69,13 @@ export function ReviewPanel({ id, state, onRequestReview, onClose }: ReviewPanel
               Close
             </Button>
           ) : null}
-        </div>
-      </div>
-
-      {state.status === 'unconfigured' ? (
-        <ReviewEmptyState
-          title="Review service not configured"
-          message="Set VITE_REVIEW_API_URL and start the review service to enable advisory resume review."
-        />
-      ) : null}
-
-      {state.status === 'checking' ? (
-        <ReviewEmptyState
-          title="Checking review service"
-          message="Review availability is being checked."
-        />
-      ) : null}
-
-      {state.status === 'disabled' ? (
-        <ReviewEmptyState
-          title="Review service unavailable"
-          message="The configured service is reachable, but review is disabled. Check provider setup and Hiring Agent readiness."
-        />
-      ) : null}
-
-      {state.status === 'config_error' ? (
-        <ReviewEmptyState
-          title="Review service unavailable"
-          message={state.error.message}
-        />
-      ) : null}
-
-      {state.status === 'idle' ? (
-        <ReviewEmptyState
-          title="Ready for review"
-          message="Run a review to see score, evidence, and annotations."
-        />
-      ) : null}
-
-      {state.status === 'loading' ? (
-        <ReviewStatus message="Review request is in progress." />
-      ) : null}
-
-      {state.status === 'stale' || resultIsStale ? (
-        <ReviewStatus
-          title="Review is stale"
-          message="Previous results are still shown. Re-run review after editing."
-          tone="stale"
-        />
-      ) : null}
-
-      {state.status === 'error' ? (
-        <ReviewStatus
-          title="Review request failed"
-          message={state.error.message}
-          detail={
-            result
-              ? resultIsStale
-                ? 'Previous stale results remain visible below.'
-                : 'Previous results remain visible below.'
-              : undefined
-          }
-          tone="error"
-        />
-      ) : null}
-
-      {result ? <ReviewResultDetails state={state} /> : null}
+          </CardAction>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-3">
+          {renderReviewStateAlert(state, result, resultIsStale)}
+          {result ? <ReviewResultDetails state={state} /> : null}
+        </CardContent>
+      </Card>
     </aside>
   )
 }
@@ -150,7 +99,7 @@ function ReviewResultDetails({ state }: { state: ResumeReviewState }) {
   }, [result.categories])
 
   return (
-    <div className="review-result flex flex-col gap-3">
+    <div className="flex flex-col gap-3">
       <ReviewScore result={result} />
       <ReviewCategorySelector
         categories={result.categories}
@@ -173,12 +122,12 @@ function ReviewResultDetails({ state }: { state: ResumeReviewState }) {
 
 function ReviewScore({ result }: { result: { totalScore: number; maxScore: number; tier: string } }) {
   return (
-    <div className="review-score">
+    <div className="flex items-start justify-between gap-3 rounded-md border border-primary/35 bg-primary/5 p-2.5">
       <div>
-        <span className="review-score__value">{result.totalScore} / {result.maxScore}</span>
-        <p className="review-score__note">Advisory score, not an ATS guarantee.</p>
+        <span className="block text-[22px] font-bold text-primary">{result.totalScore} / {result.maxScore}</span>
+        <p className="mt-1 text-[11px] leading-tight text-primary">Advisory score, not an ATS guarantee.</p>
       </div>
-      <span className="review-score__tier">{formatTier(result.tier)}</span>
+      <span className="whitespace-nowrap text-xs font-bold text-primary">{formatTier(result.tier)}</span>
     </div>
   )
 }
@@ -195,9 +144,9 @@ function ReviewList({
   if (items.length === 0) return null
 
   return (
-    <section className={compact ? 'review-section review-section--compact' : 'review-section'}>
-      <h3>{title}</h3>
-      <ul>
+    <section className={compact ? 'flex flex-col gap-1' : 'flex flex-col gap-1.5'}>
+      <h3 className="text-xs font-semibold">{title}</h3>
+      <ul className="flex list-disc flex-col gap-1 pl-[18px] text-[13px] leading-snug text-muted-foreground">
         {items.map((item, index) => (
           <li key={`${item}-${index}`}>{item}</li>
         ))}
@@ -275,8 +224,8 @@ function ReviewAnnotationLegend({
   if (annotations.length === 0) return null
 
   return (
-    <section className="review-section review-annotation-legend">
-      <h3>Annotation legend</h3>
+    <section className="flex flex-col gap-1.5">
+      <h3 className="text-xs font-semibold">Annotation legend</h3>
       <div className="review-annotation-legend__items" aria-label="Annotation legend">
         <ReviewSeverityLegendItem severity="warning" label="Needs attention" />
         <ReviewSeverityLegendItem severity="info" label="Context" />
@@ -312,17 +261,17 @@ function ReviewFindings({
   if (annotations.length === 0) return null
 
   return (
-    <section className="review-section review-findings">
+    <section className="flex flex-col gap-1.5">
       <ReviewAnnotationLegend annotations={annotations} />
-      <h3>Findings</h3>
-      <ul>
+      <h3 className="text-xs font-semibold">Findings</h3>
+      <ul className="flex list-none flex-col gap-2 p-0 text-[13px] leading-snug text-muted-foreground">
         {annotations.map(annotation => (
-          <li key={annotation.id} className="review-finding">
-            <div className="review-finding__header">
+          <li key={annotation.id} className="rounded-md border bg-card p-2">
+            <div className="mb-1 flex flex-wrap items-center gap-x-2 gap-y-1">
               <span className={`review-finding__severity review-finding__severity--${annotation.severity}`}>
                 {formatSeverity(annotation.severity)}
               </span>
-              <span className="review-finding__target">
+              <span className="text-xs text-muted-foreground">
                 {formatAnnotationTarget(annotation)}
               </span>
             </div>
@@ -334,39 +283,44 @@ function ReviewFindings({
   )
 }
 
-function ReviewEmptyState({
-  title,
-  message,
-}: {
-  title: string
-  message: string
-}) {
-  return (
-    <div className="review-empty">
-      <h3>{title}</h3>
-      <p>{message}</p>
-    </div>
-  )
-}
-
-function ReviewStatus({
+function ReviewStateAlert({
   title,
   message,
   detail,
-  tone = 'neutral',
+  variant = 'default',
 }: {
   title?: string
   message: string
   detail?: string
-  tone?: 'neutral' | 'stale' | 'error'
+  variant?: 'default' | 'reviewWarning' | 'destructive'
 }) {
   return (
-    <div className={`review-status review-status--${tone}`}>
-      {title ? <h3>{title}</h3> : null}
-      <p>{message}</p>
-      {detail ? <p>{detail}</p> : null}
-    </div>
+    <Alert variant={variant}>
+      {title ? <AlertTitle>{title}</AlertTitle> : null}
+      <AlertDescription>
+        <p>{message}</p>
+        {detail ? <p>{detail}</p> : null}
+      </AlertDescription>
+    </Alert>
   )
+}
+
+function renderReviewStateAlert(
+  state: ResumeReviewState,
+  result: ReviewResult | undefined,
+  resultIsStale: boolean
+) {
+  switch (state.status) {
+    case 'unconfigured': return <ReviewStateAlert title="Review service not configured" message="Set VITE_REVIEW_API_URL and start the review service to enable advisory resume review." variant="reviewWarning" />
+    case 'checking': return <ReviewStateAlert title="Checking review service" message="Review availability is being checked." />
+    case 'disabled': return <ReviewStateAlert title="Review service unavailable" message="The configured service is reachable, but review is disabled. Check provider setup and Hiring Agent readiness." variant="reviewWarning" />
+    case 'config_error': return <ReviewStateAlert title="Review service unavailable" message={state.error.message} variant="destructive" />
+    case 'idle': return <ReviewStateAlert title="Ready for review" message="Run a review to see score, evidence, and annotations." />
+    case 'loading': return <ReviewStateAlert message="Review request is in progress." />
+    case 'stale': return <ReviewStateAlert title="Review is stale" message="Previous results are still shown. Re-run review after editing." variant="reviewWarning" />
+    case 'error': return <ReviewStateAlert title="Review request failed" message={state.error.message} detail={result ? resultIsStale ? 'Previous stale results remain visible below.' : 'Previous results remain visible below.' : undefined} variant="destructive" />
+    case 'success': return resultIsStale ? <ReviewStateAlert title="Review is stale" message="Previous results are still shown. Re-run review after editing." variant="reviewWarning" /> : null
+  }
 }
 
 function formatTier(tier: string): string {

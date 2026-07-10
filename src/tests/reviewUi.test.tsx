@@ -269,7 +269,7 @@ describe('ReviewPanel', () => {
     expect(screen.getByText('Open source signal')).toBeInTheDocument()
     expect(screen.getByText('Missing scale')).toBeInTheDocument()
     expect(screen.getByText('Add measurable impact.')).toBeInTheDocument()
-    expect(screen.getByText('Advisory only')).toBeInTheDocument()
+    expect(screen.getByText('Advisory evaluation')).toBeInTheDocument()
   })
 
   it('defaults to the largest-deficit category and resets for a new review', () => {
@@ -443,6 +443,25 @@ describe('ReviewPanel', () => {
     )
 
     expect(screen.getByText('Could not reach the review service.')).toBeInTheDocument()
+  })
+
+  it('uses a stable review shell and semantic alerts for service states', () => {
+    const { rerender } = render(
+      <ReviewPanel state={{ status: 'checking' }} onRequestReview={vi.fn()} />
+    )
+
+    expect(screen.getByRole('complementary', { name: 'Resume review' }))
+      .toBeInTheDocument()
+    expect(screen.getByRole('alert')).toHaveTextContent('Checking review service')
+
+    rerender(
+      <ReviewPanel
+        state={{ status: 'config_error', error: new Error('Could not reach the review service.') }}
+        onRequestReview={vi.fn()}
+      />
+    )
+    expect(screen.getByRole('alert')).toHaveTextContent('Review service unavailable')
+    expect(screen.getByRole('alert')).toHaveAttribute('data-variant', 'destructive')
   })
 
   it('shows annotation legend and target context in the review panel', () => {
