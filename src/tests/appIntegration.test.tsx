@@ -173,13 +173,16 @@ describe('App review availability boundaries', () => {
     expect(screen.getByText('Saved locally')).toHaveAttribute('data-slot', 'badge')
 
     const constraints = screen.getByRole('button', {
-      name: /Fit constraints.*1 page.*1 line per bullet.*8px minimum/i,
+      name: /Fit constraints.*1 page.*1 line\/bullet.*8px min/i,
     })
+    expect(constraints).toHaveAttribute('data-slot', 'collapsible-trigger')
     expect(screen.queryByRole('button', { name: 'Increase max pages' })).not.toBeInTheDocument()
     fireEvent.click(constraints)
     expect(screen.getByText('Page limit')).toBeInTheDocument()
-    expect(screen.getByText('Bullet lines')).toBeInTheDocument()
-    expect(screen.getByText('Minimum type')).toBeInTheDocument()
+    expect(screen.getByText('Lines per bullet')).toBeInTheDocument()
+    expect(screen.getByText('Minimum font size (px)')).toBeInTheDocument()
+    expect(screen.getByLabelText('Page limit')).toHaveTextContent('1')
+    expect(screen.getByLabelText('Page limit')).not.toHaveTextContent('page')
     expect(screen.getByRole('button', { name: 'Increase max pages' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Decrease max pages' })).toBeInTheDocument()
 

@@ -175,9 +175,10 @@ test.describe('unconfigured browser contracts', () => {
     await page.getByRole('button', { name: /Fit constraints/ }).click()
 
     const metrics = await page.evaluate(() => {
-      const row = document.querySelector('.settings-control-row') as HTMLElement
-      const stepper = document.querySelector('.settings-stepper') as HTMLElement
-      const decrease = document.querySelector('.settings-stepper__button') as HTMLElement
+      const content = document.querySelector('[data-slot="collapsible-content"]') as HTMLElement
+      const row = content.firstElementChild?.firstElementChild as HTMLElement
+      const stepper = row.querySelector('[aria-label="Page limit"]') as HTMLElement
+      const decrease = stepper.querySelector('button') as HTMLElement
       const rowRect = row.getBoundingClientRect()
       const stepperRect = stepper.getBoundingClientRect()
       const decreaseRect = decrease.getBoundingClientRect()
