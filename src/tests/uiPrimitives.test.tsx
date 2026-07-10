@@ -3,6 +3,11 @@ import { createRef } from 'react'
 import { render } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { Badge } from '../components/ui/badge'
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from '../components/ui/alert'
 import { Button, buttonVariants } from '../components/ui/button'
 import {
   Card,
@@ -14,6 +19,11 @@ import {
   CardTitle,
 } from '../components/ui/card'
 import { Separator } from '../components/ui/separator'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '../components/ui/collapsible'
 
 const globalsCss = readFileSync(
   `${process.cwd()}/src/styles/globals.css`,
@@ -25,18 +35,34 @@ describe('design-system primitive contracts', () => {
     const buttonRef = createRef<HTMLElement>()
     const badgeRef = createRef<HTMLSpanElement>()
     const separatorRef = createRef<HTMLDivElement>()
+    const alertRef = createRef<HTMLDivElement>()
+    const triggerRef = createRef<HTMLButtonElement>()
+    const panelRef = createRef<HTMLDivElement>()
 
     render(
       <>
         <Button ref={buttonRef}>Open editor</Button>
         <Badge ref={badgeRef}>Local</Badge>
         <Separator ref={separatorRef} />
+        <Alert ref={alertRef} variant="warningDeck" role="status">
+          <AlertTitle>Cannot fit</AlertTitle>
+          <AlertDescription>Shorten content.</AlertDescription>
+        </Alert>
+        <Collapsible defaultOpen>
+          <CollapsibleTrigger ref={triggerRef}>
+            Fit constraints
+          </CollapsibleTrigger>
+          <CollapsibleContent ref={panelRef}>Controls</CollapsibleContent>
+        </Collapsible>
       </>
     )
 
     expect(buttonRef.current).toBeInstanceOf(HTMLButtonElement)
     expect(badgeRef.current).toBeInstanceOf(HTMLSpanElement)
     expect(separatorRef.current).toBeInstanceOf(HTMLDivElement)
+    expect(alertRef.current).toBeInstanceOf(HTMLDivElement)
+    expect(triggerRef.current).toBeInstanceOf(HTMLButtonElement)
+    expect(panelRef.current).toBeInstanceOf(HTMLDivElement)
   })
 
   it('forwards refs through every Card wrapper under React 18', () => {

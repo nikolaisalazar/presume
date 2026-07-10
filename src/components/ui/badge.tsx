@@ -21,9 +21,14 @@ const badgeVariants = cva(
           "hover:bg-muted hover:text-muted-foreground dark:hover:bg-muted/50",
         link: "text-primary underline-offset-4 hover:underline",
       },
+      size: {
+        default: "",
+        status: "h-[34px] rounded-[3px] px-3 text-xs font-bold",
+      },
     },
     defaultVariants: {
       variant: "default",
+      size: "default",
     },
   }
 )
@@ -32,7 +37,7 @@ type BadgeProps = Omit<useRender.ComponentProps<"span">, "ref"> &
   VariantProps<typeof badgeVariants>
 
 const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(function Badge(
-  { className, variant = "default", render, ...props },
+  { className, variant = "default", size = "default", render, ...props },
   ref
 ) {
   return useRender({
@@ -40,7 +45,7 @@ const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(function Badge(
     ref,
     props: mergeProps<"span">(
       {
-        className: cn(badgeVariants({ variant }), className),
+        className: cn(badgeVariants({ variant, size }), className),
       },
       props
     ),
@@ -48,6 +53,7 @@ const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(function Badge(
     state: {
       slot: "badge",
       variant,
+      size,
     },
   })
 })
