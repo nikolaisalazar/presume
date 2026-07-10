@@ -177,7 +177,7 @@ body {
   .review-panel {
     position: static;
     width: 100%;
-    max-width: min(816px, calc(100vw - 32px));
+    max-width: min(var(--editor-shell-width), 100%);
     max-height: none;
     order: -1;
   }

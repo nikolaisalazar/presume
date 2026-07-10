@@ -610,7 +610,7 @@ git commit -m "refactor: migrate review panel presentation"
 - Consumes: completed ReviewPanel surface.
 - Produces: verified PR-ready branch with accurate migration status.
 
-- [ ] **Step 1: Add only the missing browser contract**
+- [x] **Step 1: Add only the missing browser contract**
 
 First inspect existing configured and unconfigured Playwright coverage. If no test proves the inspector transition, extend the configured disabled-service test with exact-width assertions:
 
@@ -642,7 +642,7 @@ expect(stackedLayout).toEqual({ reviewAboveEditor: true, sameLeft: true })
 
 Keep the existing exact-560px 44px action assertions. Do not add screenshots.
 
-- [ ] **Step 2: Run the focused browser test**
+- [x] **Step 2: Run the focused browser test**
 
 ```sh
 VITE_REVIEW_API_URL=http://127.0.0.1:8124 npm run build
@@ -652,7 +652,9 @@ CI=1 npx playwright test -c playwright.configured.config.ts \
 
 Expected: PASS with the inspector right-aligned at 1221px, stacked at 1220px, and both actions 44px at 560px.
 
-- [ ] **Step 3: Run the full automated release gate**
+Evidence (2026-07-10): 1 focused configured-review test passed. Its first run caught the stacked left-edge mismatch at 1220px; after aligning the ReviewPanel to `--editor-shell-width`, the assertions passed at 1221px, 1220px, and 560px.
+
+- [x] **Step 3: Run the full automated release gate**
 
 ```sh
 rm -rf test-results
@@ -676,6 +678,8 @@ git status --short --branch
 
 Expected: all unit and E2E tests pass; the final default unconfigured build succeeds; SPA files are byte-identical; protected files are unchanged; no generated artifacts are staged.
 
+Evidence (2026-07-10): 13 Vitest files / 168 tests and 7 Playwright tests passed (4 unconfigured, 3 configured-review). The final default build transformed 354 modules and emitted `index.html` 0.70 kB (0.39 kB gzip), CSS 65.21 kB (12.83 kB gzip), and JavaScript chunks of 22.03/159.64/202.38/299.48/358.14 kB (8.72/53.38/47.71/94.52/116.81 kB gzip). The SPA files were byte-identical, protected files were unchanged, `git diff --check` passed, and generated `test-results` was removed.
+
 - [ ] **Step 4: Complete exact-width manual QA**
 
 Use the configured and unconfigured builds as appropriate:
@@ -691,9 +695,13 @@ Use the configured and unconfigured builds as appropriate:
 
 Record observed measurements and any unavailable manual checks accurately.
 
+Status (2026-07-10): pending controller verification. The implementing agent did not perform the complete prescribed visual/state/interaction matrix and therefore does not claim this step complete.
+
 - [ ] **Step 5: Update the roadmap with evidence**
 
 Change PR #3 status in `docs/SHADCN_MIGRATION.md` to implementation complete only after Steps 3 and 4 pass. Record exact unit/E2E counts, build module count and bundle sizes, SPA identity, protected-file result, review result, and exact-width QA. Leave PR publication or merge language pending until those actions occur.
+
+Progress (2026-07-10): automated evidence is recorded in the roadmap, while exact-width manual QA, publication, and merge remain explicitly pending.
 
 - [ ] **Step 6: Commit documentation and verification evidence**
 

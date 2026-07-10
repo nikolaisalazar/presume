@@ -48,7 +48,7 @@ describe('responsive review layout CSS', () => {
 
   it('lets the fixed resume overflow without sizing the narrow review panel', () => {
     expect(appCss).toContain('grid-template-columns: minmax(0, 1fr);')
-    expect(appCss).toContain('max-width: min(816px, calc(100vw - 32px));')
+    expect(appCss).toContain('max-width: min(var(--editor-shell-width), 100%);')
   })
 
   it('keeps editor controls within the viewport while the fixed canvas scrolls intentionally', () => {

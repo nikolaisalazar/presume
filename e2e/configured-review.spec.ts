@@ -33,6 +33,30 @@ test.describe('configured review browser contracts', () => {
     ]) {
       await expect(action).toHaveCSS('height', '44px')
     }
+
+    await page.setViewportSize({ width: 1221, height: 900 })
+    await expect(panel).toBeVisible()
+    const desktopLayout = await page.evaluate(() => {
+      const workspace = document.querySelector('.workspace')!.getBoundingClientRect()
+      const editor = document.querySelector('.editor-panel')!.getBoundingClientRect()
+      const review = document.querySelector('.review-panel')!.getBoundingClientRect()
+      return {
+        reviewRightOfEditor: review.left > editor.right,
+        contained: review.right <= workspace.right + 1,
+      }
+    })
+    expect(desktopLayout).toEqual({ reviewRightOfEditor: true, contained: true })
+
+    await page.setViewportSize({ width: 1220, height: 900 })
+    const stackedLayout = await page.evaluate(() => {
+      const editor = document.querySelector('.editor-panel')!.getBoundingClientRect()
+      const review = document.querySelector('.review-panel')!.getBoundingClientRect()
+      return {
+        reviewAboveEditor: review.bottom <= editor.top,
+        sameLeft: Math.abs(review.left - editor.left) <= 1,
+      }
+    })
+    expect(stackedLayout).toEqual({ reviewAboveEditor: true, sameLeft: true })
   })
 
   test('renders config-error state when backend cannot be reached', async ({ page }) => {
@@ -96,8 +120,10 @@ test.describe('configured review browser contracts', () => {
     await expect(page.getByText('Competitive')).toBeVisible()
     await expect(page.getByText('Open Source', { exact: true })).toBeVisible()
     await expect(page.getByText('Production Experience')).toBeVisible()
-    await expect(page.getByText('Clear project ownership.')).toBeVisible()
     await expect(page.getByText('Add one production metric.').first()).toBeVisible()
+    await page.getByRole('button', { name: /Key strengths/i }).click()
+    await expect(page.getByText('Clear project ownership.')).toBeVisible()
+    await page.getByRole('button', { name: /Adjustment details/i }).click()
     await expect(page.getByText('Open source signal')).toBeVisible()
     await expect(page.getByText('Missing scale')).toBeVisible()
     await expect(page.getByText('Good technical evidence.')).toBeVisible()
