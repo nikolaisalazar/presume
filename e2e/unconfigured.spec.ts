@@ -13,19 +13,27 @@ test.describe('unconfigured browser contracts', () => {
     await expect(page).toHaveURL(/\/presume\/editor\/$/)
     await expect(page.getByRole('banner')).toContainText('Presume')
     await expect(page.locator('.resume-page')).toBeVisible()
-    await expect(page.getByRole('complementary', { name: 'Resume review' })).toHaveCount(0)
-    await expect(page.getByRole('button', { name: 'Review resume' })).toHaveCount(0)
+    await expect(page.locator('[data-slot="review-rail"]')).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Review details' })).toBeVisible()
 
-    const commandDeck = page.locator('[data-slot="command-deck"]')
+    const commandDeck = page.locator('[data-slot="document-actions"]')
     await expect(commandDeck).toBeVisible()
     await expect(commandDeck.locator('[data-slot="button"]')).toHaveCount(4)
-    await expect(commandDeck.locator('[data-slot="separator"]')).toHaveCount(1)
+    await expect(commandDeck.locator('[data-slot="separator"]')).toHaveCount(0)
     await expect(commandDeck.locator('[data-slot="button"]')).toHaveText([
       'Export PDF',
       'Export JSON',
       'Import JSON',
       'Reset template',
     ])
+
+    const shellShadows = await page
+      .locator('.app-header, [data-slot="fit-region"], [data-slot="document-actions"], [data-slot="review-rail"]')
+      .evaluateAll(elements => elements.map(element => getComputedStyle(element).boxShadow))
+    expect(shellShadows).toHaveLength(4)
+    expect(shellShadows).not.toContainEqual(
+      expect.stringContaining('rgba(255, 255, 255, 0.95) 0px 1px 0px 0px')
+    )
 
     const screenshot = await page.locator('.resume-page').screenshot()
     expect(hasNonblankPngBytes(screenshot)).toBe(true)
@@ -182,16 +190,29 @@ test.describe('unconfigured browser contracts', () => {
 
   test('keeps expanded fit constraints usable at narrow widths', async ({ page }) => {
     await page.setViewportSize({ width: 358, height: 980 })
+    await page.addInitScript(() => {
+      localStorage.setItem('presume:constraints', JSON.stringify({
+        maxPages: 10,
+        maxLinesPerBullet: 10,
+        minFontSize: 16,
+      }))
+    })
     await page.goto('./editor/')
-    await page.getByRole('button', { name: /Fit constraints/ }).click()
+    const fitTrigger = page.getByRole('button', { name: /Fit constraints/ })
+    const collapsedTriggerHeight = await fitTrigger.evaluate(element =>
+      Math.round(element.getBoundingClientRect().height)
+    )
+    await fitTrigger.click()
+    const expandedTriggerHeight = await fitTrigger.evaluate(element =>
+      Math.round(element.getBoundingClientRect().height)
+    )
 
     const metrics = await page.evaluate(() => {
       const content = document.querySelector('[data-slot="collapsible-content"]') as HTMLElement
       const row = content.firstElementChild?.firstElementChild as HTMLElement
       const stepper = row.querySelector('[aria-label="Page limit"]') as HTMLElement
       const toolbar = document.querySelector('[role="toolbar"]') as HTMLElement
-      const actionGroups = Array.from(toolbar.children)
-        .filter(child => (child as HTMLElement).classList.contains('toolbar__group'))
+      const actionGroups = Array.from(toolbar.querySelectorAll('[data-slot="toolbar-group"]'))
         .map(group => Array.from(group.querySelectorAll('[data-slot="button"]'))
           .map(button => button.textContent?.trim()))
       const decrease = stepper.querySelector('button') as HTMLElement
@@ -211,6 +232,8 @@ test.describe('unconfigured browser contracts', () => {
     })
 
     expect(metrics.documentScrollWidth).toBeLessThanOrEqual(metrics.bodyClientWidth)
+    expect(collapsedTriggerHeight).toBe(48)
+    expect(expandedTriggerHeight).toBe(collapsedTriggerHeight)
     expect(metrics.rowLeft).toBeGreaterThanOrEqual(0)
     expect(metrics.rowRight).toBeLessThanOrEqual(metrics.bodyClientWidth)
     expect(metrics.stepperWidth).toBeGreaterThanOrEqual(132)
@@ -220,9 +243,48 @@ test.describe('unconfigured browser contracts', () => {
       ['Export PDF', 'Export JSON'],
       ['Import JSON', 'Reset template'],
     ])
+
+    await page.setViewportSize({ width: 560, height: 980 })
+    await page.reload()
+    const boundaryTrigger = page.getByRole('button', { name: /Fit constraints/ })
+    const boundaryCollapsedHeight = await boundaryTrigger.evaluate(element =>
+      Math.round(element.getBoundingClientRect().height)
+    )
+    await boundaryTrigger.click()
+    const boundaryExpandedHeight = await boundaryTrigger.evaluate(element =>
+      Math.round(element.getBoundingClientRect().height)
+    )
+    expect(boundaryCollapsedHeight).toBe(48)
+    expect(boundaryExpandedHeight).toBe(boundaryCollapsedHeight)
   })
 
   test('keeps viewport overflow inside the fixed resume canvas scroller at narrow widths', async ({ page }) => {
+    const editorGeometry = async (width: number) => {
+      await page.setViewportSize({ width, height: 1100 })
+      await page.goto('./editor/')
+      return page.evaluate(() => {
+        const header = document.querySelector('.app-header')!.getBoundingClientRect()
+        const workspace = document.querySelector('.workspace')!.getBoundingClientRect()
+        const fit = document.querySelector('.fit-region')!.getBoundingClientRect()
+        const editor = document.querySelector('.editor-panel')!.getBoundingClientRect()
+        const review = document.querySelector('.review-region')!.getBoundingClientRect()
+        const resume = document.querySelector('.resume-page')!.getBoundingClientRect()
+        const scroller = document.querySelector('.resume-canvas-scroll') as HTMLElement
+        return {
+          header: { left: header.left, right: header.right, width: header.width },
+          workspace: { left: workspace.left, right: workspace.right },
+          fit: { left: fit.left, right: fit.right, top: fit.top, bottom: fit.bottom, width: fit.width },
+          editor: { left: editor.left, right: editor.right, top: editor.top, bottom: editor.bottom, width: editor.width },
+          review: { left: review.left, right: review.right, top: review.top, bottom: review.bottom, width: review.width },
+          resumeWidth: resume.width,
+          documentWidth: document.documentElement.scrollWidth,
+          viewportWidth: document.documentElement.clientWidth,
+          scrollerClientWidth: scroller.clientWidth,
+          scrollerScrollWidth: scroller.scrollWidth,
+        }
+      })
+    }
+
     for (const width of [358, 860, 861, 880, 900, 960]) {
       await page.setViewportSize({ width, height: 980 })
       await page.goto('./editor/')
@@ -230,21 +292,20 @@ test.describe('unconfigured browser contracts', () => {
 
       const metrics = await page.evaluate(() => {
         const workspace = document.querySelector('.workspace') as HTMLElement
-        const panel = document.querySelector('.review-panel') as HTMLElement | null
+        const review = document.querySelector('.review-region') as HTMLElement
         const scroller = document.querySelector('.resume-canvas-scroll') as HTMLElement
         const resume = document.querySelector('.resume-page') as HTMLElement
         const workspaceStyle = window.getComputedStyle(workspace)
         const scrollerStyle = window.getComputedStyle(scroller)
-        const panelRect = panel?.getBoundingClientRect()
+        const reviewRect = review.getBoundingClientRect()
         return {
           bodyClientWidth: document.documentElement.clientWidth,
           documentScrollWidth: document.documentElement.scrollWidth,
           bodyScrollWidth: document.body.scrollWidth,
           workspaceMinWidth: workspaceStyle.minWidth,
           workspaceWidth: Math.round(workspace.getBoundingClientRect().width),
-          panelWidth: panelRect ? Math.round(panelRect.width) : 0,
-          panelLeft: panelRect ? Math.round(panelRect.left) : 0,
-          panelRight: panelRect ? Math.round(panelRect.right) : 0,
+          reviewLeft: Math.round(reviewRect.left),
+          reviewRight: Math.round(reviewRect.right),
           scrollerClientWidth: scroller.clientWidth,
           scrollerScrollWidth: scroller.scrollWidth,
           scrollerOverflowX: scrollerStyle.overflowX,
@@ -256,15 +317,39 @@ test.describe('unconfigured browser contracts', () => {
       expect(metrics.bodyScrollWidth, `body overflow at ${width}px`).toBeLessThanOrEqual(metrics.bodyClientWidth)
       expect(metrics.workspaceMinWidth).toBe('0px')
       expect(metrics.workspaceWidth).toBeLessThanOrEqual(metrics.bodyClientWidth)
-      expect(metrics.panelLeft).toBeGreaterThanOrEqual(0)
-      expect(metrics.panelRight).toBeLessThanOrEqual(metrics.bodyClientWidth)
-      expect(metrics.panelWidth).toBe(0)
+      expect(metrics.reviewLeft).toBeGreaterThanOrEqual(0)
+      expect(metrics.reviewRight).toBeLessThanOrEqual(metrics.bodyClientWidth)
       expect(metrics.scrollerOverflowX).toBe('auto')
       if (metrics.scrollerClientWidth < metrics.resumeWidth) {
         expect(metrics.scrollerClientWidth).toBeLessThan(metrics.scrollerScrollWidth)
       }
       expect(metrics.resumeWidth).toBe(816)
     }
+
+    const wide = await editorGeometry(1640)
+    expect(wide.fit.right).toBeLessThanOrEqual(wide.editor.left)
+    expect(wide.review.left).toBeGreaterThanOrEqual(wide.editor.right)
+    expect(Math.abs((wide.editor.left + wide.editor.right) / 2 - 820)).toBeLessThanOrEqual(1)
+    expect(wide.editor.width).toBe(896)
+    expect(wide.header.width).toBeGreaterThan(wide.editor.width)
+    expect(wide.resumeWidth).toBe(816)
+    expect(Math.abs(wide.fit.width - wide.review.width)).toBeLessThanOrEqual(1)
+
+    const wideMax = await editorGeometry(1920)
+    expect(wideMax.fit.width).toBe(360)
+    expect(wideMax.review.width).toBe(360)
+
+    const constrained = await editorGeometry(1639)
+    expect(constrained.fit.bottom).toBeLessThanOrEqual(constrained.editor.top)
+    expect(constrained.editor.bottom).toBeLessThanOrEqual(constrained.review.top)
+    expect(Math.abs((constrained.editor.left + constrained.editor.right) / 2 - 819.5)).toBeLessThanOrEqual(1)
+    expect(constrained.editor.width).toBe(896)
+    expect(constrained.resumeWidth).toBe(816)
+
+    const narrow = await editorGeometry(358)
+    expect(narrow.resumeWidth).toBe(816)
+    expect(narrow.documentWidth).toBeLessThanOrEqual(narrow.viewportWidth)
+    expect(narrow.scrollerClientWidth).toBeLessThan(narrow.scrollerScrollWidth)
   })
 })
 

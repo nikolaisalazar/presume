@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from '../App'
 import { DEFAULT_RESUME } from '../defaultResume'
@@ -131,9 +131,12 @@ describe('App review availability boundaries', () => {
 
     const { container } = render(<App />)
 
-    expect(screen.queryByRole('complementary', { name: 'Resume review' })).not.toBeInTheDocument()
-    expect(screen.queryByText('Review service not configured')).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Review resume' })).not.toBeInTheDocument()
+    expect(container.querySelector('[data-slot="review-rail"]')).toHaveAttribute('data-slot', 'review-rail')
+    expect(screen.getByText('Review unavailable', { selector: 'strong' })).toBeInTheDocument()
+    expect(screen.queryByText('Setup needed')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Review details' }))
+    expect(screen.getByRole('complementary', { name: 'Resume review' })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Collapse review' }))
 
     const name = screen.getByText(DEFAULT_RESUME.name)
     fireEvent.input(name, { target: { textContent: 'Ada Lovelace' } })
@@ -161,6 +164,41 @@ describe('App review availability boundaries', () => {
     expect(await screen.findByText('Grace Hopper')).toBeInTheDocument()
   })
 
+  it('keeps the review target mounted and manages disclosure focus', async () => {
+    vi.stubEnv('VITE_REVIEW_API_URL', '')
+
+    const { container } = render(<App />)
+
+    const rail = container.querySelector<HTMLElement>('[data-slot="review-rail"]')
+    const panel = document.getElementById('resume-review-panel')
+    const details = screen.getByRole('button', { name: 'Review details' })
+
+    expect(rail).not.toBeNull()
+    expect(rail).not.toHaveAttribute('hidden')
+    expect(panel).toBeInTheDocument()
+    expect(panel).toHaveAttribute('hidden')
+    expect(details).toHaveAttribute('aria-controls', 'resume-review-panel')
+    expect(details).toHaveAttribute('aria-expanded', 'false')
+
+    details.focus()
+    fireEvent.click(details)
+
+    await waitFor(() => expect(panel).toHaveFocus())
+    expect(rail).toHaveAttribute('hidden')
+    expect(panel).not.toHaveAttribute('hidden')
+
+    const collapse = screen.getByRole('button', { name: 'Collapse review' })
+    expect(collapse).toHaveAttribute('aria-controls', 'resume-review-panel')
+    expect(collapse).toHaveAttribute('aria-expanded', 'true')
+
+    collapse.focus()
+    fireEvent.click(collapse)
+
+    await waitFor(() => expect(details).toHaveFocus())
+    expect(rail).not.toHaveAttribute('hidden')
+    expect(panel).toHaveAttribute('hidden')
+  })
+
   it('renders a premium document-editor shell with constraints before document actions', () => {
     vi.stubEnv('VITE_REVIEW_API_URL', '')
 
@@ -175,9 +213,15 @@ describe('App review availability boundaries', () => {
     const constraints = screen.getByRole('button', {
       name: /Fit constraints.*1 page.*1 line\/bullet.*8px min/i,
     })
+    const summary = '1 page · 1 line/bullet · 8px min'
     expect(constraints).toHaveAttribute('data-slot', 'collapsible-trigger')
+    expect(within(constraints).getByText(summary)).toBeInTheDocument()
+    expect(constraints.querySelector('[data-slot="fit-disclosure-icon"]')).toBeInstanceOf(SVGElement)
+    expect(constraints).toHaveAttribute('aria-expanded', 'false')
     expect(screen.queryByRole('button', { name: 'Increase max pages' })).not.toBeInTheDocument()
     fireEvent.click(constraints)
+    expect(constraints).toHaveAttribute('aria-expanded', 'true')
+    expect(within(constraints).queryByText(summary)).not.toBeInTheDocument()
     expect(screen.getByText('Page limit')).toBeInTheDocument()
     expect(screen.getByText('Lines per bullet')).toBeInTheDocument()
     expect(screen.getByText('Minimum font size (px)')).toBeInTheDocument()
@@ -186,28 +230,34 @@ describe('App review availability boundaries', () => {
     expect(screen.getByRole('button', { name: 'Increase max pages' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Decrease max pages' })).toBeInTheDocument()
 
+    const fitRegion = screen.getByRole('complementary', {
+      name: 'Fit constraints and formatting',
+    })
+    const editor = screen.getByRole('region', { name: 'Resume editor' })
+    const reviewRegion = screen.getByRole('region', { name: 'Review workspace' })
     const toolbar = screen.getByRole('toolbar', { name: 'Document actions' })
-    const commandDeck = container.querySelector('[data-slot="command-deck"]')
-    expect(commandDeck).toContainElement(constraints)
-    expect(commandDeck).toContainElement(toolbar)
-    expect(commandDeck?.querySelectorAll('[data-slot="button"]')).toHaveLength(4)
-    expect(commandDeck?.querySelectorAll('[data-slot="separator"]')).toHaveLength(1)
-    expect(constraints.compareDocumentPosition(toolbar)).toBe(
-      Node.DOCUMENT_POSITION_FOLLOWING
-    )
+
+    expect(fitRegion.compareDocumentPosition(editor)).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+    expect(editor.compareDocumentPosition(reviewRegion)).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+    expect(editor).toContainElement(toolbar)
+    expect(container.querySelector('[data-slot="command-deck"]')).not.toBeInTheDocument()
+    expect(screen.queryByText('Letter · fixed canvas')).not.toBeInTheDocument()
+    expect(screen.queryByText('Direct edit')).not.toBeInTheDocument()
 
     expect(screen.getByRole('button', { name: 'Export PDF' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Export JSON' })).toBeInTheDocument()
+    expect(screen.getByRole('group', { name: 'Export actions' })).toBeInTheDocument()
+    expect(within(toolbar).queryByText('Export', { exact: true })).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Import JSON' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Reset template' })).toBeInTheDocument()
-    expect(screen.getByText('Letter · fixed canvas')).toBeInTheDocument()
+    expect(screen.getByRole('group', { name: 'File actions' })).toBeInTheDocument()
   })
 
   it('explains impossible fitting warnings near the constraints strip', () => {
     vi.stubEnv('VITE_REVIEW_API_URL', '')
     resizeWarningsMock.warnings = new Map([['bullet-0-0-0', true]])
 
-    const { container } = render(<App />)
+    render(<App />)
 
     const warning = screen.getByRole('status')
     expect(warning).toHaveAttribute('data-slot', 'alert')
@@ -217,7 +267,10 @@ describe('App review availability boundaries', () => {
     expect(warning.querySelector('[data-slot="alert-description"]')).toHaveTextContent(
       '1 bullet exceeds 1 line per bullet even at the 8px minimum. Shorten it or loosen constraints.'
     )
-    expect(container.querySelectorAll('[data-slot="separator"]')).toHaveLength(2)
+    const fitRegion = screen.getByRole('complementary', {
+      name: 'Fit constraints and formatting',
+    })
+    expect(fitRegion).toContainElement(screen.getByRole('status'))
     expect(
       screen.getByText('1 bullet exceeds 1 line per bullet even at the 8px minimum. Shorten it or loosen constraints.')
     ).toBeInTheDocument()
@@ -227,7 +280,7 @@ describe('App review availability boundaries', () => {
     vi.stubEnv('VITE_REVIEW_API_URL', '')
     resizeWarningsMock.warnings = new Map([['global-overflow', true]])
 
-    const { container } = render(<App />)
+    render(<App />)
 
     const warning = screen.getByRole('status')
     expect(warning).toHaveAttribute('data-slot', 'alert')
@@ -237,7 +290,10 @@ describe('App review availability boundaries', () => {
     expect(warning.querySelector('[data-slot="alert-description"]')).toHaveTextContent(
       'The resume exceeds 1 page even at the 8px minimum. Shorten content or loosen constraints.'
     )
-    expect(container.querySelectorAll('[data-slot="separator"]')).toHaveLength(2)
+    const fitRegion = screen.getByRole('complementary', {
+      name: 'Fit constraints and formatting',
+    })
+    expect(fitRegion).toContainElement(screen.getByRole('status'))
     expect(
       screen.getByText('The resume exceeds 1 page even at the 8px minimum. Shorten content or loosen constraints.')
     ).toBeInTheDocument()
@@ -252,7 +308,7 @@ describe('App review availability boundaries', () => {
       ['bullet-0-0-1', true],
     ])
 
-    const { container } = render(<App />)
+    render(<App />)
 
     const warning = screen.getByRole('status')
     expect(warning).toHaveAttribute('data-slot', 'alert')
@@ -265,7 +321,10 @@ describe('App review availability boundaries', () => {
     expect(warning.querySelector('[data-slot="alert-description"]')).toHaveTextContent(
       '2 bullets exceed 1 line per bullet even at the 8px minimum. Shorten them or loosen constraints.'
     )
-    expect(container.querySelectorAll('[data-slot="separator"]')).toHaveLength(2)
+    const fitRegion = screen.getByRole('complementary', {
+      name: 'Fit constraints and formatting',
+    })
+    expect(fitRegion).toContainElement(screen.getByRole('status'))
     expect(
       screen.getByText('The resume exceeds 1 page even at the 8px minimum. Shorten content or loosen constraints.')
     ).toBeInTheDocument()
@@ -321,7 +380,7 @@ describe('App review availability boundaries', () => {
 
     render(<App />)
 
-    expect(await screen.findByRole('button', { name: 'Review resume' })).toHaveAttribute('data-slot', 'button')
+    expect(await screen.findByRole('button', { name: 'Start review' })).toHaveAttribute('data-slot', 'button')
     expect(screen.queryByRole('complementary', { name: 'Resume review' })).not.toBeInTheDocument()
   })
 
@@ -350,9 +409,7 @@ describe('App review availability boundaries', () => {
 
     const { container } = render(<App />)
 
-    const reviewStatus = await screen.findByRole('button', {
-      name: 'Review unavailable — setup needed',
-    })
+    const reviewStatus = await screen.findByRole('button', { name: 'Review details' })
     expect(reviewStatus).toBeEnabled()
     expect(screen.queryByRole('complementary', { name: 'Resume review' })).not.toBeInTheDocument()
 
@@ -365,7 +422,7 @@ describe('App review availability boundaries', () => {
         'The configured service is reachable, but review is disabled. Check provider setup and Hiring Agent readiness.'
       )
     ).toBeInTheDocument()
-    fireEvent.click(screen.getByRole('button', { name: 'Close review panel' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Collapse review' }))
     expect(screen.queryByRole('complementary', { name: 'Resume review' })).not.toBeInTheDocument()
 
     const name = screen.getByText(DEFAULT_RESUME.name)
@@ -401,9 +458,7 @@ describe('App review availability boundaries', () => {
 
     render(<App />)
 
-    const button = await screen.findByRole('button', {
-      name: 'Review unavailable — connection issue',
-    })
+    const button = await screen.findByRole('button', { name: 'Review details' })
     expect(button).toBeEnabled()
     expect(screen.queryByRole('complementary', { name: 'Resume review' })).not.toBeInTheDocument()
 

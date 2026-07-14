@@ -5,7 +5,7 @@ import type {
   ReviewResult,
 } from '../reviewTypes'
 import type { ResumeReviewState } from '../useResumeReview'
-import { useEffect, useState } from 'react'
+import { forwardRef, useEffect, useState } from 'react'
 import {
   ReviewCategorySelector,
   selectLargestDeficitCategory,
@@ -33,9 +33,13 @@ interface ReviewPanelProps {
   state: ResumeReviewState
   onRequestReview: () => void
   onClose?: () => void
+  hidden?: boolean
 }
 
-export function ReviewPanel({ id, state, onRequestReview, onClose }: ReviewPanelProps) {
+export const ReviewPanel = forwardRef<HTMLElement, ReviewPanelProps>(function ReviewPanel(
+  { id, state, onRequestReview, onClose, hidden },
+  ref
+) {
   const result = 'result' in state ? state.result : undefined
   const resultIsStale =
     'resultIsStale' in state ? Boolean(state.resultIsStale) : false
@@ -48,7 +52,14 @@ export function ReviewPanel({ id, state, onRequestReview, onClose }: ReviewPanel
     isLoading
 
   return (
-    <aside id={id} className="review-panel" aria-label="Resume review">
+    <aside
+      ref={ref}
+      id={id}
+      className="review-panel"
+      aria-label="Resume review"
+      tabIndex={-1}
+      hidden={hidden}
+    >
       <Card size="sm" variant="reviewPanel" className="max-h-[inherit] overflow-auto">
         <CardHeader className="border-b">
           <CardTitle><h2>Review</h2></CardTitle>
@@ -66,9 +77,11 @@ export function ReviewPanel({ id, state, onRequestReview, onClose }: ReviewPanel
               variant="outline"
               size="editor"
               onClick={onClose}
-              aria-label="Close review panel"
+              aria-label="Collapse review"
+              aria-controls={id}
+              aria-expanded="true"
             >
-              Close
+              Collapse
             </Button>
           ) : null}
           </CardAction>
@@ -80,7 +93,7 @@ export function ReviewPanel({ id, state, onRequestReview, onClose }: ReviewPanel
       </Card>
     </aside>
   )
-}
+})
 
 function ReviewResultDetails({ state }: { state: ResumeReviewState }) {
   const result = 'result' in state ? state.result : undefined

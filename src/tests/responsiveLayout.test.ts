@@ -1,95 +1,36 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 
-const appCss = readFileSync(
-  `${process.cwd()}/src/styles/app.css`,
-  'utf8'
-)
+const appCss = readFileSync(`${process.cwd()}/src/styles/app.css`, 'utf8')
 
-describe('responsive review layout CSS', () => {
-  it('defines a premium document workbench visual system', () => {
-    expect(appCss).toContain('--app-bg-deep')
-    expect(appCss).toContain('--command-surface')
-    expect(appCss).toContain('--shadow-page-premium')
-    expect(appCss).toContain('radial-gradient')
-    expect(appCss).toContain('.app-header__brand-mark')
-  })
-
-  it('sizes the command deck and its children to the staged resume width on desktop', () => {
+describe('custom editor CSS invariants', () => {
+  it('keeps named fixed-canvas and derived wide-workspace geometry', () => {
     expect(appCss).toContain('--editor-shell-width: calc(var(--page-width) + (var(--stage-padding) * 2) + 32px);')
-    expect(appCss).toContain('grid-template-columns: minmax(0, var(--editor-shell-width));')
-    expect(appCss).toContain('max-width: var(--editor-shell-width);')
-    expect(appCss).toContain('width: 100%;\n  max-width: 100%;\n  min-width: 0;\n  padding: var(--stage-padding);')
-    expect(appCss).not.toContain('.settings-panel,\n.toolbar,\n.formatting-warning-summary')
+    expect(appCss).toContain('--wide-workspace-width: 1660px;')
+    expect(appCss).toContain('@media (min-width: 1640px)')
+    expect(appCss).toContain('grid-template-columns: minmax(320px, 1fr) var(--editor-shell-width) minmax(320px, 1fr);')
   })
 
-  it('stages the resume canvas as the strongest physical surface without desktop horizontal scroll', () => {
+  it('keeps fixed-canvas scrolling and the 3px review progress hook custom', () => {
     expect(appCss).toContain('.resume-canvas-scroll')
-    expect(appCss).toContain('background: var(--stage-surface)')
-    expect(appCss).toContain('box-shadow: var(--shadow-stage)')
-    expect(appCss).toContain('--stage-padding: 24px')
+    expect(appCss).toContain('overflow-x: auto')
+    expect(appCss).toContain('.review-rail__progress')
+    expect(appCss).toContain('height: 3px')
   })
 
-  it('composes constraints toolbar and stage as a polished command deck', () => {
-    expect(appCss).not.toContain('.editor-panel::before')
-    expect(appCss).not.toContain('.settings-panel + .toolbar')
-    expect(appCss).not.toContain('.settings-panel__body-inner')
-    expect(appCss).not.toContain('.settings-control-row')
-    expect(appCss).not.toContain('.settings-stepper')
-    expect(appCss).toContain('.resume-stage__chrome')
-  })
-
-  it('uses one editor-shell column by default and adds a review column only with an active panel', () => {
-    expect(appCss).toContain('.workspace {')
-    expect(appCss).toContain('grid-template-columns: minmax(0, var(--editor-shell-width));')
-    expect(appCss).toContain('.workspace--with-review')
-    expect(appCss).toContain('grid-template-columns: minmax(0, var(--editor-shell-width)) minmax(320px, 360px);')
-  })
-
-  it('lets the fixed resume overflow without sizing the narrow review panel', () => {
-    expect(appCss).toContain('grid-template-columns: minmax(0, 1fr);')
-    expect(appCss).toContain('max-width: min(var(--editor-shell-width), 100%);')
-  })
-
-  it('keeps editor controls within the viewport while the fixed canvas scrolls intentionally', () => {
-    expect(appCss).toContain('.editor-panel')
-    expect(appCss).toContain('overflow-x: auto;')
-    expect(appCss).toContain('.resume-canvas-scroll')
-    expect(appCss).toContain('width: max-content;')
-    expect(appCss).toContain('max-width: 100%;')
-  })
-
-  it('keeps in-document edit controls discoverable without dominating the printable resume', () => {
+  it('keeps in-document controls and print hiding intact', () => {
     expect(appCss).toContain('--editor-control-resting-opacity')
-    expect(appCss).toContain('opacity: var(--editor-control-resting-opacity);')
-    expect(appCss).toContain(':focus-visible')
-  })
-
-  it('uses one contextual editor-control language with touch-safe fallbacks', () => {
     expect(appCss).toContain('.editor-control')
-    expect(appCss).toContain('.editor-rail')
-    expect(appCss).toContain('focus-within')
-    expect(appCss).toContain('min-height: 44px')
-    expect(appCss).toContain('@media (hover: none)')
-  })
-
-  it('defines semantic colors for warning danger review and focus states', () => {
-    expect(appCss).toContain('--warning-bg')
-    expect(appCss).toContain('--warning-border')
-    expect(appCss).toContain('--danger')
-    expect(appCss).toContain('--review')
-    expect(appCss).toContain('--focus')
-  })
-
-  it('keeps bullet editor controls out of the inline bullet text flow', () => {
-    expect(appCss).toContain('.bullet-item > .remove-btn')
-    expect(appCss).toContain('position: absolute;')
-    expect(appCss).toContain('data-editor-only')
-  })
-
-  it('hides editor-only controls in print styles', () => {
+    expect(appCss).toContain('.add-btn')
+    expect(appCss).toContain('.remove-btn')
     expect(appCss).toContain('@media print')
-    expect(appCss).toContain('[data-editor-only=\'true\']')
-    expect(appCss).toContain('display: none !important;')
+    expect(appCss).toContain("[data-editor-only='true']")
+  })
+
+  it('does not retain superseded shell generations', () => {
+    expect(appCss).not.toContain('.workspace--with-review')
+    expect(appCss).not.toContain('.resume-stage__chrome')
+    expect(appCss).not.toContain('.app-header__status')
+    expect(appCss).not.toContain('@media (max-width: 1220px)')
   })
 })

@@ -1,4 +1,6 @@
+import { ChevronDown } from 'lucide-react'
 import { useState } from 'react'
+import { cn } from '@/lib/utils'
 import type { Constraints } from '../types'
 import {
   Collapsible,
@@ -25,10 +27,23 @@ export function SettingsPanel({ constraints, onChange }: SettingsPanelProps) {
   return (
     <Collapsible className="settings-panel" open={open} onOpenChange={setOpen}>
       <CollapsibleTrigger className="flex min-h-12 w-full items-center justify-between gap-3 px-4 py-3 text-left">
-        <span className="text-[13px] font-bold">Fit constraints</span>
-        <span className="flex items-center gap-2 text-xs text-muted-foreground">
-          {constraints.maxPages} page · {constraints.maxLinesPerBullet} line/bullet · {constraints.minFontSize}px min
-          <span aria-hidden="true">{open ? '▴' : '▾'}</span>
+        <span className="shrink-0 text-[13px] font-bold">Fit constraints</span>
+        <span className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
+          {!open ? (
+            <span className="min-w-0 truncate">
+              {constraints.maxPages} page · {constraints.maxLinesPerBullet} line/bullet · {constraints.minFontSize}px min
+            </span>
+          ) : null}
+          <ChevronDown
+            aria-hidden="true"
+            className={cn(
+              'shrink-0 text-foreground transition-transform duration-[180ms] ease-out motion-reduce:transition-none',
+              open && 'rotate-180'
+            )}
+            data-slot="fit-disclosure-icon"
+            size={18}
+            strokeWidth={2.25}
+          />
         </span>
       </CollapsibleTrigger>
       <CollapsibleContent

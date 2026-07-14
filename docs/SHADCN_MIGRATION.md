@@ -100,7 +100,7 @@ Manual QA evidence (2026-07-10):
 
 ### PR 3: Review panel presentation
 
-Status: published in open PR #25. Implementation, automated verification, exact-width manual QA, task-level review, whole-branch review, and independent re-review are complete. Independent re-review against head `0cafaad1e7c85eca5dacabfe31799d4e82b6e518` found no remaining actionable code findings; merge is pending. See [`docs/superpowers/specs/2026-07-10-shadcn-review-panel-design.md`](superpowers/specs/2026-07-10-shadcn-review-panel-design.md) and [`docs/superpowers/plans/2026-07-10-shadcn-review-panel.md`](superpowers/plans/2026-07-10-shadcn-review-panel.md).
+Status: complete; merged in PR #25 as merge commit `2b252cc0cba3b5a4ca53aff4938f799e3cce3d9e`. Implementation, automated verification, exact-width manual QA, task-level review, whole-branch review, and independent re-review completed before merge. Independent re-review against head `0cafaad1e7c85eca5dacabfe31799d4e82b6e518` found no remaining actionable code findings. See [`docs/superpowers/specs/2026-07-10-shadcn-review-panel-design.md`](superpowers/specs/2026-07-10-shadcn-review-panel-design.md) and [`docs/superpowers/plans/2026-07-10-shadcn-review-panel.md`](superpowers/plans/2026-07-10-shadcn-review-panel.md).
 
 Automated evidence (2026-07-10):
 
@@ -110,7 +110,7 @@ Automated evidence (2026-07-10):
 - The default build was restored after configured-review E2E; `dist/index.html` and `dist/404.html` were byte-identical. Protected resume, data, export, and review implementation files were unchanged, `git diff --check` passed, and `test-results` was removed.
 - The new boundary contract initially caught a 1220px left-edge mismatch. The stacked ReviewPanel now shares `--editor-shell-width` with the editor, and the focused contract and full release gate pass.
 - Whole-branch review found one-sided/sign adjustment ledger defects and a missing stale warning beside failed reruns. Commit `7e4759c` corrected all three with focused regressions; re-review returned `Ready` with no remaining findings.
-- A later independent PR review found that the panel title was not a semantic heading and that successful-result metadata/boundaries still bypassed the approved `Badge` and `Separator` primitives. The remediation restores the level-two `Review` heading, migrates the tier and finding severities to semantic Badge variants, replaces ledger punctuation with a conditional Separator, and removes the superseded severity CSS. Fresh verification passed 170 unit tests, 7 E2E tests, the production build, SPA-fallback comparison, protected-file check, and `git diff --check`. Independent re-review against head `0cafaad1e7c85eca5dacabfe31799d4e82b6e518` found no remaining actionable code findings; merge is pending.
+- A later independent PR review found that the panel title was not a semantic heading and that successful-result metadata/boundaries still bypassed the approved `Badge` and `Separator` primitives. The remediation restores the level-two `Review` heading, migrates the tier and finding severities to semantic Badge variants, replaces ledger punctuation with a conditional Separator, and removes the superseded severity CSS. Fresh verification passed 170 unit tests, 7 E2E tests, the production build, SPA-fallback comparison, protected-file check, and `git diff --check`. Independent re-review against head `0cafaad1e7c85eca5dacabfe31799d4e82b6e518` found no remaining actionable code findings.
 
 Manual QA evidence (2026-07-10):
 
@@ -127,9 +127,52 @@ Manual QA evidence (2026-07-10):
 
 ### PR 4: Editor-shell consolidation
 
-Status: not started.
+Status: implementation and PR-specific exact-width visual QA are complete in open PR #26 on `feat/shadcn-editor-shell-consolidation`; merge has not occurred. Final independent review against head `c14896854d395e5136b4d9f695ca0f4bd56e9f6d` found no code defect in the shell work, identified the then-pending visual gate, and found one non-blocking toolbar-group semantic omission. Commit `ff94e4f` adds explicit group roles with an integration regression. See [`docs/superpowers/specs/2026-07-13-shadcn-editor-shell-consolidation-design.md`](superpowers/specs/2026-07-13-shadcn-editor-shell-consolidation-design.md).
 
-- This is the shell-consolidation follow-up after the ReviewPanel presentation PR.
+Manual-QA remediation (2026-07-14):
+
+- Manual QA superseded the original narrow-Fit assumption after measuring an 82px visible Fit/Review mismatch at 1640px and a 120px mismatch at wider viewports. Both wide side surfaces now use the same 360px maximum while the symmetric tracks, centered 896px editor, fixed 816px resume, and constrained layout through 1639px remain unchanged.
+- The focused Playwright geometry contract first failed with a received width delta of 82px against the allowed 1px at 1640px, then passed after the Fit cap changed from 240px to 360px. The contract also requires both surfaces to measure 360px at 1920px.
+- The complete release gate passed 13 Vitest files and 159 tests plus all 7 Playwright tests. The final default production build transformed 355 modules; `dist/index.html` and `dist/404.html` were byte-identical, protected resume/data/export/review/resize files had no branch diff, and `git diff --check` passed.
+- Independent task review and whole-branch re-review of corrected code head `49ca2bd0ca6f1e6e4d1447db9021adffe5d40472` found no Critical, Important, or Minor issues. This later documentation-only review-record commit is not part of that reviewed code head.
+- Corrected visual QA at 1920px and 1640px confirmed equal Fit/Review surfaces, the centered 896px editor, the broader header, and the fixed 816px resume without overlap or page-level overflow.
+- Manual QA also found that the active-limit summary duplicated the visible Fit steppers while expanded. The trigger now keeps that summary only while collapsed and uses the installed, unboxed 18px Lucide `ChevronDown`, with a 2.25px stroke, 180-degree expanded rotation, and reduced-motion-safe transition.
+- The existing premium-shell interaction test supplied Task 7's TDD contract without adding a test case. RED failed because the SVG disclosure slot was absent; GREEN passed all 14 app-integration tests after the trigger retained its collapsed summary, removed it when expanded, and exposed the presentation-only SVG slot while preserving Base UI's `aria-expanded` state.
+- Before review, Task 7's complete release gate passed 13 Vitest files and 159 tests plus all 7 Playwright tests. The restored default build transformed 2112 modules; `dist/index.html` and `dist/404.html` existed and were byte-identical, protected resume/data/export/review/resize files had no branch diff, and `git diff --check` passed.
+- Whole-branch review then exposed a narrow max-value edge case: at 358px, `10 page · 10 line/bullet · 16px min` made the collapsed trigger 63px tall while expansion dropped it to 48px. The existing narrow Fit Playwright case reproduced that RED result, and GREEN passed after allowing the summary cluster to shrink and visually truncate while retaining its full DOM text; collapsed and expanded heights both remain 48px at 358px and the inclusive 560px boundary, and no new test case was added.
+- The complete post-correction gate again passed 13 Vitest files and 159 tests, all 7 Playwright tests, TypeScript, both prescribed production builds, byte-identical SPA entries, the protected-file check, and `git diff --check`.
+- Final post-correction focused and whole-branch reviews found no Critical, Important, or Minor issues. A later independent review of head `c14896854d395e5136b4d9f695ca0f4bd56e9f6d` found only the release-process gate and missing group semantics; `ff94e4f` resolves the code finding without changing layout.
+- Direct inspection of the rebuilt final code state covered 1920px, 1640px, 1639px, 960px, 561px, 560px, and 358px; collapsed/expanded Fit; ready, loading, success, stale, unavailable, configuration-error, collapsed, and expanded Review presentation; keyboard focus; reduced motion; and 50% browser zoom. The shell edges remained aligned, the intended responsive transitions held, and the known resume-content zoom defect remained isolated to issue #27.
+
+Automated evidence (2026-07-13):
+
+- The focused editor-shell set passed 4 files and 57 tests. The complete Vitest gate passed 13 files and 159 tests with `NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage`; Node v26.5.0 accepted the prescribed option without a local-storage warning or unhandled rejection.
+- Playwright passed 7 tests under `CI=1`: 4 unconfigured and 3 configured-review. The contracts prove the inclusive 1640px three-region layout, the 1639px Fit/editor/Review stack, 44px controls at 560px and 36px controls at 561px, and 358px document overflow containment with the resume fixed at 816px.
+- The default production build transformed 355 modules. Output was `index.html` 0.70 kB (0.39 kB gzip), CSS 61.12 kB (12.29 kB gzip), `purify.es` 22.03 kB (8.72 kB gzip), `index.es` 159.64 kB (53.38 kB gzip), `html2canvas.esm` 202.38 kB (47.71 kB gzip), the application index 300.99 kB (94.57 kB gzip), and `jspdf.es.min` 358.14 kB (116.81 kB gzip).
+- The default build was restored after configured-review E2E. `dist/index.html` and `dist/404.html` were byte-identical; the protected paths `src/styles/resume.css`, `src/types.ts`, `src/storage.ts`, `src/export.ts`, `src/reviewApi.ts`, `src/reviewTypes.ts`, `src/useResumeReview.ts`, and `src/useResizeEngine.ts` had no diff; and `git diff --check` passed.
+
+Independent review evidence (2026-07-13):
+
+- Whole-branch review of implementation/documentation head `0431dc30a337733ef8cf9154ac1554e2edbee129` against the approved design found no Critical, Important, or Minor issues and concluded the branch is ready to publish as a PR. This later documentation-only review-record commit is not part of that reviewed head.
+- At that review checkpoint, exact-width visual QA was still pending; the 2026-07-14 evidence below records its later completion.
+
+Manual QA evidence (2026-07-14):
+
+- Exact-size production-browser captures were directly inspected at 1920px, 1640px, 1639px, 960px, 561px, 560px, and 358px. The 1640px three-region enhancement and 1639px stack were clean; the resume stayed visually dominant and fixed at 816px; Fit and Review remained balanced; controls wrapped without clipping; and no document-level horizontal overflow appeared.
+- Fit was inspected collapsed and expanded at desktop and narrow widths. The summary disappears only while expanded, the chevron remains clear, the header stays stable across 560/561px, and keyboard focus is visible. Reduced-motion emulation reduced the disclosure transition to an effectively instant duration.
+- Review was inspected in ready, loading, success, stale, unavailable, configuration-error, collapsed, and expanded states, including the compact rail and the wide and stacked panels. Existing automated coverage continues to exercise request-error and preserved-result rerun behavior.
+- The final hard-shadow correction was inspected at 50% browser zoom: shell borders remained aligned without the detached white line. The separately tracked resume-content scaling problem still reproduces at 50% and remains out of scope under issue #27.
+- The user reviewed the live final layout during PR QA and accepted the equal side surfaces, distilled Fit disclosure, removed Export label, and corrected shell edges.
+
+- The final region composition retains a broader fluid framed header, uses Fit → editor → Review DOM order, places Fit and the fixed-height Review rail in symmetric side tracks around the centered 896px editor at 1640px and above, and stacks Fit above and Review below the centered editor through 1639px.
+- Document actions and the fixed 816px resume canvas now share one workbench; formatting diagnostics live with Fit; the persistent Review rail owns state disclosure and explicitly expands the dashboard; and the fixed-canvas scroller, print/export behavior, and protected resume styling remain custom.
+
+- Retain a fluid framed header that is broader than the fixed-width editor workbench.
+- On genuinely wide screens, place Fit Constraints left of the centered document editor and the persistent Review rail/dashboard to its right.
+- When those regions do not fit, use the approved document order: Fit above, editor centered, Review below.
+- Consolidate document actions and the resume stage into one workbench, remove redundant outer shell framing, and remove decorative stage metadata.
+- Move formatting diagnostics into the Fit region and keep healthy formatting silent.
+- Replace the header Review control with a fixed-height, single-line workspace rail that preserves every review state and the approved loading sweep.
 - Convert remaining workspace and resume-stage application chrome to utilities where doing so removes meaningful legacy CSS.
 - Audit and remove dead application-chrome selectors after PRs 2 and 3.
 - Preserve the fixed resume canvas, scroller, print/export behavior, and `src/styles/resume.css` as custom layout infrastructure.

@@ -20,43 +20,44 @@ test.describe('configured review browser contracts', () => {
     await page.goto('./editor/')
     await expect(page).toHaveURL(/\/presume\/editor\/$/)
 
-    await expect(page.getByRole('button', { name: 'Review unavailable — setup needed' })).toBeEnabled()
     await expect(page.getByRole('complementary', { name: 'Resume review' })).toHaveCount(0)
-    await page.getByRole('button', { name: 'Review unavailable — setup needed' }).click()
+    const rail = page.locator('[data-slot="review-rail"]')
+    await expect(rail.getByRole('button', { name: 'Review details' })).toBeEnabled()
+    await rail.getByRole('button', { name: 'Review details' }).click()
     await expect(page.getByRole('complementary', { name: 'Resume review' })).toBeVisible()
     await expect(page.getByText('Review service unavailable')).toBeVisible()
 
     const panel = page.getByRole('complementary', { name: 'Resume review' })
     for (const action of [
       panel.getByRole('button', { name: 'Review resume' }),
-      panel.getByRole('button', { name: 'Close review panel' }),
+      panel.getByRole('button', { name: 'Collapse review' }),
     ]) {
       await expect(action).toHaveCSS('height', '44px')
     }
 
-    await page.setViewportSize({ width: 1221, height: 900 })
-    await expect(panel).toBeVisible()
-    const desktopLayout = await page.evaluate(() => {
-      const workspace = document.querySelector('.workspace')!.getBoundingClientRect()
+    await page.setViewportSize({ width: 1640, height: 900 })
+    const wide = await page.evaluate(() => {
+      const fit = document.querySelector('.fit-region')!.getBoundingClientRect()
       const editor = document.querySelector('.editor-panel')!.getBoundingClientRect()
-      const review = document.querySelector('.review-panel')!.getBoundingClientRect()
+      const review = document.querySelector('.review-region')!.getBoundingClientRect()
       return {
-        reviewRightOfEditor: review.left > editor.right,
-        contained: review.right <= workspace.right + 1,
+        fitLeft: fit.right <= editor.left,
+        reviewRight: review.left >= editor.right,
       }
     })
-    expect(desktopLayout).toEqual({ reviewRightOfEditor: true, contained: true })
+    expect(wide).toEqual({ fitLeft: true, reviewRight: true })
 
-    await page.setViewportSize({ width: 1220, height: 900 })
-    const stackedLayout = await page.evaluate(() => {
+    await page.setViewportSize({ width: 1639, height: 900 })
+    const stacked = await page.evaluate(() => {
+      const fit = document.querySelector('.fit-region')!.getBoundingClientRect()
       const editor = document.querySelector('.editor-panel')!.getBoundingClientRect()
-      const review = document.querySelector('.review-panel')!.getBoundingClientRect()
+      const review = document.querySelector('.review-region')!.getBoundingClientRect()
       return {
-        reviewAboveEditor: review.bottom <= editor.top,
-        sameLeft: Math.abs(review.left - editor.left) <= 1,
+        fitAbove: fit.bottom <= editor.top,
+        reviewBelow: editor.bottom <= review.top,
       }
     })
-    expect(stackedLayout).toEqual({ reviewAboveEditor: true, sameLeft: true })
+    expect(stacked).toEqual({ fitAbove: true, reviewBelow: true })
   })
 
   test('renders config-error state when backend cannot be reached', async ({ page }) => {
@@ -65,15 +66,20 @@ test.describe('configured review browser contracts', () => {
     await page.goto('./editor/')
     await expect(page).toHaveURL(/\/presume\/editor\/$/)
 
-    await expect(page.getByRole('button', { name: 'Review unavailable — connection issue' })).toBeEnabled()
     await expect(page.getByRole('complementary', { name: 'Resume review' })).toHaveCount(0)
-    await page.getByRole('button', { name: 'Review unavailable — connection issue' }).click()
+    const rail = page.locator('[data-slot="review-rail"]')
+    await expect(rail.getByRole('button', { name: 'Review details' })).toBeEnabled()
+    await rail.getByRole('button', { name: 'Review details' }).click()
     await expect(page.getByRole('complementary', { name: 'Resume review' })).toBeVisible()
     await expect(page.getByText('Could not reach the review service.')).toBeVisible()
   })
 
   test('submits a PDF review, renders normalized result, and marks it stale after edit', async ({ page }) => {
-    let sawReviewUpload = false
+    let requestCount = 0
+    let releaseFirst!: () => void
+    let releaseSecond!: () => void
+    const firstGate = new Promise<void>(resolve => { releaseFirst = resolve })
+    const secondGate = new Promise<void>(resolve => { releaseSecond = resolve })
     await page.route('http://127.0.0.1:8124/config', route =>
       route.fulfill({
         status: 200,
@@ -88,6 +94,7 @@ test.describe('configured review browser contracts', () => {
       })
     )
     await page.route('http://127.0.0.1:8124/reviews', async route => {
+      requestCount += 1
       const request = route.request()
       expect(request.method()).toBe('POST')
       const contentType = request.headers()['content-type'] ?? ''
@@ -100,7 +107,7 @@ test.describe('configured review browser contracts', () => {
       expect(multipartText).toContain('filename="resume.pdf"')
       expect(multipartText).toContain('Content-Type: application/pdf')
       expect(multipartText).toContain('%PDF')
-      sawReviewUpload = true
+      await (requestCount === 1 ? firstGate : secondGate)
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -110,13 +117,30 @@ test.describe('configured review browser contracts', () => {
 
     await page.goto('./editor/')
     await expect(page).toHaveURL(/\/presume\/editor\/$/)
-    await expect(page.getByRole('button', { name: 'Review resume' })).toBeVisible()
+    const rail = page.locator('[data-slot="review-rail"]')
+    await expect(rail.getByRole('button', { name: 'Start review' })).toBeVisible()
     await expect(page.getByRole('complementary', { name: 'Resume review' })).toHaveCount(0)
+    const readyBox = await rail.boundingBox()
+    expect(readyBox).not.toBeNull()
 
-    await page.getByRole('button', { name: 'Review resume' }).click()
+    await rail.getByRole('button', { name: 'Start review' }).click()
+    await expect(rail.getByText('Reviewing', { exact: true })).toBeVisible()
+    await expect(rail.getByText('In progress', { exact: true })).toBeVisible()
+    await expect(page.getByRole('complementary', { name: 'Resume review' })).toHaveCount(0)
+    const loadingBox = await rail.boundingBox()
 
-    await expect(page.getByRole('complementary', { name: 'Resume review' })).toBeVisible()
-    await expect(page.getByText('81 / 100')).toBeVisible()
+    releaseFirst()
+    await expect(rail.getByText('Review ready', { exact: true })).toBeVisible()
+    const successBox = await rail.boundingBox()
+    expect(readyBox!.height).toBe(52)
+    expect(loadingBox).toMatchObject({ width: readyBox!.width, height: 52 })
+    expect(successBox).toMatchObject({ width: readyBox!.width, height: 52 })
+    expect(page.getByRole('complementary', { name: 'Resume review' })).toHaveCount(0)
+
+    await rail.getByRole('button', { name: 'View review' }).click()
+    const panel = page.getByRole('complementary', { name: 'Resume review' })
+    await expect(panel).toBeVisible()
+    await expect(panel.getByText('81 / 100', { exact: true })).toBeVisible()
     await expect(page.getByText('Competitive')).toBeVisible()
     await expect(page.getByText('Open Source', { exact: true })).toBeVisible()
     await expect(page.getByText('Production Experience')).toBeVisible()
@@ -127,7 +151,7 @@ test.describe('configured review browser contracts', () => {
     await expect(page.getByText('Open source signal')).toBeVisible()
     await expect(page.getByText('Missing scale')).toBeVisible()
     await expect(page.getByText('Good technical evidence.')).toBeVisible()
-    expect(sawReviewUpload).toBe(true)
+    expect(requestCount).toBe(1)
 
     const name = page.locator('.resume-name')
     await name.click()
@@ -135,7 +159,35 @@ test.describe('configured review browser contracts', () => {
     await page.keyboard.type('Stale Review Candidate')
 
     await expect(page.getByText('Review is stale')).toBeVisible()
-    await expect(page.getByText('81 / 100')).toBeVisible()
+    await expect(panel.getByText('81 / 100', { exact: true })).toBeVisible()
+
+    await page.getByRole('button', { name: 'Review resume' }).click()
+    await expect(panel.getByText('81 / 100', { exact: true })).toBeVisible()
+    await page.getByRole('button', { name: 'Collapse review' }).click()
+    await expect(rail.getByText('Updating review', { exact: true })).toBeVisible()
+    await expect(rail.getByRole('button', { name: 'View review' })).toBeVisible()
+    await rail.getByRole('button', { name: 'View review' }).click()
+    await expect(panel.getByText('81 / 100', { exact: true })).toBeVisible()
+
+    releaseSecond()
+    await expect(panel.getByRole('button', { name: 'Review resume' })).toBeEnabled()
+    expect(requestCount).toBe(2)
+
+    await page.setViewportSize({ width: 560, height: 900 })
+    for (const action of [
+      page.getByRole('button', { name: 'Review resume' }),
+      page.getByRole('button', { name: 'Collapse review' }),
+    ]) {
+      await expect(action).toHaveCSS('height', '44px')
+    }
+
+    await page.setViewportSize({ width: 561, height: 900 })
+    for (const action of [
+      page.getByRole('button', { name: 'Review resume' }),
+      page.getByRole('button', { name: 'Collapse review' }),
+    ]) {
+      await expect(action).toHaveCSS('height', '36px')
+    }
   })
 })
 
