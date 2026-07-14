@@ -127,7 +127,7 @@ Manual QA evidence (2026-07-10):
 
 ### PR 4: Editor-shell consolidation
 
-Status: implementation and PR-specific exact-width visual QA are complete in open PR #26 on `feat/shadcn-editor-shell-consolidation`; merge has not occurred. Final independent review against head `c14896854d395e5136b4d9f695ca0f4bd56e9f6d` found no code defect in the shell work, identified the then-pending visual gate, and found one non-blocking toolbar-group semantic omission. Commit `ff94e4f` adds explicit group roles with an integration regression. See [`docs/superpowers/specs/2026-07-13-shadcn-editor-shell-consolidation-design.md`](superpowers/specs/2026-07-13-shadcn-editor-shell-consolidation-design.md).
+Status: complete; merged in PR #26 as merge commit `a1f1122dd899d8e24c03d8e9c2488610d006e335`. The final PR head `0b1ee7b783fd6fb2f70970406a270a9c3bb657d2` passed the complete automated release gate, independent code review, and exact-width agent-driven visual QA before merge. With this phase complete, the planned four-PR shadcn migration is complete; later shadcn work is optional and must be justified by a concrete product need. See [`docs/superpowers/specs/2026-07-13-shadcn-editor-shell-consolidation-design.md`](superpowers/specs/2026-07-13-shadcn-editor-shell-consolidation-design.md).
 
 Manual-QA remediation (2026-07-14):
 
