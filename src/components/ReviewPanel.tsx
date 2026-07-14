@@ -25,6 +25,8 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from './ui/collapsible'
+import { Badge } from './ui/badge'
+import { Separator } from './ui/separator'
 
 interface ReviewPanelProps {
   id?: string
@@ -49,7 +51,7 @@ export function ReviewPanel({ id, state, onRequestReview, onClose }: ReviewPanel
     <aside id={id} className="review-panel" aria-label="Resume review">
       <Card size="sm" variant="reviewPanel" className="max-h-[inherit] overflow-auto">
         <CardHeader className="border-b">
-          <CardTitle>Review</CardTitle>
+          <CardTitle><h2>Review</h2></CardTitle>
           <CardDescription>Advisory evaluation</CardDescription>
           <CardAction className="flex flex-wrap justify-end gap-1.5">
           <Button
@@ -127,7 +129,9 @@ function ReviewScore({ result }: { result: { totalScore: number; maxScore: numbe
         <span className="block text-[22px] font-bold text-primary">{result.totalScore} / {result.maxScore}</span>
         <p className="mt-1 text-[11px] leading-tight text-primary">Advisory score, not an ATS guarantee.</p>
       </div>
-      <span className="whitespace-nowrap text-xs font-bold text-primary">{formatTier(result.tier)}</span>
+      <Badge variant="reviewTier" className="whitespace-nowrap">
+        {formatTier(result.tier)}
+      </Badge>
     </div>
   )
 }
@@ -178,7 +182,9 @@ function ReviewAdjustmentLedger({ bonuses, deductions }: {
       {hasBonuses ? (
         <span>Bonus <strong className="text-primary">{formatSignedPoints(totalAdjustmentPoints(bonuses))}</strong></span>
       ) : null}
-      {hasBonuses && hasDeductions ? <> <span aria-hidden="true">·</span> </> : null}
+      {hasBonuses && hasDeductions ? (
+        <Separator orientation="vertical" />
+      ) : null}
       {hasDeductions ? (
         <span>Deductions <strong className="text-destructive">{formatSignedPoints(totalAdjustmentPoints(deductions))}</strong></span>
       ) : null}
@@ -278,9 +284,9 @@ function ReviewFindings({
         {annotations.map(annotation => (
           <li key={annotation.id} className="rounded-md border bg-card p-2">
             <div className="mb-1 flex flex-wrap items-center gap-x-2 gap-y-1">
-              <span className={`review-finding__severity review-finding__severity--${annotation.severity}`}>
+              <Badge variant={getSeverityBadgeVariant(annotation.severity)}>
                 {formatSeverity(annotation.severity)}
-              </span>
+              </Badge>
               <span className="text-xs text-muted-foreground">
                 {formatAnnotationTarget(annotation)}
               </span>
@@ -349,6 +355,14 @@ function formatSeverity(severity: ReviewAnnotationSeverity): string {
   if (severity === 'warning') return 'Needs attention'
   if (severity === 'strong') return 'Strength'
   return 'Context'
+}
+
+function getSeverityBadgeVariant(
+  severity: ReviewAnnotationSeverity
+): 'reviewWarning' | 'reviewInfo' | 'reviewStrong' {
+  if (severity === 'warning') return 'reviewWarning'
+  if (severity === 'strong') return 'reviewStrong'
+  return 'reviewInfo'
 }
 
 function formatAnnotationTarget(annotation: ReviewAnnotation): string {

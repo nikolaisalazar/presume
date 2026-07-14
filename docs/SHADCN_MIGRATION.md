@@ -100,16 +100,17 @@ Manual QA evidence (2026-07-10):
 
 ### PR 3: Review panel presentation
 
-Status: implementation, automated verification, exact-width manual QA, task-level review, and whole-branch review complete; the branch is ready for publication. See [`docs/superpowers/specs/2026-07-10-shadcn-review-panel-design.md`](superpowers/specs/2026-07-10-shadcn-review-panel-design.md) and [`docs/superpowers/plans/2026-07-10-shadcn-review-panel.md`](superpowers/plans/2026-07-10-shadcn-review-panel.md).
+Status: published in open PR #25. Implementation, automated verification, exact-width manual QA, task-level review, and whole-branch review are complete; the latest independent PR-review findings are remediated and locally verified, with independent re-review, CI, and merge still pending. See [`docs/superpowers/specs/2026-07-10-shadcn-review-panel-design.md`](superpowers/specs/2026-07-10-shadcn-review-panel-design.md) and [`docs/superpowers/plans/2026-07-10-shadcn-review-panel.md`](superpowers/plans/2026-07-10-shadcn-review-panel.md).
 
 Automated evidence (2026-07-10):
 
 - Vitest: 13 files and 170 tests passed with the documented Node local-storage workaround after final review remediation.
 - Playwright: 7 tests passed under `CI=1` (4 unconfigured and 3 configured-review). The disabled-service contract proves the inspector is right of and contained with the editor at 1221px, stacks above with the same left edge at 1220px, and retains 44px Review/Close actions at 560px.
-- The final default unconfigured production build transformed 354 modules. Output was `index.html` 0.70 kB (0.39 kB gzip), CSS 65.21 kB (12.83 kB gzip), and JavaScript chunks of 22.03/159.64/202.38/299.48/358.14 kB (8.72/53.38/47.71/94.52/116.81 kB gzip).
+- The final default unconfigured production build transformed 354 modules. Output was `index.html` 0.70 kB (0.39 kB gzip), CSS 65.08 kB (12.76 kB gzip), and JavaScript chunks of 22.03/159.64/202.38/299.90/358.14 kB (8.72/53.38/47.71/94.60/116.81 kB gzip).
 - The default build was restored after configured-review E2E; `dist/index.html` and `dist/404.html` were byte-identical. Protected resume, data, export, and review implementation files were unchanged, `git diff --check` passed, and `test-results` was removed.
 - The new boundary contract initially caught a 1220px left-edge mismatch. The stacked ReviewPanel now shares `--editor-shell-width` with the editor, and the focused contract and full release gate pass.
 - Whole-branch review found one-sided/sign adjustment ledger defects and a missing stale warning beside failed reruns. Commit `7e4759c` corrected all three with focused regressions; re-review returned `Ready` with no remaining findings.
+- A later independent PR review found that the panel title was not a semantic heading and that successful-result metadata/boundaries still bypassed the approved `Badge` and `Separator` primitives. The remediation restores the level-two `Review` heading, migrates the tier and finding severities to semantic Badge variants, replaces ledger punctuation with a conditional Separator, and removes the superseded severity CSS. Fresh verification passed 170 unit tests, 7 E2E tests, the production build, SPA-fallback comparison, protected-file check, and `git diff --check`; independent re-review remains pending.
 
 Manual QA evidence (2026-07-10):
 

@@ -159,6 +159,8 @@ describe('ReviewPanel', () => {
 
     render(<ReviewPanel state={{ status: 'idle' }} onRequestReview={onRequestReview} />)
 
+    expect(screen.getByRole('heading', { name: 'Review', level: 2 }))
+      .toBeInTheDocument()
     expect(screen.getByText('Ready for review')).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Review resume' }))
@@ -262,9 +264,12 @@ describe('ReviewPanel', () => {
     )
 
     expect(screen.getByText('72 / 100')).toBeInTheDocument()
-    expect(screen.getByText('Competitive')).toBeInTheDocument()
+    expect(screen.getByText('Competitive')).toHaveAttribute('data-slot', 'badge')
     expect(screen.getByText('Production Experience')).toBeInTheDocument()
     expect(screen.getByText('Quantify production impact.')).toBeInTheDocument()
+    expect(screen.getByText('Needs attention', { selector: '[data-slot="badge"]' }))
+      .toBeInTheDocument()
+    expect(screen.getByRole('separator')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: /Adjustment details/i }))
     expect(screen.getByText('Open source signal')).toBeInTheDocument()
     expect(screen.getByText('Missing scale')).toBeInTheDocument()
@@ -363,9 +368,9 @@ describe('ReviewPanel', () => {
     expect(screen.getByRole('button', { name: /Key strengths/i }))
       .toHaveAttribute('aria-expanded', 'false')
     expect(screen.queryByText('Clear technical ownership.')).not.toBeInTheDocument()
-    expect(screen.getByText('Bonus').parentElement).toHaveTextContent(
-      'Bonus +3 · Deductions −2'
-    )
+    expect(screen.getByText('Bonus').parentElement).toHaveTextContent('Bonus +3')
+    expect(screen.getByText('Deductions').parentElement)
+      .toHaveTextContent('Deductions −2')
     expect(screen.getByRole('button', { name: /Adjustment details/i }))
       .toHaveAttribute('aria-expanded', 'false')
 
@@ -383,7 +388,7 @@ describe('ReviewPanel', () => {
 
     expect(screen.getByText('Deductions').parentElement).toHaveTextContent('Deductions −2')
     expect(screen.queryByText('Bonus')).not.toBeInTheDocument()
-    expect(screen.queryByText('·')).not.toBeInTheDocument()
+    expect(screen.queryByRole('separator')).not.toBeInTheDocument()
 
     rerender(
       <ReviewPanel
@@ -394,7 +399,7 @@ describe('ReviewPanel', () => {
 
     expect(screen.getByText('Bonus').parentElement).toHaveTextContent('Bonus +3')
     expect(screen.queryByText('Deductions')).not.toBeInTheDocument()
-    expect(screen.queryByText('·')).not.toBeInTheDocument()
+    expect(screen.queryByRole('separator')).not.toBeInTheDocument()
   })
 
   it('preserves signed adjustment values in totals and details', () => {
@@ -420,9 +425,9 @@ describe('ReviewPanel', () => {
       />
     )
 
-    expect(screen.getByText('Bonus').parentElement).toHaveTextContent(
-      'Bonus +1 · Deductions −2'
-    )
+    expect(screen.getByText('Bonus').parentElement).toHaveTextContent('Bonus +1')
+    expect(screen.getByText('Deductions').parentElement)
+      .toHaveTextContent('Deductions −2')
 
     fireEvent.click(screen.getByRole('button', { name: /Adjustment details/i }))
     expect(screen.getByText('Negative bonus').parentElement).toHaveTextContent('(−2)')
