@@ -127,7 +127,23 @@ Manual QA evidence (2026-07-10):
 
 ### PR 4: Editor-shell consolidation
 
-Status: design approved; implementation not started. See [`docs/superpowers/specs/2026-07-13-shadcn-editor-shell-consolidation-design.md`](superpowers/specs/2026-07-13-shadcn-editor-shell-consolidation-design.md).
+Status: implementation complete on `feat/shadcn-editor-shell-consolidation`; independent whole-branch review and merge have not occurred. See [`docs/superpowers/specs/2026-07-13-shadcn-editor-shell-consolidation-design.md`](superpowers/specs/2026-07-13-shadcn-editor-shell-consolidation-design.md).
+
+Automated evidence (2026-07-13):
+
+- The focused editor-shell set passed 4 files and 57 tests. The complete Vitest gate passed 13 files and 159 tests with `NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage`; Node v26.5.0 accepted the prescribed option without a local-storage warning or unhandled rejection.
+- Playwright passed 7 tests under `CI=1`: 4 unconfigured and 3 configured-review. The contracts prove the inclusive 1640px three-region layout, the 1639px Fit/editor/Review stack, 44px controls at 560px and 36px controls at 561px, and 358px document overflow containment with the resume fixed at 816px.
+- The default production build transformed 355 modules. Output was `index.html` 0.70 kB (0.39 kB gzip), CSS 61.12 kB (12.29 kB gzip), and JavaScript chunks of 22.03/159.64/202.38/300.99/358.14 kB (8.72/53.38/47.71/94.57/116.81 kB gzip).
+- The default build was restored after configured-review E2E. `dist/index.html` and `dist/404.html` were byte-identical; protected resume, data, export, review, and resize files had no diff; and `git diff --check` passed.
+
+Manual QA evidence (2026-07-13):
+
+- No manual viewport or state was inspected. The required browser-client setup reported `Browser is not available: iab`, and the prescribed browser discovery call returned no available browser surfaces.
+- Manual editor checks at 1640px, 1639px, 1440px, 1120px, 960px, 561px, 560px, and 358px are pending, including visible hierarchy, overlap, overflow, and the compact-to-touch boundary. Landing-page spot checks at desktop width and 358px are also pending.
+- Manual Fit closed/open and active-warning checks; Review checking, ready, first loading, success, stale, unavailable, configuration-error, request-error, and rerun-with-result checks; keyboard focus and reduced-motion checks; direct navigation and browser Back; JSON import/export; PDF export; Reset cancellation; and LocalStorage persistence are pending. Automated Playwright coverage was not substituted for manual completion.
+
+- The final region composition retains a broader fluid framed header, uses Fit → editor → Review DOM order, places Fit and the fixed-height Review rail in symmetric side tracks around the centered 896px editor at 1640px and above, and stacks Fit above and Review below the centered editor through 1639px.
+- Document actions and the fixed 816px resume canvas now share one workbench; formatting diagnostics live with Fit; the persistent Review rail owns state disclosure and explicitly expands the dashboard; and the fixed-canvas scroller, print/export behavior, and protected resume styling remain custom.
 
 - Retain a fluid framed header that is broader than the fixed-width editor workbench.
 - On genuinely wide screens, place Fit Constraints left of the centered document editor and the persistent Review rail/dashboard to its right.

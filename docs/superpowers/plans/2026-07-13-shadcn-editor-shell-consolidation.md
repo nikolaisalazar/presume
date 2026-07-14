@@ -68,7 +68,7 @@ export function ReviewRail(props: ReviewRailProps): JSX.Element
 
 - `ReviewRail` owns only presentation and action routing. `App.tsx` continues to own whether the full dashboard is expanded.
 
-- [ ] **Step 1: Replace the obsolete control tests with a compact state-routing contract**
+- [x] **Step 1: Replace the obsolete control tests with a compact state-routing contract**
 
 Remove the `ReviewStatusControl` imports and its entire describe block. Import the new component and helper:
 
@@ -137,7 +137,7 @@ describe('ReviewRail', () => {
 })
 ```
 
-- [ ] **Step 2: Run the focused tests and confirm the old module contract fails**
+- [x] **Step 2: Run the focused tests and confirm the old module contract fails**
 
 Run:
 
@@ -147,7 +147,7 @@ NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage npm test -- --
 
 Expected: FAIL because `../components/ReviewRail` does not exist.
 
-- [ ] **Step 3: Implement the state mapping and semantic rail**
+- [x] **Step 3: Implement the state mapping and semantic rail**
 
 Create `src/components/ReviewRail.tsx` with the following implementation. Keep the surface and progress hook custom because this is application chrome, while using the shared Button for the one available action:
 
@@ -268,7 +268,7 @@ export function ReviewRail({
 }
 ```
 
-- [ ] **Step 4: Run the focused tests and type-check through the production build**
+- [x] **Step 4: Run the focused tests and type-check through the production build**
 
 Run:
 
@@ -279,7 +279,7 @@ npm run build
 
 Expected: the Review UI test file passes and the build succeeds. `ReviewStatusControl.tsx` can still be referenced by `App.tsx` until Task 2; do not delete it until Task 2 switches the import atomically.
 
-- [ ] **Step 5: Commit the isolated Review rail contract**
+- [x] **Step 5: Commit the isolated Review rail contract**
 
 ```sh
 git add src/components/ReviewRail.tsx src/tests/reviewUi.test.tsx
@@ -319,7 +319,7 @@ export function FitConstraintsPanel(
 
 - `App.tsx` owns `reviewPanelOpen`; no dismissed-result key or automatic-opening helper remains.
 
-- [ ] **Step 1: Update the editor integration test to describe the approved region ownership**
+- [x] **Step 1: Update the editor integration test to describe the approved region ownership**
 
 In the unconfigured integration flow, replace the assertions that Review is absent with:
 
@@ -358,7 +358,7 @@ const fitRegion = screen.getByRole('complementary', {
 expect(fitRegion).toContainElement(screen.getByRole('status'))
 ```
 
-- [ ] **Step 2: Run the focused integration file and verify the old composition fails**
+- [x] **Step 2: Run the focused integration file and verify the old composition fails**
 
 Run:
 
@@ -368,7 +368,7 @@ NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage npm test -- --
 
 Expected: FAIL because Review is absent when unconfigured, the old command deck still exists, and no Fit/Review workspace landmarks exist.
 
-- [ ] **Step 3: Extract the Fit region without changing constraint behavior**
+- [x] **Step 3: Extract the Fit region without changing constraint behavior**
 
 Create `src/components/FitConstraintsPanel.tsx`:
 
@@ -409,7 +409,7 @@ export function FitConstraintsPanel({
 
 The warning is a sibling of `SettingsPanel`, so it remains visible while the inner Collapsible is closed.
 
-- [ ] **Step 4: Replace App's automatic panel state with explicit rail expansion**
+- [x] **Step 4: Replace App's automatic panel state with explicit rail expansion**
 
 In `src/App.tsx`, remove imports for `SettingsPanel`, `FormattingWarningSummary`, `Separator`, and `ReviewStatusControl`. Add:
 
@@ -490,7 +490,7 @@ Replace `<main>` with this semantic order:
 
 This makes first-load completion stay collapsed because review-state changes no longer set `reviewPanelOpen`. A rerun started inside an already open `ReviewPanel` leaves that panel open.
 
-- [ ] **Step 5: Make the dashboard's close action an explicit collapse control**
+- [x] **Step 5: Make the dashboard's close action an explicit collapse control**
 
 In `src/components/ReviewPanel.tsx`, retain the Card composition and result rendering. Change only the optional close Button:
 
@@ -507,7 +507,7 @@ In `src/components/ReviewPanel.tsx`, retain the Card composition and result rend
 
 Do not alter score, category selection, adjustment, finding, stale-result, loading, or error rendering.
 
-- [ ] **Step 6: Remove test-only Toolbar class ownership**
+- [x] **Step 6: Remove test-only Toolbar class ownership**
 
 In `src/components/Toolbar.tsx`, replace both `toolbar__group` class names with `data-slot="toolbar-group"`; retain the existing Tailwind classes and `aria-label` values:
 
@@ -519,13 +519,13 @@ In `src/components/Toolbar.tsx`, replace both `toolbar__group` class names with 
 <div data-slot="toolbar-group" className="flex min-w-0 flex-wrap items-center gap-1.5" aria-label="File actions">
 ```
 
-- [ ] **Step 7: Remove the superseded header-only Button variants**
+- [x] **Step 7: Remove the superseded header-only Button variants**
 
 After `ReviewStatusControl.tsx` is deleted, `review`, `reviewSuccess`, `reviewWarning`, and `reviewError` have no consumers. In `src/components/ui/button.tsx`, delete `reviewVariantClasses` and those four entries from `buttonVariants`; retain `default`, `outline`, `secondary`, `ghost`, `destructive`, `link`, `dangerOutline`, `reviewCategory`, and every size unchanged.
 
 In `src/tests/uiPrimitives.test.tsx`, delete only the test named `keeps the shared blue keyboard focus treatment for review buttons`. Keep the ref-forwarding and semantic primary-hover tests intact. The Review rail uses the shared outline Button for its action, while rail tone and the 3px sweep belong to the application surface rather than a Button variant.
 
-- [ ] **Step 8: Delete the superseded Review control and run focused verification**
+- [x] **Step 8: Delete the superseded Review control and run focused verification**
 
 Delete `src/components/ReviewStatusControl.tsx`, then run:
 
@@ -536,7 +536,7 @@ npm run build
 
 Expected: all three focused files pass, the build succeeds, and `rg "ReviewStatusControl|command-deck|resume-stage__chrome|toolbar__group|reviewVariantClasses|reviewSuccess|reviewError" src` returns no matches. `reviewWarning` remains valid in Alert and Badge variants used by `ReviewPanel`.
 
-- [ ] **Step 9: Commit the semantic workspace composition**
+- [x] **Step 9: Commit the semantic workspace composition**
 
 ```sh
 git add src/App.tsx src/components/FitConstraintsPanel.tsx src/components/ReviewPanel.tsx src/components/ReviewRail.tsx src/components/Toolbar.tsx src/components/ReviewStatusControl.tsx src/components/ui/button.tsx src/tests/appIntegration.test.tsx src/tests/reviewUi.test.tsx src/tests/uiPrimitives.test.tsx
@@ -556,7 +556,7 @@ git commit -m "refactor: compose editor workspace regions"
 - Consumes: `.fit-region`, `.editor-panel`, `.review-region`, `.review-rail`, `.review-rail__progress`, `.resume-canvas-scroll`, and `[data-slot="toolbar-group"]` from Tasks 1-2.
 - Produces CSS variables `--stage-padding`, `--editor-shell-width`, and `--wide-workspace-width`, plus the inclusive `@media (min-width: 1640px)` geometry contract. The 1640px boundary is derived from 320px minimum side tracks; the 1660px content maximum permits both symmetric tracks to grow to 360px on larger viewports.
 
-- [ ] **Step 1: Replace brittle source-string tests with narrow custom-CSS invariants**
+- [x] **Step 1: Replace brittle source-string tests with narrow custom-CSS invariants**
 
 Rewrite `src/tests/responsiveLayout.test.ts` so it checks only infrastructure that intentionally remains custom:
 
@@ -599,7 +599,7 @@ describe('custom editor CSS invariants', () => {
 })
 ```
 
-- [ ] **Step 2: Update unconfigured Playwright contracts before changing CSS**
+- [x] **Step 2: Update unconfigured Playwright contracts before changing CSS**
 
 In `e2e/unconfigured.spec.ts`:
 
@@ -662,7 +662,7 @@ expect(narrow.documentWidth).toBeLessThanOrEqual(narrow.viewportWidth)
 expect(narrow.scrollerClientWidth).toBeLessThan(narrow.scrollerScrollWidth)
 ```
 
-- [ ] **Step 3: Run the focused CSS and browser tests and confirm they fail against old geometry**
+- [x] **Step 3: Run the focused CSS and browser tests and confirm they fail against old geometry**
 
 Run:
 
@@ -673,7 +673,7 @@ npm run test:e2e:unconfigured -- --grep "viewport overflow"
 
 Expected: the unit test fails on old selectors and the browser test fails because the old shell has neither the persistent three-region geometry nor the 1640/1639 contract.
 
-- [ ] **Step 4: Consolidate the shell portion of `app.css` while preserving document controls**
+- [x] **Step 4: Consolidate the shell portion of `app.css` while preserving document controls**
 
 Remove the duplicate early shell, “Premium editor redesign overrides,” “Visual Pass 2,” “full-width desktop resume stage,” and “unified command deck” definitions for `.app`, `.app-header`, `.workspace`, `.workspace--with-review`, `.editor-panel`, `.review-panel`, `.resume-canvas-scroll`, `.resume-canvas`, and `.resume-stage__chrome`. Retain the live landing-independent brand rules and all in-document control, print, focus, coarse-pointer, and reduced-motion rules.
 
@@ -866,7 +866,7 @@ Define one shell source of truth with these exact geometry declarations:
 
 Retain the existing `body` workbench background, `.app-header__brand*` styling, annotation legend styling, in-document control styling, and the general reduced-motion rule once each. Do not duplicate token declarations already owned by `src/styles/globals.css`; keep only application-shell aliases still consumed by `app.css` or `resume.css`.
 
-- [ ] **Step 5: Run focused geometry verification**
+- [x] **Step 5: Run focused geometry verification**
 
 Run:
 
@@ -877,7 +877,7 @@ npm run test:e2e:unconfigured -- --grep "viewport overflow|expanded fit constrai
 
 Expected: focused unit tests pass; Playwright proves the 1640/1639 placement, 896px editor maximum, 816px resume, 358px internal scroll, no document overflow, and intact Fit controls.
 
-- [ ] **Step 6: Commit the consolidated shell geometry**
+- [x] **Step 6: Commit the consolidated shell geometry**
 
 ```sh
 git add src/styles/app.css src/tests/responsiveLayout.test.ts e2e/unconfigured.spec.ts
@@ -895,7 +895,7 @@ git commit -m "refactor: consolidate editor shell geometry"
 - Consumes: the `ReviewRail` action labels and App disclosure behavior from Tasks 1-2.
 - Produces: browser contracts for 52px rail stability, no first-load auto-expansion, explicit View expansion, preserved-result reruns, 1640/1639 placement, and 560/561px action sizing.
 
-- [ ] **Step 1: Update unavailable-state expansion and the new wide boundary**
+- [x] **Step 1: Update unavailable-state expansion and the new wide boundary**
 
 In the disabled-service test, locate the rail with `[data-slot="review-rail"]`, click `Review details`, and retain the existing explanation assertion. Change the panel close query to `Collapse review`.
 
@@ -927,7 +927,7 @@ const stacked = await page.evaluate(() => {
 expect(stacked).toEqual({ fitAbove: true, reviewBelow: true })
 ```
 
-- [ ] **Step 2: Extend the existing successful-review flow instead of adding a parallel E2E case**
+- [x] **Step 2: Extend the existing successful-review flow instead of adding a parallel E2E case**
 
 Use two deferred response gates in the existing “submits a PDF review” test:
 
@@ -953,7 +953,7 @@ Click `View review` and retain all existing score, tier, category, evidence, dis
 
 Start a second review from the open dashboard, assert the prior `81 / 100` remains visible, collapse the dashboard, assert the rail reads `Updating review` and still exposes `View review`, reopen it, and assert the prior score remains visible before calling `releaseSecond()`.
 
-- [ ] **Step 3: Cover the inclusive touch boundary in the same configured flow**
+- [x] **Step 3: Cover the inclusive touch boundary in the same configured flow**
 
 With the Review dashboard open, measure `Review resume` and `Collapse review` at 560px and 561px:
 
@@ -977,7 +977,7 @@ for (const action of [
 
 The existing unconfigured Fit test continues to cover the Fit stepper side of the same boundary.
 
-- [ ] **Step 4: Run the configured browser suite and fix only concrete contract failures**
+- [x] **Step 4: Run the configured browser suite and fix only concrete contract failures**
 
 Run:
 
@@ -987,7 +987,7 @@ CI=1 npm run test:e2e:configured
 
 Expected: 3 configured-review tests pass. Do not alter the protected hook or review API to satisfy presentation tests.
 
-- [ ] **Step 5: Commit the browser behavior contract**
+- [x] **Step 5: Commit the browser behavior contract**
 
 ```sh
 git add e2e/configured-review.spec.ts
@@ -1006,7 +1006,9 @@ git commit -m "test: cover review rail disclosure contracts"
 - Consumes: all completed implementation tasks.
 - Produces: a verified, reviewable branch with an accurate migration status and recorded manual-QA state.
 
-- [ ] **Step 1: Run the focused test set before the full gate**
+Verification record (2026-07-13): focused Vitest passed 4 files/57 tests; the full gate passed 13 files/159 tests and 7 E2E tests (4 unconfigured, 3 configured-review); the default build transformed 355 modules; SPA fallback comparison, protected-file scope, and whitespace checks passed. Manual in-app-browser QA is pending because browser-client reported `Browser is not available: iab` and browser discovery returned no available surfaces; no alternate browser tooling was used.
+
+- [x] **Step 1: Run the focused test set before the full gate**
 
 ```sh
 NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage npm test -- --run src/tests/appIntegration.test.tsx src/tests/reviewUi.test.tsx src/tests/responsiveLayout.test.ts src/tests/uiPrimitives.test.tsx
@@ -1014,7 +1016,7 @@ NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage npm test -- --
 
 Expected: the four focused files pass with no local-storage warning or unhandled rejection.
 
-- [ ] **Step 2: Run the complete automated release gate**
+- [x] **Step 2: Run the complete automated release gate**
 
 ```sh
 NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage npm test -- --run
@@ -1039,6 +1041,8 @@ Expected: all unit and E2E tests pass, the production build succeeds, SPA entry 
 
 - [ ] **Step 3: Perform exact-width manual QA in the in-app browser**
 
+Pending: no manual width or state was rendered because the required in-app browser surface was unavailable. The migration record lists every outstanding viewport, state, interaction, routing, export, persistence, focus, and reduced-motion check.
+
 Check `/presume/editor/` in this order:
 
 1. 1640px: Fit left, editor centered at 896px, Review right, symmetric tracks, header broader than editor, no overlap.
@@ -1051,7 +1055,7 @@ Exercise Fit closed/open and an active formatting warning. Exercise Review check
 
 If exact viewport control or a required state cannot be inspected, record that item as pending. Do not infer manual completion from Playwright.
 
-- [ ] **Step 4: Update the migration record with factual evidence**
+- [x] **Step 4: Update the migration record with factual evidence**
 
 In `docs/SHADCN_MIGRATION.md`, change PR 4's status from design approved to implementation complete on `feat/shadcn-editor-shell-consolidation`, summarize the final region composition, and record:
 
@@ -1063,7 +1067,7 @@ In `docs/SHADCN_MIGRATION.md`, change PR 4's status from design approved to impl
 
 Do not mark the PR merged or independently reviewed before those events occur.
 
-- [ ] **Step 5: Review repository hygiene and commit the verified record**
+- [x] **Step 5: Review repository hygiene and commit the verified record**
 
 ```sh
 rm -rf test-results
