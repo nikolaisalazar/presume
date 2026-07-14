@@ -1083,6 +1083,8 @@ git add docs/SHADCN_MIGRATION.md docs/superpowers/plans/2026-07-13-shadcn-editor
 git commit -m "docs: record editor shell verification"
 ```
 
-- [ ] **Step 6: Request independent whole-branch review before publication or merge**
+- [x] **Step 6: Request independent whole-branch review before publication or merge**
 
 Review `origin/main...HEAD` against `docs/superpowers/specs/2026-07-13-shadcn-editor-shell-consolidation-design.md`. The review must prioritize regressions in state disclosure, 1640/1639 geometry, 560/561 touch sizing, 358px overflow containment, accessibility, fixed-canvas/export behavior, protected-file scope, and generated artifacts. Address only concrete findings, rerun the relevant focused test plus the complete release gate, and update the migration record with the final reviewed head SHA.
+
+Review result (2026-07-13): implementation/documentation head `0431dc30a337733ef8cf9154ac1554e2edbee129` received no Critical, Important, or Minor findings and is ready to publish as a PR. The documentation-only commit that records this result is not part of the reviewed head. Exact-width manual in-app-browser QA remains pending as a pre-merge gate.

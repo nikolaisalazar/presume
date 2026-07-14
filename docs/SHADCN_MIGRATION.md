@@ -127,7 +127,7 @@ Manual QA evidence (2026-07-10):
 
 ### PR 4: Editor-shell consolidation
 
-Status: implementation complete on `feat/shadcn-editor-shell-consolidation`; independent whole-branch review and merge have not occurred. See [`docs/superpowers/specs/2026-07-13-shadcn-editor-shell-consolidation-design.md`](superpowers/specs/2026-07-13-shadcn-editor-shell-consolidation-design.md).
+Status: implementation complete on `feat/shadcn-editor-shell-consolidation`; independent whole-branch review is complete against reviewed implementation/documentation head `0431dc30a337733ef8cf9154ac1554e2edbee129`, with no Critical, Important, or Minor findings, and the branch is ready to publish as a PR. Merge has not occurred, and exact-width manual in-app-browser QA remains a pre-merge gate. See [`docs/superpowers/specs/2026-07-13-shadcn-editor-shell-consolidation-design.md`](superpowers/specs/2026-07-13-shadcn-editor-shell-consolidation-design.md).
 
 Automated evidence (2026-07-13):
 
@@ -135,6 +135,11 @@ Automated evidence (2026-07-13):
 - Playwright passed 7 tests under `CI=1`: 4 unconfigured and 3 configured-review. The contracts prove the inclusive 1640px three-region layout, the 1639px Fit/editor/Review stack, 44px controls at 560px and 36px controls at 561px, and 358px document overflow containment with the resume fixed at 816px.
 - The default production build transformed 355 modules. Output was `index.html` 0.70 kB (0.39 kB gzip), CSS 61.12 kB (12.29 kB gzip), `purify.es` 22.03 kB (8.72 kB gzip), `index.es` 159.64 kB (53.38 kB gzip), `html2canvas.esm` 202.38 kB (47.71 kB gzip), the application index 300.99 kB (94.57 kB gzip), and `jspdf.es.min` 358.14 kB (116.81 kB gzip).
 - The default build was restored after configured-review E2E. `dist/index.html` and `dist/404.html` were byte-identical; the protected paths `src/styles/resume.css`, `src/types.ts`, `src/storage.ts`, `src/export.ts`, `src/reviewApi.ts`, `src/reviewTypes.ts`, `src/useResumeReview.ts`, and `src/useResizeEngine.ts` had no diff; and `git diff --check` passed.
+
+Independent review evidence (2026-07-13):
+
+- Whole-branch review of implementation/documentation head `0431dc30a337733ef8cf9154ac1554e2edbee129` against the approved design found no Critical, Important, or Minor issues and concluded the branch is ready to publish as a PR. This later documentation-only review-record commit is not part of that reviewed head.
+- Exact-width manual in-app-browser QA remains pending and is still required before merge.
 
 Manual QA evidence (2026-07-13):
 
