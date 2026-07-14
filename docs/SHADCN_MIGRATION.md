@@ -100,7 +100,7 @@ Manual QA evidence (2026-07-10):
 
 ### PR 3: Review panel presentation
 
-Status: published in open PR #25. Implementation, automated verification, exact-width manual QA, task-level review, and whole-branch review are complete; the latest independent PR-review findings are remediated and locally verified, with independent re-review, CI, and merge still pending. See [`docs/superpowers/specs/2026-07-10-shadcn-review-panel-design.md`](superpowers/specs/2026-07-10-shadcn-review-panel-design.md) and [`docs/superpowers/plans/2026-07-10-shadcn-review-panel.md`](superpowers/plans/2026-07-10-shadcn-review-panel.md).
+Status: published in open PR #25. Implementation, automated verification, exact-width manual QA, task-level review, whole-branch review, and independent re-review are complete. Independent re-review against head `0cafaad1e7c85eca5dacabfe31799d4e82b6e518` found no remaining actionable code findings; merge is pending. See [`docs/superpowers/specs/2026-07-10-shadcn-review-panel-design.md`](superpowers/specs/2026-07-10-shadcn-review-panel-design.md) and [`docs/superpowers/plans/2026-07-10-shadcn-review-panel.md`](superpowers/plans/2026-07-10-shadcn-review-panel.md).
 
 Automated evidence (2026-07-10):
 
@@ -110,7 +110,7 @@ Automated evidence (2026-07-10):
 - The default build was restored after configured-review E2E; `dist/index.html` and `dist/404.html` were byte-identical. Protected resume, data, export, and review implementation files were unchanged, `git diff --check` passed, and `test-results` was removed.
 - The new boundary contract initially caught a 1220px left-edge mismatch. The stacked ReviewPanel now shares `--editor-shell-width` with the editor, and the focused contract and full release gate pass.
 - Whole-branch review found one-sided/sign adjustment ledger defects and a missing stale warning beside failed reruns. Commit `7e4759c` corrected all three with focused regressions; re-review returned `Ready` with no remaining findings.
-- A later independent PR review found that the panel title was not a semantic heading and that successful-result metadata/boundaries still bypassed the approved `Badge` and `Separator` primitives. The remediation restores the level-two `Review` heading, migrates the tier and finding severities to semantic Badge variants, replaces ledger punctuation with a conditional Separator, and removes the superseded severity CSS. Fresh verification passed 170 unit tests, 7 E2E tests, the production build, SPA-fallback comparison, protected-file check, and `git diff --check`; independent re-review remains pending.
+- A later independent PR review found that the panel title was not a semantic heading and that successful-result metadata/boundaries still bypassed the approved `Badge` and `Separator` primitives. The remediation restores the level-two `Review` heading, migrates the tier and finding severities to semantic Badge variants, replaces ledger punctuation with a conditional Separator, and removes the superseded severity CSS. Fresh verification passed 170 unit tests, 7 E2E tests, the production build, SPA-fallback comparison, protected-file check, and `git diff --check`. Independent re-review against head `0cafaad1e7c85eca5dacabfe31799d4e82b6e518` found no remaining actionable code findings; merge is pending.
 
 Manual QA evidence (2026-07-10):
 
