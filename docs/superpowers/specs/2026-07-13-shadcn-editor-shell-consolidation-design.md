@@ -189,10 +189,12 @@ Enable the three-region layout only when the geometry truly fits. The starting b
 Use the constrained document-order layout through 1639px and enable the wide enhancement inclusively at `min-width: 1640px`. If implementation reveals that the real box model cannot satisfy the stated tracks at 1640px, stop and amend the documented geometry before changing the boundary; do not silently substitute a device breakpoint.
 
 - The two side tracks remain symmetric so the 896px editor stays on the browser centerline.
-- Fit uses a narrower 220–240px card aligned toward the editor within the left track.
-- Review uses the existing 320px minimum and may grow to 360px within the right track.
+- Fit and Review use equal visible widths within their symmetric tracks: both fill the available track at the 1640px boundary and cap at 360px on wider screens.
+- Fit remains aligned toward the editor from the left track, while Review remains aligned toward the editor from the right track.
 - The persistent collapsed Review rail occupies the right region even before a review exists, so opening Review does not create a new column or shift the document.
 - The header spans the broad page frame above this composition.
+
+Manual-QA amendment (2026-07-14): the original 220–240px Fit treatment produced an 82–120px visible width mismatch beside Review and forced the Fit summary and expanded controls into avoidable wrapping. The equal-width contract supersedes that assumption without changing the symmetric tracks, centered editor, 1640px boundary, or constrained layout through 1639px.
 
 Do not preserve the previous 1221/1220 right-inspector breakpoint merely because it exists today. The new layout has an additional left panel and a larger minimum geometry. Replace the old boundary contract with the derived PR #4 contract.
 

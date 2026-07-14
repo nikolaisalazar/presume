@@ -1088,3 +1088,105 @@ git commit -m "docs: record editor shell verification"
 Review `origin/main...HEAD` against `docs/superpowers/specs/2026-07-13-shadcn-editor-shell-consolidation-design.md`. The review must prioritize regressions in state disclosure, 1640/1639 geometry, 560/561 touch sizing, 358px overflow containment, accessibility, fixed-canvas/export behavior, protected-file scope, and generated artifacts. Address only concrete findings, rerun the relevant focused test plus the complete release gate, and update the migration record with the final reviewed head SHA.
 
 Review result (2026-07-13): implementation/documentation head `0431dc30a337733ef8cf9154ac1554e2edbee129` received no Critical, Important, or Minor findings and is ready to publish as a PR. The documentation-only commit that records this result is not part of the reviewed head. Exact-width manual in-app-browser QA remains pending as a pre-merge gate.
+
+---
+
+### Task 6: Equalize the wide Fit and Review surfaces after manual QA
+
+**Files:**
+- Modify: `e2e/unconfigured.spec.ts:292-303`
+- Modify: `src/styles/app.css:372-387`
+- Modify: `docs/superpowers/specs/2026-07-13-shadcn-editor-shell-consolidation-design.md:189-197`
+- Modify: `docs/SHADCN_MIGRATION.md:130-143`
+
+**Interfaces:**
+- Consumes: the existing symmetric `minmax(320px, 1fr)` side tracks, 896px editor shell, and `editorGeometry()` Playwright helper.
+- Produces: equal visible Fit and Review widths at and above 1640px, capped at 360px, with no change to the centered editor or constrained layout.
+
+Manual-QA finding (2026-07-14): the 240px Fit cap creates an 82–120px visible mismatch beside the 320–360px Review surface and forces avoidable Fit summary wrapping. The approved correction is to give both surfaces the same 360px maximum width.
+
+- [ ] **Step 1: Write the failing wide-geometry assertions**
+
+Extend the existing wide geometry contract in `e2e/unconfigured.spec.ts`:
+
+```ts
+const wide = await editorGeometry(1640)
+expect(Math.abs(wide.fit.width - wide.review.width)).toBeLessThanOrEqual(1)
+
+const wideMax = await editorGeometry(1920)
+expect(wideMax.fit.width).toBe(360)
+expect(wideMax.review.width).toBe(360)
+```
+
+Retain the current placement, editor-center, 896px editor, 816px resume, 1639px stack, and 358px overflow assertions.
+
+- [ ] **Step 2: Run the focused browser test and verify the regression fails**
+
+Run:
+
+```sh
+CI=1 npx playwright test -c playwright.unconfigured.config.ts -g "keeps viewport overflow inside the fixed resume canvas scroller at narrow widths"
+```
+
+Expected before implementation: FAIL because Fit is 240px while Review fills approximately 322px at 1640px; the 1920px check also observes Fit at 240px and Review at 360px.
+
+- [ ] **Step 3: Implement the equal-width wide surfaces**
+
+Change only the Fit width inside `@media (min-width: 1640px)` in `src/styles/app.css`:
+
+```css
+.fit-region {
+  width: min(360px, 100%);
+  justify-self: end;
+}
+```
+
+Keep Review at `width: min(360px, 100%)`, preserve both `justify-self` directions, and do not change grid tracks, gaps, the editor width, or any rule below 1640px.
+
+- [ ] **Step 4: Run the focused browser test and verify it passes**
+
+Run the same Playwright command from Step 2.
+
+Expected: PASS with equal Fit and Review widths at 1640px and 360px caps at 1920px.
+
+- [ ] **Step 5: Update the migration record and run the complete release gate**
+
+Record that manual QA superseded the original narrow-Fit assumption, then run:
+
+```sh
+NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage npm test -- --run
+npm run build
+CI=1 npm run test:e2e
+npm run build
+test -f dist/index.html
+test -f dist/404.html
+cmp dist/index.html dist/404.html
+git diff --exit-code origin/main...HEAD -- \
+  src/styles/resume.css \
+  src/types.ts \
+  src/storage.ts \
+  src/export.ts \
+  src/reviewApi.ts \
+  src/reviewTypes.ts \
+  src/useResumeReview.ts \
+  src/useResizeEngine.ts
+git diff --check
+git status --short --branch
+```
+
+Expected: all automated checks pass, the default build is restored after configured E2E, protected files remain unchanged, and only the approved layout, test, and documentation files are modified.
+
+- [ ] **Step 6: Commit, push, and resume manual QA**
+
+```sh
+git add \
+  src/styles/app.css \
+  e2e/unconfigured.spec.ts \
+  docs/SHADCN_MIGRATION.md \
+  docs/superpowers/specs/2026-07-13-shadcn-editor-shell-consolidation-design.md \
+  docs/superpowers/plans/2026-07-13-shadcn-editor-shell-consolidation.md
+git commit -m "fix: balance editor side surfaces"
+git push
+```
+
+Resume manual QA at 1640px and the wider viewport that exposed the mismatch before continuing through the existing checklist. Do not mark manual QA complete until the corrected composition is observed.
