@@ -66,9 +66,9 @@ export function ReviewPanel({ id, state, onRequestReview, onClose }: ReviewPanel
               variant="outline"
               size="editor"
               onClick={onClose}
-              aria-label="Close review panel"
+              aria-label="Collapse review"
             >
-              Close
+              Collapse
             </Button>
           ) : null}
           </CardAction>

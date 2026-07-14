@@ -104,20 +104,4 @@ describe('design-system primitive contracts', () => {
     )
   })
 
-  it('keeps the shared blue keyboard focus treatment for review buttons', () => {
-    for (const variant of [
-      'review',
-      'reviewSuccess',
-      'reviewWarning',
-      'reviewError',
-    ] as const) {
-      const classes = buttonVariants({ variant })
-
-      expect.soft(classes).toContain('focus-visible:border-ring')
-      expect.soft(classes).toContain('focus-visible:ring-ring/50')
-      expect.soft(classes).not.toMatch(
-        /focus-visible:(?:border|ring)-review(?:-[^\s/]+)?/
-      )
-    }
-  })
 })

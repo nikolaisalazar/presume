@@ -107,7 +107,8 @@ export function ReviewRail({
       ) : null}
       {presentation.loading ? <span className="review-rail__progress" aria-hidden="true" /> : null}
       <span className="sr-only" aria-live="polite">
-        {presentation.label}{presentation.score ? `, ${presentation.score}` : ''}
+        {presentation.label}, {presentation.detail}
+        {presentation.score ? `, ${presentation.score}` : ''}
       </span>
     </section>
   )

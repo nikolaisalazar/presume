@@ -2,19 +2,13 @@ import { useEffect, useRef, useState } from 'react'
 import { useResume } from './useResume'
 import { useResizeEngine } from './useResizeEngine'
 import { DEFAULT_RESUME } from './defaultResume'
-import { SettingsPanel } from './components/SettingsPanel'
+import { FitConstraintsPanel } from './components/FitConstraintsPanel'
 import { Toolbar } from './components/Toolbar'
 import { ResumePage } from './components/ResumePage'
 import { ReviewPanel } from './components/ReviewPanel'
-import { FormattingWarningSummary } from './components/FormattingWarningSummary'
+import { ReviewRail } from './components/ReviewRail'
 import { LandingPage } from './components/LandingPage'
 import { Badge } from './components/ui/badge'
-import { Separator } from './components/ui/separator'
-import {
-  ReviewStatusControl,
-  getUsefulReviewPanelKey,
-  shouldShowReviewPanel,
-} from './components/ReviewStatusControl'
 import { useResumeReview } from './useResumeReview'
 import './styles/globals.css'
 import './styles/app.css'
@@ -57,7 +51,6 @@ function EditorApp({ onOpenLanding }: { onOpenLanding: () => void }) {
   const { resume, setResume, constraints, setConstraints } = useResume()
   const pageRef = useRef<HTMLDivElement>(null)
   const [reviewPanelOpen, setReviewPanelOpen] = useState(false)
-  const [reviewPanelDismissedKey, setReviewPanelDismissedKey] = useState<string | null>(null)
   const warnings = useResizeEngine(resume, constraints, pageRef)
   const review = useResumeReview({ resume, pageRef })
   const reviewAnnotations =
@@ -69,31 +62,12 @@ function EditorApp({ onOpenLanding }: { onOpenLanding: () => void }) {
     .map(([key]) => key)
   const bulletWarningCount = activeWarningKeys.filter(key => key.startsWith('bullet-')).length
   const hasGlobalOverflowWarning = activeWarningKeys.includes('global-overflow')
-  const showReviewPanel = shouldShowReviewPanel(
-    review.state,
-    reviewPanelOpen,
-    reviewPanelDismissedKey
-  )
   const reviewPanelId = 'resume-review-panel'
   const requestReview = () => {
-    setReviewPanelDismissedKey(null)
-    setReviewPanelOpen(true)
     void review.requestReview()
   }
-  const toggleReviewPanel = () => {
-    if (showReviewPanel) {
-      setReviewPanelOpen(false)
-      setReviewPanelDismissedKey(getUsefulReviewPanelKey(review.state))
-      return
-    }
-
-    setReviewPanelDismissedKey(null)
-    setReviewPanelOpen(true)
-  }
-  const closeReviewPanel = () => {
-    setReviewPanelOpen(false)
-    setReviewPanelDismissedKey(getUsefulReviewPanelKey(review.state))
-  }
+  const openReviewPanel = () => setReviewPanelOpen(true)
+  const closeReviewPanel = () => setReviewPanelOpen(false)
 
   return (
     <div className="app">
@@ -115,30 +89,20 @@ function EditorApp({ onOpenLanding }: { onOpenLanding: () => void }) {
         </a>
         <div className="app-header__meta" aria-label="Editor status">
           <Badge variant="secondary" size="status">Saved locally</Badge>
-          <ReviewStatusControl
-            state={review.state}
-            panelOpen={reviewPanelOpen}
-            panelDismissedKey={reviewPanelDismissedKey}
-            panelId={reviewPanelId}
-            onTogglePanel={toggleReviewPanel}
-            onRequestReview={requestReview}
-          />
         </div>
       </header>
-      <main className={`workspace ${showReviewPanel ? 'workspace--with-review' : ''}`}>
+      <main className="workspace">
+        <FitConstraintsPanel
+          constraints={constraints}
+          onChange={setConstraints}
+          bulletWarningCount={bulletWarningCount}
+          hasGlobalOverflow={hasGlobalOverflowWarning}
+        />
         <section className="editor-panel" aria-label="Resume editor">
           <div
-            data-slot="command-deck"
-            className="w-full overflow-hidden rounded-lg border border-border bg-background"
+            className="document-actions-surface overflow-hidden rounded-lg border border-border bg-background shadow-[var(--shadow-panel)]"
+            data-slot="document-actions"
           >
-            <SettingsPanel constraints={constraints} onChange={setConstraints} />
-            <Separator />
-            <FormattingWarningSummary
-              bulletWarningCount={bulletWarningCount}
-              hasGlobalOverflow={hasGlobalOverflowWarning}
-              constraints={constraints}
-            />
-            {bulletWarningCount > 0 || hasGlobalOverflowWarning ? <Separator /> : null}
             <Toolbar
               resume={resume}
               pageRef={pageRef}
@@ -147,10 +111,6 @@ function EditorApp({ onOpenLanding }: { onOpenLanding: () => void }) {
             />
           </div>
           <div className="resume-stage">
-            <div className="resume-stage__chrome" aria-hidden="true">
-              <span>Letter · fixed canvas</span>
-              <span>Direct edit</span>
-            </div>
             <div className="resume-canvas-scroll" aria-label="Fixed-width resume canvas">
               <div className="resume-canvas">
                 <ResumePage
@@ -164,14 +124,23 @@ function EditorApp({ onOpenLanding }: { onOpenLanding: () => void }) {
             </div>
           </div>
         </section>
-        {showReviewPanel ? (
-          <ReviewPanel
-            id={reviewPanelId}
-            state={review.state}
-            onRequestReview={requestReview}
-            onClose={closeReviewPanel}
-          />
-        ) : null}
+        <section className="review-region" aria-label="Review workspace">
+          {reviewPanelOpen ? (
+            <ReviewPanel
+              id={reviewPanelId}
+              state={review.state}
+              onRequestReview={requestReview}
+              onClose={closeReviewPanel}
+            />
+          ) : (
+            <ReviewRail
+              state={review.state}
+              panelId={reviewPanelId}
+              onOpenPanel={openReviewPanel}
+              onRequestReview={requestReview}
+            />
+          )}
+        </section>
       </main>
     </div>
   )
