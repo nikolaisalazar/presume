@@ -3,12 +3,16 @@ import { describe, expect, it, vi } from 'vitest'
 import { ResumePage } from '../components/ResumePage'
 import { ReviewPanel } from '../components/ReviewPanel'
 import {
+  ReviewCategorySelector,
+  selectLargestDeficitCategory,
+} from '../components/ReviewCategorySelector'
+import {
   getReviewButtonVariant,
   ReviewStatusControl,
   shouldShowReviewPanel,
 } from '../components/ReviewStatusControl'
 import type { ResumeReviewState } from '../useResumeReview'
-import type { ReviewResult } from '../reviewTypes'
+import type { ReviewCategory, ReviewResult } from '../reviewTypes'
 import type { Resume } from '../types'
 
 const resume: Resume = {
@@ -96,11 +100,67 @@ const emptyReviewResult: ReviewResult = {
 }
 
 describe('ReviewPanel', () => {
+  it('selects the largest raw point deficit in stock rubric order', () => {
+    const tiedCategories: ReviewCategory[] = [
+      { key: 'technical_skills', label: 'Technical Skills', score: 5, maxScore: 10, evidence: ['Technical evidence'], suggestions: [] },
+      { key: 'production', label: 'Production', score: 20, maxScore: 25, evidence: ['Production evidence'], suggestions: [] },
+      { key: 'open_source', label: 'Open Source', score: 30, maxScore: 35, evidence: ['Open-source evidence'], suggestions: [] },
+    ]
+
+    expect(selectLargestDeficitCategory(tiedCategories)).toBe('open_source')
+    expect(selectLargestDeficitCategory([])).toBeNull()
+  })
+
+  it('shows evidence for the selected category without mutating scores', () => {
+    const onSelect = vi.fn()
+    const categories = [
+      reviewResult.categories[0],
+      {
+        key: 'technical_skills' as const,
+        label: 'Technical Skills',
+        score: 8,
+        maxScore: 10,
+        evidence: ['Broad supported toolset.'],
+        suggestions: ['Add systems evidence.'],
+      },
+    ]
+
+    const { rerender } = render(
+      <ReviewCategorySelector
+        categories={categories}
+        selectedKey="production"
+        onSelect={onSelect}
+      />
+    )
+
+    expect(screen.getByRole('button', { name: /Production Experience, 18 of 25/i }))
+      .toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('heading', { name: 'Production Experience evidence' }))
+      .toBeInTheDocument()
+    expect(screen.getByText('Experience section shows engineering work.'))
+      .toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /Technical Skills, 8 of 10/i }))
+    expect(onSelect).toHaveBeenCalledWith('technical_skills')
+
+    rerender(
+      <ReviewCategorySelector
+        categories={categories}
+        selectedKey="technical_skills"
+        onSelect={onSelect}
+      />
+    )
+    expect(screen.getByText('Broad supported toolset.')).toBeInTheDocument()
+    expect(categories[1].score).toBe(8)
+  })
+
   it('renders the idle state with an enabled review action', () => {
     const onRequestReview = vi.fn()
 
     render(<ReviewPanel state={{ status: 'idle' }} onRequestReview={onRequestReview} />)
 
+    expect(screen.getByRole('heading', { name: 'Review', level: 2 }))
+      .toBeInTheDocument()
     expect(screen.getByText('Ready for review')).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Review resume' }))
@@ -204,17 +264,99 @@ describe('ReviewPanel', () => {
     )
 
     expect(screen.getByText('72 / 100')).toBeInTheDocument()
-    expect(screen.getByText('Competitive')).toBeInTheDocument()
+    expect(screen.getByText('Competitive')).toHaveAttribute('data-slot', 'badge')
     expect(screen.getByText('Production Experience')).toBeInTheDocument()
-    expect(screen.getByText('Clear technical ownership.')).toBeInTheDocument()
     expect(screen.getByText('Quantify production impact.')).toBeInTheDocument()
+    expect(screen.getByText('Needs attention', { selector: '[data-slot="badge"]' }))
+      .toBeInTheDocument()
+    expect(screen.getByRole('separator')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /Adjustment details/i }))
     expect(screen.getByText('Open source signal')).toBeInTheDocument()
     expect(screen.getByText('Missing scale')).toBeInTheDocument()
     expect(screen.getByText('Add measurable impact.')).toBeInTheDocument()
-    expect(screen.getByText('Advisory only')).toBeInTheDocument()
+    expect(screen.getByText('Advisory evaluation')).toBeInTheDocument()
   })
 
-  it('groups category evidence and suggestions under the category result', () => {
+  it('defaults to the largest-deficit category and resets for a new review', () => {
+    const { rerender } = render(
+      <ReviewPanel
+        state={{ status: 'success', result: reviewResult }}
+        onRequestReview={vi.fn()}
+      />
+    )
+
+    expect(screen.getByRole('button', { name: /Production Experience, 18 of 25/i }))
+      .toHaveAttribute('aria-pressed', 'true')
+
+    const nextResult: ReviewResult = {
+      ...reviewResult,
+      id: 'review_456',
+      categories: [
+        ...reviewResult.categories,
+        {
+          key: 'open_source',
+          label: 'Open Source',
+          score: 5,
+          maxScore: 35,
+          evidence: ['External contributions are limited.'],
+          suggestions: [],
+        },
+      ],
+    }
+
+    rerender(
+      <ReviewPanel
+        state={{ status: 'success', result: nextResult }}
+        onRequestReview={vi.fn()}
+      />
+    )
+    expect(screen.getByRole('button', { name: /Open Source, 5 of 35/i }))
+      .toHaveAttribute('aria-pressed', 'true')
+  })
+
+  it('preserves a valid category selection when the same review gets a new categories array', () => {
+    const categories: ReviewCategory[] = [
+      ...reviewResult.categories,
+      {
+        key: 'technical_skills',
+        label: 'Technical Skills',
+        score: 8,
+        maxScore: 10,
+        evidence: ['Broad supported toolset.'],
+        suggestions: [],
+      },
+    ]
+    const result = { ...reviewResult, categories }
+    const { rerender } = render(
+      <ReviewPanel state={{ status: 'success', result }} onRequestReview={vi.fn()} />
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: /Technical Skills, 8 of 10/i }))
+    expect(screen.getByText('Broad supported toolset.')).toBeVisible()
+
+    const normalizedResult = { ...result, categories: [...categories] }
+    rerender(
+      <ReviewPanel
+        state={{ status: 'stale', result: normalizedResult }}
+        onRequestReview={vi.fn()}
+      />
+    )
+
+    expect(screen.getByRole('button', { name: /Technical Skills, 8 of 10/i }))
+      .toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByText('Broad supported toolset.')).toBeVisible()
+
+    rerender(
+      <ReviewPanel
+        state={{ status: 'success', result: { ...normalizedResult, id: 'review_new' } }}
+        onRequestReview={vi.fn()}
+      />
+    )
+    expect(screen.getByRole('button', { name: /Production Experience, 18 of 25/i }))
+      .toHaveAttribute('aria-pressed', 'true')
+  })
+
+  it('keeps improvements visible and supporting details closed by default', () => {
     render(
       <ReviewPanel
         state={{ status: 'success', result: reviewResult }}
@@ -222,16 +364,90 @@ describe('ReviewPanel', () => {
       />
     )
 
-    const category = screen
-      .getByText('Production Experience')
-      .closest('.review-category')
+    expect(screen.getByText('Quantify production impact.')).toBeVisible()
+    expect(screen.getByRole('button', { name: /Key strengths/i }))
+      .toHaveAttribute('aria-expanded', 'false')
+    expect(screen.queryByText('Clear technical ownership.')).not.toBeInTheDocument()
+    expect(screen.getByText('Bonus').parentElement).toHaveTextContent('Bonus +3')
+    expect(screen.getByText('Deductions').parentElement)
+      .toHaveTextContent('Deductions −2')
+    expect(screen.getByRole('button', { name: /Adjustment details/i }))
+      .toHaveAttribute('aria-expanded', 'false')
 
-    expect(category).not.toBeNull()
-    expect(category).toHaveTextContent('18 / 25')
-    expect(category).toHaveTextContent('Evidence')
-    expect(category).toHaveTextContent('Experience section shows engineering work.')
-    expect(category).toHaveTextContent('Suggestions')
-    expect(category).toHaveTextContent('Clarify user or business impact.')
+    fireEvent.click(screen.getByRole('button', { name: /Key strengths/i }))
+    expect(screen.getByText('Clear technical ownership.')).toBeVisible()
+  })
+
+  it('renders only populated adjustment ledger sides', () => {
+    const { rerender } = render(
+      <ReviewPanel
+        state={{ status: 'success', result: { ...reviewResult, bonuses: [], deductions: [{ label: 'Penalty', points: -2 }] } }}
+        onRequestReview={vi.fn()}
+      />
+    )
+
+    expect(screen.getByText('Deductions').parentElement).toHaveTextContent('Deductions −2')
+    expect(screen.queryByText('Bonus')).not.toBeInTheDocument()
+    expect(screen.queryByRole('separator')).not.toBeInTheDocument()
+
+    rerender(
+      <ReviewPanel
+        state={{ status: 'success', result: { ...reviewResult, bonuses: [{ label: 'Signal', points: 3 }], deductions: [] } }}
+        onRequestReview={vi.fn()}
+      />
+    )
+
+    expect(screen.getByText('Bonus').parentElement).toHaveTextContent('Bonus +3')
+    expect(screen.queryByText('Deductions')).not.toBeInTheDocument()
+    expect(screen.queryByRole('separator')).not.toBeInTheDocument()
+  })
+
+  it('preserves signed adjustment values in totals and details', () => {
+    render(
+      <ReviewPanel
+        state={{
+          status: 'success',
+          result: {
+            ...reviewResult,
+            bonuses: [
+              { label: 'Negative bonus', points: -2 },
+              { label: 'Positive bonus', points: 3 },
+              { label: 'Zero bonus', points: 0 },
+            ],
+            deductions: [
+              { label: 'Positive deduction', points: 2 },
+              { label: 'Negative deduction', points: -4 },
+              { label: 'Zero deduction', points: 0 },
+            ],
+          },
+        }}
+        onRequestReview={vi.fn()}
+      />
+    )
+
+    expect(screen.getByText('Bonus').parentElement).toHaveTextContent('Bonus +1')
+    expect(screen.getByText('Deductions').parentElement)
+      .toHaveTextContent('Deductions −2')
+
+    fireEvent.click(screen.getByRole('button', { name: /Adjustment details/i }))
+    expect(screen.getByText('Negative bonus').parentElement).toHaveTextContent('(−2)')
+    expect(screen.getByText('Positive deduction').parentElement).toHaveTextContent('(+2)')
+    expect(screen.getByText('Zero bonus').parentElement).toHaveTextContent('(0)')
+    expect(screen.getByText('Zero deduction').parentElement).toHaveTextContent('(0)')
+  })
+
+  it('groups evidence under the selected category result', () => {
+    render(
+      <ReviewPanel
+        state={{ status: 'success', result: reviewResult }}
+        onRequestReview={vi.fn()}
+      />
+    )
+
+    expect(screen.getByRole('heading', { name: 'Production Experience evidence' }))
+      .toBeInTheDocument()
+    expect(screen.getByText('Experience section shows engineering work.'))
+      .toBeInTheDocument()
   })
 
   it('renders a clean empty-result state when no detailed review arrays are returned', () => {
@@ -272,9 +488,10 @@ describe('ReviewPanel', () => {
 
     expect(screen.getByText('Review request failed')).toBeInTheDocument()
     expect(screen.getByText('Could not reach the review service.')).toBeInTheDocument()
-    expect(
-      screen.getByText('Previous stale results remain visible below.')
-    ).toBeInTheDocument()
+    expect(screen.getByText('Review is stale')).toBeInTheDocument()
+    expect(screen.getByText(
+      'Previous results are still shown. Re-run review after editing.'
+    )).toBeInTheDocument()
     expect(screen.getByText('72 / 100')).toBeInTheDocument()
   })
 
@@ -290,6 +507,25 @@ describe('ReviewPanel', () => {
     )
 
     expect(screen.getByText('Could not reach the review service.')).toBeInTheDocument()
+  })
+
+  it('uses a stable review shell and semantic alerts for service states', () => {
+    const { rerender } = render(
+      <ReviewPanel state={{ status: 'checking' }} onRequestReview={vi.fn()} />
+    )
+
+    expect(screen.getByRole('complementary', { name: 'Resume review' }))
+      .toBeInTheDocument()
+    expect(screen.getByRole('alert')).toHaveTextContent('Checking review service')
+
+    rerender(
+      <ReviewPanel
+        state={{ status: 'config_error', error: new Error('Could not reach the review service.') }}
+        onRequestReview={vi.fn()}
+      />
+    )
+    expect(screen.getByRole('alert')).toHaveTextContent('Review service unavailable')
+    expect(screen.getByRole('alert')).toHaveAttribute('data-variant', 'destructive')
   })
 
   it('shows annotation legend and target context in the review panel', () => {

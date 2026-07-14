@@ -71,7 +71,7 @@ Status: complete; merged in PR #23 with automated and exact-width manual visual 
 
 ### PR 2: Header and command deck
 
-Status: implementation, automated verification, whole-branch review, and exact-width manual QA are complete on `feat/shadcn-shared-editor-controls`; the branch is ready for PR publication.
+Status: complete; merged in PR #24 with automated verification, exact-width manual QA, and independent whole-branch review complete.
 
 Automated evidence (2026-07-10):
 
@@ -80,6 +80,7 @@ Automated evidence (2026-07-10):
 - The production build completed after 353 modules were transformed. The default unconfigured build was restored after configured-review E2E, and `dist/index.html` and `dist/404.html` were byte-identical.
 - Protected resume, data, export, and review implementation files remained unchanged; `git diff --check` passed.
 - Whole-branch review found one Review-focus defect; commit `3b6c1d3` removed the state-specific override so every Review tone inherits the shared blue keyboard ring. Re-review found no remaining code-level issues.
+- Final independent PR review found that ReviewPanel actions still referenced the removed legacy `toolbar-btn` class. Commit `17a4264` migrated both actions to the shared `Button` primitive and added exact-560px touch-target coverage; re-review approved the corrected branch with no actionable findings.
 
 Manual QA evidence (2026-07-10):
 
@@ -99,7 +100,25 @@ Manual QA evidence (2026-07-10):
 
 ### PR 3: Review panel presentation
 
-Status: not started.
+Status: published in open PR #25. Implementation, automated verification, exact-width manual QA, task-level review, whole-branch review, and independent re-review are complete. Independent re-review against head `0cafaad1e7c85eca5dacabfe31799d4e82b6e518` found no remaining actionable code findings; merge is pending. See [`docs/superpowers/specs/2026-07-10-shadcn-review-panel-design.md`](superpowers/specs/2026-07-10-shadcn-review-panel-design.md) and [`docs/superpowers/plans/2026-07-10-shadcn-review-panel.md`](superpowers/plans/2026-07-10-shadcn-review-panel.md).
+
+Automated evidence (2026-07-10):
+
+- Vitest: 13 files and 170 tests passed with the documented Node local-storage workaround after final review remediation.
+- Playwright: 7 tests passed under `CI=1` (4 unconfigured and 3 configured-review). The disabled-service contract proves the inspector is right of and contained with the editor at 1221px, stacks above with the same left edge at 1220px, and retains 44px Review/Close actions at 560px.
+- The final default unconfigured production build transformed 354 modules. Output was `index.html` 0.70 kB (0.39 kB gzip), CSS 65.08 kB (12.76 kB gzip), and JavaScript chunks of 22.03/159.64/202.38/299.90/358.14 kB (8.72/53.38/47.71/94.60/116.81 kB gzip).
+- The default build was restored after configured-review E2E; `dist/index.html` and `dist/404.html` were byte-identical. Protected resume, data, export, and review implementation files were unchanged, `git diff --check` passed, and `test-results` was removed.
+- The new boundary contract initially caught a 1220px left-edge mismatch. The stacked ReviewPanel now shares `--editor-shell-width` with the editor, and the focused contract and full release gate pass.
+- Whole-branch review found one-sided/sign adjustment ledger defects and a missing stale warning beside failed reruns. Commit `7e4759c` corrected all three with focused regressions; re-review returned `Ready` with no remaining findings.
+- A later independent PR review found that the panel title was not a semantic heading and that successful-result metadata/boundaries still bypassed the approved `Badge` and `Separator` primitives. The remediation restores the level-two `Review` heading, migrates the tier and finding severities to semantic Badge variants, replaces ledger punctuation with a conditional Separator, and removes the superseded severity CSS. Fresh verification passed 170 unit tests, 7 E2E tests, the production build, SPA-fallback comparison, protected-file check, and `git diff --check`. Independent re-review against head `0cafaad1e7c85eca5dacabfe31799d4e82b6e518` found no remaining actionable code findings; merge is pending.
+
+Manual QA evidence (2026-07-10):
+
+- At 1440px and 1221px, the Review inspector measured 360px and remained to the right of the document-led editor. At 1220px it stacked above the editor with the same left edge and an 896px width.
+- At 960px, 561px, 560px, and 358px the panel remained stacked with no document-level overflow. Review/Close measured 36px at 561px and 44px at 560px and 358px.
+- The resume remained 816px at every width. At 358px, overflow stayed inside `.resume-canvas-scroll` (302px client width / 836px scroll width) while the document width remained 358px.
+- Successful category selection and evidence replacement, closed/open strengths and adjustment disclosures, keyboard focus, loading, disabled, config-error, stale, request-error with and without preserved results, and empty-result presentation rendered coherently. Reduced motion removed the loading sweep animation.
+- Checking and unconfigured copy/semantics are covered by component tests; they are not stable configured-browser destinations for visual capture. Landing pages at 1120px and 358px retained their approved composition with no overflow, and direct editor navigation/browser back remained functional.
 
 - This is the next presentation-only surface PR after PR 2.
 - Compose `Card`, `Alert`, `Badge`, `Button`, and `Separator` around the existing review state machine.
