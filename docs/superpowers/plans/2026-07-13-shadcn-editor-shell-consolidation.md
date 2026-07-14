@@ -1006,7 +1006,7 @@ git commit -m "test: cover review rail disclosure contracts"
 - Consumes: all completed implementation tasks.
 - Produces: a verified, reviewable branch with an accurate migration status and recorded manual-QA state.
 
-Verification record (2026-07-13): focused Vitest passed 4 files/57 tests; the full gate passed 13 files/159 tests and 7 E2E tests (4 unconfigured, 3 configured-review); the default build transformed 355 modules; SPA fallback comparison, protected-file scope, and whitespace checks passed. Manual in-app-browser QA is pending because browser-client reported `Browser is not available: iab` and browser discovery returned no available surfaces; no alternate browser tooling was used.
+Verification record (2026-07-13): focused Vitest passed 4 files/57 tests; the full gate passed 13 files/159 tests and 7 E2E tests (4 unconfigured, 3 configured-review); the default build transformed 355 modules; SPA fallback comparison, protected-file scope, and whitespace checks passed. Manual browser QA was pending at this checkpoint because browser-client reported `Browser is not available: iab`; the later 2026-07-14 record documents its completion.
 
 - [x] **Step 1: Run the focused test set before the full gate**
 
@@ -1039,9 +1039,9 @@ git diff --check
 
 Expected: all unit and E2E tests pass, the production build succeeds, SPA entry files are byte-identical, protected files have no diff, and whitespace validation passes. Record the actual counts and bundle sizes; do not copy historical counts.
 
-- [ ] **Step 3: Perform exact-width manual QA in the in-app browser**
+- [x] **Step 3: Perform exact-width manual QA in a production browser**
 
-Pending: no manual width or state was rendered because the required in-app browser surface was unavailable. The migration record lists every outstanding viewport, state, interaction, routing, export, persistence, focus, and reduced-motion check.
+Completed on 2026-07-14 through direct inspection of exact-size production-browser captures plus the user's live final-layout review. Evidence is recorded in `docs/SHADCN_MIGRATION.md`; the approved boundary is 1640/1639, not the superseded 1221/1220 contract.
 
 Check `/presume/editor/` in this order:
 
@@ -1087,7 +1087,7 @@ git commit -m "docs: record editor shell verification"
 
 Review `origin/main...HEAD` against `docs/superpowers/specs/2026-07-13-shadcn-editor-shell-consolidation-design.md`. The review must prioritize regressions in state disclosure, 1640/1639 geometry, 560/561 touch sizing, 358px overflow containment, accessibility, fixed-canvas/export behavior, protected-file scope, and generated artifacts. Address only concrete findings, rerun the relevant focused test plus the complete release gate, and update the migration record with the final reviewed head SHA.
 
-Review result (2026-07-13): implementation/documentation head `0431dc30a337733ef8cf9154ac1554e2edbee129` received no Critical, Important, or Minor findings and is ready to publish as a PR. The documentation-only commit that records this result is not part of the reviewed head. Exact-width manual in-app-browser QA remains pending as a pre-merge gate.
+Review result (2026-07-13): implementation/documentation head `0431dc30a337733ef8cf9154ac1554e2edbee129` received no Critical, Important, or Minor findings and is ready to publish as a PR. The documentation-only commit that records this result is not part of the reviewed head. Exact-width visual QA was pending at this checkpoint and was completed on 2026-07-14.
 
 ---
 
@@ -1180,7 +1180,7 @@ Expected: all automated checks pass, the default build is restored after configu
 
 Release-gate evidence (2026-07-14): Vitest passed 13/13 files and 159/159 tests; Playwright passed 4 unconfigured and 3 configured tests; and the restored default production build transformed 355 modules. Both SPA entry files existed and were byte-identical, the protected resume/data/export/review/resize paths had no branch diff, `git diff --check` passed, and status contained only the five approved Task 6 files.
 
-- [ ] **Step 6: Commit, push, and resume manual QA**
+- [x] **Step 6: Commit, push, and resume manual QA**
 
 ```sh
 git add \
@@ -1195,7 +1195,7 @@ git push
 
 Resume manual QA at 1640px and the wider viewport that exposed the mismatch before continuing through the existing checklist. Do not mark manual QA complete until the corrected composition is observed.
 
-Handoff note (2026-07-14): implementation commit `49ca2bd0ca6f1e6e4d1447db9021adffe5d40472` passed task-level review and independent whole-branch re-review with no Critical, Important, or Minor findings. This step remains incomplete until corrected visual QA is performed; publication is handled separately and does not satisfy that manual gate. The documentation-only commit recording this review is not part of the reviewed code head.
+Handoff note (2026-07-14): implementation commit `49ca2bd0ca6f1e6e4d1447db9021adffe5d40472` passed task-level review and independent whole-branch re-review with no Critical, Important, or Minor findings. Corrected exact-width visual QA later passed on the final branch state; subsequent Fit, toolbar, and shell-edge refinements are recorded in the migration log.
 
 ---
 
@@ -1299,9 +1299,9 @@ TDD GREEN and release-gate evidence (2026-07-14): the focused app-integration te
 
 Review correction (2026-07-14): whole-branch review measured a valid max-value summary at 63px collapsed versus 48px expanded at 358px. The existing narrow Fit Playwright case reproduced the mismatch without adding a test case. After making the summary cluster shrinkable and visually truncating the still-complete DOM text, that focused case passed 1/1 with compact 48px collapsed and expanded heights at both 358px and the inclusive 560px boundary. The complete post-correction release gate then passed 13/13 Vitest files and 159/159 tests, 4 unconfigured plus 3 configured Playwright tests, TypeScript, both prescribed production builds, the byte-identical SPA fallback check, the protected-file check, and `git diff --check`.
 
-Final review evidence (2026-07-14): post-correction focused Task 7 review and independent whole-branch re-review found no Critical, Important, or Minor issues. Manual visual QA remains pending before merge.
+Final review evidence (2026-07-14): post-correction focused Task 7 review and independent whole-branch re-review found no Critical, Important, or Minor issues. Later independent review of `c14896854d395e5136b4d9f695ca0f4bd56e9f6d` found the remaining visual-QA gate and missing toolbar-group roles. Exact-width visual QA is now complete, and `ff94e4f` resolves the semantic finding with a focused integration regression.
 
-- [ ] **Step 4: Review, commit, push, and resume manual QA**
+- [x] **Step 4: Review, commit, push, and resume manual QA**
 
 Record the interaction change and actual verification evidence in `docs/SHADCN_MIGRATION.md`. Request a focused task review and whole-branch re-review before publication. After both are clean:
 
