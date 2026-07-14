@@ -295,9 +295,12 @@ test.describe('unconfigured browser contracts', () => {
         const review = document.querySelector('.review-region') as HTMLElement
         const scroller = document.querySelector('.resume-canvas-scroll') as HTMLElement
         const resume = document.querySelector('.resume-page') as HTMLElement
+        const resumeViewport = document.querySelector('.resume-viewport') as HTMLElement
         const workspaceStyle = window.getComputedStyle(workspace)
         const scrollerStyle = window.getComputedStyle(scroller)
         const reviewRect = review.getBoundingClientRect()
+        const resumeRect = resume.getBoundingClientRect()
+        const resumeViewportRect = resumeViewport.getBoundingClientRect()
         return {
           bodyClientWidth: document.documentElement.clientWidth,
           documentScrollWidth: document.documentElement.scrollWidth,
@@ -309,7 +312,10 @@ test.describe('unconfigured browser contracts', () => {
           scrollerClientWidth: scroller.clientWidth,
           scrollerScrollWidth: scroller.scrollWidth,
           scrollerOverflowX: scrollerStyle.overflowX,
-          resumeWidth: Math.round(resume.getBoundingClientRect().width),
+          resumeWidth: Math.round(resumeRect.width),
+          resumeHeight: Math.round(resumeRect.height),
+          resumeViewportWidth: Math.round(resumeViewportRect.width),
+          resumeViewportHeight: Math.round(resumeViewportRect.height),
         }
       })
 
@@ -324,7 +330,25 @@ test.describe('unconfigured browser contracts', () => {
         expect(metrics.scrollerClientWidth).toBeLessThan(metrics.scrollerScrollWidth)
       }
       expect(metrics.resumeWidth).toBe(816)
+      expect(metrics.resumeViewportWidth, `resume viewport width at ${width}px`).toBe(816)
+      expect(metrics.resumeViewportHeight, `resume viewport height at ${width}px`).toBe(
+        metrics.resumeHeight
+      )
+      expect(metrics.scrollerScrollWidth, `internal scale leak at ${width}px`).toBeLessThan(1000)
     }
+
+    await page.setViewportSize({ width: 960, height: 1100 })
+    await page.goto('./editor/')
+
+    const resumeViewport = page.locator('.resume-viewport')
+    const resume = page.locator('.resume-page')
+    await resume.evaluate(element => {
+      element.style.minHeight = '1400px'
+    })
+
+    await expect.poll(async () =>
+      Math.round(await resumeViewport.evaluate(element => element.getBoundingClientRect().height))
+    ).toBe(1400)
 
     const wide = await editorGeometry(1640)
     expect(wide.fit.right).toBeLessThanOrEqual(wide.editor.left)

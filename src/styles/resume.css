@@ -13,9 +13,28 @@
   --page-margin-x: 48px;
   --page-margin-y: 48px;
   --bullet-indent: 16px;
+  --resume-layout-scale: 2.25;
+  --resume-presentation-scale: 0.4444444444444444;
 }
 
 /* ── Page Container ─────────────────────────────────────────────── */
+.resume-viewport {
+  position: relative;
+  width: var(--page-width);
+  min-height: var(--page-height);
+  overflow: clip;
+  background: white;
+}
+
+.resume-viewport > .resume-page {
+  position: absolute;
+  top: 0;
+  left: 0;
+  zoom: var(--resume-layout-scale);
+  transform: scale(var(--resume-presentation-scale));
+  transform-origin: top left;
+}
+
 .resume-page {
   width: var(--page-width);
   min-height: var(--page-height);

@@ -5,6 +5,7 @@ import { DEFAULT_RESUME } from './defaultResume'
 import { FitConstraintsPanel } from './components/FitConstraintsPanel'
 import { Toolbar } from './components/Toolbar'
 import { ResumePage } from './components/ResumePage'
+import { ResumeViewport } from './components/ResumeViewport'
 import { ReviewPanel } from './components/ReviewPanel'
 import { ReviewRail } from './components/ReviewRail'
 import { LandingPage } from './components/LandingPage'
@@ -127,13 +128,15 @@ function EditorApp({ onOpenLanding }: { onOpenLanding: () => void }) {
           <div className="resume-stage">
             <div className="resume-canvas-scroll" aria-label="Fixed-width resume canvas">
               <div className="resume-canvas">
-                <ResumePage
-                  ref={pageRef}
-                  resume={resume}
-                  onResumeChange={setResume}
-                  warnings={warnings}
-                  reviewAnnotations={reviewAnnotations}
-                />
+                <ResumeViewport pageRef={pageRef}>
+                  <ResumePage
+                    ref={pageRef}
+                    resume={resume}
+                    onResumeChange={setResume}
+                    warnings={warnings}
+                    reviewAnnotations={reviewAnnotations}
+                  />
+                </ResumeViewport>
               </div>
             </div>
           </div>
