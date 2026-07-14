@@ -132,6 +132,7 @@ test.describe('configured review browser contracts', () => {
     releaseFirst()
     await expect(rail.getByText('Review ready', { exact: true })).toBeVisible()
     const successBox = await rail.boundingBox()
+    expect(readyBox!.height).toBe(52)
     expect(loadingBox).toMatchObject({ width: readyBox!.width, height: 52 })
     expect(successBox).toMatchObject({ width: readyBox!.width, height: 52 })
     expect(page.getByRole('complementary', { name: 'Resume review' })).toHaveCount(0)
