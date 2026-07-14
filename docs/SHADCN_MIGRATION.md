@@ -100,7 +100,7 @@ Manual QA evidence (2026-07-10):
 
 ### PR 3: Review panel presentation
 
-Status: published in open PR #25. Implementation, automated verification, exact-width manual QA, task-level review, whole-branch review, and independent re-review are complete. Independent re-review against head `0cafaad1e7c85eca5dacabfe31799d4e82b6e518` found no remaining actionable code findings; merge is pending. See [`docs/superpowers/specs/2026-07-10-shadcn-review-panel-design.md`](superpowers/specs/2026-07-10-shadcn-review-panel-design.md) and [`docs/superpowers/plans/2026-07-10-shadcn-review-panel.md`](superpowers/plans/2026-07-10-shadcn-review-panel.md).
+Status: complete; merged in PR #25 as merge commit `2b252cc0cba3b5a4ca53aff4938f799e3cce3d9e`. Implementation, automated verification, exact-width manual QA, task-level review, whole-branch review, and independent re-review completed before merge. Independent re-review against head `0cafaad1e7c85eca5dacabfe31799d4e82b6e518` found no remaining actionable code findings. See [`docs/superpowers/specs/2026-07-10-shadcn-review-panel-design.md`](superpowers/specs/2026-07-10-shadcn-review-panel-design.md) and [`docs/superpowers/plans/2026-07-10-shadcn-review-panel.md`](superpowers/plans/2026-07-10-shadcn-review-panel.md).
 
 Automated evidence (2026-07-10):
 
@@ -110,7 +110,7 @@ Automated evidence (2026-07-10):
 - The default build was restored after configured-review E2E; `dist/index.html` and `dist/404.html` were byte-identical. Protected resume, data, export, and review implementation files were unchanged, `git diff --check` passed, and `test-results` was removed.
 - The new boundary contract initially caught a 1220px left-edge mismatch. The stacked ReviewPanel now shares `--editor-shell-width` with the editor, and the focused contract and full release gate pass.
 - Whole-branch review found one-sided/sign adjustment ledger defects and a missing stale warning beside failed reruns. Commit `7e4759c` corrected all three with focused regressions; re-review returned `Ready` with no remaining findings.
-- A later independent PR review found that the panel title was not a semantic heading and that successful-result metadata/boundaries still bypassed the approved `Badge` and `Separator` primitives. The remediation restores the level-two `Review` heading, migrates the tier and finding severities to semantic Badge variants, replaces ledger punctuation with a conditional Separator, and removes the superseded severity CSS. Fresh verification passed 170 unit tests, 7 E2E tests, the production build, SPA-fallback comparison, protected-file check, and `git diff --check`. Independent re-review against head `0cafaad1e7c85eca5dacabfe31799d4e82b6e518` found no remaining actionable code findings; merge is pending.
+- A later independent PR review found that the panel title was not a semantic heading and that successful-result metadata/boundaries still bypassed the approved `Badge` and `Separator` primitives. The remediation restores the level-two `Review` heading, migrates the tier and finding severities to semantic Badge variants, replaces ledger punctuation with a conditional Separator, and removes the superseded severity CSS. Fresh verification passed 170 unit tests, 7 E2E tests, the production build, SPA-fallback comparison, protected-file check, and `git diff --check`. Independent re-review against head `0cafaad1e7c85eca5dacabfe31799d4e82b6e518` found no remaining actionable code findings.
 
 Manual QA evidence (2026-07-10):
 
@@ -127,9 +127,14 @@ Manual QA evidence (2026-07-10):
 
 ### PR 4: Editor-shell consolidation
 
-Status: not started.
+Status: design approved; implementation not started. See [`docs/superpowers/specs/2026-07-13-shadcn-editor-shell-consolidation-design.md`](superpowers/specs/2026-07-13-shadcn-editor-shell-consolidation-design.md).
 
-- This is the shell-consolidation follow-up after the ReviewPanel presentation PR.
+- Retain a fluid framed header that is broader than the fixed-width editor workbench.
+- On genuinely wide screens, place Fit Constraints left of the centered document editor and the persistent Review rail/dashboard to its right.
+- When those regions do not fit, use the approved document order: Fit above, editor centered, Review below.
+- Consolidate document actions and the resume stage into one workbench, remove redundant outer shell framing, and remove decorative stage metadata.
+- Move formatting diagnostics into the Fit region and keep healthy formatting silent.
+- Replace the header Review control with a fixed-height, single-line workspace rail that preserves every review state and the approved loading sweep.
 - Convert remaining workspace and resume-stage application chrome to utilities where doing so removes meaningful legacy CSS.
 - Audit and remove dead application-chrome selectors after PRs 2 and 3.
 - Preserve the fixed resume canvas, scroller, print/export behavior, and `src/styles/resume.css` as custom layout infrastructure.
