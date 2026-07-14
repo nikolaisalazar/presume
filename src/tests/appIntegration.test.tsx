@@ -245,6 +245,7 @@ describe('App review availability boundaries', () => {
 
     expect(screen.getByRole('button', { name: 'Export PDF' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Export JSON' })).toBeInTheDocument()
+    expect(within(toolbar).queryByText('Export', { exact: true })).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Import JSON' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Reset template' })).toBeInTheDocument()
   })

@@ -62,7 +62,6 @@ export function Toolbar({ resume, pageRef, onImport, onReset }: ToolbarProps) {
   return (
     <div className="flex flex-col gap-2 p-3 min-[561px]:flex-row min-[561px]:items-center min-[561px]:justify-between" role="toolbar" aria-label="Document actions">
       <div data-slot="toolbar-group" className="flex min-w-0 flex-wrap items-center gap-1.5" aria-label="Export actions">
-        <span className="mr-0.5 basis-full text-[11px] font-bold uppercase tracking-[0.04em] text-muted-foreground min-[561px]:basis-auto">Export</span>
         <Button size="editor" onClick={handleExportPDF}>Export PDF</Button>
         <Button variant="outline" size="editor" onClick={handleExportJSON}>Export JSON</Button>
       </div>
