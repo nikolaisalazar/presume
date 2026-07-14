@@ -133,8 +133,8 @@ Automated evidence (2026-07-13):
 
 - The focused editor-shell set passed 4 files and 57 tests. The complete Vitest gate passed 13 files and 159 tests with `NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage`; Node v26.5.0 accepted the prescribed option without a local-storage warning or unhandled rejection.
 - Playwright passed 7 tests under `CI=1`: 4 unconfigured and 3 configured-review. The contracts prove the inclusive 1640px three-region layout, the 1639px Fit/editor/Review stack, 44px controls at 560px and 36px controls at 561px, and 358px document overflow containment with the resume fixed at 816px.
-- The default production build transformed 355 modules. Output was `index.html` 0.70 kB (0.39 kB gzip), CSS 61.12 kB (12.29 kB gzip), and JavaScript chunks of 22.03/159.64/202.38/300.99/358.14 kB (8.72/53.38/47.71/94.57/116.81 kB gzip).
-- The default build was restored after configured-review E2E. `dist/index.html` and `dist/404.html` were byte-identical; protected resume, data, export, review, and resize files had no diff; and `git diff --check` passed.
+- The default production build transformed 355 modules. Output was `index.html` 0.70 kB (0.39 kB gzip), CSS 61.12 kB (12.29 kB gzip), `purify.es` 22.03 kB (8.72 kB gzip), `index.es` 159.64 kB (53.38 kB gzip), `html2canvas.esm` 202.38 kB (47.71 kB gzip), the application index 300.99 kB (94.57 kB gzip), and `jspdf.es.min` 358.14 kB (116.81 kB gzip).
+- The default build was restored after configured-review E2E. `dist/index.html` and `dist/404.html` were byte-identical; the protected paths `src/styles/resume.css`, `src/types.ts`, `src/storage.ts`, `src/export.ts`, `src/reviewApi.ts`, `src/reviewTypes.ts`, `src/useResumeReview.ts`, and `src/useResizeEngine.ts` had no diff; and `git diff --check` passed.
 
 Manual QA evidence (2026-07-13):
 
