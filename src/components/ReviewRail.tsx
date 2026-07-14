@@ -7,7 +7,7 @@ export type ReviewRailTone = 'default' | 'success' | 'warning' | 'destructive'
 
 export interface ReviewRailPresentation {
   label: string
-  detail: string
+  detail?: string
   score?: string
   action: ReviewRailAction
   actionLabel?: 'Start' | 'View' | 'Details'
@@ -33,11 +33,11 @@ export function getReviewRailPresentation(
 ): ReviewRailPresentation {
   switch (state.status) {
     case 'unconfigured':
-      return { label: 'Review unavailable', detail: 'Setup needed', action: 'open', actionLabel: 'Details', tone: 'warning', loading: false }
+      return { label: 'Review unavailable', action: 'open', actionLabel: 'Details', tone: 'warning', loading: false }
     case 'checking':
       return { label: 'Checking review', detail: 'Checking availability', action: 'none', tone: 'default', loading: false }
     case 'disabled':
-      return { label: 'Review unavailable', detail: 'Setup needed', action: 'open', actionLabel: 'Details', tone: 'warning', loading: false }
+      return { label: 'Review unavailable', action: 'open', actionLabel: 'Details', tone: 'warning', loading: false }
     case 'config_error':
       return { label: 'Review unavailable', detail: 'Connection issue', action: 'open', actionLabel: 'Details', tone: 'destructive', loading: false }
     case 'idle':
@@ -90,7 +90,9 @@ export function ReviewRail({
     >
       <div className="flex min-w-0 flex-1 items-baseline gap-2 overflow-hidden">
         <strong className="truncate text-[13px] font-bold">{presentation.label}</strong>
-        <span className="truncate text-xs font-semibold opacity-75">{presentation.detail}</span>
+        {presentation.detail ? (
+          <span className="truncate text-xs font-semibold opacity-75">{presentation.detail}</span>
+        ) : null}
       </div>
       {presentation.score ? (
         <strong className="min-w-[58px] shrink-0 whitespace-nowrap text-right text-[13px] font-bold tabular-nums">
@@ -113,7 +115,7 @@ export function ReviewRail({
       ) : null}
       {presentation.loading ? <span className="review-rail__progress" aria-hidden="true" /> : null}
       <span className="sr-only" aria-live="polite">
-        {presentation.label}, {presentation.detail}
+        {presentation.label}{presentation.detail ? `, ${presentation.detail}` : ''}
         {presentation.score ? `, ${presentation.score}` : ''}
       </span>
     </section>

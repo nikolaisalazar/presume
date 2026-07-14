@@ -132,7 +132,8 @@ describe('App review availability boundaries', () => {
     const { container } = render(<App />)
 
     expect(container.querySelector('[data-slot="review-rail"]')).toHaveAttribute('data-slot', 'review-rail')
-    expect(screen.getByText('Review unavailable')).toBeInTheDocument()
+    expect(screen.getByText('Review unavailable', { selector: 'strong' })).toBeInTheDocument()
+    expect(screen.queryByText('Setup needed')).not.toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Review details' }))
     expect(screen.getByRole('complementary', { name: 'Resume review' })).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Collapse review' }))
