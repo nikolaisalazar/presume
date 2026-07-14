@@ -127,13 +127,14 @@ Manual QA evidence (2026-07-10):
 
 ### PR 4: Editor-shell consolidation
 
-Status: implementation complete on `feat/shadcn-editor-shell-consolidation`; independent whole-branch review is complete against reviewed implementation/documentation head `0431dc30a337733ef8cf9154ac1554e2edbee129`, with no Critical, Important, or Minor findings, and the branch is ready to publish as a PR. Merge has not occurred, and exact-width manual in-app-browser QA remains a pre-merge gate. See [`docs/superpowers/specs/2026-07-13-shadcn-editor-shell-consolidation-design.md`](superpowers/specs/2026-07-13-shadcn-editor-shell-consolidation-design.md).
+Status: implementation complete in open PR #26 on `feat/shadcn-editor-shell-consolidation`. Independent whole-branch re-review is complete against corrected implementation/documentation head `49ca2bd0ca6f1e6e4d1447db9021adffe5d40472`, with no Critical, Important, or Minor findings. Merge has not occurred, and exact-width manual in-app-browser QA remains a pre-merge gate. See [`docs/superpowers/specs/2026-07-13-shadcn-editor-shell-consolidation-design.md`](superpowers/specs/2026-07-13-shadcn-editor-shell-consolidation-design.md).
 
 Manual-QA remediation (2026-07-14):
 
 - Manual QA superseded the original narrow-Fit assumption after measuring an 82px visible Fit/Review mismatch at 1640px and a 120px mismatch at wider viewports. Both wide side surfaces now use the same 360px maximum while the symmetric tracks, centered 896px editor, fixed 816px resume, and constrained layout through 1639px remain unchanged.
 - The focused Playwright geometry contract first failed with a received width delta of 82px against the allowed 1px at 1640px, then passed after the Fit cap changed from 240px to 360px. The contract also requires both surfaces to measure 360px at 1920px.
 - The complete release gate passed 13 Vitest files and 159 tests plus all 7 Playwright tests. The final default production build transformed 355 modules; `dist/index.html` and `dist/404.html` were byte-identical, protected resume/data/export/review/resize files had no branch diff, and `git diff --check` passed.
+- Independent task review and whole-branch re-review of corrected code head `49ca2bd0ca6f1e6e4d1447db9021adffe5d40472` found no Critical, Important, or Minor issues. This later documentation-only review-record commit is not part of that reviewed code head.
 - Corrected visual QA at 1640px and the wider mismatch viewport is still pending and must not be inferred from the automated contract.
 
 Automated evidence (2026-07-13):
