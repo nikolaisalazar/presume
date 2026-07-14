@@ -27,6 +27,14 @@ test.describe('unconfigured browser contracts', () => {
       'Reset template',
     ])
 
+    const shellShadows = await page
+      .locator('.app-header, [data-slot="fit-region"], [data-slot="document-actions"], [data-slot="review-rail"]')
+      .evaluateAll(elements => elements.map(element => getComputedStyle(element).boxShadow))
+    expect(shellShadows).toHaveLength(4)
+    expect(shellShadows).not.toContainEqual(
+      expect.stringContaining('rgba(255, 255, 255, 0.95) 0px 1px 0px 0px')
+    )
+
     const screenshot = await page.locator('.resume-page').screenshot()
     expect(hasNonblankPngBytes(screenshot)).toBe(true)
 
