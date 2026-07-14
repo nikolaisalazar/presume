@@ -7,10 +7,9 @@ import {
   selectLargestDeficitCategory,
 } from '../components/ReviewCategorySelector'
 import {
-  getReviewButtonVariant,
-  ReviewStatusControl,
-  shouldShowReviewPanel,
-} from '../components/ReviewStatusControl'
+  ReviewRail,
+  getReviewRailPresentation,
+} from '../components/ReviewRail'
 import type { ResumeReviewState } from '../useResumeReview'
 import type { ReviewCategory, ReviewResult } from '../reviewTypes'
 import type { Resume } from '../types'
@@ -908,142 +907,58 @@ describe('review annotations', () => {
   })
 })
 
-describe('ReviewStatusControl', () => {
-  it('auto-shows useful review states unless the current state was dismissed', () => {
-    const successKey = 'success:review_123:2026-06-29T12:00:00Z'
+describe('ReviewRail', () => {
+  const railReviewResult = { ...reviewResult, totalScore: 81 }
 
-    expect(shouldShowReviewPanel({ status: 'loading' }, false, null)).toBe(true)
-    expect(shouldShowReviewPanel({ status: 'success', result: reviewResult }, false, null)).toBe(true)
-    expect(shouldShowReviewPanel({ status: 'stale', result: reviewResult }, false, null)).toBe(true)
-    expect(
-      shouldShowReviewPanel(
-        {
-          status: 'error',
-          error: new Error('Review failed.'),
-          result: reviewResult,
-        },
-        false,
-        null
-      )
-    ).toBe(true)
-    expect(shouldShowReviewPanel({ status: 'success', result: reviewResult }, false, successKey)).toBe(false)
-    expect(shouldShowReviewPanel({ status: 'success', result: reviewResult }, true, successKey)).toBe(true)
-
-    const variants: Array<[ResumeReviewState, ReturnType<typeof getReviewButtonVariant>]> = [
-      [{ status: 'idle' }, 'review'],
-      [{ status: 'loading' }, 'review'],
-      [{ status: 'success', result: reviewResult }, 'reviewSuccess'],
-      [{ status: 'stale', result: reviewResult }, 'reviewWarning'],
-      [{ status: 'disabled' }, 'reviewWarning'],
-      [{ status: 'error', error: new Error('Review failed.') }, 'reviewError'],
-      [{ status: 'config_error', error: new Error('Connection failed.') }, 'reviewError'],
+  it('routes review states to one stable rail action', () => {
+    const cases: Array<
+      [ResumeReviewState, Partial<ReturnType<typeof getReviewRailPresentation>>]
+    > = [
+      [{ status: 'unconfigured' }, { label: 'Review unavailable', action: 'open', actionLabel: 'Details', tone: 'warning' }],
+      [{ status: 'checking' }, { label: 'Checking review', action: 'none', loading: false }],
+      [{ status: 'idle' }, { label: 'Review resume', action: 'request', actionLabel: 'Start' }],
+      [{ status: 'loading' }, { label: 'Reviewing', detail: 'In progress', action: 'none', loading: true }],
+      [{ status: 'loading', result: railReviewResult }, { label: 'Updating review', score: '81 / 100', action: 'open', actionLabel: 'View', loading: true }],
+      [{ status: 'success', result: railReviewResult }, { label: 'Review ready', score: '81 / 100', action: 'open', actionLabel: 'View', tone: 'success' }],
+      [{ status: 'stale', result: railReviewResult }, { label: 'Review stale', score: '81 / 100', action: 'open', actionLabel: 'View', tone: 'warning' }],
+      [{ status: 'error', error: new Error('Review failed.') }, { label: 'Review failed', action: 'open', actionLabel: 'Details', tone: 'destructive' }],
+      [{ status: 'error', error: new Error('Update failed.'), result: railReviewResult }, { label: 'Update failed', score: '81 / 100', action: 'open', actionLabel: 'View', tone: 'destructive' }],
     ]
 
-    variants.forEach(([state, expected]) => {
-      expect(getReviewButtonVariant(state)).toBe(expected)
+    cases.forEach(([state, expected]) => {
+      expect(getReviewRailPresentation(state)).toMatchObject(expected)
     })
+  })
 
-    render(
-      <ReviewStatusControl
+  it('keeps first-review loading inert but lets a preserved result reopen', () => {
+    const onOpenPanel = vi.fn()
+    const { rerender } = render(
+      <ReviewRail
         state={{ status: 'loading' }}
-        panelOpen={false}
-        panelDismissedKey={null}
         panelId="resume-review-panel"
-        onTogglePanel={vi.fn()}
-        onRequestReview={vi.fn()}
-      />
-    )
-    const loadingButton = screen.getByRole('button', { name: 'Reviewing' })
-    expect(loadingButton).toHaveAttribute('data-loading', '')
-    expect(loadingButton).not.toHaveClass('review-status-control')
-  })
-
-  it('does not let a dismissed successful review suppress a later successful review', () => {
-    const dismissedKey = 'success:review_123:2026-06-29T12:00:00Z'
-    const laterResult = {
-      ...reviewResult,
-      id: 'review_456',
-      reviewedAt: '2026-06-30T12:00:00Z',
-    }
-
-    expect(shouldShowReviewPanel({ status: 'success', result: reviewResult }, false, dismissedKey)).toBe(false)
-    expect(shouldShowReviewPanel({ status: 'success', result: laterResult }, false, dismissedKey)).toBe(true)
-  })
-
-  it('reopens a dismissed successful review from the compact affordance', () => {
-    const onTogglePanel = vi.fn()
-
-    render(
-      <ReviewStatusControl
-        state={{ status: 'success', result: reviewResult }}
-        panelOpen={false}
-        panelDismissedKey="success:review_123:2026-06-29T12:00:00Z"
-        panelId="resume-review-panel"
-        onTogglePanel={onTogglePanel}
+        onOpenPanel={onOpenPanel}
         onRequestReview={vi.fn()}
       />
     )
 
-    const button = screen.getByRole('button', { name: 'View review' })
-    expect(button).toHaveAttribute('aria-expanded', 'false')
-    expect(button).toHaveAttribute('aria-controls', 'resume-review-panel')
+    const firstLoad = screen.getByLabelText('Resume review')
+    expect(firstLoad).toHaveAttribute('aria-busy', 'true')
+    expect(firstLoad).toHaveAttribute('data-loading', '')
+    expect(screen.queryByRole('button')).not.toBeInTheDocument()
 
-    fireEvent.click(button)
-
-    expect(onTogglePanel).toHaveBeenCalledTimes(1)
-  })
-
-  it('opens unavailable review details from the compact disabled-service affordance', () => {
-    const onTogglePanel = vi.fn()
-
-    render(
-      <ReviewStatusControl
-        state={{ status: 'disabled' }}
-        panelOpen={false}
-        panelDismissedKey={null}
+    rerender(
+      <ReviewRail
+        state={{ status: 'loading', result: railReviewResult }}
         panelId="resume-review-panel"
-        onTogglePanel={onTogglePanel}
+        onOpenPanel={onOpenPanel}
         onRequestReview={vi.fn()}
       />
     )
 
-    const button = screen.getByRole('button', {
-      name: 'Review unavailable — setup needed',
-    })
-    expect(button).toBeEnabled()
-    expect(button).toHaveAttribute('aria-expanded', 'false')
-    expect(button).toHaveAttribute('aria-controls', 'resume-review-panel')
-
-    fireEvent.click(button)
-
-    expect(onTogglePanel).toHaveBeenCalledTimes(1)
-  })
-
-  it('opens config-error details from the compact unavailable affordance', () => {
-    const onTogglePanel = vi.fn()
-
-    render(
-      <ReviewStatusControl
-        state={{
-          status: 'config_error',
-          error: new Error('Could not reach the review service.'),
-        }}
-        panelOpen={false}
-        panelDismissedKey={null}
-        panelId="resume-review-panel"
-        onTogglePanel={onTogglePanel}
-        onRequestReview={vi.fn()}
-      />
-    )
-
-    const button = screen.getByRole('button', {
-      name: 'Review unavailable — connection issue',
-    })
-    expect(button).toBeEnabled()
-    expect(button).toHaveAttribute('title', 'Could not reach the review service.')
-
-    fireEvent.click(button)
-
-    expect(onTogglePanel).toHaveBeenCalledTimes(1)
+    const view = screen.getByRole('button', { name: 'View review' })
+    expect(view).toHaveAttribute('aria-controls', 'resume-review-panel')
+    expect(view).toHaveAttribute('aria-expanded', 'false')
+    fireEvent.click(view)
+    expect(onOpenPanel).toHaveBeenCalledTimes(1)
   })
 })
