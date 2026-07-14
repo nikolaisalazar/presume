@@ -1196,3 +1196,115 @@ git push
 Resume manual QA at 1640px and the wider viewport that exposed the mismatch before continuing through the existing checklist. Do not mark manual QA complete until the corrected composition is observed.
 
 Handoff note (2026-07-14): implementation commit `49ca2bd0ca6f1e6e4d1447db9021adffe5d40472` passed task-level review and independent whole-branch re-review with no Critical, Important, or Minor findings. This step remains incomplete until corrected visual QA is performed; publication is handled separately and does not satisfy that manual gate. The documentation-only commit recording this review is not part of the reviewed code head.
+
+---
+
+### Task 7: Distill the Fit disclosure header after manual QA
+
+**Files:**
+- Modify: `src/components/SettingsPanel.tsx:1-44`
+- Modify: `src/tests/appIntegration.test.tsx:201-230`
+- Modify: `docs/superpowers/specs/2026-07-13-shadcn-editor-shell-consolidation-design.md:87-96`
+- Modify: `docs/SHADCN_MIGRATION.md:132-146`
+
+**Interfaces:**
+- Consumes: `SettingsPanel`'s existing local `open` state, Base UI `CollapsibleTrigger`, the installed `lucide-react` dependency, and the existing premium-shell integration test.
+- Produces: collapsed-only constraint summary plus a stable, unboxed disclosure chevron that rotates with the expanded state.
+
+Manual-QA decision (2026-07-14): the active-limit summary is useful while Fit is collapsed but duplicates the visible steppers while expanded. The approved disclosure affordance is the existing Lucide `ChevronDown`, not a boxed secondary button or a font-dependent triangle glyph.
+
+- [ ] **Step 1: Extend the existing interaction test and verify RED**
+
+In `src/tests/appIntegration.test.tsx`, retain the existing premium-shell test and add these assertions around its Fit interaction:
+
+```tsx
+const summary = '1 page · 1 line/bullet · 8px min'
+expect(within(constraints).getByText(summary)).toBeInTheDocument()
+expect(constraints.querySelector('[data-slot="fit-disclosure-icon"]')).toBeInstanceOf(SVGElement)
+expect(constraints).toHaveAttribute('aria-expanded', 'false')
+
+fireEvent.click(constraints)
+
+expect(constraints).toHaveAttribute('aria-expanded', 'true')
+expect(within(constraints).queryByText(summary)).not.toBeInTheDocument()
+```
+
+Add `within` to the existing Testing Library import if it is not already imported. Do not add a new test case.
+
+Run:
+
+```sh
+NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage npm test -- --run src/tests/appIntegration.test.tsx
+```
+
+Expected before implementation: FAIL because the current glyph is a `span`, the Lucide SVG slot is absent, and the summary remains rendered after expansion.
+
+- [ ] **Step 2: Implement the collapsed-only summary and stronger chevron**
+
+In `src/components/SettingsPanel.tsx`:
+
+```tsx
+import { ChevronDown } from 'lucide-react'
+import { cn } from '@/lib/utils'
+```
+
+Keep the trigger as the only interactive element. Render the summary only when `open` is false, and replace the triangle glyph with:
+
+```tsx
+<ChevronDown
+  aria-hidden="true"
+  className={cn(
+    'shrink-0 text-foreground transition-transform duration-[180ms] ease-out motion-reduce:transition-none',
+    open && 'rotate-180'
+  )}
+  data-slot="fit-disclosure-icon"
+  size={18}
+  strokeWidth={2.25}
+/>
+```
+
+The trigger retains `min-h-12`, its full-width click target, title, current padding, and `aria-expanded` behavior supplied by Base UI. Do not add a nested button, background box, tooltip, dependency, or new state.
+
+- [ ] **Step 3: Verify GREEN and run the release gate**
+
+Run the focused command from Step 1 and confirm the existing test passes. Then run:
+
+```sh
+NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage npm test -- --run
+npm run build
+CI=1 npm run test:e2e
+npm run build
+test -f dist/index.html
+test -f dist/404.html
+cmp dist/index.html dist/404.html
+git diff --exit-code origin/main...HEAD -- \
+  src/styles/resume.css \
+  src/types.ts \
+  src/storage.ts \
+  src/export.ts \
+  src/reviewApi.ts \
+  src/reviewTypes.ts \
+  src/useResumeReview.ts \
+  src/useResizeEngine.ts
+git diff --check
+git status --short --branch
+```
+
+Expected: all existing automated gates pass, the default build is restored, protected files remain unchanged, and no generated artifacts are tracked.
+
+- [ ] **Step 4: Review, commit, push, and resume manual QA**
+
+Record the interaction change and actual verification evidence in `docs/SHADCN_MIGRATION.md`. Request a focused task review and whole-branch re-review before publication. After both are clean:
+
+```sh
+git add \
+  src/components/SettingsPanel.tsx \
+  src/tests/appIntegration.test.tsx \
+  docs/SHADCN_MIGRATION.md \
+  docs/superpowers/specs/2026-07-13-shadcn-editor-shell-consolidation-design.md \
+  docs/superpowers/plans/2026-07-13-shadcn-editor-shell-consolidation.md
+git commit -m "fix: distill fit disclosure header"
+git push
+```
+
+Rebuild and restart the local production preview. Manual QA must confirm the collapsed summary, expanded title-and-chevron header, rotation quality, stable header height, keyboard disclosure behavior, and reduced-motion treatment before PR #26 merges.
