@@ -61,11 +61,11 @@ export function Toolbar({ resume, pageRef, onImport, onReset }: ToolbarProps) {
 
   return (
     <div className="flex flex-col gap-2 p-3 min-[561px]:flex-row min-[561px]:items-center min-[561px]:justify-between" role="toolbar" aria-label="Document actions">
-      <div data-slot="toolbar-group" className="flex min-w-0 flex-wrap items-center gap-1.5" aria-label="Export actions">
+      <div data-slot="toolbar-group" className="flex min-w-0 flex-wrap items-center gap-1.5" role="group" aria-label="Export actions">
         <Button size="editor" onClick={handleExportPDF}>Export PDF</Button>
         <Button variant="outline" size="editor" onClick={handleExportJSON}>Export JSON</Button>
       </div>
-      <div data-slot="toolbar-group" className="flex min-w-0 flex-wrap items-center gap-1.5" aria-label="File actions">
+      <div data-slot="toolbar-group" className="flex min-w-0 flex-wrap items-center gap-1.5" role="group" aria-label="File actions">
         <Button variant="outline" size="editor" onClick={handleImportClick}>Import JSON</Button>
         <Button variant="dangerOutline" size="editor" onClick={handleReset}>Reset template</Button>
       </div>
