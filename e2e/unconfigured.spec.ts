@@ -182,8 +182,22 @@ test.describe('unconfigured browser contracts', () => {
 
   test('keeps expanded fit constraints usable at narrow widths', async ({ page }) => {
     await page.setViewportSize({ width: 358, height: 980 })
+    await page.addInitScript(() => {
+      localStorage.setItem('presume:constraints', JSON.stringify({
+        maxPages: 10,
+        maxLinesPerBullet: 10,
+        minFontSize: 16,
+      }))
+    })
     await page.goto('./editor/')
-    await page.getByRole('button', { name: /Fit constraints/ }).click()
+    const fitTrigger = page.getByRole('button', { name: /Fit constraints/ })
+    const collapsedTriggerHeight = await fitTrigger.evaluate(element =>
+      Math.round(element.getBoundingClientRect().height)
+    )
+    await fitTrigger.click()
+    const expandedTriggerHeight = await fitTrigger.evaluate(element =>
+      Math.round(element.getBoundingClientRect().height)
+    )
 
     const metrics = await page.evaluate(() => {
       const content = document.querySelector('[data-slot="collapsible-content"]') as HTMLElement
@@ -210,6 +224,8 @@ test.describe('unconfigured browser contracts', () => {
     })
 
     expect(metrics.documentScrollWidth).toBeLessThanOrEqual(metrics.bodyClientWidth)
+    expect(collapsedTriggerHeight).toBe(48)
+    expect(expandedTriggerHeight).toBe(collapsedTriggerHeight)
     expect(metrics.rowLeft).toBeGreaterThanOrEqual(0)
     expect(metrics.rowRight).toBeLessThanOrEqual(metrics.bodyClientWidth)
     expect(metrics.stepperWidth).toBeGreaterThanOrEqual(132)
@@ -219,6 +235,19 @@ test.describe('unconfigured browser contracts', () => {
       ['Export PDF', 'Export JSON'],
       ['Import JSON', 'Reset template'],
     ])
+
+    await page.setViewportSize({ width: 560, height: 980 })
+    await page.reload()
+    const boundaryTrigger = page.getByRole('button', { name: /Fit constraints/ })
+    const boundaryCollapsedHeight = await boundaryTrigger.evaluate(element =>
+      Math.round(element.getBoundingClientRect().height)
+    )
+    await boundaryTrigger.click()
+    const boundaryExpandedHeight = await boundaryTrigger.evaluate(element =>
+      Math.round(element.getBoundingClientRect().height)
+    )
+    expect(boundaryCollapsedHeight).toBe(48)
+    expect(boundaryExpandedHeight).toBe(boundaryCollapsedHeight)
   })
 
   test('keeps viewport overflow inside the fixed resume canvas scroller at narrow widths', async ({ page }) => {

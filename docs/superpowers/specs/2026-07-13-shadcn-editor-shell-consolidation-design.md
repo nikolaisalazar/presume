@@ -88,8 +88,9 @@ The document editor remains centered on the browser centerline. Side regions occ
 - On genuinely wide screens, Fit Constraints is a compact card/panel to the left of the document editor.
 - Preserve its local, closed-by-default `Collapsible` behavior.
 - The collapsed state remains a concise summary of the active limits.
-- The expanded trigger hides that summary because the visible steppers already expose all three values. Keep the trigger height stable; expanded content must not shift the header vertically.
+- The expanded trigger hides that summary because the visible steppers already expose all three values. Keep the compact trigger at a stable 48px; expanded content must not shift the header vertically. At constrained widths, visually truncate a maximum-value summary instead of wrapping it, while retaining the full text in the DOM and accessible name.
 - Replace the font-dependent triangle glyph with the already-installed Lucide `ChevronDown` at 18px with a slightly heavier 2.25px stroke. Keep it unboxed, use the normal foreground color, rotate it 180 degrees while expanded, and respect reduced-motion preferences.
+- Keep the title, conditional summary, and presentation-only chevron inside the existing full-width `CollapsibleTrigger`; the icon must not become a nested control.
 - The expanded state keeps the existing stepper semantics, bounds, helper copy, focus behavior, and touch sizing.
 - Formatting warnings belong with Fit Constraints because they explain a failure to satisfy those constraints. Compose the existing warning summary within the Fit region rather than restoring a permanent formatting-status row over the document.
 - An active warning remains visible even when the Fit controls are collapsed. It may sit below the collapsed trigger inside the same Fit region; it must not be hidden inside closed `CollapsibleContent`.

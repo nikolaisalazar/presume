@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from '../App'
 import { DEFAULT_RESUME } from '../defaultResume'
@@ -212,9 +212,15 @@ describe('App review availability boundaries', () => {
     const constraints = screen.getByRole('button', {
       name: /Fit constraints.*1 page.*1 line\/bullet.*8px min/i,
     })
+    const summary = '1 page · 1 line/bullet · 8px min'
     expect(constraints).toHaveAttribute('data-slot', 'collapsible-trigger')
+    expect(within(constraints).getByText(summary)).toBeInTheDocument()
+    expect(constraints.querySelector('[data-slot="fit-disclosure-icon"]')).toBeInstanceOf(SVGElement)
+    expect(constraints).toHaveAttribute('aria-expanded', 'false')
     expect(screen.queryByRole('button', { name: 'Increase max pages' })).not.toBeInTheDocument()
     fireEvent.click(constraints)
+    expect(constraints).toHaveAttribute('aria-expanded', 'true')
+    expect(within(constraints).queryByText(summary)).not.toBeInTheDocument()
     expect(screen.getByText('Page limit')).toBeInTheDocument()
     expect(screen.getByText('Lines per bullet')).toBeInTheDocument()
     expect(screen.getByText('Minimum font size (px)')).toBeInTheDocument()

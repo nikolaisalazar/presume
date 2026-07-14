@@ -1204,6 +1204,7 @@ Handoff note (2026-07-14): implementation commit `49ca2bd0ca6f1e6e4d1447db9021ad
 **Files:**
 - Modify: `src/components/SettingsPanel.tsx:1-44`
 - Modify: `src/tests/appIntegration.test.tsx:201-230`
+- Modify: `e2e/unconfigured.spec.ts:183-234`
 - Modify: `docs/superpowers/specs/2026-07-13-shadcn-editor-shell-consolidation-design.md:87-96`
 - Modify: `docs/SHADCN_MIGRATION.md:132-146`
 
@@ -1213,7 +1214,7 @@ Handoff note (2026-07-14): implementation commit `49ca2bd0ca6f1e6e4d1447db9021ad
 
 Manual-QA decision (2026-07-14): the active-limit summary is useful while Fit is collapsed but duplicates the visible steppers while expanded. The approved disclosure affordance is the existing Lucide `ChevronDown`, not a boxed secondary button or a font-dependent triangle glyph.
 
-- [ ] **Step 1: Extend the existing interaction test and verify RED**
+- [x] **Step 1: Extend the existing interaction test and verify RED**
 
 In `src/tests/appIntegration.test.tsx`, retain the existing premium-shell test and add these assertions around its Fit interaction:
 
@@ -1239,7 +1240,9 @@ NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage npm test -- --
 
 Expected before implementation: FAIL because the current glyph is a `span`, the Lucide SVG slot is absent, and the summary remains rendered after expansion.
 
-- [ ] **Step 2: Implement the collapsed-only summary and stronger chevron**
+TDD RED evidence (2026-07-14): the unchanged 14-test app-integration file failed only in the existing premium-shell test because `[data-slot="fit-disclosure-icon"]` was `null` rather than an `SVGElement`.
+
+- [x] **Step 2: Implement the collapsed-only summary and stronger chevron**
 
 In `src/components/SettingsPanel.tsx`:
 
@@ -1265,7 +1268,7 @@ Keep the trigger as the only interactive element. Render the summary only when `
 
 The trigger retains `min-h-12`, its full-width click target, title, current padding, and `aria-expanded` behavior supplied by Base UI. Do not add a nested button, background box, tooltip, dependency, or new state.
 
-- [ ] **Step 3: Verify GREEN and run the release gate**
+- [x] **Step 3: Verify GREEN and run the release gate**
 
 Run the focused command from Step 1 and confirm the existing test passes. Then run:
 
@@ -1291,6 +1294,12 @@ git status --short --branch
 ```
 
 Expected: all existing automated gates pass, the default build is restored, protected files remain unchanged, and no generated artifacts are tracked.
+
+TDD GREEN and release-gate evidence (2026-07-14): the focused app-integration test passed 14/14 after the minimal disclosure change. The complete gate passed 13/13 Vitest files and 159/159 tests, 4 unconfigured plus 3 configured Playwright tests, and both prescribed production builds. The restored default build transformed 2112 modules; both SPA entry files existed and were byte-identical, the protected paths had no branch diff, `git diff --check` passed, and no generated artifact appeared in status.
+
+Review correction (2026-07-14): whole-branch review measured a valid max-value summary at 63px collapsed versus 48px expanded at 358px. The existing narrow Fit Playwright case reproduced the mismatch without adding a test case. After making the summary cluster shrinkable and visually truncating the still-complete DOM text, that focused case passed 1/1 with compact 48px collapsed and expanded heights at both 358px and the inclusive 560px boundary. The complete post-correction release gate then passed 13/13 Vitest files and 159/159 tests, 4 unconfigured plus 3 configured Playwright tests, TypeScript, both prescribed production builds, the byte-identical SPA fallback check, the protected-file check, and `git diff --check`.
+
+Final review evidence (2026-07-14): post-correction focused Task 7 review and independent whole-branch re-review found no Critical, Important, or Minor issues. Manual visual QA remains pending before merge.
 
 - [ ] **Step 4: Review, commit, push, and resume manual QA**
 
