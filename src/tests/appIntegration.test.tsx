@@ -131,7 +131,7 @@ describe('App review availability boundaries', () => {
 
     const { container } = render(<App />)
 
-    expect(screen.getByLabelText('Resume review')).toHaveAttribute('data-slot', 'review-rail')
+    expect(container.querySelector('[data-slot="review-rail"]')).toHaveAttribute('data-slot', 'review-rail')
     expect(screen.getByText('Review unavailable')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Review details' }))
     expect(screen.getByRole('complementary', { name: 'Resume review' })).toBeInTheDocument()
@@ -161,6 +161,41 @@ describe('App review availability boundaries', () => {
 
     await waitFor(() => expect(importJSONMock).toHaveBeenCalledWith(file))
     expect(await screen.findByText('Grace Hopper')).toBeInTheDocument()
+  })
+
+  it('keeps the review target mounted and manages disclosure focus', async () => {
+    vi.stubEnv('VITE_REVIEW_API_URL', '')
+
+    const { container } = render(<App />)
+
+    const rail = container.querySelector<HTMLElement>('[data-slot="review-rail"]')
+    const panel = document.getElementById('resume-review-panel')
+    const details = screen.getByRole('button', { name: 'Review details' })
+
+    expect(rail).not.toBeNull()
+    expect(rail).not.toHaveAttribute('hidden')
+    expect(panel).toBeInTheDocument()
+    expect(panel).toHaveAttribute('hidden')
+    expect(details).toHaveAttribute('aria-controls', 'resume-review-panel')
+    expect(details).toHaveAttribute('aria-expanded', 'false')
+
+    details.focus()
+    fireEvent.click(details)
+
+    await waitFor(() => expect(panel).toHaveFocus())
+    expect(rail).toHaveAttribute('hidden')
+    expect(panel).not.toHaveAttribute('hidden')
+
+    const collapse = screen.getByRole('button', { name: 'Collapse review' })
+    expect(collapse).toHaveAttribute('aria-controls', 'resume-review-panel')
+    expect(collapse).toHaveAttribute('aria-expanded', 'true')
+
+    collapse.focus()
+    fireEvent.click(collapse)
+
+    await waitFor(() => expect(details).toHaveFocus())
+    expect(rail).not.toHaveAttribute('hidden')
+    expect(panel).toHaveAttribute('hidden')
   })
 
   it('renders a premium document-editor shell with constraints before document actions', () => {

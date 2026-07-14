@@ -20,6 +20,8 @@ export interface ReviewRailProps {
   panelId: string
   onOpenPanel: () => void
   onRequestReview: () => void
+  actionRef?: React.Ref<HTMLElement>
+  hidden?: boolean
 }
 
 function score(result: { totalScore: number; maxScore: number } | undefined) {
@@ -60,6 +62,8 @@ export function ReviewRail({
   panelId,
   onOpenPanel,
   onRequestReview,
+  actionRef,
+  hidden,
 }: ReviewRailProps) {
   const presentation = getReviewRailPresentation(state)
   const action = presentation.action === 'request' ? onRequestReview : onOpenPanel
@@ -81,6 +85,7 @@ export function ReviewRail({
       aria-busy={presentation.loading || undefined}
       data-slot="review-rail"
       data-tone={presentation.tone}
+      hidden={hidden}
       {...(presentation.loading ? { 'data-loading': '' } : {})}
     >
       <div className="flex min-w-0 flex-1 items-baseline gap-2 overflow-hidden">
@@ -94,6 +99,7 @@ export function ReviewRail({
       ) : null}
       {presentation.action !== 'none' ? (
         <Button
+          ref={actionRef}
           variant="outline"
           size="editor"
           className="shrink-0"

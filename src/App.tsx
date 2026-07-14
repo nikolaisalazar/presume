@@ -51,6 +51,9 @@ function EditorApp({ onOpenLanding }: { onOpenLanding: () => void }) {
   const { resume, setResume, constraints, setConstraints } = useResume()
   const pageRef = useRef<HTMLDivElement>(null)
   const [reviewPanelOpen, setReviewPanelOpen] = useState(false)
+  const reviewPanelRef = useRef<HTMLElement>(null)
+  const reviewRailActionRef = useRef<HTMLElement>(null)
+  const previousReviewPanelOpen = useRef(reviewPanelOpen)
   const warnings = useResizeEngine(resume, constraints, pageRef)
   const review = useResumeReview({ resume, pageRef })
   const reviewAnnotations =
@@ -68,6 +71,17 @@ function EditorApp({ onOpenLanding }: { onOpenLanding: () => void }) {
   }
   const openReviewPanel = () => setReviewPanelOpen(true)
   const closeReviewPanel = () => setReviewPanelOpen(false)
+
+  useEffect(() => {
+    if (previousReviewPanelOpen.current === reviewPanelOpen) return
+
+    previousReviewPanelOpen.current = reviewPanelOpen
+    if (reviewPanelOpen) {
+      reviewPanelRef.current?.focus()
+    } else {
+      reviewRailActionRef.current?.focus()
+    }
+  }, [reviewPanelOpen])
 
   return (
     <div className="app">
@@ -125,21 +139,22 @@ function EditorApp({ onOpenLanding }: { onOpenLanding: () => void }) {
           </div>
         </section>
         <section className="review-region" aria-label="Review workspace">
-          {reviewPanelOpen ? (
-            <ReviewPanel
-              id={reviewPanelId}
-              state={review.state}
-              onRequestReview={requestReview}
-              onClose={closeReviewPanel}
-            />
-          ) : (
-            <ReviewRail
-              state={review.state}
-              panelId={reviewPanelId}
-              onOpenPanel={openReviewPanel}
-              onRequestReview={requestReview}
-            />
-          )}
+          <ReviewRail
+            state={review.state}
+            panelId={reviewPanelId}
+            onOpenPanel={openReviewPanel}
+            onRequestReview={requestReview}
+            actionRef={reviewRailActionRef}
+            hidden={reviewPanelOpen}
+          />
+          <ReviewPanel
+            ref={reviewPanelRef}
+            id={reviewPanelId}
+            state={review.state}
+            onRequestReview={requestReview}
+            onClose={closeReviewPanel}
+            hidden={!reviewPanelOpen}
+          />
         </section>
       </main>
     </div>
