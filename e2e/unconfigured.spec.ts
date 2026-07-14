@@ -236,9 +236,9 @@ test.describe('unconfigured browser contracts', () => {
         return {
           header: { left: header.left, right: header.right, width: header.width },
           workspace: { left: workspace.left, right: workspace.right },
-          fit: { left: fit.left, right: fit.right, top: fit.top, bottom: fit.bottom },
+          fit: { left: fit.left, right: fit.right, top: fit.top, bottom: fit.bottom, width: fit.width },
           editor: { left: editor.left, right: editor.right, top: editor.top, bottom: editor.bottom, width: editor.width },
-          review: { left: review.left, right: review.right, top: review.top, bottom: review.bottom },
+          review: { left: review.left, right: review.right, top: review.top, bottom: review.bottom, width: review.width },
           resumeWidth: resume.width,
           documentWidth: document.documentElement.scrollWidth,
           viewportWidth: document.documentElement.clientWidth,
@@ -296,6 +296,11 @@ test.describe('unconfigured browser contracts', () => {
     expect(wide.editor.width).toBe(896)
     expect(wide.header.width).toBeGreaterThan(wide.editor.width)
     expect(wide.resumeWidth).toBe(816)
+    expect(Math.abs(wide.fit.width - wide.review.width)).toBeLessThanOrEqual(1)
+
+    const wideMax = await editorGeometry(1920)
+    expect(wideMax.fit.width).toBe(360)
+    expect(wideMax.review.width).toBe(360)
 
     const constrained = await editorGeometry(1639)
     expect(constrained.fit.bottom).toBeLessThanOrEqual(constrained.editor.top)

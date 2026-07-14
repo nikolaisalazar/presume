@@ -129,6 +129,13 @@ Manual QA evidence (2026-07-10):
 
 Status: implementation complete on `feat/shadcn-editor-shell-consolidation`; independent whole-branch review is complete against reviewed implementation/documentation head `0431dc30a337733ef8cf9154ac1554e2edbee129`, with no Critical, Important, or Minor findings, and the branch is ready to publish as a PR. Merge has not occurred, and exact-width manual in-app-browser QA remains a pre-merge gate. See [`docs/superpowers/specs/2026-07-13-shadcn-editor-shell-consolidation-design.md`](superpowers/specs/2026-07-13-shadcn-editor-shell-consolidation-design.md).
 
+Manual-QA remediation (2026-07-14):
+
+- Manual QA superseded the original narrow-Fit assumption after measuring an 82px visible Fit/Review mismatch at 1640px and a 120px mismatch at wider viewports. Both wide side surfaces now use the same 360px maximum while the symmetric tracks, centered 896px editor, fixed 816px resume, and constrained layout through 1639px remain unchanged.
+- The focused Playwright geometry contract first failed with a received width delta of 82px against the allowed 1px at 1640px, then passed after the Fit cap changed from 240px to 360px. The contract also requires both surfaces to measure 360px at 1920px.
+- The complete release gate passed 13 Vitest files and 159 tests plus all 7 Playwright tests. The final default production build transformed 355 modules; `dist/index.html` and `dist/404.html` were byte-identical, protected resume/data/export/review/resize files had no branch diff, and `git diff --check` passed.
+- Corrected visual QA at 1640px and the wider mismatch viewport is still pending and must not be inferred from the automated contract.
+
 Automated evidence (2026-07-13):
 
 - The focused editor-shell set passed 4 files and 57 tests. The complete Vitest gate passed 13 files and 159 tests with `NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage`; Node v26.5.0 accepted the prescribed option without a local-storage warning or unhandled rejection.

@@ -1105,7 +1105,7 @@ Review result (2026-07-13): implementation/documentation head `0431dc30a337733ef
 
 Manual-QA finding (2026-07-14): the 240px Fit cap creates an 82–120px visible mismatch beside the 320–360px Review surface and forces avoidable Fit summary wrapping. The approved correction is to give both surfaces the same 360px maximum width.
 
-- [ ] **Step 1: Write the failing wide-geometry assertions**
+- [x] **Step 1: Write the failing wide-geometry assertions**
 
 Extend the existing wide geometry contract in `e2e/unconfigured.spec.ts`:
 
@@ -1120,7 +1120,7 @@ expect(wideMax.review.width).toBe(360)
 
 Retain the current placement, editor-center, 896px editor, 816px resume, 1639px stack, and 358px overflow assertions.
 
-- [ ] **Step 2: Run the focused browser test and verify the regression fails**
+- [x] **Step 2: Run the focused browser test and verify the regression fails**
 
 Run:
 
@@ -1130,7 +1130,7 @@ CI=1 npx playwright test -c playwright.unconfigured.config.ts -g "keeps viewport
 
 Expected before implementation: FAIL because Fit is 240px while Review fills approximately 322px at 1640px; the 1920px check also observes Fit at 240px and Review at 360px.
 
-- [ ] **Step 3: Implement the equal-width wide surfaces**
+- [x] **Step 3: Implement the equal-width wide surfaces**
 
 Change only the Fit width inside `@media (min-width: 1640px)` in `src/styles/app.css`:
 
@@ -1143,13 +1143,15 @@ Change only the Fit width inside `@media (min-width: 1640px)` in `src/styles/app
 
 Keep Review at `width: min(360px, 100%)`, preserve both `justify-self` directions, and do not change grid tracks, gaps, the editor width, or any rule below 1640px.
 
-- [ ] **Step 4: Run the focused browser test and verify it passes**
+- [x] **Step 4: Run the focused browser test and verify it passes**
 
 Run the same Playwright command from Step 2.
 
 Expected: PASS with equal Fit and Review widths at 1640px and 360px caps at 1920px.
 
-- [ ] **Step 5: Update the migration record and run the complete release gate**
+TDD evidence (2026-07-14): after the geometry helper exposed Fit and Review widths, RED failed at 1640px with an expected delta of at most 1px and a received delta of 82px (Fit 240px versus Review 322px). After the one-line Fit cap change and a production rebuild, GREEN passed 1/1 focused Playwright test, including the 1920px 360px caps and all retained center, fixed-canvas, stack, and overflow assertions.
+
+- [x] **Step 5: Update the migration record and run the complete release gate**
 
 Record that manual QA superseded the original narrow-Fit assumption, then run:
 
@@ -1176,6 +1178,8 @@ git status --short --branch
 
 Expected: all automated checks pass, the default build is restored after configured E2E, protected files remain unchanged, and only the approved layout, test, and documentation files are modified.
 
+Release-gate evidence (2026-07-14): Vitest passed 13/13 files and 159/159 tests; Playwright passed 4 unconfigured and 3 configured tests; and the restored default production build transformed 355 modules. Both SPA entry files existed and were byte-identical, the protected resume/data/export/review/resize paths had no branch diff, `git diff --check` passed, and status contained only the five approved Task 6 files.
+
 - [ ] **Step 6: Commit, push, and resume manual QA**
 
 ```sh
@@ -1190,3 +1194,5 @@ git push
 ```
 
 Resume manual QA at 1640px and the wider viewport that exposed the mismatch before continuing through the existing checklist. Do not mark manual QA complete until the corrected composition is observed.
+
+Handoff note (2026-07-14): this step remains incomplete because push and corrected visual QA are reserved for the controller/user. The implementation may be committed locally after the automated release gate passes, without claiming either remaining action.

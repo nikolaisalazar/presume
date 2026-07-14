@@ -377,7 +377,7 @@ body {
   }
 
   .fit-region {
-    width: min(240px, 100%);
+    width: min(360px, 100%);
     justify-self: end;
   }
 

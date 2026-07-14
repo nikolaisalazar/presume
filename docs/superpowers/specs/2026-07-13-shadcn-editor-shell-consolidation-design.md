@@ -196,6 +196,8 @@ Use the constrained document-order layout through 1639px and enable the wide enh
 
 Manual-QA amendment (2026-07-14): the original 220–240px Fit treatment produced an 82–120px visible width mismatch beside Review and forced the Fit summary and expanded controls into avoidable wrapping. The equal-width contract supersedes that assumption without changing the symmetric tracks, centered editor, 1640px boundary, or constrained layout through 1639px.
 
+The automated geometry contract measures equal Fit and Review widths at 1640px and their shared 360px cap at 1920px. Corrected visual QA at those widths remains required before merge; automated geometry is not a substitute for that inspection.
+
 Do not preserve the previous 1221/1220 right-inspector breakpoint merely because it exists today. The new layout has an additional left panel and a larger minimum geometry. Replace the old boundary contract with the derived PR #4 contract.
 
 ### Narrow resilience
