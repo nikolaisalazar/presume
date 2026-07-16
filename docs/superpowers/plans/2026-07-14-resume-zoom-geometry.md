@@ -16,8 +16,8 @@
 - Preserve direct inline editing, Pretext/global resizing, PDF export, Review submission, JSON import/export, LocalStorage, routing, and the fixed-width narrow-screen scroller.
 - Treat 816×1056px as one Letter-page unit; do not clip legitimate multi-page content.
 - Do not change resume data schemas, constraint bounds, typography, margins, colors, or editor-shell composition.
-- Do not add dependencies, visual snapshots, or a repetitive browser-test matrix.
-- Keep export source unchanged unless direct canonical PDF verification demonstrates a concrete capture defect.
+- Do not add dependencies except the approved PDF-native renderer; do not add visual snapshots or a repetitive browser-test matrix.
+- The direct canonical PDF comparison demonstrated a WebKit/html2canvas capture defect, so the approved PDF-native adapter supersedes the original DOM-capture path.
 
 ---
 
@@ -37,7 +37,7 @@
 - Modify focused export, review-hook, and integration tests only where the public call contract changes.
 - Remove `html2canvas` and jsPDF after both PDF consumers migrate.
 - Modify this plan: record completed commands and direct cmux QA evidence during execution.
-- Modify `src/export.ts` and `src/tests/export.test.ts` only if Task 3 proves html2canvas does not capture canonical geometry.
+- Task 3 proved that html2canvas did not capture canonical geometry at 50% native WebKit zoom; Task 3A therefore replaces that path.
 
 ---
 
@@ -464,7 +464,7 @@ git commit -m "fix: use stable author coordinates for resume layout"
 - Produces: a 3672px-wide live author page presented at 816px, plus a 100x temporary measurement scope whose previous inline scale variables are restored in `finally`, and a 0.5px page-fit tolerance.
 - Preserves: visible geometry, hook/component public APIs, direct editing, stored data, constraints, PDF/Review capture paths, and the existing author-coordinate CSS formulas.
 
-- [ ] **Step 1: Strengthen the focused contracts before production changes**
+- [x] **Step 1: Strengthen the focused contracts before production changes**
 
 Update the existing fixed-canvas E2E expectations:
 
@@ -483,7 +483,7 @@ await expect.poll(async () =>
 
 Add focused unit contracts in `src/tests/resizeEngine.test.ts`. Import `withResumeMeasurementScale`, initialize the root's inline scale variables to `4.5` and `0.2222222222222222`, and verify that the callback observes `100` and `0.01` while the original values are restored afterward. Verify that the page-height helper accepts 1056.0001px for a 1056px limit and rejects 1056.6px. Do not add a repetitive matrix of helper tests.
 
-- [ ] **Step 2: Run both focused contracts and verify they are red**
+- [x] **Step 2: Run both focused contracts and verify they are red**
 
 ```sh
 NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage npm test -- --run src/tests/resizeEngine.test.ts
@@ -493,7 +493,7 @@ CI=1 npx playwright test -c playwright.unconfigured.config.ts --grep "keeps view
 
 Expected: the unit contract fails because the helper is not exported, and the E2E contract fails because the live author width is still 1836px.
 
-- [ ] **Step 3: Raise the live author-coordinate scale**
+- [x] **Step 3: Raise the live author-coordinate scale**
 
 In `src/styles/resume.css`, change only the two resume scale variables:
 
@@ -504,7 +504,7 @@ In `src/styles/resume.css`, change only the two resume scale variables:
 
 Every mechanically scaled resume length and in-document editor control follows the new variable automatically. Do not individually retune typography or spacing.
 
-- [ ] **Step 4: Add a restoration-safe measurement scope**
+- [x] **Step 4: Add a restoration-safe measurement scope**
 
 In `src/useResizeEngine.ts`, add a small generic `withResumeMeasurementScale` helper that:
 
@@ -515,7 +515,7 @@ In `src/useResizeEngine.ts`, add a small generic `withResumeMeasurementScale` he
 
 Call the helper once around the complete synchronous DOM-measurement phase: the global-scale binary search, the minimum-scale diagnostic measurement, and the final-height measurement. Apply the chosen global scale again after the helper restores the live variables. Do not set the temporary variables once per binary-search iteration.
 
-- [ ] **Step 5: Run focused verification until green**
+- [x] **Step 5: Run focused verification until green**
 
 ```sh
 NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage npm test -- --run src/tests/resizeEngine.test.ts
@@ -525,14 +525,14 @@ CI=1 npx playwright test -c playwright.unconfigured.config.ts --grep "keeps view
 
 Expected: the helper contract passes, and the page reports a 3672px author width, 816px visible width, CSS zoom `1`, at least 36px live author type, no scroll leak, and a 1400px visible deliberate height.
 
-- [ ] **Step 6: Run the unit and unconfigured regression suites**
+- [x] **Step 6: Run the unit and unconfigured regression suites**
 
 ```sh
 NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage npm test -- --run
 CI=1 npm run test:e2e:unconfigured
 ```
 
-- [ ] **Step 7: Commit the refined architecture**
+- [x] **Step 7: Commit the refined architecture**
 
 ```sh
 git add docs/superpowers/specs/2026-07-14-resume-zoom-geometry-design.md \
@@ -557,7 +557,7 @@ git commit -m "fix: stabilize resize measurement across browser zoom"
 - Consumes: the running Issue #27 branch at `/presume/editor/` in cmux's WebKit browser.
 - Produces: direct evidence that the canonical layer solves Safari zoom without breaking editing, Fit measurement, PDF export, or Review capture.
 
-- [ ] **Step 1: Start or reuse the Issue #27 development server**
+- [x] **Step 1: Start or reuse the Issue #27 development server**
 
 Run:
 
@@ -567,13 +567,13 @@ npm run dev -- --host 127.0.0.1 --port 5174
 
 Open `http://127.0.0.1:5174/presume/editor/` in a new cmux browser tab. Confirm the tab is served from the Issue #27 worktree before evaluating it.
 
-- [ ] **Step 2: Record the canonical 100% baseline**
+- [x] **Step 2: Record the canonical 100% baseline**
 
 At 100% native browser zoom, record `.resume-page` width and height, representative bullet computed font size, root `--global-scale`, representative wrapping, page count, and formatting-warning state.
 
 Expected default geometry: 816px wide and 1056px high after fonts and resize calculation settle.
 
-- [ ] **Step 3: Compare every supported native zoom level**
+- [x] **Step 3: Compare every supported native zoom level**
 
 Use cmux browser zoom controls—not viewport resizing or injected CSS—at 90%, 80%, 70%, 60%, and 50%. At each level, reload once and confirm:
 
@@ -583,11 +583,11 @@ Use cmux browser zoom controls—not viewport resizing or injected CSS—at 90%,
 
 If any canonical value diverges, stop execution and diagnose the presentation boundary before changing export code.
 
-- [ ] **Step 4: Verify direct editing at 100% and 50%**
+- [x] **Step 4: Verify direct editing at 100% and 50%**
 
 At both zoom levels, edit the name and a representative bullet, invoke one add and one remove control, and confirm caret placement, focus, control position, and intended state updates. Reset the sample resume before capture comparison.
 
-- [ ] **Step 5: Compare PDF capture at 100% and 50%**
+- [x] **Step 5: Compare PDF capture at 100% and 50%**
 
 At each zoom level, export the unchanged default resume. Render or inspect both PDFs and compare Letter page size, page count, line breaks, content positions, hidden editor controls, and absence of clipping or enlarged internal dimensions.
 
@@ -599,7 +599,7 @@ At 100% native WebKit zoom, the DOM-screenshot export produced a correct one-pag
 
 The approved amendment replaces DOM capture with a PDF-native adapter driven by resume data and selected global scale. Task 3A implements that correction before the native PDF comparison is repeated.
 
-- [ ] **Step 7: Verify the narrow fixed-canvas contract**
+- [x] **Step 7: Verify the narrow fixed-canvas contract**
 
 At a 358px viewport with browser zoom reset to 100%, confirm `.resume-page` and `.resume-viewport` are both 816px wide, horizontal overflow remains inside `.resume-canvas-scroll`, no document-level horizontal overflow appears, and the complete default page remains visible vertically.
 
@@ -629,41 +629,41 @@ At a 358px viewport with browser zoom reset to 100%, confirm `.resume-page` and 
 - Produces: one PDF-native renderer used by both download and configured Review.
 - Preserves: Resume/constraints JSON, LocalStorage, direct editing, Review request format, routing, and editor layout.
 
-- [ ] **Step 1: Add focused failing contracts**
+- [x] **Step 1: Add focused failing contracts**
 
 Update the existing export, review-hook, and app integration tests to require resume data and selected global scale rather than a DOM page element. Assert that both PDF consumers call the same blob renderer. Add only one focused renderer smoke contract if it provides coverage not already supplied by the integration path.
 
 Add the approved live section-rule contract by asserting a 1px canonical gap between heading text and the underline; do not add a visual snapshot.
 
-- [ ] **Step 2: Add shared document tokens and local font assets**
+- [x] **Step 2: Add shared document tokens and local font assets**
 
 Centralize the 816×1056px Letter unit, 48px margins, font sizes, bullet indent, and section-heading gap. Download the official Google Fonts EB Garamond upright and italic variable TTFs plus `OFL.txt`; use them locally in both browser CSS and PDF generation so output never depends on the network or host fonts.
 
-- [ ] **Step 3: Expose the selected global scale**
+- [x] **Step 3: Expose the selected global scale**
 
 Return `{ warnings, globalScale }` from `useResizeEngine`. Update `App.tsx` so ResumePage continues to receive warnings while Toolbar and `useResumeReview` receive the exact selected scale. Do not persist or serialize this derived value.
 
-- [ ] **Step 4: Implement the PDF-native adapter**
+- [x] **Step 4: Implement the PDF-native adapter**
 
 Use `@react-pdf/renderer` to produce Letter pages from Resume data. Convert canonical CSS pixels to PDF points at 0.75 points per pixel. Mirror the current header, contact row, sections, entry rows, bullets, typography, spacing, 1px canonical heading gap, and selected global scale. Exclude editor controls, warnings, and review annotations.
 
 Keep the renderer in a lazy-loaded module so the PDF dependency does not enter the initial editor chunk.
 
-- [ ] **Step 5: Route Export and Review through the adapter**
+- [x] **Step 5: Route Export and Review through the adapter**
 
 Change `exportPDF` to accept `(resume, globalScale)`, render a blob, and download `resume.pdf`. Change configured Review to render the same blob before calling the existing API. Remove page-ref capture responsibilities from Toolbar and `useResumeReview`; retain the page ref only for live measurement and viewport sizing.
 
 After both consumers migrate, remove html2canvas/jsPDF code, tests, and dependencies.
 
-- [ ] **Step 6: Run focused and full automated verification**
+- [x] **Step 6: Run focused and full automated verification**
 
 Run the focused tests, complete Vitest suite, build, and complete E2E suite. Confirm Export PDF still downloads, configured Review still submits a PDF, the SPA fallback remains byte-identical, and no data/schema/protected-file changes occur.
 
-- [ ] **Step 7: Repeat native PDF QA at 100% and 50%**
+- [x] **Step 7: Repeat native PDF QA at 100% and 50%**
 
 Export the same unchanged default resume at native 100% and 50% cmux WebKit zoom. Inspect both with `pdfinfo`, render both to images, and compare page count, Letter dimensions, line breaks, content positions, heading-rule clearance, and absence of clipping or overlap. Browser zoom may not enter the PDF path. Byte identity is not required.
 
-- [ ] **Step 8: Commit the canonical renderer**
+- [x] **Step 8: Commit the canonical renderer**
 
 Stage only intended source, tests, local font assets/license, package files, and documentation. Do not stage `tmp/`, `dist/`, `test-results/`, downloaded PDFs, screenshots, or rendered QA images.
 
@@ -682,7 +682,7 @@ git commit -m "fix: render canonical PDFs independently of browser zoom"
 - Consumes: the complete Issue #27 implementation and direct QA results.
 - Produces: a clean, review-ready branch with an auditable verification record.
 
-- [ ] **Step 1: Run the full unit suite**
+- [x] **Step 1: Run the full unit suite**
 
 ```sh
 NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage npm test -- --run
@@ -690,7 +690,7 @@ NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage npm test -- --
 
 Expected: all test files and tests pass. Record exact counts.
 
-- [ ] **Step 2: Run the production build**
+- [x] **Step 2: Run the production build**
 
 ```sh
 npm run build
@@ -698,7 +698,7 @@ npm run build
 
 Expected: TypeScript and Vite pass, and the SPA fallback script completes. Record module and bundle counts.
 
-- [ ] **Step 3: Run complete E2E verification**
+- [x] **Step 3: Run complete E2E verification**
 
 ```sh
 CI=1 npm run test:e2e
@@ -706,7 +706,7 @@ CI=1 npm run test:e2e
 
 Expected: all unconfigured and configured-review tests pass. If localhost binding is blocked, rerun with the established managed permission; do not change application behavior or test configuration.
 
-- [ ] **Step 4: Verify distribution output**
+- [x] **Step 4: Verify distribution output**
 
 ```sh
 test -f dist/index.html
@@ -716,7 +716,7 @@ cmp dist/index.html dist/404.html
 
 Expected: both files exist and are byte-identical.
 
-- [ ] **Step 5: Verify protected files and repository hygiene**
+- [x] **Step 5: Verify protected files and repository hygiene**
 
 ```sh
 git diff --exit-code 62cba76ca0a2f8d2cf469c0487a494ea5232e4f0...HEAD -- \
@@ -729,7 +729,7 @@ git status --short --branch
 
 Expected: protected files are unchanged, the diff is whitespace-clean, and only the plan's final verification record is uncommitted. `dist/`, `test-results/`, downloads, screenshots, traces, and generated PDFs must not be staged.
 
-- [ ] **Step 6: Record exact results in this plan**
+- [x] **Step 6: Record exact results in this plan**
 
 Append this section and replace each instruction after the colon with observed evidence:
 
@@ -752,7 +752,24 @@ Append this section and replace each instruction after the colon with observed e
 
 Do not mark native zoom or visual QA complete based only on automated geometry.
 
-- [ ] **Step 7: Commit the verification record**
+## Verification Record
+
+- Implementation head: `9adfa76` (`fix: render canonical PDFs independently of browser zoom`).
+- Unit tests: 14/14 files and 153/153 tests passed with the documented Node LocalStorage option.
+- E2E tests: 7/7 passed under `CI=1 npm run test:e2e` (4 unconfigured and 3 configured-review).
+- Build: TypeScript and Vite passed with 2,059 modules transformed. The final default build emitted 64.48 kB CSS (12.62 kB gzip), 303.86 kB initial JavaScript (95.08 kB gzip), and a lazy 1,468.12 kB PDF renderer chunk (490.79 kB gzip), plus the two locally bundled EB Garamond font assets.
+- SPA fallback: `dist/index.html` and `dist/404.html` were present and byte-identical.
+- Native cmux WebKit zoom: direct checks at 100%, 90%, 80%, 70%, 60%, and 50% retained `--global-scale: 1.0501953125`. The canonical viewport remained 816×1056px; WebKit reported only subpixel presentation noise at intermediate zoom levels (at most 0.018px), with exact 816×1056px geometry at 100% and 50%. The cmux tab was restored to 100% afterward.
+- Direct editing: name and bullet editing plus add/remove control interaction remained aligned and functional at 100% and 50%. The configured-review E2E also verifies that clicking Review immediately after inline editing is not lost to a redundant blur update.
+- PDF comparison: unchanged default resumes exported at native 100% and 50% each produced a one-page 612×792pt Letter PDF. Their rendered page images were pixel-identical; text extraction succeeded, section-heading rules retained the approved 1px canonical gap, and no editor controls, clipping, or overlap appeared.
+- Narrow fixed canvas: the 358px browser contract passed; the 816px resume stayed inside `.resume-canvas-scroll` without document-level horizontal overflow.
+- Canonical PDF renderer: Export PDF and configured Review use the same lazy, data-driven renderer and selected global scale. `html2canvas` and jsPDF are no longer dependencies or part of the PDF path.
+- Production dependency audit: no high or critical production vulnerabilities were reported; one low and one moderate transitive advisory remain.
+- Protected files: `src/types.ts`, `src/storage.ts`, `src/reviewApi.ts`, and `src/reviewTypes.ts` are unchanged from `origin/main`.
+- Generated artifacts: `dist/`, `test-results/`, downloaded PDFs, and rendered QA images are not staged; temporary visual-QA artifacts were moved outside the worktree.
+- Manual QA status: complete for the Issue #27 native zoom, direct-editing, PDF-composition, heading-rule, and narrow-canvas contracts.
+
+- [x] **Step 7: Commit the verification record**
 
 ```sh
 git add docs/superpowers/plans/2026-07-14-resume-zoom-geometry.md
