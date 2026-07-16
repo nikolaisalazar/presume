@@ -47,7 +47,7 @@ use should add those controls externally.
 
 The frontend renders a US Letter resume page and stores the resume as typed JSON. As the resume changes, `@chenglou/pretext` measures bullet text and the resize engine binary-searches a global CSS scale so the document satisfies the configured page and line constraints. Content that cannot fit within the configured minimum font size is marked with a formatting warning.
 
-PDF export is fully client-side using `html2canvas` and `jsPDF`. The exporter slices the captured resume into Letter-height pages so a resume fitted to multiple pages exports as multiple PDF pages instead of being compressed onto one page. JSON export/import provides a portable save format. Review submissions use the same visual capture plus a review-only extractable text appendix restricted to visible, allowlisted resume content; the normal Export PDF action remains canvas/image-only.
+PDF export is fully client-side using `@react-pdf/renderer`. A canonical renderer maps the current resume data and selected global scale directly into Letter-sized PDF pages, independently of browser zoom and live DOM geometry. Longer resumes flow onto additional Letter pages instead of being compressed onto one page. Export and Review use the same generated PDF blob, while JSON export/import provides a portable save format.
 
 The review flow keeps semantic evaluation outside the static frontend. A local or self-hosted FastAPI service accepts the current resume PDF, runs review work through a Hiring Agent adapter boundary, and returns a normalized review result for the frontend to display. If no review endpoint is configured, or if the service reports review disabled because the local Hiring Agent checkout is unavailable, the review UI is disabled rather than breaking the editor.
 
@@ -55,7 +55,7 @@ The review flow keeps semantic evaluation outside the static frontend. A local o
 
 - React 18, TypeScript, and Vite.
 - `@chenglou/pretext` for text measurement.
-- `html2canvas` and `jsPDF` for browser PDF export.
+- `@react-pdf/renderer` for canonical, browser-side PDF generation.
 - Vitest and jsdom for tests.
 - FastAPI review service, `vendor/hiring-agent` adapter boundary, Ollama by default, optional Gemini configuration, and optional GitHub enrichment.
 

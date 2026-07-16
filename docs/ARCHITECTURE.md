@@ -71,14 +71,11 @@ All major resume font sizes are expressed as CSS custom properties multiplied by
 
 ## Current PDF Export Behavior
 
-`src/export.ts` captures the rendered `ResumePage` DOM node with `html2canvas` and writes it to a Letter-sized `jsPDF` document. The captured canvas is sliced by Letter page height. A one-page render produces one PDF page; a taller render produced by `maxPages > 1` produces additional Letter pages rather than one compressed page.
+`src/export.ts` lazily loads the canonical renderer under `src/pdf/`. The renderer maps the current `Resume` data and selected global scale into a native Letter-sized PDF with embedded EB Garamond fonts. It does not read the rendered DOM, so browser zoom and presentation transforms cannot change the exported document geometry.
 
-For review submissions only, the PDF helper appends extractable text restricted
-to visible, allowlisted resume content so Hiring Agent can parse the
-browser-rendered resume. The user-facing Export PDF action remains the visual
-canvas/image export and does not include that appendix.
+The same `renderResumeToPDFBlob` path serves the user-facing Export PDF action and Review submissions. A one-page resume produces one Letter page; longer content flows onto additional Letter pages while preserving section and entry hierarchy. Editor controls, formatting warnings, review annotations, and other application chrome are absent because the PDF is generated from resume data rather than a screenshot.
 
-The current renderer does not create visible page-break UI inside the editor. Multi-page export is a canvas slicing operation aligned to the same Letter aspect ratio used by the resume page and resize engine.
+The current renderer does not create visible page-break UI inside the editor. The fixed `816px` by `1056px` browser canvas remains the editing reference for one Letter-page unit, while the PDF renderer owns pagination in the exported artifact.
 
 ## Current Frontend Data Flow
 
@@ -92,8 +89,9 @@ flowchart TD
   Resize --> Pretext[@chenglou/pretext]
   Resize --> CSS[CSS --global-scale and warnings]
   App --> Page[src/components/ResumePage.tsx]
-  Page --> Export[src/export.ts]
-  Export --> PDF[Single or multi-page PDF download]
+  App --> Export[src/export.ts]
+  Export --> PDFRenderer[src/pdf canonical renderer]
+  PDFRenderer --> PDF[Single or multi-page PDF download]
   Export --> JSON[JSON download/import]
 ```
 
@@ -120,7 +118,7 @@ sequenceDiagram
   participant GH as GitHub API
 
   User->>UI: Request review
-  UI->>PDF: Render current ResumePage to PDF Blob with review-only text appendix
+  UI->>PDF: Render current resume data and selected scale to a canonical PDF Blob
   PDF-->>UI: PDF Blob
   UI->>API: POST /reviews multipart resume.pdf
   API->>HA: Run extraction and scoring through adapter

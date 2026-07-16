@@ -1,8 +1,9 @@
 # Implementation Plan
 
-This file is not the milestone plan. Use [Milestone Plan](MILESTONE_PLAN.md) to
-decide what milestone comes next. Use this file only as supporting
-implementation detail after a milestone has been selected.
+This completed plan is not the milestone plan. Use [Milestone Plan](MILESTONE_PLAN.md)
+to decide what milestone comes next. This file remains as historical supporting
+detail for the review integration; its phase instructions are not the current
+PDF implementation contract.
 
 ## Orientation Note
 
@@ -11,14 +12,17 @@ Current shipped functionality:
 - WYSIWYG resume editing in React.
 - Pretext-based fitting through `src/useResizeEngine.ts`.
 - LocalStorage persistence through `src/useResume.ts` and `src/storage.ts`.
-- JSON import/export and client-side PDF export through `src/export.ts`.
+- JSON import/export and canonical client-side PDF generation through
+  `src/export.ts` and `src/pdf/`.
 - Review API client, review state hook, review panel, and conservative review annotations.
 - FastAPI review service scaffold under `review-service/` with normalized endpoints, errors, configuration, and tests.
 - Review-service capability discovery disables review when the local Hiring
   Agent checkout directory is unavailable, without exposing the configured
   path, and the frontend consumes that readiness signal before enabling review
   submission.
-- Full end-to-end Hiring Agent execution remains pending concrete upstream adapter wiring.
+- The real local Hiring Agent path has been verified with the FastAPI service,
+  Ollama, and a browser-generated canonical PDF; automated tests continue to
+  use deterministic fixture responses.
 
 Current and planned features must remain clearly separated in implementation, docs, and UI copy.
 

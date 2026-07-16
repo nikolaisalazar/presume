@@ -128,12 +128,10 @@ subprocess bridge inside that directory, calls Hiring Agent's `score.main`
 entrypoint with the uploaded PDF, captures the returned Pydantic evaluation as
 JSON, and maps it into Presume's normalized `ReviewResult`.
 
-Presume review submissions include a review-only extractable text appendix in
-the generated PDF so Hiring Agent can parse browser-rendered resumes. The
-appendix is built from visible, allowlisted resume content selectors and strips
-hidden, `aria-hidden`, and editor-only descendants, including add/remove
-controls. The regular frontend Export PDF path remains the visual canvas export
-and does not add this review appendix.
+Presume review submissions use the same canonical, data-driven PDF renderer as
+the regular frontend Export PDF action. The generated PDF contains extractable
+resume text and excludes editor controls by construction; it does not depend
+on DOM capture, browser zoom, or a separate review-only appendix.
 
 Set up the dependency checkout separately:
 

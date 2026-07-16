@@ -218,12 +218,11 @@ The current adapter only exposes `raw: {"source": "hiring-agent"}` and does not
 return raw provider responses, prompts, extracted resume text, or full upstream
 evaluation payloads to clients.
 
-The frontend review submission PDF includes a review-only extractable text
-appendix so Hiring Agent can parse browser-generated resumes. The appendix is
-built from visible, allowlisted resume content selectors and strips hidden,
-`aria-hidden`, and editor-only descendants, including add/remove controls. The
-normal Export PDF button remains the visual canvas export path and does not add
-that review appendix.
+The frontend generates review submissions with the same canonical,
+data-driven PDF renderer used by the normal Export PDF action. The resulting
+PDF contains extractable resume text and excludes editor controls by
+construction; it does not depend on DOM capture, browser zoom, or a separate
+review-only appendix.
 
 ## Privacy
 

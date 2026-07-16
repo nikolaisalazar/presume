@@ -55,7 +55,7 @@ The product has two separate loops:
 1. Start the local or self-hosted review service.
 2. Configure the frontend with `VITE_REVIEW_API_URL`.
 3. Click the review action in the editor.
-4. The frontend renders the current resume page to a PDF blob.
+4. The frontend renders the current resume data and selected global scale to a canonical PDF blob.
 5. The backend accepts the PDF through the normalized FastAPI review-service contract.
 6. Mocked backend contract tests prove the normalized response and error shapes.
 7. Integration-oriented tests cover unconfigured editor behavior, backend-shaped frontend errors, and safe backend error handling.
@@ -83,7 +83,7 @@ The app currently supports:
 - Adding and removing contact items, sections, entries, and bullets.
 - Autosaving resume content and constraints to LocalStorage.
 - Validating imported JSON before replacing current resume data.
-- Exporting the rendered resume as a Letter-sized PDF, with additional PDF pages when the rendered canvas exceeds one page.
+- Exporting the resume as a zoom-independent Letter-sized PDF, with additional PDF pages when the content exceeds one page.
 - Warning on content that cannot fit within the configured constraints.
 
 ## Current Review Behavior
@@ -95,9 +95,8 @@ The app currently supports:
 - A disabled review state when the configured service reports review unavailable through `GET /config`.
 - A config-error review state when `GET /config` cannot confirm readiness; review submission stays disabled and the editor remains usable.
 - A review state hook that generates a PDF blob and submits it to the configured review service.
-- Review submissions add an extractable text appendix restricted to visible,
-  allowlisted resume content so Hiring Agent can parse browser-rendered PDFs;
-  normal exported PDFs remain canvas/image-only.
+- Review submissions use the same canonical, text-bearing PDF renderer as the
+  normal Export PDF action; neither path depends on browser zoom or DOM capture.
 - A review panel for advisory score, tier, grouped category evidence and
   suggestions, strengths, improvements, bonuses, deductions, annotation legend,
   and findings with severity and target context.
