@@ -12,7 +12,8 @@ Presume is currently a React application with an optional review service. The fr
 | `src/useResume.ts` | Owns resume and constraint state, loading defaults from LocalStorage and autosaving changes. |
 | `src/useResizeEngine.ts` | Uses Pretext and DOM height measurement to find a global scale that satisfies layout constraints. |
 | `src/export.ts` | Exports single-page or multi-page Letter PDFs, exports JSON, imports and validates JSON. |
-| `src/types.ts` | Defines `Resume`, `ResumeSection`, `ResumeEntry`, `Constraints`, defaults, and validators. |
+| `src/constraints.ts` | Owns the constraint interface, inclusive bounds, defaults, parsing, and controlled updates. |
+| `src/types.ts` | Defines resume data and validators, with compatibility re-exports for constraints. |
 | `src/resumeOperations.ts` | Provides pure immutable helpers for contact, section, entry, and bullet editing operations. |
 | `src/storage.ts` | Wraps LocalStorage persistence for resume data and constraints. |
 | `src/defaultResume.ts` | Provides the initial resume template. |
@@ -50,6 +51,8 @@ type Constraints = {
 ```
 
 This model is the editing source of truth, the LocalStorage format, and the JSON export format. Imported JSON is validated and unknown fields are stripped. Milestone 17 preserved this public shape while moving contact, section, entry, and bullet mutations into tested pure helpers so inline editor components no longer own array manipulation directly.
+
+Persisted formatting constraints are parsed against the inclusive bounds in `src/constraints.ts`. Invalid values are rejected rather than clamped, allowing `useResume` to fall back to the defaults; unknown fields on otherwise valid constraint data are stripped.
 
 ## Current Formatting Behavior
 

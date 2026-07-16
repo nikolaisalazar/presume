@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import type { Constraints, Resume } from './types'
-import { DEFAULT_CONSTRAINTS } from './types'
+import { DEFAULT_CONSTRAINTS } from './constraints'
 import { loadConstraints, loadResume, saveConstraints, saveResume } from './storage'
 import { DEFAULT_RESUME } from './defaultResume'
 
