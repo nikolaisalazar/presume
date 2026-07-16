@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse
 from .config import Settings, load_settings
 from .errors import ReviewServiceError, make_error_response, make_request_id
 from .hiring_agent_adapter import HiringAgentAdapter
-from .schemas import HealthResponse, PublicConfig, ReviewResult
+from .schemas import ErrorResponse, HealthResponse, PublicConfig, ReviewResult
 
 
 UPLOAD_READ_CHUNK_BYTES = 1024 * 1024
@@ -74,6 +74,7 @@ def create_app(
         "/reviews",
         response_model=ReviewResult,
         response_model_exclude_none=True,
+        responses={"default": {"model": ErrorResponse}},
     )
     async def reviews(file: UploadFile) -> ReviewResult:
         pdf_bytes = await read_upload_with_limit(

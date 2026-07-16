@@ -1,0 +1,499 @@
+{
+  "components": {
+    "schemas": {
+      "Body_reviews_reviews_post": {
+        "properties": {
+          "file": {
+            "format": "binary",
+            "title": "File",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "title": "Body_reviews_reviews_post",
+        "type": "object"
+      },
+      "ErrorBody": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "enum": [
+              "invalid_upload",
+              "upload_too_large",
+              "pdf_parse_failed",
+              "llm_provider_unavailable",
+              "github_rate_limited",
+              "hiring_agent_failed",
+              "review_timeout",
+              "internal_error"
+            ],
+            "title": "Code",
+            "type": "string"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "requestId": {
+            "title": "Requestid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "requestId"
+        ],
+        "title": "ErrorBody",
+        "type": "object"
+      },
+      "ErrorResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorBody"
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "title": "ErrorResponse",
+        "type": "object"
+      },
+      "HealthResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "status": {
+            "const": "ok",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "HealthResponse",
+        "type": "object"
+      },
+      "PublicConfig": {
+        "additionalProperties": false,
+        "properties": {
+          "defaultModel": {
+            "title": "Defaultmodel",
+            "type": "string"
+          },
+          "githubEnrichmentEnabled": {
+            "title": "Githubenrichmentenabled",
+            "type": "boolean"
+          },
+          "llmProvider": {
+            "title": "Llmprovider",
+            "type": "string"
+          },
+          "maxUploadBytes": {
+            "exclusiveMinimum": 0.0,
+            "title": "Maxuploadbytes",
+            "type": "integer"
+          },
+          "reviewEnabled": {
+            "title": "Reviewenabled",
+            "type": "boolean"
+          },
+          "reviewReadiness": {
+            "anyOf": [
+              {
+                "enum": [
+                  "ready",
+                  "unavailable"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewreadiness"
+          },
+          "reviewReadinessReason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "ready",
+                  "missing_hiring_agent",
+                  "provider_disabled",
+                  "missing_provider_credentials"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewreadinessreason"
+          },
+          "reviewTimeoutSeconds": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewtimeoutseconds"
+          }
+        },
+        "required": [
+          "reviewEnabled",
+          "llmProvider",
+          "defaultModel",
+          "githubEnrichmentEnabled",
+          "maxUploadBytes"
+        ],
+        "title": "PublicConfig",
+        "type": "object"
+      },
+      "ReviewAdjustment": {
+        "additionalProperties": false,
+        "properties": {
+          "evidence": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "points": {
+            "title": "Points",
+            "type": "number"
+          }
+        },
+        "required": [
+          "label",
+          "points"
+        ],
+        "title": "ReviewAdjustment",
+        "type": "object"
+      },
+      "ReviewAnnotation": {
+        "additionalProperties": false,
+        "properties": {
+          "bulletText": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bullettext"
+          },
+          "categoryKey": {
+            "anyOf": [
+              {
+                "enum": [
+                  "open_source",
+                  "self_projects",
+                  "production",
+                  "technical_skills"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Categorykey"
+          },
+          "entryTitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Entrytitle"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "sectionTitle": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sectiontitle"
+          },
+          "severity": {
+            "enum": [
+              "info",
+              "warning",
+              "strong"
+            ],
+            "title": "Severity",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "message",
+          "severity"
+        ],
+        "title": "ReviewAnnotation",
+        "type": "object"
+      },
+      "ReviewCategory": {
+        "additionalProperties": false,
+        "properties": {
+          "evidence": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Evidence",
+            "type": "array"
+          },
+          "key": {
+            "enum": [
+              "open_source",
+              "self_projects",
+              "production",
+              "technical_skills"
+            ],
+            "title": "Key",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "maxScore": {
+            "title": "Maxscore",
+            "type": "number"
+          },
+          "score": {
+            "title": "Score",
+            "type": "number"
+          },
+          "suggestions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Suggestions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "score",
+          "maxScore",
+          "evidence",
+          "suggestions"
+        ],
+        "title": "ReviewCategory",
+        "type": "object"
+      },
+      "ReviewResult": {
+        "additionalProperties": false,
+        "properties": {
+          "annotations": {
+            "items": {
+              "$ref": "#/components/schemas/ReviewAnnotation"
+            },
+            "title": "Annotations",
+            "type": "array"
+          },
+          "bonuses": {
+            "items": {
+              "$ref": "#/components/schemas/ReviewAdjustment"
+            },
+            "title": "Bonuses",
+            "type": "array"
+          },
+          "categories": {
+            "items": {
+              "$ref": "#/components/schemas/ReviewCategory"
+            },
+            "title": "Categories",
+            "type": "array"
+          },
+          "deductions": {
+            "items": {
+              "$ref": "#/components/schemas/ReviewAdjustment"
+            },
+            "title": "Deductions",
+            "type": "array"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "improvements": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Improvements",
+            "type": "array"
+          },
+          "maxScore": {
+            "title": "Maxscore",
+            "type": "number"
+          },
+          "raw": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Raw"
+          },
+          "reviewedAt": {
+            "title": "Reviewedat",
+            "type": "string"
+          },
+          "strengths": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Strengths",
+            "type": "array"
+          },
+          "tier": {
+            "enum": [
+              "strong",
+              "competitive",
+              "needs_work",
+              "incomplete"
+            ],
+            "title": "Tier",
+            "type": "string"
+          },
+          "totalScore": {
+            "title": "Totalscore",
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "reviewedAt",
+          "totalScore",
+          "maxScore",
+          "tier",
+          "categories",
+          "strengths",
+          "improvements",
+          "bonuses",
+          "deductions",
+          "annotations"
+        ],
+        "title": "ReviewResult",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "title": "Presume Review Service",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/config": {
+      "get": {
+        "operationId": "config_config_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicConfig"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Config"
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health"
+      }
+    },
+    "/reviews": {
+      "post": {
+        "operationId": "reviews_reviews_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_reviews_reviews_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReviewResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Default Response"
+          }
+        },
+        "summary": "Reviews"
+      }
+    }
+  }
+}
