@@ -4,16 +4,16 @@
 
 **Goal:** Preserve the resume's canonical Letter-page proportions, typography, wrapping, and global scale when Safari/WebKit browser zoom decreases from 100% through 50%.
 
-**Architecture:** Add a document-specific `ResumeViewport` around the existing `ResumePage`. The live page uses genuine CSS author dimensions at 4.5x every canonical resume-internal length and is presented through an exact inverse transform; CSS `zoom` is prohibited. During synchronous Fit measurement only, the same page is temporarily supersampled at 18x with an exact inverse so physical-pixel rounding cannot change the selected global scale across browser zoom levels. The viewport exposes only the canonical 816px width and complete canonical height to the canvas scroller, while the existing page ref remains attached to `ResumePage` so Fit Constraints, PDF export, and Review keep their current interfaces.
+**Architecture:** Add a document-specific `ResumeViewport` around the existing `ResumePage`. The live page uses genuine CSS author dimensions at 4.5x every canonical resume-internal length and is presented through an exact inverse transform; CSS `zoom` is prohibited. During synchronous Fit measurement only, the same page is temporarily supersampled at 100x with an exact inverse, and page-height checks allow 0.5px of canonical subpixel noise. Export PDF and configured Review use a shared PDF-native adapter driven by the same in-memory resume and selected global scale, never by the zoomed DOM.
 
-**Tech Stack:** Vite, React 18, TypeScript, CSS, Vitest, Playwright, html2canvas, jsPDF, cmux WebKit browser.
+**Tech Stack:** Vite, React 18, TypeScript, CSS, Vitest, Playwright, `@react-pdf/renderer`, cmux WebKit browser.
 
 ## Global Constraints
 
 - The current 100% browser-zoom resume composition is authoritative.
 - Browser zoom may change apparent size but must not change resume proportions, wrapping, page count, or selected `--global-scale`.
-- Use genuine 4.5x CSS author dimensions and their exact inverse presentation transform for the live editor. Use an 18x/1/18 pair only during synchronous resize measurement. Do not use CSS `zoom` or detect browser zoom, device-pixel ratio, or user agent.
-- Preserve direct inline editing, Pretext/global resizing, PDF export, Review capture, JSON import/export, LocalStorage, routing, and the fixed-width narrow-screen scroller.
+- Use genuine 4.5x CSS author dimensions and their exact inverse presentation transform for the live editor. Use a 100x/1/100 pair only during synchronous resize measurement, with at most 0.5px of page-edge tolerance. Do not use CSS `zoom` or detect browser zoom, device-pixel ratio, or user agent.
+- Preserve direct inline editing, Pretext/global resizing, PDF export, Review submission, JSON import/export, LocalStorage, routing, and the fixed-width narrow-screen scroller.
 - Treat 816×1056px as one Letter-page unit; do not clip legitimate multi-page content.
 - Do not change resume data schemas, constraint bounds, typography, margins, colors, or editor-shell composition.
 - Do not add dependencies, visual snapshots, or a repetitive browser-test matrix.
@@ -26,10 +26,16 @@
 - Create `src/components/ResumeViewport.tsx`: own the canonical viewport height and observe the transformed page's complete visual geometry.
 - Modify `src/App.tsx`: compose `ResumeViewport` around the existing `ResumePage` while leaving `pageRef` on `ResumePage`.
 - Modify `src/styles/resume.css`: define the 4.5x live author-coordinate scale, inverse presentation transform, fixed viewport geometry, and mechanically scaled resume-internal lengths.
-- Modify `src/useResizeEngine.ts`: temporarily apply the 18x measurement scale around the complete synchronous DOM-height search and restore the live variables in `finally`.
+- Modify `src/useResizeEngine.ts`: temporarily apply the 100x measurement scale around the complete synchronous DOM-height search, apply the 0.5px page-edge tolerance, and restore the live variables in `finally`.
 - Modify `src/tests/resizeEngine.test.ts`: add one focused restoration contract for the temporary measurement scope.
 - Modify `src/styles/app.css`: mechanically scale only the in-document editor-control lengths that are transformed with the resume.
 - Modify `e2e/unconfigured.spec.ts`: extend the existing fixed-canvas contract to catch leaked internal dimensions, clipping, and narrow-screen regressions without adding another broad E2E case.
+- Create `src/resumeDocumentTokens.ts`: centralize canonical Letter dimensions and resume typography/spacing used by the live and PDF adapters.
+- Create `src/pdf/ResumePdfDocument.tsx` and `src/pdf/renderResumePdf.tsx`: render resume data directly to a Letter PDF blob.
+- Add locally bundled EB Garamond upright/italic font files and the OFL license under `src/assets/fonts/`.
+- Modify `src/export.ts`, `src/components/Toolbar.tsx`, `src/useResumeReview.ts`, and `src/App.tsx`: pass resume data plus the selected global scale to the shared PDF renderer.
+- Modify focused export, review-hook, and integration tests only where the public call contract changes.
+- Remove `html2canvas` and jsPDF after both PDF consumers migrate.
 - Modify this plan: record completed commands and direct cmux QA evidence during execution.
 - Modify `src/export.ts` and `src/tests/export.test.ts` only if Task 3 proves html2canvas does not capture canonical geometry.
 
@@ -445,6 +451,8 @@ git commit -m "fix: use stable author coordinates for resume layout"
 
 ### Task 2B: Raise live author resolution and isolate resize measurement from raster rounding
 
+**Native-matrix refinement (2026-07-15):** The first Task 2B commit used an 18x measurement scale because it produced the same representative result at 100% and 50%. The complete matrix exposed drift at intermediate levels. A 20x common-factor experiment removed the fractional 10% grid but not accumulated WebKit line-box rounding. The accepted candidate uses 100x temporary measurement plus a 0.5px canonical page-edge tolerance; a browser-side run of the real search selected 1.0583984375 at all six supported zoom levels. The 100x and 20x searches each took approximately 35ms for 11 layout passes in the observed browser, so the higher coordinate resolution did not add a measured interaction cost. The live 4.5x presentation and restoration boundary are unchanged.
+
 **Files:**
 - Modify: `e2e/unconfigured.spec.ts`
 - Modify: `src/tests/resizeEngine.test.ts`
@@ -453,7 +461,7 @@ git commit -m "fix: use stable author coordinates for resume layout"
 
 **Interfaces:**
 - Consumes: the existing mechanically scaled resume CSS, `ResumeViewport`, and synchronous `useResizeEngine` measurement flow.
-- Produces: a 3672px-wide live author page presented at 816px, plus an 18x temporary measurement scope whose previous inline scale variables are restored in `finally`.
+- Produces: a 3672px-wide live author page presented at 816px, plus a 100x temporary measurement scope whose previous inline scale variables are restored in `finally`, and a 0.5px page-fit tolerance.
 - Preserves: visible geometry, hook/component public APIs, direct editing, stored data, constraints, PDF/Review capture paths, and the existing author-coordinate CSS formulas.
 
 - [ ] **Step 1: Strengthen the focused contracts before production changes**
@@ -473,7 +481,7 @@ await expect.poll(async () =>
 ).toBe(1400)
 ```
 
-Add one focused unit contract in `src/tests/resizeEngine.test.ts`. Import `withResumeMeasurementScale`, initialize the root's inline scale variables to `4.5` and `0.2222222222222222`, and verify that the callback observes `18` and `0.05555555555555555` while the original values are restored afterward. Do not add a repetitive matrix of helper tests.
+Add focused unit contracts in `src/tests/resizeEngine.test.ts`. Import `withResumeMeasurementScale`, initialize the root's inline scale variables to `4.5` and `0.2222222222222222`, and verify that the callback observes `100` and `0.01` while the original values are restored afterward. Verify that the page-height helper accepts 1056.0001px for a 1056px limit and rejects 1056.6px. Do not add a repetitive matrix of helper tests.
 
 - [ ] **Step 2: Run both focused contracts and verify they are red**
 
@@ -501,7 +509,7 @@ Every mechanically scaled resume length and in-document editor control follows t
 In `src/useResizeEngine.ts`, add a small generic `withResumeMeasurementScale` helper that:
 
 1. records the root's current inline `--resume-layout-scale` and `--resume-presentation-scale` values;
-2. sets them to `18` and `0.05555555555555555`;
+2. sets them to `100` and `0.01`;
 3. runs a synchronous callback;
 4. restores the exact previous inline state in `finally`, removing a property when it was previously absent.
 
@@ -585,15 +593,83 @@ At each zoom level, export the unchanged default resume. Render or inspect both 
 
 Expected: both exports have the same canonical document composition. Byte identity is not required.
 
-- [ ] **Step 6: Keep export unchanged on success; stop on failure**
+- [x] **Step 6: Record the demonstrated capture failure and amend the architecture**
 
-If both PDFs are canonical, leave `src/export.ts` and `src/tests/export.test.ts` untouched.
+At 100% native WebKit zoom, the DOM-screenshot export produced a correct one-page Letter PDF. At 50%, the same unchanged resume produced overlapping and displaced text. A second 50% experiment temporarily exposed the untransformed 4.5x author layer before capture; the resulting PDF remained corrupted. This isolates the failure to WebKit/html2canvas text rasterization rather than the inverse presentation transform.
 
-If either PDF exposes enlarged or compounded geometry, do not improvise a workaround inside this task. Record the exact canvas/PDF dimensions and failure, return to systematic debugging, and amend this plan with tested `try/finally` capture normalization before modifying export source.
+The approved amendment replaces DOM capture with a PDF-native adapter driven by resume data and selected global scale. Task 3A implements that correction before the native PDF comparison is repeated.
 
 - [ ] **Step 7: Verify the narrow fixed-canvas contract**
 
 At a 358px viewport with browser zoom reset to 100%, confirm `.resume-page` and `.resume-viewport` are both 816px wide, horizontal overflow remains inside `.resume-canvas-scroll`, no document-level horizontal overflow appears, and the complete default page remains visible vertically.
+
+---
+
+### Task 3A: Generate canonical PDFs from resume data
+
+**Files:**
+- Create: `src/resumeDocumentTokens.ts`
+- Create: `src/pdf/ResumePdfDocument.tsx`
+- Create: `src/pdf/renderResumePdf.tsx`
+- Add: `src/assets/fonts/EBGaramond-Variable.ttf`
+- Add: `src/assets/fonts/EBGaramond-Italic-Variable.ttf`
+- Add: `src/assets/fonts/OFL.txt`
+- Modify: `src/styles/resume.css`
+- Modify: `src/useResizeEngine.ts`
+- Modify: `src/App.tsx`
+- Modify: `src/components/Toolbar.tsx`
+- Modify: `src/export.ts`
+- Modify: `src/useResumeReview.ts`
+- Modify: focused tests that cover these interfaces
+- Modify: `package.json`
+- Modify: `package-lock.json`
+
+**Interfaces:**
+- Consumes: the existing in-memory `Resume`, constraints-derived global scale, and shared canonical document tokens.
+- Produces: one PDF-native renderer used by both download and configured Review.
+- Preserves: Resume/constraints JSON, LocalStorage, direct editing, Review request format, routing, and editor layout.
+
+- [ ] **Step 1: Add focused failing contracts**
+
+Update the existing export, review-hook, and app integration tests to require resume data and selected global scale rather than a DOM page element. Assert that both PDF consumers call the same blob renderer. Add only one focused renderer smoke contract if it provides coverage not already supplied by the integration path.
+
+Add the approved live section-rule contract by asserting a 1px canonical gap between heading text and the underline; do not add a visual snapshot.
+
+- [ ] **Step 2: Add shared document tokens and local font assets**
+
+Centralize the 816×1056px Letter unit, 48px margins, font sizes, bullet indent, and section-heading gap. Download the official Google Fonts EB Garamond upright and italic variable TTFs plus `OFL.txt`; use them locally in both browser CSS and PDF generation so output never depends on the network or host fonts.
+
+- [ ] **Step 3: Expose the selected global scale**
+
+Return `{ warnings, globalScale }` from `useResizeEngine`. Update `App.tsx` so ResumePage continues to receive warnings while Toolbar and `useResumeReview` receive the exact selected scale. Do not persist or serialize this derived value.
+
+- [ ] **Step 4: Implement the PDF-native adapter**
+
+Use `@react-pdf/renderer` to produce Letter pages from Resume data. Convert canonical CSS pixels to PDF points at 0.75 points per pixel. Mirror the current header, contact row, sections, entry rows, bullets, typography, spacing, 1px canonical heading gap, and selected global scale. Exclude editor controls, warnings, and review annotations.
+
+Keep the renderer in a lazy-loaded module so the PDF dependency does not enter the initial editor chunk.
+
+- [ ] **Step 5: Route Export and Review through the adapter**
+
+Change `exportPDF` to accept `(resume, globalScale)`, render a blob, and download `resume.pdf`. Change configured Review to render the same blob before calling the existing API. Remove page-ref capture responsibilities from Toolbar and `useResumeReview`; retain the page ref only for live measurement and viewport sizing.
+
+After both consumers migrate, remove html2canvas/jsPDF code, tests, and dependencies.
+
+- [ ] **Step 6: Run focused and full automated verification**
+
+Run the focused tests, complete Vitest suite, build, and complete E2E suite. Confirm Export PDF still downloads, configured Review still submits a PDF, the SPA fallback remains byte-identical, and no data/schema/protected-file changes occur.
+
+- [ ] **Step 7: Repeat native PDF QA at 100% and 50%**
+
+Export the same unchanged default resume at native 100% and 50% cmux WebKit zoom. Inspect both with `pdfinfo`, render both to images, and compare page count, Letter dimensions, line breaks, content positions, heading-rule clearance, and absence of clipping or overlap. Browser zoom may not enter the PDF path. Byte identity is not required.
+
+- [ ] **Step 8: Commit the canonical renderer**
+
+Stage only intended source, tests, local font assets/license, package files, and documentation. Do not stage `tmp/`, `dist/`, `test-results/`, downloaded PDFs, screenshots, or rendered QA images.
+
+```sh
+git commit -m "fix: render canonical PDFs independently of browser zoom"
+```
 
 ---
 
@@ -669,7 +745,7 @@ Append this section and replace each instruction after the colon with observed e
 - Direct editing: record the 100% and 50% outcome
 - PDF comparison: record the 100% and 50% page-size, page-count, and composition outcome
 - Narrow fixed canvas: record the 358px outcome
-- Export normalization: state that it was not required, or link to the amended diagnostic task
+- Canonical PDF renderer: record the 100%/50% comparison and confirm DOM capture is no longer used
 - Generated artifacts: not staged
 - Manual QA status: complete or accurately pending
 ```
@@ -700,11 +776,12 @@ Expected: the worktree is clean and the branch contains the design, implementati
 Before opening or merging a PR, request a fresh rigorous review focused on:
 
 - whether the genuine live 4.5x author-coordinate/inverse-transform boundary is isolated and browser-zoom agnostic;
-- whether the 18x measurement scope wraps the complete synchronous resize search and restores the previous inline presentation variables in `finally`;
+- whether the 100x measurement scope wraps the complete synchronous resize search and restores the previous inline presentation variables in `finally`;
+- whether the 0.5px page-edge tolerance is applied consistently to fit and warning decisions without masking meaningful overflow;
 - whether CSS `zoom` is absent from the resume presentation path;
 - synchronous resize-engine measurement versus asynchronous viewport-height synchronization;
 - direct-editing coordinate alignment;
-- multi-page visibility and PDF slicing;
+- multi-page visibility and PDF-native page wrapping;
 - narrow-screen scroll containment;
-- whether export remained unchanged or any demonstrated normalization restores state in `finally`;
+- whether Export PDF and configured Review use the same data-driven renderer and selected global scale without reading zoomed DOM geometry;
 - the accuracy of native cmux WebKit QA claims.
