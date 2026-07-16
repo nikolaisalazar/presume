@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest'
-import { binarySearchFontSize, getImpossibleBulletKeys, checkBulletsFitAtScale, chooseFinalGlobalScale } from '../useResizeEngine'
+import {
+  binarySearchFontSize,
+  getImpossibleBulletKeys,
+  checkBulletsFitAtScale,
+  chooseFinalGlobalScale,
+  withResumeMeasurementScale,
+} from '../useResizeEngine'
 import type { Resume } from '../types'
 
 // ── Helpers ────────────────────────────────────────────────────────
@@ -23,6 +29,28 @@ function makeResume(bulletsBySection: string[][]): Resume {
     })),
   }
 }
+
+describe('withResumeMeasurementScale', () => {
+  it('uses high-resolution measurement coordinates and restores the live presentation', () => {
+    const root = document.createElement('div')
+    root.style.setProperty('--resume-layout-scale', '4.5')
+    root.style.setProperty('--resume-presentation-scale', '0.2222222222222222')
+
+    const observed = withResumeMeasurementScale(root, () => ({
+      layout: root.style.getPropertyValue('--resume-layout-scale'),
+      presentation: root.style.getPropertyValue('--resume-presentation-scale'),
+    }))
+
+    expect(observed).toEqual({
+      layout: '18',
+      presentation: '0.05555555555555555',
+    })
+    expect(root.style.getPropertyValue('--resume-layout-scale')).toBe('4.5')
+    expect(root.style.getPropertyValue('--resume-presentation-scale')).toBe(
+      '0.2222222222222222'
+    )
+  })
+})
 
 // ── binarySearchFontSize ───────────────────────────────────────────
 

@@ -151,6 +151,41 @@ export function chooseFinalGlobalScale({
   )
 }
 
+const RESUME_MEASUREMENT_LAYOUT_SCALE = '18'
+const RESUME_MEASUREMENT_PRESENTATION_SCALE = '0.05555555555555555'
+
+export function withResumeMeasurementScale<T>(
+  root: HTMLElement,
+  measure: () => T
+): T {
+  const layoutProperty = '--resume-layout-scale'
+  const presentationProperty = '--resume-presentation-scale'
+  const previousLayout = root.style.getPropertyValue(layoutProperty)
+  const previousPresentation = root.style.getPropertyValue(presentationProperty)
+
+  root.style.setProperty(layoutProperty, RESUME_MEASUREMENT_LAYOUT_SCALE)
+  root.style.setProperty(
+    presentationProperty,
+    RESUME_MEASUREMENT_PRESENTATION_SCALE
+  )
+
+  try {
+    return measure()
+  } finally {
+    if (previousLayout) {
+      root.style.setProperty(layoutProperty, previousLayout)
+    } else {
+      root.style.removeProperty(layoutProperty)
+    }
+
+    if (previousPresentation) {
+      root.style.setProperty(presentationProperty, previousPresentation)
+    } else {
+      root.style.removeProperty(presentationProperty)
+    }
+  }
+}
+
 // ── Hook ───────────────────────────────────────────────────────────
 
 /**
@@ -253,32 +288,40 @@ export function useResizeEngine(
       // satisfiable. If any bullet is impossible at minScale, keep the whole
       // resume at minScale so the line-limit failure is represented at the
       // smallest allowed global font size instead of scaling other content up.
-      const finalScale = chooseFinalGlobalScale({
-        minScale,
-        maxScale: MAX_SCALE,
-        impossibleKeys,
-        fitsAtScale,
-      })
+      const { finalScale, heightAtMinScale, finalHeight } =
+        withResumeMeasurementScale(root, () => {
+          const finalScale = chooseFinalGlobalScale({
+            minScale,
+            maxScale: MAX_SCALE,
+            impossibleKeys,
+            fitsAtScale,
+          })
 
+          root.style.setProperty('--global-scale', `${minScale}`)
+          const heightAtMinScale = pageRef.current!.getBoundingClientRect().height
+
+          root.style.setProperty('--global-scale', `${finalScale}`)
+          const finalHeight = pageRef.current!.getBoundingClientRect().height
+
+          return { finalScale, heightAtMinScale, finalHeight }
+        })
+
+      // The measurement scope restores the live resume presentation variables.
+      // Reapply the selected document scale to that live presentation.
       root.style.setProperty('--global-scale', `${finalScale}`)
 
       if (cancelled) return
 
       // ── Emit warnings for things that overflow even at minScale ──
       // impossibleKeys was already computed at minScale above — reuse it
-      // to avoid re-measuring. Set --global-scale to minScale only long
-      // enough to take the DOM height reading, then restore finalScale.
-      root.style.setProperty('--global-scale', `${minScale}`)
-      const heightAtMinScale = pageRef.current.getBoundingClientRect().height
+      // to avoid re-measuring.
       if (heightAtMinScale > pageHeightLimit) {
         newWarnings.set('global-overflow', true)
       }
       impossibleKeys.forEach(key => newWarnings.set(key, true))
-      // Restore finalScale after the minScale diagnostic pass.
-      root.style.setProperty('--global-scale', `${finalScale}`)
 
       // Update prevHeight so the fast path has an accurate baseline next run.
-      prevHeight.current = pageRef.current.getBoundingClientRect().height
+      prevHeight.current = finalHeight
 
       if (!cancelled) {
         setWarnings(newWarnings)

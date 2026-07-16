@@ -341,9 +341,9 @@ test.describe('unconfigured browser contracts', () => {
       expect(metrics.resumeViewportHeight, `resume viewport height at ${width}px`).toBe(
         metrics.resumeHeight
       )
-      expect(metrics.resumeOffsetWidth, `author width at ${width}px`).toBe(1836)
+      expect(metrics.resumeOffsetWidth, `author width at ${width}px`).toBe(3672)
       expect(metrics.resumeCssZoom, `CSS zoom at ${width}px`).toBe('1')
-      expect(metrics.representativeBulletFontSize, `author font at ${width}px`).toBeGreaterThanOrEqual(18)
+      expect(metrics.representativeBulletFontSize, `author font at ${width}px`).toBeGreaterThanOrEqual(36)
       expect(metrics.scrollerScrollWidth, `internal scale leak at ${width}px`).toBeLessThan(1000)
     }
 
@@ -353,7 +353,7 @@ test.describe('unconfigured browser contracts', () => {
     const resumeViewport = page.locator('.resume-viewport')
     const resume = page.locator('.resume-page')
     await resume.evaluate(element => {
-      element.style.minHeight = '3150px'
+      element.style.minHeight = '6300px'
     })
 
     await expect.poll(async () =>
