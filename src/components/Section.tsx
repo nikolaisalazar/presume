@@ -1,7 +1,7 @@
 import { EditableText } from './EditableText'
 import { Entry } from './Entry'
 import type { ResumeSection } from '../types'
-import type { Warnings } from '../useResizeEngine'
+import type { FormattingWarnings } from '../formatting'
 import {
   ReviewAnnotations,
   getReviewAnnotationsForTarget,
@@ -13,7 +13,7 @@ import { addEntry, removeEntry, updateEntry } from '../resumeOperations'
 interface SectionProps {
   section: ResumeSection
   sectionIdx: number
-  warnings: Warnings
+  warnings: FormattingWarnings
   reviewAnnotationTargets?: ReviewAnnotationTargets
   onChange: (section: ResumeSection) => void
   onRemove: () => void
