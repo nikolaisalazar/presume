@@ -27,6 +27,7 @@ export type ResumeReviewState =
 export type UseResumeReviewOptions = {
   resume: Resume
   globalScale: number
+  isScaleReady?: boolean
 }
 
 export type UseResumeReviewResult = {
@@ -37,6 +38,7 @@ export type UseResumeReviewResult = {
 export function useResumeReview({
   resume,
   globalScale,
+  isScaleReady = true,
 }: UseResumeReviewOptions): UseResumeReviewResult {
   const resumeKey = useMemo(() => serializeResume(resume), [resume])
   const currentResumeKeyRef = useRef(resumeKey)
@@ -109,6 +111,8 @@ export function useResumeReview({
   }, [resumeKey])
 
   const requestReview = useCallback(async () => {
+    if (!isScaleReady) return
+
     const requestId = activeRequestIdRef.current + 1
     activeRequestIdRef.current = requestId
 
@@ -163,7 +167,7 @@ export function useResumeReview({
         ...(previousReview.resultIsStale ? { resultIsStale: true } : {}),
       })
     }
-  }, [globalScale, resume, state])
+  }, [globalScale, isScaleReady, resume, state])
 
   return { state, requestReview }
 }

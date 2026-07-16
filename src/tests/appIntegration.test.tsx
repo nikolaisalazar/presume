@@ -8,6 +8,7 @@ import type { Resume } from '../types'
 const resizeWarningsMock = vi.hoisted(() => ({
   warnings: new Map<string, boolean>(),
   globalScale: 1.0584,
+  isReady: true,
 }))
 
 vi.mock('../useResizeEngine', () => ({
@@ -54,6 +55,7 @@ describe('App review availability boundaries', () => {
     vi.restoreAllMocks()
     vi.clearAllMocks()
     resizeWarningsMock.warnings = new Map()
+    resizeWarningsMock.isReady = true
     localStorage.clear()
     window.history.pushState({}, '', '/')
   })
@@ -388,6 +390,32 @@ describe('App review availability boundaries', () => {
 
     expect(await screen.findByRole('button', { name: 'Start review' })).toHaveAttribute('data-slot', 'button')
     expect(screen.queryByRole('complementary', { name: 'Resume review' })).not.toBeInTheDocument()
+  })
+
+  it('keeps PDF-dependent actions disabled until the current resume scale is ready', async () => {
+    resizeWarningsMock.isReady = false
+    vi.stubEnv('VITE_REVIEW_API_URL', 'https://reviews.example.test')
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            reviewEnabled: true,
+            llmProvider: 'ollama',
+            defaultModel: 'gemma3:4b',
+            githubEnrichmentEnabled: false,
+            maxUploadBytes: 10_485_760,
+          }),
+          { status: 200, headers: { 'content-type': 'application/json' } }
+        )
+      )
+    )
+
+    render(<App />)
+
+    expect(screen.getByRole('button', { name: 'Export PDF' })).toBeDisabled()
+    expect(await screen.findByRole('button', { name: 'Start review' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Export JSON' })).toBeEnabled()
   })
 
   it('keeps editing, persistence, export, and import available when review service is disabled', async () => {

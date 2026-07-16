@@ -10,6 +10,8 @@ import type { Resume } from '../types'
 import { RESUME_DOCUMENT, pxToPt } from '../resumeDocumentTokens'
 import regularFontUrl from '../assets/fonts/EBGaramond-Variable.ttf?url'
 import italicFontUrl from '../assets/fonts/EBGaramond-Italic-Variable.ttf?url'
+import boldFontUrl from '../assets/fonts/EBGaramond-Bold.ttf?url'
+import boldItalicFontUrl from '../assets/fonts/EBGaramond-BoldItalic.ttf?url'
 
 const PDF_FONT_FAMILY = 'Presume EB Garamond'
 const fontSource = (assetUrl: string, filename: string) =>
@@ -25,7 +27,7 @@ Font.register({
       fontWeight: 400,
     },
     {
-      src: fontSource(regularFontUrl, 'EBGaramond-Variable.ttf'),
+      src: fontSource(boldFontUrl, 'EBGaramond-Bold.ttf'),
       fontWeight: 700,
     },
     {
@@ -34,7 +36,7 @@ Font.register({
       fontWeight: 400,
     },
     {
-      src: fontSource(italicFontUrl, 'EBGaramond-Italic-Variable.ttf'),
+      src: fontSource(boldItalicFontUrl, 'EBGaramond-BoldItalic.ttf'),
       fontStyle: 'italic',
       fontWeight: 700,
     },
@@ -129,12 +131,14 @@ function createStyles(globalScale: number) {
     bulletRow: {
       display: 'flex',
       flexDirection: 'row',
+      position: 'relative',
       fontSize: scaledPt(RESUME_DOCUMENT.fontSizeBulletPx, globalScale),
       lineHeight: 1.3,
     },
     bulletMarker: {
+      position: 'absolute',
+      left: pxToPt(-8),
       width: pxToPt(8),
-      flexShrink: 0,
     },
     bulletText: {
       flexGrow: 1,
@@ -151,6 +155,9 @@ export function ResumePdfDocument({
   globalScale: number
 }) {
   const styles = createStyles(globalScale)
+  const firstBulletLinePresence =
+    pxToPt(RESUME_DOCUMENT.bulletListMarginYPx) +
+    scaledPt(RESUME_DOCUMENT.fontSizeBulletPx, globalScale) * 1.3
 
   return (
     <Document title={`${resume.name || 'Resume'} — Presume`}>
@@ -169,32 +176,57 @@ export function ResumePdfDocument({
             minPresenceAhead={pxToPt(28)}
           >
             <Text style={styles.sectionTitle}>{section.title}</Text>
-            {section.entries.map((entry, entryIndex) => (
-              <View key={entryIndex} style={styles.entry}>
-                {Boolean(entry.title || entry.dateRange) && (
-                  <View style={styles.row}>
-                    <Text style={[styles.title, styles.rowPrimary]}>{entry.title}</Text>
-                    <Text style={styles.date}>{entry.dateRange}</Text>
-                  </View>
-                )}
-                {Boolean(entry.subtitle || entry.location) && (
-                  <View style={styles.row}>
-                    <Text style={[styles.subtitle, styles.rowPrimary]}>{entry.subtitle}</Text>
-                    <Text style={styles.location}>{entry.location}</Text>
-                  </View>
-                )}
-                {entry.bullets.length > 0 && (
-                  <View style={styles.bullets}>
-                    {entry.bullets.filter(Boolean).map((bullet, bulletIndex) => (
-                      <View key={bulletIndex} style={styles.bulletRow}>
-                        <Text style={styles.bulletMarker}>•</Text>
-                        <Text style={styles.bulletText}>{bullet}</Text>
-                      </View>
-                    ))}
-                  </View>
-                )}
-              </View>
-            ))}
+            {section.entries.map((entry, entryIndex) => {
+              const bullets = entry.bullets.filter(Boolean)
+              const hasHeading = Boolean(
+                entry.title ||
+                  entry.dateRange ||
+                  entry.subtitle ||
+                  entry.location
+              )
+
+              return (
+                <View key={entryIndex} style={styles.entry}>
+                  {hasHeading ? (
+                    <View
+                      wrap={false}
+                      minPresenceAhead={
+                        bullets.length > 0 ? firstBulletLinePresence : 0
+                      }
+                    >
+                      {Boolean(entry.title || entry.dateRange) && (
+                        <View style={styles.row}>
+                          <Text style={[styles.title, styles.rowPrimary]}>{entry.title}</Text>
+                          <Text style={styles.date}>{entry.dateRange}</Text>
+                        </View>
+                      )}
+                      {Boolean(entry.subtitle || entry.location) && (
+                        <View style={styles.row}>
+                          <Text style={[styles.subtitle, styles.rowPrimary]}>{entry.subtitle}</Text>
+                          <Text style={styles.location}>{entry.location}</Text>
+                        </View>
+                      )}
+                    </View>
+                  ) : null}
+                  {bullets.length > 0 ? (
+                    <View style={styles.bullets}>
+                      {bullets.map((bullet, bulletIndex) => (
+                        <View key={bulletIndex + 1} style={styles.bulletRow}>
+                          <Text style={styles.bulletMarker}>•</Text>
+                          <Text
+                            style={styles.bulletText}
+                            orphans={bulletIndex === 0 ? 1 : undefined}
+                            widows={bulletIndex === 0 ? 1 : undefined}
+                          >
+                            {bullet}
+                          </Text>
+                        </View>
+                      ))}
+                    </View>
+                  ) : null}
+                </View>
+              )
+            })}
           </View>
         ))}
       </Page>

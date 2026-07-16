@@ -20,6 +20,7 @@ export interface ReviewRailProps {
   panelId: string
   onOpenPanel: () => void
   onRequestReview: () => void
+  pdfReady?: boolean
   actionRef?: React.Ref<HTMLElement>
   hidden?: boolean
 }
@@ -62,6 +63,7 @@ export function ReviewRail({
   panelId,
   onOpenPanel,
   onRequestReview,
+  pdfReady = true,
   actionRef,
   hidden,
 }: ReviewRailProps) {
@@ -106,6 +108,7 @@ export function ReviewRail({
           size="editor"
           className="shrink-0"
           onClick={action}
+          disabled={presentation.action === 'request' && !pdfReady}
           aria-label={accessibleAction}
           aria-controls={presentation.action === 'open' ? panelId : undefined}
           aria-expanded={presentation.action === 'open' ? false : undefined}

@@ -55,8 +55,8 @@ function EditorApp({ onOpenLanding }: { onOpenLanding: () => void }) {
   const reviewPanelRef = useRef<HTMLElement>(null)
   const reviewRailActionRef = useRef<HTMLElement>(null)
   const previousReviewPanelOpen = useRef(reviewPanelOpen)
-  const { warnings, globalScale } = useResizeEngine(resume, constraints, pageRef)
-  const review = useResumeReview({ resume, globalScale })
+  const { warnings, globalScale, isReady: isScaleReady } = useResizeEngine(resume, constraints, pageRef)
+  const review = useResumeReview({ resume, globalScale, isScaleReady })
   const reviewAnnotations =
     'result' in review.state && review.state.result
       ? review.state.result.annotations
@@ -121,6 +121,7 @@ function EditorApp({ onOpenLanding }: { onOpenLanding: () => void }) {
             <Toolbar
               resume={resume}
               globalScale={globalScale}
+              pdfReady={isScaleReady}
               onImport={setResume}
               onReset={() => setResume(DEFAULT_RESUME)}
             />
@@ -147,6 +148,7 @@ function EditorApp({ onOpenLanding }: { onOpenLanding: () => void }) {
             panelId={reviewPanelId}
             onOpenPanel={openReviewPanel}
             onRequestReview={requestReview}
+            pdfReady={isScaleReady}
             actionRef={reviewRailActionRef}
             hidden={reviewPanelOpen}
           />
@@ -155,6 +157,7 @@ function EditorApp({ onOpenLanding }: { onOpenLanding: () => void }) {
             id={reviewPanelId}
             state={review.state}
             onRequestReview={requestReview}
+            pdfReady={isScaleReady}
             onClose={closeReviewPanel}
             hidden={!reviewPanelOpen}
           />
