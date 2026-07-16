@@ -4,6 +4,7 @@ import {
   getImpossibleBulletKeys,
   checkBulletsFitAtScale,
   chooseFinalGlobalScale,
+  fitsWithinPageHeight,
   withResumeMeasurementScale,
 } from '../useResizeEngine'
 import type { Resume } from '../types'
@@ -42,13 +43,20 @@ describe('withResumeMeasurementScale', () => {
     }))
 
     expect(observed).toEqual({
-      layout: '18',
-      presentation: '0.05555555555555555',
+      layout: '100',
+      presentation: '0.01',
     })
     expect(root.style.getPropertyValue('--resume-layout-scale')).toBe('4.5')
     expect(root.style.getPropertyValue('--resume-presentation-scale')).toBe(
       '0.2222222222222222'
     )
+  })
+})
+
+describe('fitsWithinPageHeight', () => {
+  it('ignores subpixel page-edge noise without accepting meaningful overflow', () => {
+    expect(fitsWithinPageHeight(1056.0001, 1056)).toBe(true)
+    expect(fitsWithinPageHeight(1056.6, 1056)).toBe(false)
   })
 })
 

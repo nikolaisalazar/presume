@@ -7,10 +7,11 @@ import type { Resume } from '../types'
 
 const resizeWarningsMock = vi.hoisted(() => ({
   warnings: new Map<string, boolean>(),
+  globalScale: 1.0584,
 }))
 
 vi.mock('../useResizeEngine', () => ({
-  useResizeEngine: () => resizeWarningsMock.warnings,
+  useResizeEngine: () => resizeWarningsMock,
 }))
 
 vi.mock('../export', async importOriginal => {
@@ -153,7 +154,12 @@ describe('App review availability boundaries', () => {
     )
 
     fireEvent.click(screen.getByRole('button', { name: 'Export PDF' }))
-    await waitFor(() => expect(exportPDFMock).toHaveBeenCalledTimes(1))
+    await waitFor(() =>
+      expect(exportPDFMock).toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'Ada Lovelace' }),
+        1.0584
+      )
+    )
 
     const input = container.querySelector<HTMLInputElement>('input[type="file"]')
     expect(input).not.toBeNull()

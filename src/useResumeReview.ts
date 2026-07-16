@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { renderResumePageToPDFBlob } from './export'
+import { renderResumeToPDFBlob } from './export'
 import {
   fetchReviewConfig,
   getReviewApiState,
@@ -26,7 +26,7 @@ export type ResumeReviewState =
 
 export type UseResumeReviewOptions = {
   resume: Resume
-  pageRef: React.RefObject<HTMLElement>
+  globalScale: number
 }
 
 export type UseResumeReviewResult = {
@@ -36,7 +36,7 @@ export type UseResumeReviewResult = {
 
 export function useResumeReview({
   resume,
-  pageRef,
+  globalScale,
 }: UseResumeReviewOptions): UseResumeReviewResult {
   const resumeKey = useMemo(() => serializeResume(resume), [resume])
   const currentResumeKeyRef = useRef(resumeKey)
@@ -135,14 +135,10 @@ export function useResumeReview({
     const submittedResumeKey = currentResumeKeyRef.current
 
     try {
-      const pageElement = pageRef.current
-      if (!pageElement) {
-        throw new Error('Resume page is not available for review.')
-      }
-
-      const pdf = await renderResumePageToPDFBlob(pageElement, {
-        includeExtractableText: true,
-      })
+      // Let React commit and paint the loading state before the cached PDF
+      // renderer begins its CPU-heavy synchronous layout work on repeat reviews.
+      await yieldForBrowserPaint()
+      const pdf = await renderResumeToPDFBlob(resume, globalScale)
       const result = await submitResumeForReview(pdf)
       if (activeRequestIdRef.current !== requestId) {
         return
@@ -167,7 +163,7 @@ export function useResumeReview({
         ...(previousReview.resultIsStale ? { resultIsStale: true } : {}),
       })
     }
-  }, [pageRef, state])
+  }, [globalScale, resume, state])
 
   return { state, requestReview }
 }
@@ -198,4 +194,14 @@ function normalizeError(error: unknown): Error {
   return error instanceof Error
     ? error
     : new Error('Review request failed.')
+}
+
+function yieldForBrowserPaint(): Promise<void> {
+  if (typeof requestAnimationFrame !== 'function') {
+    return new Promise(resolve => setTimeout(resolve, 0))
+  }
+
+  return new Promise(resolve => {
+    requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+  })
 }

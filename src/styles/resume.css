@@ -1,3 +1,19 @@
+@font-face {
+  font-family: 'EB Garamond';
+  src: url('../assets/fonts/EBGaramond-Variable.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'EB Garamond';
+  src: url('../assets/fonts/EBGaramond-Italic-Variable.ttf') format('truetype');
+  font-style: italic;
+  font-weight: 400 700;
+  font-display: swap;
+}
+
 /* ── CSS Custom Properties ─────────────────────────────────────── */
 :root {
   --font-size-name: 24px;
@@ -93,6 +109,7 @@
   flex: 1;
   margin: 0 0 calc(3px * var(--resume-layout-scale));
   padding: 0;
+  padding-bottom: calc(1px * var(--resume-layout-scale));
 }
 
 /* ── Entry ───────────────────────────────────────────────────────── */

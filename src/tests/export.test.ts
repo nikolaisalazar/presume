@@ -1,399 +1,54 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { exportPDF, getPdfPageSlices, renderResumePageToPDFBlob } from '../export'
+import { DEFAULT_RESUME } from '../defaultResume'
+import { exportPDF, renderResumeToPDFBlob } from '../export'
+import { renderResumePdf } from '../pdf/renderResumePdf'
 
-const pdfMock = vi.hoisted(() => ({
-  addImage: vi.fn(),
-  addPage: vi.fn(),
-  setFontSize: vi.fn(),
-  setTextColor: vi.fn(),
-  text: vi.fn(),
-  output: vi.fn(),
-  save: vi.fn(),
-  constructor: vi.fn(),
+vi.mock('../pdf/renderResumePdf', () => ({
+  renderResumePdf: vi.fn(),
 }))
 
-const html2canvasMock = vi.hoisted(() => vi.fn())
+const renderResumePdfMock = vi.mocked(renderResumePdf)
 
-vi.mock('html2canvas', () => ({
-  default: html2canvasMock,
-}))
-
-vi.mock('jspdf', () => ({
-  jsPDF: vi.fn(options => {
-    pdfMock.constructor(options)
-    return {
-      addImage: pdfMock.addImage,
-      addPage: pdfMock.addPage,
-      setFontSize: pdfMock.setFontSize,
-      setTextColor: pdfMock.setTextColor,
-      text: pdfMock.text,
-      output: pdfMock.output,
-      save: pdfMock.save,
-    }
-  }),
-}))
-
-describe('getPdfPageSlices', () => {
-  it('returns one slice for one Letter-height canvas', () => {
-    expect(getPdfPageSlices(850, 1100)).toEqual([
-      { sourceY: 0, sourceHeight: 1100 },
-    ])
-  })
-
-  it('returns multiple slices for a multi-page canvas', () => {
-    expect(getPdfPageSlices(850, 2420)).toEqual([
-      { sourceY: 0, sourceHeight: 1100 },
-      { sourceY: 1100, sourceHeight: 1100 },
-      { sourceY: 2200, sourceHeight: 220 },
-    ])
-  })
-
-  it('rejects invalid dimensions', () => {
-    expect(() => getPdfPageSlices(0, 1100)).toThrow(
-      'Canvas dimensions must be positive.'
-    )
-    expect(() => getPdfPageSlices(850, 0)).toThrow(
-      'Canvas dimensions must be positive.'
-    )
-  })
-})
-
-describe('exportPDF', () => {
-  const originalCreateElement = document.createElement.bind(document)
-  const createdCanvases: Array<{
-    canvas: HTMLCanvasElement
-    drawImage: ReturnType<typeof vi.fn>
-  }> = []
+describe('canonical PDF export', () => {
+  const pdf = new Blob(['%PDF-1.7'], { type: 'application/pdf' })
+  const click = vi.fn()
 
   beforeEach(() => {
-    pdfMock.addImage.mockClear()
-    pdfMock.addPage.mockClear()
-    pdfMock.setFontSize.mockClear()
-    pdfMock.setTextColor.mockClear()
-    pdfMock.text.mockClear()
-    pdfMock.output.mockClear()
-    pdfMock.save.mockClear()
-    pdfMock.constructor.mockClear()
-    html2canvasMock.mockReset()
-    createdCanvases.length = 0
-
-    vi.spyOn(document, 'createElement').mockImplementation(tagName => {
-      if (tagName.toLowerCase() !== 'canvas') {
-        return originalCreateElement(tagName)
-      }
-
-      const drawImage = vi.fn()
-      const canvas = {
-        width: 0,
-        height: 0,
-        getContext: vi.fn(() => ({ drawImage })),
-        toDataURL: vi.fn(() => `data:image/png;base64,page-${createdCanvases.length}`),
-      } as unknown as HTMLCanvasElement
-
-      createdCanvases.push({ canvas, drawImage })
-      return canvas
+    renderResumePdfMock.mockResolvedValue(pdf)
+    Object.defineProperty(URL, 'createObjectURL', {
+      configurable: true,
+      value: vi.fn(() => 'blob:resume'),
     })
+    Object.defineProperty(URL, 'revokeObjectURL', {
+      configurable: true,
+      value: vi.fn(),
+    })
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(click)
   })
 
   afterEach(() => {
+    vi.useRealTimers()
     vi.restoreAllMocks()
+    vi.clearAllMocks()
   })
 
-  it('writes each Letter-height canvas slice to a separate PDF page', async () => {
-    const sourceCanvas = {
-      width: 850,
-      height: 2420,
-    } as HTMLCanvasElement
-    const pageElement = document.createElement('div')
-    pageElement.style.overflow = 'visible'
-    html2canvasMock.mockResolvedValue(sourceCanvas)
+  it('renders resume data at the selected scale without reading DOM geometry', async () => {
+    await expect(renderResumeToPDFBlob(DEFAULT_RESUME, 1.0584)).resolves.toBe(pdf)
 
-    await exportPDF(pageElement)
-
-    expect(html2canvasMock).toHaveBeenCalledWith(pageElement, {
-      scale: 2,
-      useCORS: true,
-      logging: false,
-      backgroundColor: '#ffffff',
-    })
-    expect(pdfMock.constructor).toHaveBeenCalledWith({
-      orientation: 'portrait',
-      unit: 'in',
-      format: 'letter',
-    })
-    expect(pdfMock.addPage).toHaveBeenCalledTimes(2)
-    expect(pdfMock.addPage).toHaveBeenNthCalledWith(1, 'letter', 'portrait')
-    expect(pdfMock.addPage).toHaveBeenNthCalledWith(2, 'letter', 'portrait')
-    expect(pdfMock.addImage).toHaveBeenCalledTimes(3)
-    expect(pdfMock.addImage).toHaveBeenNthCalledWith(
-      1,
-      'data:image/png;base64,page-1',
-      'PNG',
-      0,
-      0,
-      8.5,
-      11
-    )
-    expect(pdfMock.addImage).toHaveBeenNthCalledWith(
-      2,
-      'data:image/png;base64,page-2',
-      'PNG',
-      0,
-      0,
-      8.5,
-      11
-    )
-    expect(pdfMock.addImage).toHaveBeenNthCalledWith(
-      3,
-      'data:image/png;base64,page-3',
-      'PNG',
-      0,
-      0,
-      8.5,
-      2.2
-    )
-    expect(createdCanvases.map(({ canvas }) => canvas.height)).toEqual([
-      1100,
-      1100,
-      220,
-    ])
-    expect(createdCanvases[0].drawImage).toHaveBeenCalledWith(
-      sourceCanvas,
-      0,
-      0,
-      850,
-      1100,
-      0,
-      0,
-      850,
-      1100
-    )
-    expect(createdCanvases[1].drawImage).toHaveBeenCalledWith(
-      sourceCanvas,
-      0,
-      1100,
-      850,
-      1100,
-      0,
-      0,
-      850,
-      1100
-    )
-    expect(createdCanvases[2].drawImage).toHaveBeenCalledWith(
-      sourceCanvas,
-      0,
-      2200,
-      850,
-      220,
-      0,
-      0,
-      850,
-      220
-    )
-    expect(pdfMock.save).toHaveBeenCalledWith('resume.pdf')
-    expect(pageElement.style.overflow).toBe('visible')
+    expect(renderResumePdfMock).toHaveBeenCalledWith(DEFAULT_RESUME, 1.0584)
   })
 
-  it('hides editor-only controls during PDF capture and restores them afterward', async () => {
-    const sourceCanvas = {
-      width: 850,
-      height: 1100,
-    } as HTMLCanvasElement
-    const pageElement = document.createElement('div')
-    pageElement.className = 'resume-page'
-    const resumeContent = document.createElement('span')
-    resumeContent.textContent = 'Resume content'
-    const addButton = document.createElement('button')
-    addButton.className = 'add-btn'
-    addButton.textContent = '+ section'
-    const removeButton = document.createElement('button')
-    removeButton.className = 'remove-btn'
-    removeButton.textContent = '- section'
-    removeButton.style.visibility = 'visible'
-    pageElement.append(resumeContent, addButton, removeButton)
+  it('downloads the canonical blob and schedules its object URL for release', async () => {
+    vi.useFakeTimers()
 
-    html2canvasMock.mockImplementation(async () => {
-      expect(resumeContent.textContent).toBe('Resume content')
-      expect(addButton.style.visibility).toBe('hidden')
-      expect(removeButton.style.visibility).toBe('hidden')
-      return sourceCanvas
-    })
+    await exportPDF(DEFAULT_RESUME, 1.0584)
 
-    await exportPDF(pageElement)
-
-    expect(html2canvasMock).toHaveBeenCalledTimes(1)
-    expect(addButton.style.visibility).toBe('')
-    expect(removeButton.style.visibility).toBe('visible')
-    expect(pdfMock.save).toHaveBeenCalledWith('resume.pdf')
-  })
-
-  it('restores hidden editor controls when PDF capture fails', async () => {
-    const pageElement = document.createElement('div')
-    const addButton = document.createElement('button')
-    addButton.className = 'add-btn'
-    addButton.textContent = '+ section'
-    pageElement.append(addButton)
-    html2canvasMock.mockRejectedValue(new Error('canvas failed'))
-
-    await expect(exportPDF(pageElement)).rejects.toThrow('canvas failed')
-
-    expect(addButton.style.visibility).toBe('')
-    expect(pdfMock.save).not.toHaveBeenCalled()
-  })
-
-  it('does not add extra PDF pages for a one-page canvas', async () => {
-    const sourceCanvas = {
-      width: 850,
-      height: 1100,
-    } as HTMLCanvasElement
-    html2canvasMock.mockResolvedValue(sourceCanvas)
-
-    await exportPDF(document.createElement('div'))
-
-    expect(pdfMock.addPage).not.toHaveBeenCalled()
-    expect(pdfMock.addImage).toHaveBeenCalledTimes(1)
-    expect(pdfMock.addImage).toHaveBeenCalledWith(
-      'data:image/png;base64,page-1',
-      'PNG',
-      0,
-      0,
-      8.5,
-      11
-    )
-    expect(pdfMock.text).not.toHaveBeenCalled()
-    expect(pdfMock.save).toHaveBeenCalledWith('resume.pdf')
-  })
-
-  it('renders each Letter-height canvas slice to a PDF blob without downloading', async () => {
-    const sourceCanvas = {
-      width: 850,
-      height: 2420,
-    } as HTMLCanvasElement
-    const pageElement = document.createElement('div')
-    const blob = new Blob(['pdf'], { type: 'application/pdf' })
-    html2canvasMock.mockResolvedValue(sourceCanvas)
-    pdfMock.output.mockReturnValue(blob)
-
-    await expect(renderResumePageToPDFBlob(pageElement)).resolves.toBe(blob)
-
-    expect(pdfMock.addPage).toHaveBeenCalledTimes(2)
-    expect(pdfMock.addImage).toHaveBeenCalledTimes(3)
-    expect(pdfMock.output).toHaveBeenCalledWith('blob')
-    expect(pdfMock.save).not.toHaveBeenCalled()
-  })
-
-  it('can add extractable resume text to review PDF blobs without editor controls', async () => {
-    const sourceCanvas = {
-      width: 850,
-      height: 1100,
-    } as HTMLCanvasElement
-    const pageElement = document.createElement('div')
-    pageElement.innerHTML = `
-      <span class="resume-name">Alex Johnson</span>
-      <li class="resume-contact-item">
-        alex@example.com
-        <button class="remove-btn">-</button>
-      </li>
-      <span class="resume-section-title">Experience</span>
-      <span class="entry-title">Software Engineer</span>
-      <span class="entry-date">2023 - Present</span>
-      <span class="entry-subtitle">Acme</span>
-      <span class="entry-location">Remote</span>
-      <li class="bullet-item">
-        Built review tooling.
-        <button class="remove-btn">-</button>
-      </li>
-      <button class="add-btn">+ section</button>
-    `
-    const blob = new Blob(['pdf'], { type: 'application/pdf' })
-    html2canvasMock.mockResolvedValue(sourceCanvas)
-    pdfMock.output.mockReturnValue(blob)
-
-    await expect(
-      renderResumePageToPDFBlob(pageElement, { includeExtractableText: true })
-    ).resolves.toBe(blob)
-
-    expect(pdfMock.addImage).toHaveBeenCalledTimes(1)
-    expect(pdfMock.addPage).toHaveBeenCalledWith('letter', 'portrait')
-    expect(pdfMock.setFontSize).toHaveBeenCalledWith(8)
-    expect(pdfMock.setTextColor).toHaveBeenCalledWith(255, 255, 255)
-    const writtenText = pdfMock.text.mock.calls
-      .map(([text]) => text)
-      .join('\n')
-    expect(writtenText).toContain('Alex Johnson')
-    expect(writtenText).toContain('Experience')
-    expect(writtenText).toContain('Built review tooling.')
-    expect(writtenText).not.toContain('+ section')
-  })
-
-  it('excludes hidden and editor-only resume text from review PDF blobs', async () => {
-    const sourceCanvas = {
-      width: 850,
-      height: 1100,
-    } as HTMLCanvasElement
-    const pageElement = document.createElement('div')
-    pageElement.innerHTML = `
-      <span class="resume-name">Alex Johnson</span>
-      <span class="entry-title">Visible Role</span>
-      <span class="entry-title" hidden>Hidden Role</span>
-      <li class="bullet-item">Visible impact.</li>
-      <li class="bullet-item" style="display: none">Hidden display impact.</li>
-      <li class="bullet-item" style="visibility: hidden">Hidden visibility impact.</li>
-      <section aria-hidden="true">
-        <li class="bullet-item">Aria hidden impact.</li>
-      </section>
-      <section data-editor-only="true">
-        <span class="entry-title">Editor-only draft role</span>
-        <li class="bullet-item">Editor-only draft impact.</li>
-      </section>
-      <li class="bullet-item">
-        Shipped visible work.
-        <span style="display: none">Hidden nested impact.</span>
-        <span style="visibility: hidden">Invisible nested impact.</span>
-        <span hidden>Hidden attr nested impact.</span>
-        <span aria-hidden="true">Aria nested impact.</span>
-        <button class="remove-btn">Remove visible work</button>
-        <span data-editor-only="true">Editor hint</span>
-      </li>
-    `
-    const blob = new Blob(['pdf'], { type: 'application/pdf' })
-    html2canvasMock.mockResolvedValue(sourceCanvas)
-    pdfMock.output.mockReturnValue(blob)
-
-    await expect(
-      renderResumePageToPDFBlob(pageElement, { includeExtractableText: true })
-    ).resolves.toBe(blob)
-
-    const writtenText = pdfMock.text.mock.calls
-      .map(([text]) => text)
-      .join('\n')
-    expect(writtenText).toContain('Visible Role')
-    expect(writtenText).toContain('Visible impact.')
-    expect(writtenText).toContain('Shipped visible work.')
-    expect(writtenText).not.toContain('Hidden Role')
-    expect(writtenText).not.toContain('Hidden display impact.')
-    expect(writtenText).not.toContain('Hidden visibility impact.')
-    expect(writtenText).not.toContain('Aria hidden impact.')
-    expect(writtenText).not.toContain('Editor-only draft role')
-    expect(writtenText).not.toContain('Editor-only draft impact.')
-    expect(writtenText).not.toContain('Hidden nested impact.')
-    expect(writtenText).not.toContain('Invisible nested impact.')
-    expect(writtenText).not.toContain('Hidden attr nested impact.')
-    expect(writtenText).not.toContain('Aria nested impact.')
-    expect(writtenText).not.toContain('Remove visible work')
-    expect(writtenText).not.toContain('Editor hint')
-  })
-
-  it('surfaces PDF blob generation errors to callers', async () => {
-    const pageElement = document.createElement('div')
-    pageElement.style.overflow = 'visible'
-    const error = new Error('canvas failed')
-    html2canvasMock.mockRejectedValue(error)
-
-    await expect(renderResumePageToPDFBlob(pageElement)).rejects.toThrow(
-      'canvas failed'
-    )
-    expect(pageElement.style.overflow).toBe('visible')
-    expect(pdfMock.save).not.toHaveBeenCalled()
+    expect(renderResumePdfMock).toHaveBeenCalledWith(DEFAULT_RESUME, 1.0584)
+    expect(URL.createObjectURL).toHaveBeenCalledWith(pdf)
+    expect(click).toHaveBeenCalledTimes(1)
+    expect(URL.revokeObjectURL).not.toHaveBeenCalled()
+    vi.runAllTimers()
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:resume')
+    vi.useRealTimers()
   })
 })

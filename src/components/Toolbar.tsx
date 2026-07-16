@@ -5,18 +5,17 @@ import { Button } from './ui/button'
 
 interface ToolbarProps {
   resume: Resume
-  pageRef: React.RefObject<HTMLElement | null>
+  globalScale: number
   onImport: (resume: Resume) => void
   onReset: () => void
 }
 
-export function Toolbar({ resume, pageRef, onImport, onReset }: ToolbarProps) {
+export function Toolbar({ resume, globalScale, onImport, onReset }: ToolbarProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleExportPDF = async () => {
-    if (!pageRef.current) return
     try {
-      await exportPDF(pageRef.current)
+      await exportPDF(resume, globalScale)
     } catch (err) {
       alert(`PDF export failed: ${err instanceof Error ? err.message : String(err)}`)
     }

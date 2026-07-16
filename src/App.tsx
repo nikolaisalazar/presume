@@ -55,8 +55,8 @@ function EditorApp({ onOpenLanding }: { onOpenLanding: () => void }) {
   const reviewPanelRef = useRef<HTMLElement>(null)
   const reviewRailActionRef = useRef<HTMLElement>(null)
   const previousReviewPanelOpen = useRef(reviewPanelOpen)
-  const warnings = useResizeEngine(resume, constraints, pageRef)
-  const review = useResumeReview({ resume, pageRef })
+  const { warnings, globalScale } = useResizeEngine(resume, constraints, pageRef)
+  const review = useResumeReview({ resume, globalScale })
   const reviewAnnotations =
     'result' in review.state && review.state.result
       ? review.state.result.annotations
@@ -120,7 +120,7 @@ function EditorApp({ onOpenLanding }: { onOpenLanding: () => void }) {
           >
             <Toolbar
               resume={resume}
-              pageRef={pageRef}
+              globalScale={globalScale}
               onImport={setResume}
               onReset={() => setResume(DEFAULT_RESUME)}
             />

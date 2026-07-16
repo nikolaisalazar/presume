@@ -1,18 +1,24 @@
 import { useEffect, useRef, useState } from 'react'
 import { prepareWithSegments, measureLineStats } from '@chenglou/pretext'
 import type { Constraints, Resume } from './types'
+import { RESUME_DOCUMENT } from './resumeDocumentTokens'
 
 // ── Constants ──────────────────────────────────────────────────────
-// COLUMN_WIDTH = page width (816) - left margin (48) - right margin (48) - bullet indent (16)
-// If --page-margin-x or --bullet-indent change in resume.css, update this constant too.
-const PAGE_HEIGHT_PX = 1056
-const COLUMN_WIDTH = 704
-const DEFAULT_BULLET_SIZE = 10  // px, must match --font-size-bullet in resume.css
-const RESUME_FONT = 'EB Garamond'
+const PAGE_HEIGHT_PX = RESUME_DOCUMENT.pageHeightPx
+const COLUMN_WIDTH =
+  RESUME_DOCUMENT.pageWidthPx -
+  RESUME_DOCUMENT.pageMarginXPx * 2 -
+  RESUME_DOCUMENT.bulletIndentPx
+const DEFAULT_BULLET_SIZE = RESUME_DOCUMENT.fontSizeBulletPx
+const RESUME_FONT = RESUME_DOCUMENT.fontFamily
 const MAX_SCALE = 2.0            // maximum --global-scale when scaling up to fill the page
 
 // ── Public types ───────────────────────────────────────────────────
 export type Warnings = Map<string, boolean>
+export type ResizeEngineResult = {
+  warnings: Warnings
+  globalScale: number
+}
 
 // ── Pure helpers (exported for testing) ───────────────────────────
 
@@ -151,8 +157,16 @@ export function chooseFinalGlobalScale({
   )
 }
 
-const RESUME_MEASUREMENT_LAYOUT_SCALE = '18'
-const RESUME_MEASUREMENT_PRESENTATION_SCALE = '0.05555555555555555'
+const PAGE_HEIGHT_TOLERANCE_PX = 0.5
+const RESUME_MEASUREMENT_LAYOUT_SCALE = '100'
+const RESUME_MEASUREMENT_PRESENTATION_SCALE = '0.01'
+
+export function fitsWithinPageHeight(
+  measuredHeight: number,
+  pageHeightLimit: number
+): boolean {
+  return measuredHeight <= pageHeightLimit + PAGE_HEIGHT_TOLERANCE_PX
+}
 
 export function withResumeMeasurementScale<T>(
   root: HTMLElement,
@@ -197,16 +211,18 @@ export function withResumeMeasurementScale<T>(
  * defined relative to --global-scale, so every element grows and shrinks
  * together, preserving the typographic hierarchy.
  *
- * Writes --global-scale to document.documentElement and returns a Warnings map
- * keyed by "bullet-{s}-{e}-{b}" (bullet overflows even at minScale) or
- * "global-overflow" (page overflows even at minScale).
+ * Writes --global-scale to document.documentElement and returns both the
+ * selected scale and a Warnings map keyed by "bullet-{s}-{e}-{b}" (bullet
+ * overflows even at minScale) or "global-overflow" (page overflows even at
+ * minScale).
  */
 export function useResizeEngine(
   resume: Resume,
   constraints: Constraints,
   pageRef: React.RefObject<HTMLElement | null>
-): Warnings {
+): ResizeEngineResult {
   const [warnings, setWarnings] = useState<Warnings>(new Map())
+  const [globalScale, setGlobalScale] = useState(1)
   const prevBulletTexts = useRef<string[]>([])
   const prevHeight = useRef<number>(0)
 
@@ -279,7 +295,7 @@ export function useResizeEngine(
       const fitsAtScale = (scale: number): boolean => {
         root.style.setProperty('--global-scale', `${scale}`)
         const height = pageRef.current!.getBoundingClientRect().height
-        if (height > pageHeightLimit) return false
+        if (!fitsWithinPageHeight(height, pageHeightLimit)) return false
         return checkBulletsFitAtScale(resume, scale, impossibleKeys, maxLinesPerBullet, measureBulletLines)
       }
 
@@ -311,11 +327,12 @@ export function useResizeEngine(
       root.style.setProperty('--global-scale', `${finalScale}`)
 
       if (cancelled) return
+      setGlobalScale(finalScale)
 
       // ── Emit warnings for things that overflow even at minScale ──
       // impossibleKeys was already computed at minScale above — reuse it
       // to avoid re-measuring.
-      if (heightAtMinScale > pageHeightLimit) {
+      if (!fitsWithinPageHeight(heightAtMinScale, pageHeightLimit)) {
         newWarnings.set('global-overflow', true)
       }
       impossibleKeys.forEach(key => newWarnings.set(key, true))
@@ -334,5 +351,5 @@ export function useResizeEngine(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resume, constraints])
 
-  return warnings
+  return { warnings, globalScale }
 }

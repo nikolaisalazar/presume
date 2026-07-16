@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 
 const appCss = readFileSync(`${process.cwd()}/src/styles/app.css`, 'utf8')
+const resumeCss = readFileSync(`${process.cwd()}/src/styles/resume.css`, 'utf8')
 
 describe('custom editor CSS invariants', () => {
   it('keeps named fixed-canvas and derived wide-workspace geometry', () => {
@@ -25,6 +26,12 @@ describe('custom editor CSS invariants', () => {
     expect(appCss).toContain('.remove-btn')
     expect(appCss).toContain('@media print')
     expect(appCss).toContain("[data-editor-only='true']")
+  })
+
+  it('keeps a canonical gap between section headings and their rules', () => {
+    expect(resumeCss).toContain(
+      'padding-bottom: calc(1px * var(--resume-layout-scale));'
+    )
   })
 
   it('does not retain superseded shell generations', () => {

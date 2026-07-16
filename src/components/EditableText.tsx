@@ -48,7 +48,10 @@ export function EditableText({
       }}
       onBlur={e => {
         focused.current = false
-        onChange(e.currentTarget.textContent ?? '')
+        const nextValue = e.currentTarget.textContent ?? ''
+        if (nextValue !== value) {
+          onChange(nextValue)
+        }
       }}
       onInput={e => {
         onChange((e.currentTarget as HTMLSpanElement).textContent ?? '')
