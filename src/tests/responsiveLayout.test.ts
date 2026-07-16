@@ -7,6 +7,7 @@ const resumeCss = readFileSync(`${process.cwd()}/src/styles/resume.css`, 'utf8')
 describe('custom editor CSS invariants', () => {
   it('keeps named fixed-canvas and derived wide-workspace geometry', () => {
     expect(appCss).toContain('--editor-shell-width: calc(var(--page-width) + (var(--stage-padding) * 2) + 32px);')
+    expect(appCss).toContain('--editor-rail-height: calc(3.75rem + 2px);')
     expect(appCss).toContain('--wide-workspace-width: 1660px;')
     expect(appCss).toContain('@media (min-width: 1640px)')
     expect(appCss).toContain('grid-template-columns: minmax(320px, 1fr) var(--editor-shell-width) minmax(320px, 1fr);')
@@ -15,6 +16,7 @@ describe('custom editor CSS invariants', () => {
   it('keeps fixed-canvas scrolling and the 3px review progress hook custom', () => {
     expect(appCss).toContain('.resume-canvas-scroll')
     expect(appCss).toContain('overflow-x: auto')
+    expect(appCss).not.toContain('scrollbar-gutter: stable both-edges')
     expect(appCss).toContain('.review-rail__progress')
     expect(appCss).toContain('height: 3px')
   })

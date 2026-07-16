@@ -21,6 +21,7 @@
   --stage-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(229, 236, 245, 0.72));
   --stage-padding: 24px;
   --editor-shell-width: calc(var(--page-width) + (var(--stage-padding) * 2) + 32px);
+  --editor-rail-height: calc(3.75rem + 2px);
   --wide-workspace-width: 1660px;
   --editor-control-resting-opacity: 0.34;
   --shadow-panel: 0 18px 42px rgba(15, 23, 42, 0.09);
@@ -110,7 +111,6 @@ body {
   overflow-x: auto;
   overflow-y: visible;
   padding: var(--stage-padding);
-  scrollbar-gutter: stable both-edges;
   border: 1px solid rgba(148, 163, 184, 0.38);
   border-radius: 12px;
   background: var(--stage-surface);
@@ -379,6 +379,29 @@ body {
   .fit-region {
     width: min(360px, 100%);
     justify-self: end;
+  }
+
+  .fit-region,
+  .document-actions-surface,
+  .review-rail {
+    min-height: var(--editor-rail-height);
+  }
+
+  .fit-region:has(> .settings-panel[data-closed]) {
+    height: var(--editor-rail-height);
+  }
+
+  .fit-region > .settings-panel[data-closed] {
+    height: 100%;
+  }
+
+  .fit-region > .settings-panel > [data-slot='collapsible-trigger'] {
+    height: calc(var(--editor-rail-height) - 2px);
+    min-height: calc(var(--editor-rail-height) - 2px);
+  }
+
+  .review-rail {
+    height: var(--editor-rail-height);
   }
 
   .review-region {

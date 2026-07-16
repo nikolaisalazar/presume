@@ -188,7 +188,7 @@ test.describe('unconfigured browser contracts', () => {
     expect.soft(at921.previewWithinHero, 'preview bounds at 921px').toBe(true)
   })
 
-  test('keeps expanded fit constraints usable at narrow widths', async ({ page }) => {
+  test('keeps the Fit constraints header stable and its expanded controls usable', async ({ page }) => {
     await page.setViewportSize({ width: 358, height: 980 })
     await page.addInitScript(() => {
       localStorage.setItem('presume:constraints', JSON.stringify({
@@ -256,6 +256,18 @@ test.describe('unconfigured browser contracts', () => {
     )
     expect(boundaryCollapsedHeight).toBe(48)
     expect(boundaryExpandedHeight).toBe(boundaryCollapsedHeight)
+
+    await page.setViewportSize({ width: 1920, height: 1100 })
+    await page.reload()
+    const wideTrigger = page.getByRole('button', { name: /Fit constraints/ })
+    const wideCollapsedHeight = await wideTrigger.evaluate(element =>
+      Math.round(element.getBoundingClientRect().height)
+    )
+    await wideTrigger.click()
+    const wideExpandedHeight = await wideTrigger.evaluate(element =>
+      Math.round(element.getBoundingClientRect().height)
+    )
+    expect(wideExpandedHeight).toBe(wideCollapsedHeight)
   })
 
   test('keeps viewport overflow inside the fixed resume canvas scroller at narrow widths', async ({ page }) => {
@@ -268,14 +280,21 @@ test.describe('unconfigured browser contracts', () => {
         const fit = document.querySelector('.fit-region')!.getBoundingClientRect()
         const editor = document.querySelector('.editor-panel')!.getBoundingClientRect()
         const review = document.querySelector('.review-region')!.getBoundingClientRect()
+        const actions = document.querySelector('[data-slot="document-actions"]')!.getBoundingClientRect()
+        const reviewRail = document.querySelector('[data-slot="review-rail"]')!.getBoundingClientRect()
         const resume = document.querySelector('.resume-page')!.getBoundingClientRect()
         const scroller = document.querySelector('.resume-canvas-scroll') as HTMLElement
+        const scrollerRect = scroller.getBoundingClientRect()
         return {
           header: { left: header.left, right: header.right, width: header.width },
           workspace: { left: workspace.left, right: workspace.right },
           fit: { left: fit.left, right: fit.right, top: fit.top, bottom: fit.bottom, width: fit.width },
           editor: { left: editor.left, right: editor.right, top: editor.top, bottom: editor.bottom, width: editor.width },
           review: { left: review.left, right: review.right, top: review.top, bottom: review.bottom, width: review.width },
+          actionsHeight: actions.height,
+          reviewRailHeight: reviewRail.height,
+          scroller: { left: scrollerRect.left, right: scrollerRect.right },
+          resume: { left: resume.left, right: resume.right },
           resumeWidth: resume.width,
           documentWidth: document.documentElement.scrollWidth,
           viewportWidth: document.documentElement.clientWidth,
@@ -372,6 +391,14 @@ test.describe('unconfigured browser contracts', () => {
     const wideMax = await editorGeometry(1920)
     expect(wideMax.fit.width).toBe(360)
     expect(wideMax.review.width).toBe(360)
+    expect(Math.abs(wideMax.fit.bottom - wideMax.fit.top - wideMax.actionsHeight)).toBeLessThanOrEqual(1)
+    expect(Math.abs(wideMax.reviewRailHeight - wideMax.actionsHeight)).toBeLessThanOrEqual(1)
+    expect(
+      Math.abs(
+        (wideMax.resume.left + wideMax.resume.right) / 2 -
+        (wideMax.scroller.left + wideMax.scroller.right) / 2
+      )
+    ).toBeLessThanOrEqual(1)
 
     const constrained = await editorGeometry(1639)
     expect(constrained.fit.bottom).toBeLessThanOrEqual(constrained.editor.top)
