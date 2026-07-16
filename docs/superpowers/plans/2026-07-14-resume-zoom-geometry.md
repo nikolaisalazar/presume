@@ -4,7 +4,7 @@
 
 **Goal:** Preserve the resume's canonical Letter-page proportions, typography, wrapping, and global scale when Safari/WebKit browser zoom decreases from 100% through 50%.
 
-**Architecture:** Add a document-specific `ResumeViewport` around the existing `ResumePage`. The page uses genuine CSS author dimensions at 2.25× every canonical resume-internal length and is presented through an exact inverse transform; CSS `zoom` is prohibited because native QA proved it quantizes line boxes differently at different browser zoom levels. The viewport exposes only the canonical 816px width and complete canonical height to the canvas scroller, while the existing page ref remains attached to `ResumePage` so Fit Constraints, PDF export, and Review keep their current interfaces.
+**Architecture:** Add a document-specific `ResumeViewport` around the existing `ResumePage`. The live page uses genuine CSS author dimensions at 4.5x every canonical resume-internal length and is presented through an exact inverse transform; CSS `zoom` is prohibited. During synchronous Fit measurement only, the same page is temporarily supersampled at 18x with an exact inverse so physical-pixel rounding cannot change the selected global scale across browser zoom levels. The viewport exposes only the canonical 816px width and complete canonical height to the canvas scroller, while the existing page ref remains attached to `ResumePage` so Fit Constraints, PDF export, and Review keep their current interfaces.
 
 **Tech Stack:** Vite, React 18, TypeScript, CSS, Vitest, Playwright, html2canvas, jsPDF, cmux WebKit browser.
 
@@ -12,7 +12,7 @@
 
 - The current 100% browser-zoom resume composition is authoritative.
 - Browser zoom may change apparent size but must not change resume proportions, wrapping, page count, or selected `--global-scale`.
-- Use genuine 2.25× CSS author dimensions and their exact inverse presentation transform; do not use CSS `zoom` or detect browser zoom, device-pixel ratio, or user agent.
+- Use genuine 4.5x CSS author dimensions and their exact inverse presentation transform for the live editor. Use an 18x/1/18 pair only during synchronous resize measurement. Do not use CSS `zoom` or detect browser zoom, device-pixel ratio, or user agent.
 - Preserve direct inline editing, Pretext/global resizing, PDF export, Review capture, JSON import/export, LocalStorage, routing, and the fixed-width narrow-screen scroller.
 - Treat 816×1056px as one Letter-page unit; do not clip legitimate multi-page content.
 - Do not change resume data schemas, constraint bounds, typography, margins, colors, or editor-shell composition.
@@ -25,7 +25,9 @@
 
 - Create `src/components/ResumeViewport.tsx`: own the canonical viewport height and observe the transformed page's complete visual geometry.
 - Modify `src/App.tsx`: compose `ResumeViewport` around the existing `ResumePage` while leaving `pageRef` on `ResumePage`.
-- Modify `src/styles/resume.css`: define the 2.25× author-coordinate scale, inverse presentation transform, fixed viewport geometry, and mechanically scaled resume-internal lengths.
+- Modify `src/styles/resume.css`: define the 4.5x live author-coordinate scale, inverse presentation transform, fixed viewport geometry, and mechanically scaled resume-internal lengths.
+- Modify `src/useResizeEngine.ts`: temporarily apply the 18x measurement scale around the complete synchronous DOM-height search and restore the live variables in `finally`.
+- Modify `src/tests/resizeEngine.test.ts`: add one focused restoration contract for the temporary measurement scope.
 - Modify `src/styles/app.css`: mechanically scale only the in-document editor-control lengths that are transformed with the resume.
 - Modify `e2e/unconfigured.spec.ts`: extend the existing fixed-canvas contract to catch leaked internal dimensions, clipping, and narrow-screen regressions without adding another broad E2E case.
 - Modify this plan: record completed commands and direct cmux QA evidence during execution.
@@ -268,6 +270,8 @@ git commit -m "fix: stabilize resume geometry across browser zoom"
 
 ### Task 2A: Replace CSS zoom with genuine author-dimension scaling
 
+**Execution note (2026-07-15):** This 2.25x genuine-author implementation was completed and committed as `89f8d24`. It passed the automated geometry contract, unit suite, build, and unconfigured E2E suite, but native WebKit QA rejected it. At 50% browser zoom the smallest supported text existed as only 9 display pixels before inverse presentation, and reload selected 1.0941 instead of the 1.0666 selected at 100%. Task 2B supersedes the live scale and the resize-measurement path while preserving the mechanical CSS conversion from this task.
+
 **Files:**
 - Modify: `e2e/unconfigured.spec.ts:293-360`
 - Modify: `src/styles/resume.css:1-245`
@@ -439,6 +443,101 @@ git commit -m "fix: use stable author coordinates for resume layout"
 
 ---
 
+### Task 2B: Raise live author resolution and isolate resize measurement from raster rounding
+
+**Files:**
+- Modify: `e2e/unconfigured.spec.ts`
+- Modify: `src/tests/resizeEngine.test.ts`
+- Modify: `src/useResizeEngine.ts`
+- Modify: `src/styles/resume.css`
+
+**Interfaces:**
+- Consumes: the existing mechanically scaled resume CSS, `ResumeViewport`, and synchronous `useResizeEngine` measurement flow.
+- Produces: a 3672px-wide live author page presented at 816px, plus an 18x temporary measurement scope whose previous inline scale variables are restored in `finally`.
+- Preserves: visible geometry, hook/component public APIs, direct editing, stored data, constraints, PDF/Review capture paths, and the existing author-coordinate CSS formulas.
+
+- [ ] **Step 1: Strengthen the focused contracts before production changes**
+
+Update the existing fixed-canvas E2E expectations:
+
+```ts
+expect(metrics.resumeOffsetWidth, `author width at ${width}px`).toBe(3672)
+expect(metrics.representativeBulletFontSize, `author font at ${width}px`).toBeGreaterThanOrEqual(36)
+
+await resume.evaluate(element => {
+  element.style.minHeight = '6300px'
+})
+
+await expect.poll(async () =>
+  Math.round(await resumeViewport.evaluate(element => element.getBoundingClientRect().height))
+).toBe(1400)
+```
+
+Add one focused unit contract in `src/tests/resizeEngine.test.ts`. Import `withResumeMeasurementScale`, initialize the root's inline scale variables to `4.5` and `0.2222222222222222`, and verify that the callback observes `18` and `0.05555555555555555` while the original values are restored afterward. Do not add a repetitive matrix of helper tests.
+
+- [ ] **Step 2: Run both focused contracts and verify they are red**
+
+```sh
+NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage npm test -- --run src/tests/resizeEngine.test.ts
+npm run build
+CI=1 npx playwright test -c playwright.unconfigured.config.ts --grep "keeps viewport overflow inside the fixed resume canvas scroller"
+```
+
+Expected: the unit contract fails because the helper is not exported, and the E2E contract fails because the live author width is still 1836px.
+
+- [ ] **Step 3: Raise the live author-coordinate scale**
+
+In `src/styles/resume.css`, change only the two resume scale variables:
+
+```css
+--resume-layout-scale: 4.5;
+--resume-presentation-scale: 0.2222222222222222;
+```
+
+Every mechanically scaled resume length and in-document editor control follows the new variable automatically. Do not individually retune typography or spacing.
+
+- [ ] **Step 4: Add a restoration-safe measurement scope**
+
+In `src/useResizeEngine.ts`, add a small generic `withResumeMeasurementScale` helper that:
+
+1. records the root's current inline `--resume-layout-scale` and `--resume-presentation-scale` values;
+2. sets them to `18` and `0.05555555555555555`;
+3. runs a synchronous callback;
+4. restores the exact previous inline state in `finally`, removing a property when it was previously absent.
+
+Call the helper once around the complete synchronous DOM-measurement phase: the global-scale binary search, the minimum-scale diagnostic measurement, and the final-height measurement. Apply the chosen global scale again after the helper restores the live variables. Do not set the temporary variables once per binary-search iteration.
+
+- [ ] **Step 5: Run focused verification until green**
+
+```sh
+NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage npm test -- --run src/tests/resizeEngine.test.ts
+npm run build
+CI=1 npx playwright test -c playwright.unconfigured.config.ts --grep "keeps viewport overflow inside the fixed resume canvas scroller"
+```
+
+Expected: the helper contract passes, and the page reports a 3672px author width, 816px visible width, CSS zoom `1`, at least 36px live author type, no scroll leak, and a 1400px visible deliberate height.
+
+- [ ] **Step 6: Run the unit and unconfigured regression suites**
+
+```sh
+NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage npm test -- --run
+CI=1 npm run test:e2e:unconfigured
+```
+
+- [ ] **Step 7: Commit the refined architecture**
+
+```sh
+git add docs/superpowers/specs/2026-07-14-resume-zoom-geometry-design.md \
+  docs/superpowers/plans/2026-07-14-resume-zoom-geometry.md \
+  e2e/unconfigured.spec.ts \
+  src/tests/resizeEngine.test.ts \
+  src/useResizeEngine.ts \
+  src/styles/resume.css
+git commit -m "fix: stabilize resize measurement across browser zoom"
+```
+
+---
+
 ### Task 3: Verify editing, resize, and capture at native WebKit zoom
 
 **Files:**
@@ -600,7 +699,8 @@ Expected: the worktree is clean and the branch contains the design, implementati
 
 Before opening or merging a PR, request a fresh rigorous review focused on:
 
-- whether the genuine 2.25× author-coordinate/inverse-transform boundary is isolated and browser-zoom agnostic;
+- whether the genuine live 4.5x author-coordinate/inverse-transform boundary is isolated and browser-zoom agnostic;
+- whether the 18x measurement scope wraps the complete synchronous resize search and restores the previous inline presentation variables in `finally`;
 - whether CSS `zoom` is absent from the resume presentation path;
 - synchronous resize-engine measurement versus asynchronous viewport-height synchronization;
 - direct-editing coordinate alignment;
