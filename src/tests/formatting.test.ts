@@ -44,6 +44,25 @@ describe('computeResumeFit', () => {
     expect(result.warnings).toEqual({ globalOverflow: false, bullets: [] })
   })
 
+  it('limits global scale when a satisfiable bullet crosses its line threshold', () => {
+    const result = computeResumeFit(
+      makeResume([['candidate-limited']]),
+      DEFAULT_CONSTRAINTS,
+      {
+        measureBulletLines: (text, scale) => {
+          if (text !== 'candidate-limited') return 1
+          return scale <= 1.3 ? 1 : 2
+        },
+        measurePageHeight: () => 1056,
+      }
+    )
+
+    expect(result.globalScale).toBeGreaterThanOrEqual(1.299)
+    expect(result.globalScale).toBeLessThanOrEqual(1.3)
+    expect(result.warnings).toEqual({ globalOverflow: false, bullets: [] })
+    expect(hasBulletWarning(result.warnings, 0, 0, 0)).toBe(false)
+  })
+
   it('keeps the minimum scale and identifies an impossible bullet structurally', () => {
     const constraints = {
       ...DEFAULT_CONSTRAINTS,

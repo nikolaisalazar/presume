@@ -44,11 +44,23 @@ function installFontReadiness(ready: Promise<unknown>): void {
 }
 
 function renderMeasuredPage(
-  measureHeight: (scale: number) => number
+  measureHeight: (scale: number) => number,
+  recordMeasurementVariables?: (variables: {
+    layoutScale: string
+    presentationScale: string
+  }) => void
 ): React.RefObject<HTMLDivElement | null> {
   const pageRef = createRef<HTMLDivElement>()
   render(createElement('div', { ref: pageRef, className: 'resume-page' }))
   pageRef.current!.getBoundingClientRect = vi.fn(() => {
+    recordMeasurementVariables?.({
+      layoutScale: document.documentElement.style.getPropertyValue(
+        '--resume-layout-scale'
+      ),
+      presentationScale: document.documentElement.style.getPropertyValue(
+        '--resume-presentation-scale'
+      ),
+    })
     const scale = Number(
       document.documentElement.style.getPropertyValue('--global-scale')
     )
@@ -89,8 +101,13 @@ describe('useResizeEngine', () => {
       '--resume-presentation-scale',
       '0.2222222222222222'
     )
-    const pageRef = renderMeasuredPage(scale =>
-      scale <= 1.25 ? 1056 : 1200
+    const measurementVariables: Array<{
+      layoutScale: string
+      presentationScale: string
+    }> = []
+    const pageRef = renderMeasuredPage(
+      scale => (scale <= 1.25 ? 1056 : 1200),
+      variables => measurementVariables.push(variables)
     )
 
     const { result } = renderHook(() =>
@@ -103,6 +120,13 @@ describe('useResizeEngine', () => {
     expect(result.current.globalScale).toBeLessThanOrEqual(1.25)
     expect(Number(root.style.getPropertyValue('--global-scale'))).toBe(
       result.current.globalScale
+    )
+    expect(measurementVariables.length).toBeGreaterThan(0)
+    expect(measurementVariables).toEqual(
+      measurementVariables.map(() => ({
+        layoutScale: '100',
+        presentationScale: '0.01',
+      }))
     )
     expect(root.style.getPropertyValue('--resume-layout-scale')).toBe('4.5')
     expect(root.style.getPropertyValue('--resume-presentation-scale')).toBe(
