@@ -63,6 +63,27 @@ class UnexpectedFailingAdapter:
         )
 
 
+def test_openapi_documents_review_error_contract():
+    schema = create_app().openapi()
+    review_responses = schema["paths"]["/reviews"]["post"]["responses"]
+
+    assert review_responses["default"]["content"]["application/json"][
+        "schema"
+    ] == {"$ref": "#/components/schemas/ErrorResponse"}
+    assert schema["components"]["schemas"]["ErrorBody"]["properties"][
+        "code"
+    ]["enum"] == [
+        "invalid_upload",
+        "upload_too_large",
+        "pdf_parse_failed",
+        "llm_provider_unavailable",
+        "github_rate_limited",
+        "hiring_agent_failed",
+        "review_timeout",
+        "internal_error",
+    ]
+
+
 def test_reviews_rejects_non_pdf_upload():
     client = TestClient(create_app(adapter=SuccessfulAdapter()))
 
