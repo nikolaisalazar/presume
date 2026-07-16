@@ -1,30 +1,24 @@
-import type { ReviewResult } from './reviewTypes'
-import { validateReviewResult } from './reviewTypes'
+import type {
+  BackendReviewErrorCode,
+  ReviewResult,
+  ReviewServiceConfig,
+} from './reviewTypes'
+import {
+  BACKEND_REVIEW_ERROR_CODES,
+  validateReviewResult,
+} from './reviewTypes'
 
 export type ReviewApiState =
   | { status: 'unconfigured' }
   | { status: 'configured'; baseUrl: string }
 
-export type ReviewServiceConfig = {
-  reviewEnabled: boolean
-  llmProvider: string
-  defaultModel: string
-  githubEnrichmentEnabled: boolean
-  maxUploadBytes: number
-}
+export type { ReviewServiceConfig } from './reviewTypes'
 
 export type ReviewApiErrorCode =
   | 'unconfigured'
   | 'invalid_response'
   | 'network_error'
-  | 'invalid_upload'
-  | 'upload_too_large'
-  | 'pdf_parse_failed'
-  | 'llm_provider_unavailable'
-  | 'github_rate_limited'
-  | 'hiring_agent_failed'
-  | 'review_timeout'
-  | 'internal_error'
+  | BackendReviewErrorCode
 
 type ReviewApiErrorOptions = {
   code: ReviewApiErrorCode
@@ -38,16 +32,9 @@ type ReviewApiOptions = {
   fetch?: FetchLike
 }
 
-const DOCUMENTED_BACKEND_ERROR_CODES = new Set<ReviewApiErrorCode>([
-  'invalid_upload',
-  'upload_too_large',
-  'pdf_parse_failed',
-  'llm_provider_unavailable',
-  'github_rate_limited',
-  'hiring_agent_failed',
-  'review_timeout',
-  'internal_error',
-])
+const DOCUMENTED_BACKEND_ERROR_CODES = new Set<BackendReviewErrorCode>(
+  BACKEND_REVIEW_ERROR_CODES
+)
 
 export class ReviewApiError extends Error {
   code: ReviewApiErrorCode
@@ -182,14 +169,14 @@ function parseBackendError(
   const { code, message, requestId } = payload.error
   if (
     typeof code !== 'string' ||
-    !DOCUMENTED_BACKEND_ERROR_CODES.has(code as ReviewApiErrorCode) ||
+    !DOCUMENTED_BACKEND_ERROR_CODES.has(code as BackendReviewErrorCode) ||
     typeof message !== 'string'
   ) {
     return null
   }
 
   return {
-    code: code as ReviewApiErrorCode,
+    code: code as BackendReviewErrorCode,
     message,
     ...(typeof requestId === 'string' ? { requestId } : {}),
   }

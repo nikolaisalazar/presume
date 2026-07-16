@@ -1,56 +1,60 @@
-export type ReviewTier =
-  | 'strong'
-  | 'competitive'
-  | 'needs_work'
-  | 'incomplete'
+import type { components } from './generated/reviewContract'
 
-export type ReviewCategoryKey =
-  | 'open_source'
-  | 'self_projects'
-  | 'production'
-  | 'technical_skills'
+type WireReviewResult = components['schemas']['ReviewResult']
+type WireReviewCategory = components['schemas']['ReviewCategory']
+type WireReviewAdjustment = components['schemas']['ReviewAdjustment']
+type WireReviewAnnotation = components['schemas']['ReviewAnnotation']
 
-export type ReviewAnnotationSeverity = 'info' | 'warning' | 'strong'
+export type ReviewCategory = WireReviewCategory
+export type ReviewTier = WireReviewResult['tier']
+export type ReviewCategoryKey = ReviewCategory['key']
+export type ReviewAnnotationSeverity = WireReviewAnnotation['severity']
 
-export type ReviewCategory = {
-  key: ReviewCategoryKey
-  label: string
-  score: number
-  maxScore: number
-  evidence: string[]
-  suggestions: string[]
+export type ReviewAdjustment = Omit<WireReviewAdjustment, 'evidence'> & {
+  evidence?: Exclude<WireReviewAdjustment['evidence'], null>
 }
 
-export type ReviewAdjustment = {
-  label: string
-  points: number
-  evidence?: string
+export type ReviewAnnotation = Omit<
+  WireReviewAnnotation,
+  'categoryKey' | 'sectionTitle' | 'entryTitle' | 'bulletText'
+> & {
+  categoryKey?: Exclude<WireReviewAnnotation['categoryKey'], null>
+  sectionTitle?: Exclude<WireReviewAnnotation['sectionTitle'], null>
+  entryTitle?: Exclude<WireReviewAnnotation['entryTitle'], null>
+  bulletText?: Exclude<WireReviewAnnotation['bulletText'], null>
 }
 
-export type ReviewAnnotation = {
-  id: string
-  categoryKey?: ReviewCategoryKey
-  sectionTitle?: string
-  entryTitle?: string
-  bulletText?: string
-  message: string
-  severity: ReviewAnnotationSeverity
-}
-
-export type ReviewResult = {
-  id: string
-  reviewedAt: string
-  totalScore: number
-  maxScore: number
-  tier: ReviewTier
+export type ReviewResult = Omit<
+  WireReviewResult,
+  'categories' | 'bonuses' | 'deductions' | 'annotations'
+> & {
   categories: ReviewCategory[]
-  strengths: string[]
-  improvements: string[]
   bonuses: ReviewAdjustment[]
   deductions: ReviewAdjustment[]
   annotations: ReviewAnnotation[]
-  raw?: unknown
 }
+
+export type BackendReviewErrorCode =
+  components['schemas']['ErrorBody']['code']
+export const BACKEND_REVIEW_ERROR_CODES = [
+  'invalid_upload',
+  'upload_too_large',
+  'pdf_parse_failed',
+  'llm_provider_unavailable',
+  'github_rate_limited',
+  'hiring_agent_failed',
+  'review_timeout',
+  'internal_error',
+] as const satisfies readonly BackendReviewErrorCode[]
+
+export type ReviewServiceConfig = Pick<
+  components['schemas']['PublicConfig'],
+  | 'reviewEnabled'
+  | 'llmProvider'
+  | 'defaultModel'
+  | 'githubEnrichmentEnabled'
+  | 'maxUploadBytes'
+>
 
 const REVIEW_TIERS = new Set<ReviewTier>([
   'strong',
