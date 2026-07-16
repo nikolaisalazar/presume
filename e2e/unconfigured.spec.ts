@@ -301,6 +301,8 @@ test.describe('unconfigured browser contracts', () => {
         const reviewRect = review.getBoundingClientRect()
         const resumeRect = resume.getBoundingClientRect()
         const resumeViewportRect = resumeViewport.getBoundingClientRect()
+        const resumeStyle = getComputedStyle(resume)
+        const representativeBullet = document.querySelector('.bullet-item') as HTMLElement
         return {
           bodyClientWidth: document.documentElement.clientWidth,
           documentScrollWidth: document.documentElement.scrollWidth,
@@ -314,6 +316,11 @@ test.describe('unconfigured browser contracts', () => {
           scrollerOverflowX: scrollerStyle.overflowX,
           resumeWidth: Math.round(resumeRect.width),
           resumeHeight: Math.round(resumeRect.height),
+          resumeOffsetWidth: resume.offsetWidth,
+          resumeCssZoom: resumeStyle.getPropertyValue('zoom') || '1',
+          representativeBulletFontSize: Number.parseFloat(
+            getComputedStyle(representativeBullet).fontSize
+          ),
           resumeViewportWidth: Math.round(resumeViewportRect.width),
           resumeViewportHeight: Math.round(resumeViewportRect.height),
         }
@@ -334,6 +341,9 @@ test.describe('unconfigured browser contracts', () => {
       expect(metrics.resumeViewportHeight, `resume viewport height at ${width}px`).toBe(
         metrics.resumeHeight
       )
+      expect(metrics.resumeOffsetWidth, `author width at ${width}px`).toBe(1836)
+      expect(metrics.resumeCssZoom, `CSS zoom at ${width}px`).toBe('1')
+      expect(metrics.representativeBulletFontSize, `author font at ${width}px`).toBeGreaterThanOrEqual(18)
       expect(metrics.scrollerScrollWidth, `internal scale leak at ${width}px`).toBeLessThan(1000)
     }
 
@@ -343,7 +353,7 @@ test.describe('unconfigured browser contracts', () => {
     const resumeViewport = page.locator('.resume-viewport')
     const resume = page.locator('.resume-page')
     await resume.evaluate(element => {
-      element.style.minHeight = '1400px'
+      element.style.minHeight = '3150px'
     })
 
     await expect.poll(async () =>

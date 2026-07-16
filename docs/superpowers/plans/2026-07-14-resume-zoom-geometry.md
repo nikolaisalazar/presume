@@ -272,6 +272,7 @@ git commit -m "fix: stabilize resume geometry across browser zoom"
 - Modify: `e2e/unconfigured.spec.ts:293-360`
 - Modify: `src/styles/resume.css:1-245`
 - Modify: `src/styles/app.css:227-365,405-418`
+- Modify: `src/components/Bullet.tsx:33-35`
 - Preserve: `src/components/ResumeViewport.tsx`, `src/App.tsx`
 
 **Interfaces:**
@@ -387,6 +388,12 @@ Mechanically apply `* var(--resume-layout-scale)` to every resume-internal lengt
 
 Scale warning outlines/radii, annotation gaps/margins/sizes/padding/fonts/outlines/radii/shadows, and contenteditable focus outlines/offsets/radii by the same factor. Keep percentages, unitless line heights, colors, font weights, opacity, and text unchanged.
 
+Update the bullet's existing inline font formula, which otherwise overrides stylesheet typography:
+
+```tsx
+fontSize: `calc(var(--font-size-bullet) * var(--global-scale) * var(--resume-layout-scale))`
+```
+
 - [ ] **Step 4: Scale only the in-document editor-control lengths in `app.css`**
 
 For the `.editor-control`, `.add-btn`, `.remove-btn`, `.editor-rail`, document/section action rows, and their in-document positioning rules, multiply the following lengths by `var(--resume-layout-scale)`:
@@ -426,7 +433,7 @@ Expected: all unit files and all four unconfigured E2E cases pass.
 - [ ] **Step 7: Commit the architecture correction**
 
 ```sh
-git add e2e/unconfigured.spec.ts src/styles/resume.css src/styles/app.css
+git add e2e/unconfigured.spec.ts src/components/Bullet.tsx src/styles/resume.css src/styles/app.css
 git commit -m "fix: use stable author coordinates for resume layout"
 ```
 

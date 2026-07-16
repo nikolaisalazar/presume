@@ -30,15 +30,15 @@
   position: absolute;
   top: 0;
   left: 0;
-  zoom: var(--resume-layout-scale);
   transform: scale(var(--resume-presentation-scale));
   transform-origin: top left;
 }
 
 .resume-page {
-  width: var(--page-width);
-  min-height: var(--page-height);
-  padding: var(--page-margin-y) var(--page-margin-x);
+  width: calc(var(--page-width) * var(--resume-layout-scale));
+  min-height: calc(var(--page-height) * var(--resume-layout-scale));
+  padding: calc(var(--page-margin-y) * var(--resume-layout-scale))
+    calc(var(--page-margin-x) * var(--resume-layout-scale));
   box-sizing: border-box;
   background: white;
   font-family: 'EB Garamond', Georgia, serif;
@@ -49,11 +49,11 @@
 
 /* ── Header ─────────────────────────────────────────────────────── */
 .resume-name {
-  font-size: calc(var(--font-size-name) * var(--global-scale));
+  font-size: calc(var(--font-size-name) * var(--global-scale) * var(--resume-layout-scale));
   text-align: center;
   font-weight: bold;
   line-height: 1.2;
-  margin: 0 0 4px;
+  margin: 0 0 calc(4px * var(--resume-layout-scale));
   display: block;
   width: 100%;
 }
@@ -62,42 +62,42 @@
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 0 12px;
+  gap: 0 calc(12px * var(--resume-layout-scale));
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
 .resume-contact-item {
-  font-size: calc(var(--font-size-contact) * var(--global-scale));
+  font-size: calc(var(--font-size-contact) * var(--global-scale) * var(--resume-layout-scale));
 }
 
 /* ── Section ─────────────────────────────────────────────────────── */
 .resume-section {
-  margin-top: 6px;
+  margin-top: calc(6px * var(--resume-layout-scale));
 }
 
 .resume-section-header-row {
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: calc(8px * var(--resume-layout-scale));
   position: relative;
 }
 
 .resume-section-title {
-  font-size: calc(var(--font-size-section) * var(--global-scale));
+  font-size: calc(var(--font-size-section) * var(--global-scale) * var(--resume-layout-scale));
   text-transform: uppercase;
   letter-spacing: 0.06em;
   font-weight: bold;
-  border-bottom: 1px solid #000;
+  border-bottom: calc(1px * var(--resume-layout-scale)) solid #000;
   flex: 1;
-  margin: 0 0 3px;
+  margin: 0 0 calc(3px * var(--resume-layout-scale));
   padding: 0;
 }
 
 /* ── Entry ───────────────────────────────────────────────────────── */
 .resume-entry {
-  margin-top: 4px;
+  margin-top: calc(4px * var(--resume-layout-scale));
 }
 
 .entry-header-row {
@@ -107,12 +107,12 @@
 }
 
 .entry-title {
-  font-size: calc(var(--font-size-entry-title) * var(--global-scale));
+  font-size: calc(var(--font-size-entry-title) * var(--global-scale) * var(--resume-layout-scale));
   font-weight: bold;
 }
 
 .entry-date {
-  font-size: calc(var(--font-size-entry-title) * var(--global-scale));
+  font-size: calc(var(--font-size-entry-title) * var(--global-scale) * var(--resume-layout-scale));
   font-style: italic;
 }
 
@@ -123,20 +123,20 @@
 }
 
 .entry-subtitle {
-  font-size: calc(var(--font-size-entry-subtitle) * var(--global-scale));
+  font-size: calc(var(--font-size-entry-subtitle) * var(--global-scale) * var(--resume-layout-scale));
   font-style: italic;
 }
 
 .entry-location {
-  font-size: calc(var(--font-size-entry-subtitle) * var(--global-scale));
+  font-size: calc(var(--font-size-entry-subtitle) * var(--global-scale) * var(--resume-layout-scale));
   font-style: italic;
 }
 
 /* ── Bullets ─────────────────────────────────────────────────────── */
 .bullet-list {
   list-style: disc;
-  padding-left: var(--bullet-indent);
-  margin: 2px 0;
+  padding-left: calc(var(--bullet-indent) * var(--resume-layout-scale));
+  margin: calc(2px * var(--resume-layout-scale)) 0;
 }
 
 .bullet-item {
@@ -146,16 +146,16 @@
 
 .bullet-item--warning {
   background-color: rgba(255, 80, 80, 0.12);
-  outline: 1px solid rgba(255, 80, 80, 0.5);
-  border-radius: 2px;
+  outline: calc(1px * var(--resume-layout-scale)) solid rgba(255, 80, 80, 0.5);
+  border-radius: calc(2px * var(--resume-layout-scale));
 }
 
 /* ── Review annotations ─────────────────────────────────────────── */
 .review-annotation-list {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
-  margin-left: 4px;
+  gap: calc(2px * var(--resume-layout-scale));
+  margin-left: calc(4px * var(--resume-layout-scale));
   vertical-align: middle;
 }
 
@@ -163,43 +163,43 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 7px;
-  height: 7px;
+  width: calc(7px * var(--resume-layout-scale));
+  height: calc(7px * var(--resume-layout-scale));
   border-radius: 50%;
   background: #0ea5e9;
-  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.18);
+  box-shadow: 0 0 0 calc(2px * var(--resume-layout-scale)) rgba(14, 165, 233, 0.18);
 }
 
 .review-annotation-marker--count {
   width: auto;
-  min-width: 13px;
-  height: 13px;
-  padding: 0 3px;
+  min-width: calc(13px * var(--resume-layout-scale));
+  height: calc(13px * var(--resume-layout-scale));
+  padding: 0 calc(3px * var(--resume-layout-scale));
   border-radius: 999px;
   color: #ffffff;
   font-family: system-ui, -apple-system, sans-serif;
-  font-size: 9px;
+  font-size: calc(9px * var(--resume-layout-scale));
   font-weight: 700;
   line-height: 1;
 }
 
 .review-annotation--info {
   background-color: rgba(14, 165, 233, 0.08);
-  outline: 1px solid rgba(14, 165, 233, 0.35);
-  border-radius: 2px;
+  outline: calc(1px * var(--resume-layout-scale)) solid rgba(14, 165, 233, 0.35);
+  border-radius: calc(2px * var(--resume-layout-scale));
 }
 
 .review-annotation--warning,
 .bullet-item--review-warning {
   background-color: rgba(20, 184, 166, 0.11);
-  outline: 1px solid rgba(13, 148, 136, 0.45);
-  border-radius: 2px;
+  outline: calc(1px * var(--resume-layout-scale)) solid rgba(13, 148, 136, 0.45);
+  border-radius: calc(2px * var(--resume-layout-scale));
 }
 
 .review-annotation--strong {
   background-color: rgba(34, 197, 94, 0.1);
-  outline: 1px solid rgba(22, 163, 74, 0.4);
-  border-radius: 2px;
+  outline: calc(1px * var(--resume-layout-scale)) solid rgba(22, 163, 74, 0.4);
+  border-radius: calc(2px * var(--resume-layout-scale));
 }
 
 .review-annotation-marker.review-annotation--warning {
@@ -212,9 +212,9 @@
 
 /* ── Contenteditable focus ring ──────────────────────────────────── */
 [contenteditable]:focus {
-  outline: 1.5px solid rgba(59, 130, 246, 0.6);
-  outline-offset: 1px;
-  border-radius: 2px;
+  outline: calc(1.5px * var(--resume-layout-scale)) solid rgba(59, 130, 246, 0.6);
+  outline-offset: calc(1px * var(--resume-layout-scale));
+  border-radius: calc(2px * var(--resume-layout-scale));
 }
 
 [contenteditable]:empty:before {
@@ -230,14 +230,14 @@
 
 .bullet-item--warning {
   background-color: rgba(251, 146, 60, 0.14);
-  outline: 1px solid rgba(234, 88, 12, 0.45);
-  border-radius: 2px;
+  outline: calc(1px * var(--resume-layout-scale)) solid rgba(234, 88, 12, 0.45);
+  border-radius: calc(2px * var(--resume-layout-scale));
 }
 
 [contenteditable]:focus {
-  outline: 1.5px solid rgba(37, 99, 235, 0.68);
-  outline-offset: 1px;
-  border-radius: 2px;
+  outline: calc(1.5px * var(--resume-layout-scale)) solid rgba(37, 99, 235, 0.68);
+  outline-offset: calc(1px * var(--resume-layout-scale));
+  border-radius: calc(2px * var(--resume-layout-scale));
 }
 
 [contenteditable]:empty:before {
