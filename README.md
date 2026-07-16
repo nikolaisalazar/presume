@@ -64,10 +64,13 @@ The review flow keeps semantic evaluation outside the static frontend. A local o
 ```sh
 npm install
 npm run dev
-npm test
-npm run build
-npm run test:e2e
+npm run verify       # TypeScript, frontend tests, and backend tests
+npm run verify:full  # Adds deterministic Playwright browser contracts
+npm run build        # Restores the default deployable build after E2E
 ```
+
+The `npm run verify:full` command does not contact Ollama, hosted providers, or
+the external Hiring Agent checkout.
 
 To run the review flow locally, start the backend:
 

@@ -8,6 +8,10 @@
     "build": "tsc -b && vite build && node scripts/create-spa-fallback.mjs",
     "preview": "vite preview",
     "test": "vitest",
+    "typecheck": "tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.node.json --noEmit",
+    "test:backend": "python3 -m pytest review-service/tests -q",
+    "verify": "npm run typecheck && npm test -- --run && npm run test:backend",
+    "verify:full": "npm run verify && npm run test:e2e",
     "test:e2e": "npm run test:e2e:unconfigured && npm run test:e2e:configured",
     "test:e2e:unconfigured": "npm run build && playwright test -c playwright.unconfigured.config.ts",
     "test:e2e:configured": "VITE_REVIEW_API_URL=http://127.0.0.1:8124 npm run build && playwright test -c playwright.configured.config.ts"
