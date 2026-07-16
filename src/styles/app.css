@@ -230,19 +230,19 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 28px;
-  padding: 3px 8px;
-  border: 1px solid rgba(15, 95, 92, 0.22);
-  border-radius: 4px;
+  min-height: calc(28px * var(--resume-layout-scale));
+  padding: calc(3px * var(--resume-layout-scale)) calc(8px * var(--resume-layout-scale));
+  border: calc(1px * var(--resume-layout-scale)) solid rgba(15, 95, 92, 0.22);
+  border-radius: calc(4px * var(--resume-layout-scale));
   background: rgba(255, 255, 255, 0.94);
   color: #334155;
   cursor: pointer;
-  font-size: 11px;
+  font-size: calc(11px * var(--resume-layout-scale));
   font-weight: 700;
   line-height: 1.2;
   white-space: nowrap;
   opacity: var(--editor-control-resting-opacity);
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 calc(8px * var(--resume-layout-scale)) calc(18px * var(--resume-layout-scale)) rgba(15, 23, 42, 0.08);
   transition: opacity 0.18s ease, background 0.18s ease, border-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
 }
 
@@ -253,8 +253,8 @@ body {
 }
 
 .editor-control--remove {
-  min-width: 24px;
-  padding-inline: 7px;
+  min-width: calc(24px * var(--resume-layout-scale));
+  padding-inline: calc(7px * var(--resume-layout-scale));
 }
 
 .resume-header:hover .editor-control,
@@ -281,8 +281,8 @@ body {
 .add-btn:focus-visible,
 .remove-btn:focus-visible,
 .editor-control:focus-visible {
-  outline: 2px solid var(--focus);
-  outline-offset: 2px;
+  outline: calc(2px * var(--resume-layout-scale)) solid var(--focus);
+  outline-offset: calc(2px * var(--resume-layout-scale));
 }
 
 .editor-control--add:hover,
@@ -302,20 +302,20 @@ body {
 .editor-rail {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: calc(4px * var(--resume-layout-scale));
 }
 
 .document-actions-row,
 .controls-row {
   display: flex;
   justify-content: flex-end;
-  gap: 6px;
-  margin-top: 4px;
+  gap: calc(6px * var(--resume-layout-scale));
+  margin-top: calc(4px * var(--resume-layout-scale));
 }
 
 .resume-header-contact-row {
   position: relative;
-  margin-bottom: 8px;
+  margin-bottom: calc(8px * var(--resume-layout-scale));
 }
 
 .resume-header-contact-row > .add-btn,
@@ -332,8 +332,8 @@ body {
 
 .resume-contact-item > .editor-control--remove {
   position: absolute;
-  top: -18px;
-  right: -18px;
+  top: calc(-18px * var(--resume-layout-scale));
+  right: calc(-18px * var(--resume-layout-scale));
 }
 
 .resume-section-header-row > .remove-btn,
@@ -351,14 +351,14 @@ body {
 
 .entry-actions {
   justify-content: flex-end;
-  margin-top: 3px;
+  margin-top: calc(3px * var(--resume-layout-scale));
 }
 
 .bullet-item > .remove-btn,
 .bullet-item > .bullet-remove {
   position: absolute;
-  top: -3px;
-  right: -32px;
+  top: calc(-3px * var(--resume-layout-scale));
+  right: calc(-32px * var(--resume-layout-scale));
 }
 
 @media print {
@@ -407,13 +407,13 @@ body {
   .editor-control,
   .add-btn,
   .remove-btn {
-    min-width: 44px;
-    min-height: 44px;
+    min-width: calc(44px * var(--resume-layout-scale));
+    min-height: calc(44px * var(--resume-layout-scale));
     opacity: 0.86;
   }
 
   .editor-control--add {
-    padding-inline: 12px;
+    padding-inline: calc(12px * var(--resume-layout-scale));
   }
 }
 

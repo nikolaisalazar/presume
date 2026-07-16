@@ -31,7 +31,7 @@ export function Bullet({
         .filter(Boolean)
         .join(' ')}
       style={{
-        fontSize: `calc(var(--font-size-bullet) * var(--global-scale))`,
+        fontSize: `calc(var(--font-size-bullet) * var(--global-scale) * var(--resume-layout-scale))`,
       }}
     >
       <EditableText value={text} onChange={onChange} placeholder="Bullet point" />

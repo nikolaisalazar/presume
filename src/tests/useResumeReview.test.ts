@@ -1,6 +1,5 @@
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import type { RefObject } from 'react'
 import type { ReviewResult } from '../reviewTypes'
 import type { Resume } from '../types'
 import { useResumeReview } from '../useResumeReview'
@@ -10,10 +9,10 @@ import {
   getReviewApiState,
   submitResumeForReview,
 } from '../reviewApi'
-import { renderResumePageToPDFBlob } from '../export'
+import { renderResumeToPDFBlob } from '../export'
 
 vi.mock('../export', () => ({
-  renderResumePageToPDFBlob: vi.fn(),
+  renderResumeToPDFBlob: vi.fn(),
 }))
 
 vi.mock('../reviewApi', async importOriginal => {
@@ -28,7 +27,7 @@ vi.mock('../reviewApi', async importOriginal => {
 
 const fetchReviewConfigMock = vi.mocked(fetchReviewConfig)
 const getReviewApiStateMock = vi.mocked(getReviewApiState)
-const renderResumePageToPDFBlobMock = vi.mocked(renderResumePageToPDFBlob)
+const renderResumeToPDFBlobMock = vi.mocked(renderResumeToPDFBlob)
 const submitResumeForReviewMock = vi.mocked(submitResumeForReview)
 
 const resume: Resume = {
@@ -79,10 +78,6 @@ const enabledReviewConfig = {
   maxUploadBytes: 10_485_760,
 }
 
-function pageRef(): RefObject<HTMLElement> {
-  return { current: document.createElement('div') }
-}
-
 function cloneResume(value: Resume): Resume {
   return JSON.parse(JSON.stringify(value)) as Resume
 }
@@ -127,10 +122,10 @@ describe('useResumeReview', () => {
   it('starts unconfigured when the review API is missing', async () => {
     getReviewApiStateMock.mockReturnValue({ status: 'unconfigured' })
     const pdf = new Blob(['%PDF-1.7'], { type: 'application/pdf' })
-    renderResumePageToPDFBlobMock.mockResolvedValue(pdf)
+    renderResumeToPDFBlobMock.mockResolvedValue(pdf)
 
     const { result } = renderHook(() =>
-      useResumeReview({ resume, pageRef: pageRef() })
+      useResumeReview({ resume, globalScale: 1.0584 })
     )
 
     expect(result.current.state).toEqual({ status: 'unconfigured' })
@@ -140,7 +135,7 @@ describe('useResumeReview', () => {
     })
 
     expect(result.current.state).toEqual({ status: 'unconfigured' })
-    expect(renderResumePageToPDFBlobMock).not.toHaveBeenCalled()
+    expect(renderResumeToPDFBlobMock).not.toHaveBeenCalled()
     expect(submitResumeForReviewMock).not.toHaveBeenCalled()
   })
 
@@ -148,7 +143,7 @@ describe('useResumeReview', () => {
     mockConfiguredApi()
 
     const { result } = renderHook(() =>
-      useResumeReview({ resume, pageRef: pageRef() })
+      useResumeReview({ resume, globalScale: 1.0584 })
     )
 
     expect(result.current.state).toEqual({ status: 'checking' })
@@ -170,7 +165,7 @@ describe('useResumeReview', () => {
     })
 
     const { result } = renderHook(() =>
-      useResumeReview({ resume, pageRef: pageRef() })
+      useResumeReview({ resume, globalScale: 1.0584 })
     )
 
     await waitFor(() => expect(result.current.state.status).toBe('disabled'))
@@ -180,7 +175,7 @@ describe('useResumeReview', () => {
     })
 
     expect(result.current.state).toEqual({ status: 'disabled' })
-    expect(renderResumePageToPDFBlobMock).not.toHaveBeenCalled()
+    expect(renderResumeToPDFBlobMock).not.toHaveBeenCalled()
     expect(submitResumeForReviewMock).not.toHaveBeenCalled()
   })
 
@@ -195,7 +190,7 @@ describe('useResumeReview', () => {
     fetchReviewConfigMock.mockRejectedValue(error)
 
     const { result } = renderHook(() =>
-      useResumeReview({ resume, pageRef: pageRef() })
+      useResumeReview({ resume, globalScale: 1.0584 })
     )
 
     await waitFor(() =>
@@ -213,7 +208,7 @@ describe('useResumeReview', () => {
       status: 'config_error',
       error,
     })
-    expect(renderResumePageToPDFBlobMock).not.toHaveBeenCalled()
+    expect(renderResumeToPDFBlobMock).not.toHaveBeenCalled()
     expect(submitResumeForReviewMock).not.toHaveBeenCalled()
   })
 
@@ -232,7 +227,7 @@ describe('useResumeReview', () => {
     fetchReviewConfigMock.mockRejectedValue(error)
 
     const { result } = renderHook(() =>
-      useResumeReview({ resume, pageRef: pageRef() })
+      useResumeReview({ resume, globalScale: 1.0584 })
     )
 
     await waitFor(() =>
@@ -250,19 +245,18 @@ describe('useResumeReview', () => {
       status: 'config_error',
       error,
     })
-    expect(renderResumePageToPDFBlobMock).not.toHaveBeenCalled()
+    expect(renderResumeToPDFBlobMock).not.toHaveBeenCalled()
     expect(submitResumeForReviewMock).not.toHaveBeenCalled()
   })
 
   it('generates a PDF blob, submits it, and stores the review result', async () => {
     mockConfiguredApi()
     const pdf = new Blob(['%PDF-1.7'], { type: 'application/pdf' })
-    const ref = pageRef()
-    renderResumePageToPDFBlobMock.mockResolvedValue(pdf)
+    renderResumeToPDFBlobMock.mockResolvedValue(pdf)
     submitResumeForReviewMock.mockResolvedValue(reviewResult)
 
     const { result } = renderHook(() =>
-      useResumeReview({ resume, pageRef: ref })
+      useResumeReview({ resume, globalScale: 1.0584 })
     )
 
     await waitForReviewReady(result)
@@ -271,9 +265,7 @@ describe('useResumeReview', () => {
       await result.current.requestReview()
     })
 
-    expect(renderResumePageToPDFBlobMock).toHaveBeenCalledWith(ref.current, {
-      includeExtractableText: true,
-    })
+    expect(renderResumeToPDFBlobMock).toHaveBeenCalledWith(resume, 1.0584)
     expect(submitResumeForReviewMock).toHaveBeenCalledWith(pdf)
     expect(result.current.state).toEqual({
       status: 'success',
@@ -285,11 +277,11 @@ describe('useResumeReview', () => {
     mockConfiguredApi()
     const pdf = new Blob(['%PDF-1.7'], { type: 'application/pdf' })
     const pendingPdf = deferred<Blob>()
-    renderResumePageToPDFBlobMock.mockReturnValue(pendingPdf.promise)
+    renderResumeToPDFBlobMock.mockReturnValue(pendingPdf.promise)
     submitResumeForReviewMock.mockResolvedValue(reviewResult)
 
     const { result } = renderHook(() =>
-      useResumeReview({ resume, pageRef: pageRef() })
+      useResumeReview({ resume, globalScale: 1.0584 })
     )
 
     await waitForReviewReady(result)
@@ -315,7 +307,7 @@ describe('useResumeReview', () => {
   it('keeps the previous successful result visible while a rerun is loading', async () => {
     mockConfiguredApi()
     const pendingReview = deferred<ReviewResult>()
-    renderResumePageToPDFBlobMock.mockResolvedValue(
+    renderResumeToPDFBlobMock.mockResolvedValue(
       new Blob(['%PDF-1.7'], { type: 'application/pdf' })
     )
     submitResumeForReviewMock
@@ -323,14 +315,15 @@ describe('useResumeReview', () => {
       .mockReturnValueOnce(pendingReview.promise)
 
     const { result } = renderHook(() =>
-      useResumeReview({ resume, pageRef: pageRef() })
+      useResumeReview({ resume, globalScale: 1.0584 })
     )
 
     await waitForReviewReady(result)
     await completeSuccessfulReview(result)
 
+    let rerun!: Promise<void>
     act(() => {
-      void result.current.requestReview()
+      rerun = result.current.requestReview()
     })
 
     expect(result.current.state).toEqual({
@@ -340,12 +333,13 @@ describe('useResumeReview', () => {
 
     await act(async () => {
       pendingReview.resolve(newerReviewResult)
+      await rerun
     })
   })
 
   it('marks a successful result stale after resume content changes', async () => {
     mockConfiguredApi()
-    renderResumePageToPDFBlobMock.mockResolvedValue(
+    renderResumeToPDFBlobMock.mockResolvedValue(
       new Blob(['%PDF-1.7'], { type: 'application/pdf' })
     )
     submitResumeForReviewMock.mockResolvedValue(reviewResult)
@@ -355,7 +349,7 @@ describe('useResumeReview', () => {
 
     const { result, rerender } = renderHook(
       ({ currentResume }) =>
-        useResumeReview({ resume: currentResume, pageRef: pageRef() }),
+        useResumeReview({ resume: currentResume, globalScale: 1.0584 }),
       { initialProps: { currentResume: resume } }
     )
 
@@ -375,7 +369,7 @@ describe('useResumeReview', () => {
 
   it('keeps a stale result marked stale while a rerun is loading', async () => {
     mockConfiguredApi()
-    renderResumePageToPDFBlobMock.mockResolvedValue(
+    renderResumeToPDFBlobMock.mockResolvedValue(
       new Blob(['%PDF-1.7'], { type: 'application/pdf' })
     )
     const pendingReview = deferred<ReviewResult>()
@@ -388,7 +382,7 @@ describe('useResumeReview', () => {
 
     const { result, rerender } = renderHook(
       ({ currentResume }) =>
-        useResumeReview({ resume: currentResume, pageRef: pageRef() }),
+        useResumeReview({ resume: currentResume, globalScale: 1.0584 }),
       { initialProps: { currentResume: resume } }
     )
 
@@ -396,8 +390,9 @@ describe('useResumeReview', () => {
     await completeSuccessfulReview(result)
     rerender({ currentResume: editedResume })
 
+    let rerun!: Promise<void>
     act(() => {
-      void result.current.requestReview()
+      rerun = result.current.requestReview()
     })
 
     expect(result.current.state).toEqual({
@@ -408,12 +403,13 @@ describe('useResumeReview', () => {
 
     await act(async () => {
       pendingReview.resolve(newerReviewResult)
+      await rerun
     })
   })
 
   it('does not let an older successful request overwrite a newer successful request', async () => {
     mockConfiguredApi()
-    renderResumePageToPDFBlobMock.mockResolvedValue(
+    renderResumeToPDFBlobMock.mockResolvedValue(
       new Blob(['%PDF-1.7'], { type: 'application/pdf' })
     )
     const olderReview = deferred<ReviewResult>()
@@ -423,7 +419,7 @@ describe('useResumeReview', () => {
       .mockReturnValueOnce(newerReview.promise)
 
     const { result } = renderHook(() =>
-      useResumeReview({ resume, pageRef: pageRef() })
+      useResumeReview({ resume, globalScale: 1.0584 })
     )
 
     await waitForReviewReady(result)
@@ -459,7 +455,7 @@ describe('useResumeReview', () => {
 
   it('does not let an older failure replace a newer success', async () => {
     mockConfiguredApi()
-    renderResumePageToPDFBlobMock.mockResolvedValue(
+    renderResumeToPDFBlobMock.mockResolvedValue(
       new Blob(['%PDF-1.7'], { type: 'application/pdf' })
     )
     const olderReview = deferred<ReviewResult>()
@@ -469,7 +465,7 @@ describe('useResumeReview', () => {
       .mockReturnValueOnce(newerReview.promise)
 
     const { result } = renderHook(() =>
-      useResumeReview({ resume, pageRef: pageRef() })
+      useResumeReview({ resume, globalScale: 1.0584 })
     )
 
     await waitForReviewReady(result)
@@ -502,7 +498,7 @@ describe('useResumeReview', () => {
 
   it('does not let an older success hide a newer failure', async () => {
     mockConfiguredApi()
-    renderResumePageToPDFBlobMock.mockResolvedValue(
+    renderResumeToPDFBlobMock.mockResolvedValue(
       new Blob(['%PDF-1.7'], { type: 'application/pdf' })
     )
     const olderReview = deferred<ReviewResult>()
@@ -515,7 +511,7 @@ describe('useResumeReview', () => {
       .mockReturnValueOnce(newerReview.promise)
 
     const { result } = renderHook(() =>
-      useResumeReview({ resume, pageRef: pageRef() })
+      useResumeReview({ resume, globalScale: 1.0584 })
     )
 
     await waitForReviewReady(result)
@@ -551,7 +547,7 @@ describe('useResumeReview', () => {
 
   it('marks carried-forward stale results on errors after resume edits', async () => {
     mockConfiguredApi()
-    renderResumePageToPDFBlobMock.mockResolvedValue(
+    renderResumeToPDFBlobMock.mockResolvedValue(
       new Blob(['%PDF-1.7'], { type: 'application/pdf' })
     )
     const error = new ReviewApiError('Could not reach the review service.', {
@@ -566,7 +562,7 @@ describe('useResumeReview', () => {
 
     const { result, rerender } = renderHook(
       ({ currentResume }) =>
-        useResumeReview({ resume: currentResume, pageRef: pageRef() }),
+        useResumeReview({ resume: currentResume, globalScale: 1.0584 }),
       { initialProps: { currentResume: resume } }
     )
 
@@ -593,13 +589,13 @@ describe('useResumeReview', () => {
     const error = new ReviewApiError('Could not reach the review service.', {
       code: 'network_error',
     })
-    renderResumePageToPDFBlobMock.mockResolvedValue(
+    renderResumeToPDFBlobMock.mockResolvedValue(
       new Blob(['%PDF-1.7'], { type: 'application/pdf' })
     )
     submitResumeForReviewMock.mockRejectedValue(error)
 
     const { result } = renderHook(() =>
-      useResumeReview({ resume: workingResume, pageRef: pageRef() })
+      useResumeReview({ resume: workingResume, globalScale: 1.0584 })
     )
 
     await waitForReviewReady(result)
@@ -615,26 +611,4 @@ describe('useResumeReview', () => {
     expect(workingResume).toEqual(originalResume)
   })
 
-  it('reports an error when review starts without a rendered resume page', async () => {
-    mockConfiguredApi()
-    const ref: RefObject<HTMLElement> = { current: null }
-
-    const { result } = renderHook(() =>
-      useResumeReview({ resume, pageRef: ref })
-    )
-
-    await waitForReviewReady(result)
-
-    await act(async () => {
-      await result.current.requestReview()
-    })
-
-    const state = result.current.state
-    expect(state.status).toBe('error')
-    expect(state.status === 'error' ? state.error : null).toMatchObject({
-      message: 'Resume page is not available for review.',
-    })
-    expect(renderResumePageToPDFBlobMock).not.toHaveBeenCalled()
-    expect(submitResumeForReviewMock).not.toHaveBeenCalled()
-  })
 })

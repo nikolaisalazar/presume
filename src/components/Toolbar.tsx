@@ -5,18 +5,18 @@ import { Button } from './ui/button'
 
 interface ToolbarProps {
   resume: Resume
-  pageRef: React.RefObject<HTMLElement | null>
+  globalScale: number
+  pdfReady: boolean
   onImport: (resume: Resume) => void
   onReset: () => void
 }
 
-export function Toolbar({ resume, pageRef, onImport, onReset }: ToolbarProps) {
+export function Toolbar({ resume, globalScale, pdfReady, onImport, onReset }: ToolbarProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleExportPDF = async () => {
-    if (!pageRef.current) return
     try {
-      await exportPDF(pageRef.current)
+      await exportPDF(resume, globalScale)
     } catch (err) {
       alert(`PDF export failed: ${err instanceof Error ? err.message : String(err)}`)
     }
@@ -62,7 +62,7 @@ export function Toolbar({ resume, pageRef, onImport, onReset }: ToolbarProps) {
   return (
     <div className="flex flex-col gap-2 p-3 min-[561px]:flex-row min-[561px]:items-center min-[561px]:justify-between" role="toolbar" aria-label="Document actions">
       <div data-slot="toolbar-group" className="flex min-w-0 flex-wrap items-center gap-1.5" role="group" aria-label="Export actions">
-        <Button size="editor" onClick={handleExportPDF}>Export PDF</Button>
+        <Button size="editor" onClick={handleExportPDF} disabled={!pdfReady}>Export PDF</Button>
         <Button variant="outline" size="editor" onClick={handleExportJSON}>Export JSON</Button>
       </div>
       <div data-slot="toolbar-group" className="flex min-w-0 flex-wrap items-center gap-1.5" role="group" aria-label="File actions">

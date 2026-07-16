@@ -1,18 +1,31 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { prepareWithSegments, measureLineStats } from '@chenglou/pretext'
 import type { Constraints, Resume } from './types'
+import { RESUME_DOCUMENT } from './resumeDocumentTokens'
 
 // ── Constants ──────────────────────────────────────────────────────
-// COLUMN_WIDTH = page width (816) - left margin (48) - right margin (48) - bullet indent (16)
-// If --page-margin-x or --bullet-indent change in resume.css, update this constant too.
-const PAGE_HEIGHT_PX = 1056
-const COLUMN_WIDTH = 704
-const DEFAULT_BULLET_SIZE = 10  // px, must match --font-size-bullet in resume.css
-const RESUME_FONT = 'EB Garamond'
+const PAGE_HEIGHT_PX = RESUME_DOCUMENT.pageHeightPx
+const COLUMN_WIDTH =
+  RESUME_DOCUMENT.pageWidthPx -
+  RESUME_DOCUMENT.pageMarginXPx * 2 -
+  RESUME_DOCUMENT.bulletIndentPx
+const DEFAULT_BULLET_SIZE = RESUME_DOCUMENT.fontSizeBulletPx
+const RESUME_FONT = RESUME_DOCUMENT.fontFamily
 const MAX_SCALE = 2.0            // maximum --global-scale when scaling up to fill the page
 
 // ── Public types ───────────────────────────────────────────────────
 export type Warnings = Map<string, boolean>
+export type ResizeEngineResult = {
+  warnings: Warnings
+  globalScale: number
+  isReady: boolean
+}
+
+type ResizeMeasurement = {
+  key: string
+  warnings: Warnings
+  globalScale: number
+}
 
 // ── Pure helpers (exported for testing) ───────────────────────────
 
@@ -151,6 +164,49 @@ export function chooseFinalGlobalScale({
   )
 }
 
+const PAGE_HEIGHT_TOLERANCE_PX = 0.5
+const RESUME_MEASUREMENT_LAYOUT_SCALE = '100'
+const RESUME_MEASUREMENT_PRESENTATION_SCALE = '0.01'
+
+export function fitsWithinPageHeight(
+  measuredHeight: number,
+  pageHeightLimit: number
+): boolean {
+  return measuredHeight <= pageHeightLimit + PAGE_HEIGHT_TOLERANCE_PX
+}
+
+export function withResumeMeasurementScale<T>(
+  root: HTMLElement,
+  measure: () => T
+): T {
+  const layoutProperty = '--resume-layout-scale'
+  const presentationProperty = '--resume-presentation-scale'
+  const previousLayout = root.style.getPropertyValue(layoutProperty)
+  const previousPresentation = root.style.getPropertyValue(presentationProperty)
+
+  root.style.setProperty(layoutProperty, RESUME_MEASUREMENT_LAYOUT_SCALE)
+  root.style.setProperty(
+    presentationProperty,
+    RESUME_MEASUREMENT_PRESENTATION_SCALE
+  )
+
+  try {
+    return measure()
+  } finally {
+    if (previousLayout) {
+      root.style.setProperty(layoutProperty, previousLayout)
+    } else {
+      root.style.removeProperty(layoutProperty)
+    }
+
+    if (previousPresentation) {
+      root.style.setProperty(presentationProperty, previousPresentation)
+    } else {
+      root.style.removeProperty(presentationProperty)
+    }
+  }
+}
+
 // ── Hook ───────────────────────────────────────────────────────────
 
 /**
@@ -162,18 +218,21 @@ export function chooseFinalGlobalScale({
  * defined relative to --global-scale, so every element grows and shrinks
  * together, preserving the typographic hierarchy.
  *
- * Writes --global-scale to document.documentElement and returns a Warnings map
- * keyed by "bullet-{s}-{e}-{b}" (bullet overflows even at minScale) or
- * "global-overflow" (page overflows even at minScale).
+ * Writes --global-scale to document.documentElement and returns both the
+ * selected scale and a Warnings map keyed by "bullet-{s}-{e}-{b}" (bullet
+ * overflows even at minScale) or "global-overflow" (page overflows even at
+ * minScale).
  */
 export function useResizeEngine(
   resume: Resume,
   constraints: Constraints,
   pageRef: React.RefObject<HTMLElement | null>
-): Warnings {
-  const [warnings, setWarnings] = useState<Warnings>(new Map())
-  const prevBulletTexts = useRef<string[]>([])
-  const prevHeight = useRef<number>(0)
+): ResizeEngineResult {
+  const measurementKey = useMemo(
+    () => JSON.stringify([resume, constraints]),
+    [resume, constraints]
+  )
+  const [measurement, setMeasurement] = useState<ResizeMeasurement | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -187,28 +246,6 @@ export function useResizeEngine(
       const pageHeightLimit = maxPages * PAGE_HEIGHT_PX
       const root = document.documentElement
 
-      // ── Collect bullet texts ────────────────────────────────────
-      const bulletTexts: string[] = []
-      resume.sections.forEach(section =>
-        section.entries.forEach(entry =>
-          entry.bullets.forEach(bullet => bulletTexts.push(bullet))
-        )
-      )
-
-      // ── Fast path ───────────────────────────────────────────────
-      // Skip full measurement when bullets haven't changed AND we're well
-      // within the page limit. Always clears warnings to avoid stale state.
-      const bulletTextsUnchanged =
-        bulletTexts.length === prevBulletTexts.current.length &&
-        bulletTexts.every((t, i) => t === prevBulletTexts.current[i])
-      const wellWithinLimit = prevHeight.current < pageHeightLimit * 0.95
-
-      if (bulletTextsUnchanged && wellWithinLimit) {
-        setWarnings(new Map())
-        return
-      }
-
-      prevBulletTexts.current = bulletTexts
       const newWarnings = new Map<string, boolean>()
 
       if (!pageRef.current) return
@@ -244,7 +281,7 @@ export function useResizeEngine(
       const fitsAtScale = (scale: number): boolean => {
         root.style.setProperty('--global-scale', `${scale}`)
         const height = pageRef.current!.getBoundingClientRect().height
-        if (height > pageHeightLimit) return false
+        if (!fitsWithinPageHeight(height, pageHeightLimit)) return false
         return checkBulletsFitAtScale(resume, scale, impossibleKeys, maxLinesPerBullet, measureBulletLines)
       }
 
@@ -253,35 +290,42 @@ export function useResizeEngine(
       // satisfiable. If any bullet is impossible at minScale, keep the whole
       // resume at minScale so the line-limit failure is represented at the
       // smallest allowed global font size instead of scaling other content up.
-      const finalScale = chooseFinalGlobalScale({
-        minScale,
-        maxScale: MAX_SCALE,
-        impossibleKeys,
-        fitsAtScale,
-      })
+      const { finalScale, heightAtMinScale } =
+        withResumeMeasurementScale(root, () => {
+          const finalScale = chooseFinalGlobalScale({
+            minScale,
+            maxScale: MAX_SCALE,
+            impossibleKeys,
+            fitsAtScale,
+          })
 
+          root.style.setProperty('--global-scale', `${minScale}`)
+          const heightAtMinScale = pageRef.current!.getBoundingClientRect().height
+
+          root.style.setProperty('--global-scale', `${finalScale}`)
+          return { finalScale, heightAtMinScale }
+        })
+
+      // The measurement scope restores the live resume presentation variables.
+      // Reapply the selected document scale to that live presentation.
       root.style.setProperty('--global-scale', `${finalScale}`)
 
       if (cancelled) return
 
       // ── Emit warnings for things that overflow even at minScale ──
       // impossibleKeys was already computed at minScale above — reuse it
-      // to avoid re-measuring. Set --global-scale to minScale only long
-      // enough to take the DOM height reading, then restore finalScale.
-      root.style.setProperty('--global-scale', `${minScale}`)
-      const heightAtMinScale = pageRef.current.getBoundingClientRect().height
-      if (heightAtMinScale > pageHeightLimit) {
+      // to avoid re-measuring.
+      if (!fitsWithinPageHeight(heightAtMinScale, pageHeightLimit)) {
         newWarnings.set('global-overflow', true)
       }
       impossibleKeys.forEach(key => newWarnings.set(key, true))
-      // Restore finalScale after the minScale diagnostic pass.
-      root.style.setProperty('--global-scale', `${finalScale}`)
-
-      // Update prevHeight so the fast path has an accurate baseline next run.
-      prevHeight.current = pageRef.current.getBoundingClientRect().height
 
       if (!cancelled) {
-        setWarnings(newWarnings)
+        setMeasurement({
+          key: measurementKey,
+          warnings: newWarnings,
+          globalScale: finalScale,
+        })
       }
     }
 
@@ -289,7 +333,11 @@ export function useResizeEngine(
     return () => { cancelled = true }
     // pageRef is a stable object ref — intentionally excluded from deps.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resume, constraints])
+  }, [resume, constraints, measurementKey])
 
-  return warnings
+  return {
+    warnings: measurement?.warnings ?? new Map(),
+    globalScale: measurement?.globalScale ?? 1,
+    isReady: measurement?.key === measurementKey,
+  }
 }

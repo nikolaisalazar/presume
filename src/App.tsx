@@ -5,6 +5,7 @@ import { DEFAULT_RESUME } from './defaultResume'
 import { FitConstraintsPanel } from './components/FitConstraintsPanel'
 import { Toolbar } from './components/Toolbar'
 import { ResumePage } from './components/ResumePage'
+import { ResumeViewport } from './components/ResumeViewport'
 import { ReviewPanel } from './components/ReviewPanel'
 import { ReviewRail } from './components/ReviewRail'
 import { LandingPage } from './components/LandingPage'
@@ -54,8 +55,8 @@ function EditorApp({ onOpenLanding }: { onOpenLanding: () => void }) {
   const reviewPanelRef = useRef<HTMLElement>(null)
   const reviewRailActionRef = useRef<HTMLElement>(null)
   const previousReviewPanelOpen = useRef(reviewPanelOpen)
-  const warnings = useResizeEngine(resume, constraints, pageRef)
-  const review = useResumeReview({ resume, pageRef })
+  const { warnings, globalScale, isReady: isScaleReady } = useResizeEngine(resume, constraints, pageRef)
+  const review = useResumeReview({ resume, globalScale, isScaleReady })
   const reviewAnnotations =
     'result' in review.state && review.state.result
       ? review.state.result.annotations
@@ -119,7 +120,8 @@ function EditorApp({ onOpenLanding }: { onOpenLanding: () => void }) {
           >
             <Toolbar
               resume={resume}
-              pageRef={pageRef}
+              globalScale={globalScale}
+              pdfReady={isScaleReady}
               onImport={setResume}
               onReset={() => setResume(DEFAULT_RESUME)}
             />
@@ -127,13 +129,15 @@ function EditorApp({ onOpenLanding }: { onOpenLanding: () => void }) {
           <div className="resume-stage">
             <div className="resume-canvas-scroll" aria-label="Fixed-width resume canvas">
               <div className="resume-canvas">
-                <ResumePage
-                  ref={pageRef}
-                  resume={resume}
-                  onResumeChange={setResume}
-                  warnings={warnings}
-                  reviewAnnotations={reviewAnnotations}
-                />
+                <ResumeViewport pageRef={pageRef}>
+                  <ResumePage
+                    ref={pageRef}
+                    resume={resume}
+                    onResumeChange={setResume}
+                    warnings={warnings}
+                    reviewAnnotations={reviewAnnotations}
+                  />
+                </ResumeViewport>
               </div>
             </div>
           </div>
@@ -144,6 +148,7 @@ function EditorApp({ onOpenLanding }: { onOpenLanding: () => void }) {
             panelId={reviewPanelId}
             onOpenPanel={openReviewPanel}
             onRequestReview={requestReview}
+            pdfReady={isScaleReady}
             actionRef={reviewRailActionRef}
             hidden={reviewPanelOpen}
           />
@@ -152,6 +157,7 @@ function EditorApp({ onOpenLanding }: { onOpenLanding: () => void }) {
             id={reviewPanelId}
             state={review.state}
             onRequestReview={requestReview}
+            pdfReady={isScaleReady}
             onClose={closeReviewPanel}
             hidden={!reviewPanelOpen}
           />

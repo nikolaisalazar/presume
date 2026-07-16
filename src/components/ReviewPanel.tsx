@@ -32,12 +32,13 @@ interface ReviewPanelProps {
   id?: string
   state: ResumeReviewState
   onRequestReview: () => void
+  pdfReady?: boolean
   onClose?: () => void
   hidden?: boolean
 }
 
 export const ReviewPanel = forwardRef<HTMLElement, ReviewPanelProps>(function ReviewPanel(
-  { id, state, onRequestReview, onClose, hidden },
+  { id, state, onRequestReview, pdfReady = true, onClose, hidden },
   ref
 ) {
   const result = 'result' in state ? state.result : undefined
@@ -45,6 +46,7 @@ export const ReviewPanel = forwardRef<HTMLElement, ReviewPanelProps>(function Re
     'resultIsStale' in state ? Boolean(state.resultIsStale) : false
   const isLoading = state.status === 'loading'
   const actionDisabled =
+    !pdfReady ||
     state.status === 'unconfigured' ||
     state.status === 'checking' ||
     state.status === 'disabled' ||
