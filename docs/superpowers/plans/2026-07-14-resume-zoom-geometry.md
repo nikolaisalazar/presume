@@ -776,7 +776,7 @@ git add docs/superpowers/plans/2026-07-14-resume-zoom-geometry.md
 git commit -m "docs: record resume zoom verification"
 ```
 
-- [ ] **Step 8: Confirm the final branch state**
+- [x] **Step 8: Confirm the final branch state**
 
 ```sh
 git log --oneline --decorate -5
