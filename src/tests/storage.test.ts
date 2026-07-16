@@ -57,4 +57,24 @@ describe('saveConstraints / loadConstraints', () => {
     localStorage.setItem(CONSTRAINTS_KEY, '{invalid json')
     expect(loadConstraints()).toBeNull()
   })
+
+  it.each([
+    { maxPages: 0, maxLinesPerBullet: 2, minFontSize: 9 },
+    { maxPages: 2, maxLinesPerBullet: 11, minFontSize: 9 },
+    { maxPages: 2, maxLinesPerBullet: 2, minFontSize: 3 },
+    { maxPages: 1.5, maxLinesPerBullet: 2, minFontSize: 9 },
+    { maxPages: 2, maxLinesPerBullet: 2 },
+  ])('returns null when stored constraints are semantically invalid: %o', value => {
+    localStorage.setItem(CONSTRAINTS_KEY, JSON.stringify(value))
+    expect(loadConstraints()).toBeNull()
+  })
+
+  it('strips unknown fields from valid stored constraints', () => {
+    localStorage.setItem(
+      CONSTRAINTS_KEY,
+      JSON.stringify({ ...mockConstraints, ignored: true })
+    )
+
+    expect(loadConstraints()).toEqual(mockConstraints)
+  })
 })
