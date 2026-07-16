@@ -2,7 +2,7 @@ import { forwardRef } from 'react'
 import type { Resume } from '../types'
 import { ResumeHeader } from './ResumeHeader'
 import { Section } from './Section'
-import type { Warnings } from '../useResizeEngine'
+import type { FormattingWarnings } from '../formatting'
 import type { ReviewAnnotation } from '../reviewTypes'
 import { getReviewAnnotationTargets } from './ReviewAnnotations'
 import { addSection, removeSection, updateSection } from '../resumeOperations'
@@ -10,7 +10,7 @@ import { addSection, removeSection, updateSection } from '../resumeOperations'
 interface ResumePageProps {
   resume: Resume
   onResumeChange: (resume: Resume) => void
-  warnings: Warnings
+  warnings: FormattingWarnings
   reviewAnnotations?: ReviewAnnotation[]
 }
 

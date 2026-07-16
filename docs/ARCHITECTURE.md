@@ -10,7 +10,8 @@ Presume is currently a React application with an optional review service. The fr
 |---|---|
 | `src/App.tsx` | Composes resume state, settings, toolbar, resume page, and resize warnings. |
 | `src/useResume.ts` | Owns resume and constraint state, loading defaults from LocalStorage and autosaving changes. |
-| `src/useResizeEngine.ts` | Uses Pretext and DOM height measurement to find a global scale that satisfies layout constraints. |
+| `src/formatting/` | Pure in-process module that computes a `ResumeFit` from resume data, constraints, and injected measurements. |
+| `src/useResizeEngine.ts` | React/DOM/Pretext adapter that supplies live measurements to the formatting module and publishes its result. |
 | `src/export.ts` | Exports single-page or multi-page Letter PDFs, exports JSON, imports and validates JSON. |
 | `src/constraints.ts` | Owns the constraint interface, inclusive bounds, defaults, parsing, and controlled updates. |
 | `src/types.ts` | Defines resume data and validators, with compatibility re-exports for constraints. |
@@ -58,17 +59,18 @@ Persisted formatting constraints are parsed against the inclusive bounds in `src
 
 The resume page uses US Letter proportions: `816px` by `1056px`, with fixed page margins and a fixed bullet column width used by the resize engine.
 
-`useResizeEngine` runs after resume or constraint changes:
+`useResizeEngine` runs after resume or constraint changes and adapts the browser to the pure formatting module:
 
 1. Wait for document fonts to be ready.
-2. Collect bullet text.
-3. Skip measurement when bullet text is unchanged and the previous height was comfortably within the page limit.
-4. Compute the minimum allowed global scale from `minFontSize`.
-5. Use Pretext to measure bullet line counts at candidate scales.
-6. Mark bullets that still exceed `maxLinesPerBullet` at minimum scale as impossible.
-7. Binary-search the largest global scale where the page height fits and all satisfiable bullets fit.
-8. Write `--global-scale` to `document.documentElement`.
-9. Emit warnings for impossible bullets and page overflow at minimum scale.
+2. Create local measurement adapters: Pretext measures bullet line counts, while the resume DOM measures page height after the adapter writes each candidate `--global-scale`.
+3. Temporarily switch the resume to high-resolution layout coordinates while preserving its live presentation variables.
+4. Call `computeResumeFit`, which derives the minimum scale, identifies impossible bullets, and binary-searches the largest global scale where page height and all satisfiable bullets fit.
+5. Evaluate page overflow at minimum scale with a `0.5px` tolerance and return a `ResumeFit` containing the selected scale and structured warnings.
+6. Restore the temporary layout and presentation variables.
+7. Apply the selected `--global-scale` to the live document.
+8. Publish the current fit only if the async measurement is still current for the resume and constraints.
+
+Formatting warnings use explicit data rather than encoded string keys: `globalOverflow` reports page overflow at minimum scale, and `bullets` contains numeric section, entry, and bullet locations for impossible bullets. UI callers inspect that structure or use `hasBulletWarning`; binary search, warning encoding, tolerance, and impossible-bullet detection remain implementation details of `src/formatting/`.
 
 All major resume font sizes are expressed as CSS custom properties multiplied by `--global-scale`. The current implementation does not assign independent per-bullet font variables.
 
@@ -90,7 +92,11 @@ flowchart TD
   UseResume --> Storage[src/storage.ts and LocalStorage]
   UseResume --> Resize[src/useResizeEngine.ts]
   Resize --> Pretext[@chenglou/pretext]
-  Resize --> CSS[CSS --global-scale and warnings]
+  Resize --> DOM[Resume DOM height measurement]
+  Resize --> Formatting[src/formatting pure ResumeFit computation]
+  Formatting --> Fit[Structured ResumeFit]
+  Fit --> Resize
+  Resize --> CSS[CSS --global-scale and structured warnings]
   App --> Page[src/components/ResumePage.tsx]
   App --> Export[src/export.ts]
   Export --> PDFRenderer[src/pdf canonical renderer]
