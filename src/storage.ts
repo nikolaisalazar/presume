@@ -1,5 +1,6 @@
 import type { Constraints, Resume } from './types'
-import { validateResume, validateConstraints } from './types'
+import { parseConstraints } from './constraints'
+import { validateResume } from './types'
 
 const RESUME_KEY = 'presume:resume'
 const CONSTRAINTS_KEY = 'presume:constraints'
@@ -26,7 +27,7 @@ export function loadConstraints(): Constraints | null {
   try {
     const raw = localStorage.getItem(CONSTRAINTS_KEY)
     if (!raw) return null
-    return validateConstraints(JSON.parse(raw))
+    return parseConstraints(JSON.parse(raw))
   } catch {
     return null
   }

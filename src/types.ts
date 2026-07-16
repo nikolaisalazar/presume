@@ -30,17 +30,11 @@ export type ResumeEntry = {
   bullets: string[]
 }
 
-export type Constraints = {
-  maxPages: number
-  maxLinesPerBullet: number
-  minFontSize: number
-}
-
-export const DEFAULT_CONSTRAINTS: Constraints = {
-  maxPages: 1,
-  maxLinesPerBullet: 1,
-  minFontSize: 8,
-}
+export type { Constraints } from './constraints'
+export {
+  DEFAULT_CONSTRAINTS,
+  parseConstraints as validateConstraints,
+} from './constraints'
 
 /**
  * Parses and validates an unknown value as a Resume.
@@ -92,21 +86,4 @@ export function validateResume(data: unknown): Resume | null {
   }
 
   return { name: d.name, contact: d.contact as string[], sections }
-}
-
-/**
- * Parses and validates an unknown value as Constraints.
- * Returns a freshly-constructed Constraints object or null if invalid.
- */
-export function validateConstraints(data: unknown): Constraints | null {
-  if (!data || typeof data !== 'object') return null
-  const d = data as Record<string, unknown>
-  if (typeof d.maxPages !== 'number') return null
-  if (typeof d.maxLinesPerBullet !== 'number') return null
-  if (typeof d.minFontSize !== 'number') return null
-  return {
-    maxPages: d.maxPages,
-    maxLinesPerBullet: d.maxLinesPerBullet,
-    minFontSize: d.minFontSize,
-  }
 }
