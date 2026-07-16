@@ -200,4 +200,3 @@ describe('computeResumeFit', () => {
     expect(constraints).toEqual(constraintsSnapshot)
   })
 })
-

@@ -6,4 +6,3 @@ export {
   type ResumeFit,
   type ResumeFitMeasurements,
 } from './computeResumeFit'
-
