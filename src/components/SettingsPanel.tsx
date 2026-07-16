@@ -3,6 +3,11 @@ import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import type { Constraints } from '../types'
 import {
+  CONSTRAINT_LIMITS,
+  updateConstraint,
+  type ConstraintKey,
+} from '../constraints'
+import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
@@ -16,12 +21,8 @@ interface SettingsPanelProps {
 export function SettingsPanel({ constraints, onChange }: SettingsPanelProps) {
   const [open, setOpen] = useState(false)
 
-  const update = (key: keyof Constraints, value: number) => {
-    onChange({ ...constraints, [key]: value })
-  }
-
-  const step = (key: keyof Constraints, delta: number, min: number, max: number) => {
-    update(key, Math.min(max, Math.max(min, constraints[key] + delta)))
+  const step = (key: ConstraintKey, delta: number) => {
+    onChange(updateConstraint(constraints, key, constraints[key] + delta))
   }
 
   return (
@@ -55,34 +56,48 @@ export function SettingsPanel({ constraints, onChange }: SettingsPanelProps) {
             label="Page limit"
             value={constraints.maxPages}
             help="Number of resume pages"
-            onDecrease={() => step('maxPages', -1, 1, 10)}
-            onIncrease={() => step('maxPages', 1, 1, 10)}
+            onDecrease={() => step('maxPages', -1)}
+            onIncrease={() => step('maxPages', 1)}
             decreaseLabel="Decrease max pages"
             increaseLabel="Increase max pages"
-            decreaseDisabled={constraints.maxPages <= 1}
-            increaseDisabled={constraints.maxPages >= 10}
+            decreaseDisabled={
+              constraints.maxPages <= CONSTRAINT_LIMITS.maxPages.min
+            }
+            increaseDisabled={
+              constraints.maxPages >= CONSTRAINT_LIMITS.maxPages.max
+            }
           />
           <ConstraintStepper
             label="Lines per bullet"
             value={constraints.maxLinesPerBullet}
             help="Maximum wrapped lines"
-            onDecrease={() => step('maxLinesPerBullet', -1, 1, 10)}
-            onIncrease={() => step('maxLinesPerBullet', 1, 1, 10)}
+            onDecrease={() => step('maxLinesPerBullet', -1)}
+            onIncrease={() => step('maxLinesPerBullet', 1)}
             decreaseLabel="Decrease max lines per bullet"
             increaseLabel="Increase max lines per bullet"
-            decreaseDisabled={constraints.maxLinesPerBullet <= 1}
-            increaseDisabled={constraints.maxLinesPerBullet >= 10}
+            decreaseDisabled={
+              constraints.maxLinesPerBullet <=
+              CONSTRAINT_LIMITS.maxLinesPerBullet.min
+            }
+            increaseDisabled={
+              constraints.maxLinesPerBullet >=
+              CONSTRAINT_LIMITS.maxLinesPerBullet.max
+            }
           />
           <ConstraintStepper
             label="Minimum font size (px)"
             value={constraints.minFontSize}
             help="Do not shrink below"
-            onDecrease={() => step('minFontSize', -1, 4, 16)}
-            onIncrease={() => step('minFontSize', 1, 4, 16)}
+            onDecrease={() => step('minFontSize', -1)}
+            onIncrease={() => step('minFontSize', 1)}
             decreaseLabel="Decrease minimum font size"
             increaseLabel="Increase minimum font size"
-            decreaseDisabled={constraints.minFontSize <= 4}
-            increaseDisabled={constraints.minFontSize >= 16}
+            decreaseDisabled={
+              constraints.minFontSize <= CONSTRAINT_LIMITS.minFontSize.min
+            }
+            increaseDisabled={
+              constraints.minFontSize >= CONSTRAINT_LIMITS.minFontSize.max
+            }
           />
         </div>
       </CollapsibleContent>
