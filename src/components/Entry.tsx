@@ -1,7 +1,7 @@
 import { EditableText } from './EditableText'
 import { Bullet } from './Bullet'
 import type { ResumeEntry } from '../types'
-import type { Warnings } from '../useResizeEngine'
+import { hasBulletWarning, type FormattingWarnings } from '../formatting'
 import {
   ReviewAnnotations,
   getReviewAnnotationsForTarget,
@@ -14,7 +14,7 @@ interface EntryProps {
   entry: ResumeEntry
   sectionIdx: number
   entryIdx: number
-  warnings: Warnings
+  warnings: FormattingWarnings
   reviewAnnotationTargets?: ReviewAnnotationTargets
   onChange: (entry: ResumeEntry) => void
   onRemove: () => void
@@ -70,7 +70,7 @@ export function Entry({
           <Bullet
             key={bIdx}
             text={bullet}
-            warning={warnings.get(`bullet-${sectionIdx}-${entryIdx}-${bIdx}`) ?? false}
+            warning={hasBulletWarning(warnings, sectionIdx, entryIdx, bIdx)}
             reviewAnnotations={getReviewAnnotationsForTarget(
               reviewAnnotationTargets,
               `bullet-${sectionIdx}-${entryIdx}-${bIdx}`

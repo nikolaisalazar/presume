@@ -3,10 +3,15 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import App from '../App'
 import { DEFAULT_RESUME } from '../defaultResume'
 import { exportJSON, exportPDF, importJSON } from '../export'
+import type { FormattingWarnings } from '../formatting'
 import type { Resume } from '../types'
 
-const resizeWarningsMock = vi.hoisted(() => ({
-  warnings: new Map<string, boolean>(),
+const resizeWarningsMock = vi.hoisted((): {
+  warnings: FormattingWarnings
+  globalScale: number
+  isReady: boolean
+} => ({
+  warnings: { globalOverflow: false, bullets: [] },
   globalScale: 1.0584,
   isReady: true,
 }))
@@ -54,7 +59,7 @@ describe('App review availability boundaries', () => {
     vi.unstubAllGlobals()
     vi.restoreAllMocks()
     vi.clearAllMocks()
-    resizeWarningsMock.warnings = new Map()
+    resizeWarningsMock.warnings = { globalOverflow: false, bullets: [] }
     resizeWarningsMock.isReady = true
     localStorage.clear()
     window.history.pushState({}, '', '/')
@@ -263,7 +268,10 @@ describe('App review availability boundaries', () => {
 
   it('explains impossible fitting warnings near the constraints strip', () => {
     vi.stubEnv('VITE_REVIEW_API_URL', '')
-    resizeWarningsMock.warnings = new Map([['bullet-0-0-0', true]])
+    resizeWarningsMock.warnings = {
+      globalOverflow: false,
+      bullets: [{ sectionIndex: 0, entryIndex: 0, bulletIndex: 0 }],
+    }
 
     render(<App />)
 
@@ -286,7 +294,7 @@ describe('App review availability boundaries', () => {
 
   it('explains global overflow warnings without calling them bullet warnings', () => {
     vi.stubEnv('VITE_REVIEW_API_URL', '')
-    resizeWarningsMock.warnings = new Map([['global-overflow', true]])
+    resizeWarningsMock.warnings = { globalOverflow: true, bullets: [] }
 
     render(<App />)
 
@@ -310,11 +318,13 @@ describe('App review availability boundaries', () => {
 
   it('explains mixed global and bullet fitting warnings together', () => {
     vi.stubEnv('VITE_REVIEW_API_URL', '')
-    resizeWarningsMock.warnings = new Map([
-      ['global-overflow', true],
-      ['bullet-0-0-0', true],
-      ['bullet-0-0-1', true],
-    ])
+    resizeWarningsMock.warnings = {
+      globalOverflow: true,
+      bullets: [
+        { sectionIndex: 0, entryIndex: 0, bulletIndex: 0 },
+        { sectionIndex: 0, entryIndex: 0, bulletIndex: 1 },
+      ],
+    }
 
     render(<App />)
 

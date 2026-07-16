@@ -61,11 +61,8 @@ function EditorApp({ onOpenLanding }: { onOpenLanding: () => void }) {
     'result' in review.state && review.state.result
       ? review.state.result.annotations
       : []
-  const activeWarningKeys = Array.from(warnings.entries())
-    .filter(([, active]) => active)
-    .map(([key]) => key)
-  const bulletWarningCount = activeWarningKeys.filter(key => key.startsWith('bullet-')).length
-  const hasGlobalOverflowWarning = activeWarningKeys.includes('global-overflow')
+  const bulletWarningCount = warnings.bullets.length
+  const hasGlobalOverflowWarning = warnings.globalOverflow
   const reviewPanelId = 'resume-review-panel'
   const requestReview = () => {
     void review.requestReview()

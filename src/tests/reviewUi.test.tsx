@@ -10,9 +10,15 @@ import {
   ReviewRail,
   getReviewRailPresentation,
 } from '../components/ReviewRail'
+import type { FormattingWarnings } from '../formatting'
 import type { ResumeReviewState } from '../useResumeReview'
 import type { ReviewCategory, ReviewResult } from '../reviewTypes'
 import type { Resume } from '../types'
+
+const EMPTY_FORMATTING_WARNINGS: FormattingWarnings = {
+  globalOverflow: false,
+  bullets: [],
+}
 
 const resume: Resume = {
   name: 'Ada Lovelace',
@@ -568,7 +574,7 @@ describe('review annotations', () => {
     render(
       <ResumePage
         resume={resume}
-        warnings={new Map()}
+        warnings={EMPTY_FORMATTING_WARNINGS}
         reviewAnnotations={reviewResult.annotations}
         onResumeChange={vi.fn()}
       />
@@ -586,7 +592,7 @@ describe('review annotations', () => {
     render(
       <ResumePage
         resume={resume}
-        warnings={new Map()}
+        warnings={EMPTY_FORMATTING_WARNINGS}
         reviewAnnotations={[
           ...reviewResult.annotations,
           {
@@ -614,7 +620,7 @@ describe('review annotations', () => {
     render(
       <ResumePage
         resume={resume}
-        warnings={new Map()}
+        warnings={EMPTY_FORMATTING_WARNINGS}
         reviewAnnotations={[
           {
             id: 'ann_entry',
@@ -638,7 +644,7 @@ describe('review annotations', () => {
     render(
       <ResumePage
         resume={resume}
-        warnings={new Map()}
+        warnings={EMPTY_FORMATTING_WARNINGS}
         reviewAnnotations={[
           {
             id: 'ann_section',
@@ -671,7 +677,7 @@ describe('review annotations', () => {
     render(
       <ResumePage
         resume={singleCandidateResume}
-        warnings={new Map()}
+        warnings={EMPTY_FORMATTING_WARNINGS}
         reviewAnnotations={[
           {
             id: 'ann_missing_section',
@@ -707,7 +713,7 @@ describe('review annotations', () => {
     render(
       <ResumePage
         resume={singleCandidateResume}
-        warnings={new Map()}
+        warnings={EMPTY_FORMATTING_WARNINGS}
         reviewAnnotations={[
           {
             id: 'ann_missing_entry',
@@ -733,7 +739,7 @@ describe('review annotations', () => {
     render(
       <ResumePage
         resume={resume}
-        warnings={new Map()}
+        warnings={EMPTY_FORMATTING_WARNINGS}
         reviewAnnotations={[
           {
             id: 'ann_missing_bullet',
@@ -773,7 +779,7 @@ describe('review annotations', () => {
     render(
       <ResumePage
         resume={ambiguousResume}
-        warnings={new Map()}
+        warnings={EMPTY_FORMATTING_WARNINGS}
         reviewAnnotations={[
           {
             id: 'ann_ambiguous',
@@ -804,7 +810,7 @@ describe('review annotations', () => {
     render(
       <ResumePage
         resume={duplicateSectionResume}
-        warnings={new Map()}
+        warnings={EMPTY_FORMATTING_WARNINGS}
         reviewAnnotations={[
           {
             id: 'ann_duplicate_section',
@@ -838,7 +844,7 @@ describe('review annotations', () => {
     render(
       <ResumePage
         resume={duplicateEntryResume}
-        warnings={new Map()}
+        warnings={EMPTY_FORMATTING_WARNINGS}
         reviewAnnotations={[
           {
             id: 'ann_duplicate_entry',
@@ -879,7 +885,7 @@ describe('review annotations', () => {
     render(
       <ResumePage
         resume={duplicateBulletResume}
-        warnings={new Map()}
+        warnings={EMPTY_FORMATTING_WARNINGS}
         reviewAnnotations={reviewResult.annotations}
         onResumeChange={vi.fn()}
       />
@@ -892,7 +898,10 @@ describe('review annotations', () => {
     render(
       <ResumePage
         resume={resume}
-        warnings={new Map([['bullet-0-0-0', true]])}
+        warnings={{
+          globalOverflow: false,
+          bullets: [{ sectionIndex: 0, entryIndex: 0, bulletIndex: 0 }],
+        }}
         reviewAnnotations={reviewResult.annotations}
         onResumeChange={vi.fn()}
       />
