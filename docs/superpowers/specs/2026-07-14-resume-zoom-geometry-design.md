@@ -36,6 +36,12 @@ Reloading at 50% can cause the resize engine to recompute a different global sca
 
 Temporary browser experiments also established that `text-size-adjust` and a reset-style CSS `zoom` do not solve the problem. JavaScript browser-zoom detection would be fragile across browsers and display configurations and is explicitly rejected.
 
+### Native-QA architecture amendment (2026-07-15)
+
+The first implementation used `zoom: 2.25` plus an inverse transform. It removed WebKit's dramatic small-text enlargement, but native cmux WebKit QA proved that it did not satisfy the exact invariant. With unchanged content and a fixed `--global-scale`, WebKit produced a representative 13.78px bullet line box at 100% browser zoom and a 13.33px line box at 50%. After reload, the resize engine consequently selected 1.0941 at 50% instead of the 1.0666 selected at 100%.
+
+Raw DOM inspection showed that CSS `zoom` quantizes line boxes at the combined CSS-zoom and browser-zoom factor. Raising the hidden CSS zoom reduces the error but cannot eliminate it without impractically large layout dimensions and capture risk. The approved correction therefore prohibits CSS `zoom` in the resume presentation boundary.
+
 ## Approved User-Facing Contract
 
 Browser zoom scales the resume as a single visual object:
@@ -53,7 +59,7 @@ The primary supported regression range is standard browser zoom from 100% down t
 
 ### Canonical high-resolution document layer
 
-Render the resume's internal document layer at a constant 2.25× layout scale, then apply the exact inverse visual scale before presenting it inside the editor.
+Render the resume in genuine 2.25× author dimensions, then apply the exact inverse visual transform before presenting it inside the editor. Genuine author dimensions mean that page width, page height, padding, typography, spacing, borders, annotations, and in-document controls use CSS lengths multiplied by 2.25. Do not use the CSS `zoom` property to obtain those dimensions.
 
 In simplified terms:
 
@@ -62,28 +68,21 @@ Visible document geometry
   816px wide Letter page unit
   1056px high Letter page unit
 
-Internal layout geometry
-  2.25 × the normal resume layer
-  immediately presented through a 1 / 2.25 visual scale
+Internal author geometry
+  actual CSS lengths at 2.25 × the normal resume values
+  immediately presented through a 1 / 2.25 visual transform
 ```
 
-The two operations cancel visually. Users see the existing 816px-wide resume with its existing typography. WebKit, however, lays out the smallest supported 8px resume text at an internal 18px (`8 × 2.25`), preventing the browser's 50%-zoom small-text compensation from changing the document.
+The two operations cancel visually. Users see the existing 816px-wide resume with its existing typography and spacing. WebKit lays out the smallest supported 8px resume text as an actual 18px CSS font (`8 × 2.25`), preventing small-text compensation. Because the browser performs layout in those genuine large coordinates rather than through CSS `zoom`, native browser zoom no longer changes the coordinate grid used for line-box calculation.
 
-A cmux-only prototype confirmed the approach at 50% browser zoom:
-
-- the resume bounding box remained 816×1056px for the default one-page document;
-- the bullet text returned to the canonical 10.777px result;
-- `--global-scale` remained 1.077734;
-- line wrapping matched the 100% composition.
-
-A worst-case prototype using the allowed 8px minimum also remained stable because the internal author size was 18px before inverse presentation.
+The scale conversion is mechanical and ratio-preserving. It is not authorization to redesign the resume or adjust individual values by eye.
 
 ### Component boundary
 
 Introduce a focused `ResumeViewport` presentation boundary around the existing `ResumePage`. Its responsibilities are:
 
 - establish the canonical visible width and minimum Letter-page height;
-- host the high-resolution internal layer and inverse presentation scale;
+- host the genuine high-resolution author layer and inverse presentation transform;
 - expose the complete canonical visual height when content spans more than one Letter-page unit;
 - keep the fixed-width canvas scroller aware of the visible 816px document, not the enlarged internal dimensions.
 
@@ -111,7 +110,7 @@ The expected flow remains:
 ```text
 Resume data + Fit Constraints
   -> ResumePage content
-  -> canonical high-resolution layout layer
+  -> canonical high-resolution author-coordinate layer
   -> exact inverse visual presentation
   -> canonical geometry measured by useResizeEngine
   -> warnings, export, and review consume the same page reference
@@ -154,6 +153,8 @@ Do not clone or maintain a second resume renderer solely for export. The live do
 - Preserve the editor-shell composition delivered by PR #26, including the 1640/1639 wide-layout boundary.
 - Preserve the fixed 816px resume width and intentional horizontal canvas scroller on narrow screens.
 - Keep layout-scale constants narrowly scoped to the resume presentation boundary.
+- Multiply every resume-internal CSS length that affects geometry or visible weight by the same 2.25 factor before applying the inverse transform. This includes in-document editor controls defined in `app.css`.
+- Do not use CSS `zoom` in the presentation boundary.
 - Avoid a broad rewrite of `src/styles/resume.css`; adjust only the selectors necessary to establish the layer and its canonical geometry.
 - Do not change resume typography, margins, spacing, print hiding, colors, or editor-control design while fixing zoom geometry.
 - Do not use browser/device-pixel-ratio sniffing, user-agent detection, or viewport-specific zoom compensation.
@@ -179,6 +180,9 @@ Add one focused browser-level contract for the new presentation boundary in the 
 
 - the visible resume remains 816px wide and at least one canonical 1056px Letter-page unit high;
 - the enlarged internal layout does not leak into the canvas scroller's visible or scroll geometry;
+- the page's untransformed author width is 1836px (`816 × 2.25`) while its visible bounding width remains 816px;
+- the smallest allowed internal author font is at least 18px before inverse presentation;
+- computed CSS `zoom` remains `1` / `normal` on the page layer;
 - direct editing still changes the intended field through the scaled presentation;
 - a deliberately taller document expands the visible boundary rather than being clipped, if this is not already covered by an existing test.
 

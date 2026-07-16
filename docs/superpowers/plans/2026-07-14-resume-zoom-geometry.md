@@ -4,7 +4,7 @@
 
 **Goal:** Preserve the resume's canonical Letter-page proportions, typography, wrapping, and global scale when Safari/WebKit browser zoom decreases from 100% through 50%.
 
-**Architecture:** Add a document-specific `ResumeViewport` around the existing `ResumePage`. The page lays out at a constant 2.25× CSS zoom and is presented through an exact inverse transform, while the viewport exposes only the canonical 816px width and complete canonical height to the canvas scroller. The existing page ref remains attached to `ResumePage`, so Fit Constraints, PDF export, and Review keep their current interfaces.
+**Architecture:** Add a document-specific `ResumeViewport` around the existing `ResumePage`. The page uses genuine CSS author dimensions at 2.25× every canonical resume-internal length and is presented through an exact inverse transform; CSS `zoom` is prohibited because native QA proved it quantizes line boxes differently at different browser zoom levels. The viewport exposes only the canonical 816px width and complete canonical height to the canvas scroller, while the existing page ref remains attached to `ResumePage` so Fit Constraints, PDF export, and Review keep their current interfaces.
 
 **Tech Stack:** Vite, React 18, TypeScript, CSS, Vitest, Playwright, html2canvas, jsPDF, cmux WebKit browser.
 
@@ -12,7 +12,7 @@
 
 - The current 100% browser-zoom resume composition is authoritative.
 - Browser zoom may change apparent size but must not change resume proportions, wrapping, page count, or selected `--global-scale`.
-- Use a constant 2.25× internal layout scale and its exact inverse presentation scale; do not detect browser zoom, device-pixel ratio, or user agent.
+- Use genuine 2.25× CSS author dimensions and their exact inverse presentation transform; do not use CSS `zoom` or detect browser zoom, device-pixel ratio, or user agent.
 - Preserve direct inline editing, Pretext/global resizing, PDF export, Review capture, JSON import/export, LocalStorage, routing, and the fixed-width narrow-screen scroller.
 - Treat 816×1056px as one Letter-page unit; do not clip legitimate multi-page content.
 - Do not change resume data schemas, constraint bounds, typography, margins, colors, or editor-shell composition.
@@ -25,7 +25,8 @@
 
 - Create `src/components/ResumeViewport.tsx`: own the canonical viewport height and observe the transformed page's complete visual geometry.
 - Modify `src/App.tsx`: compose `ResumeViewport` around the existing `ResumePage` while leaving `pageRef` on `ResumePage`.
-- Modify `src/styles/resume.css`: define the 2.25× internal scale, inverse presentation scale, fixed viewport geometry, and transformed page layer.
+- Modify `src/styles/resume.css`: define the 2.25× author-coordinate scale, inverse presentation transform, fixed viewport geometry, and mechanically scaled resume-internal lengths.
+- Modify `src/styles/app.css`: mechanically scale only the in-document editor-control lengths that are transformed with the resume.
 - Modify `e2e/unconfigured.spec.ts`: extend the existing fixed-canvas contract to catch leaked internal dimensions, clipping, and narrow-screen regressions without adding another broad E2E case.
 - Modify this plan: record completed commands and direct cmux QA evidence during execution.
 - Modify `src/export.ts` and `src/tests/export.test.ts` only if Task 3 proves html2canvas does not capture canonical geometry.
@@ -105,6 +106,8 @@ The failure must identify the missing viewport lookup or viewport geometry. If i
 ---
 
 ### Task 2: Implement the canonical high-resolution presentation boundary
+
+**Execution note (2026-07-15):** This initial CSS-`zoom` implementation was completed and committed as `388a5c6`, then rejected by native WebKit QA. At fixed content and scale, representative line boxes measured 13.78px at 100% and 13.33px at 50%; reload selected different global scales. Task 2A supersedes only the internal scaling mechanism while preserving `ResumeViewport`, its ref boundary, and its complete-height synchronization.
 
 **Files:**
 - Create: `src/components/ResumeViewport.tsx`
@@ -259,6 +262,172 @@ Confirm that no browser-zoom detection, user-agent branching, resume typography 
 ```sh
 git add src/App.tsx src/components/ResumeViewport.tsx src/styles/resume.css e2e/unconfigured.spec.ts
 git commit -m "fix: stabilize resume geometry across browser zoom"
+```
+
+---
+
+### Task 2A: Replace CSS zoom with genuine author-dimension scaling
+
+**Files:**
+- Modify: `e2e/unconfigured.spec.ts:293-360`
+- Modify: `src/styles/resume.css:1-245`
+- Modify: `src/styles/app.css:227-365,405-418`
+- Preserve: `src/components/ResumeViewport.tsx`, `src/App.tsx`
+
+**Interfaces:**
+- Consumes: `--resume-layout-scale: 2.25`, `--resume-presentation-scale: 0.4444444444444444`, and the existing `ResumeViewport`.
+- Produces: an actual 1836px-wide author-coordinate page presented as an 816px-wide visible page without CSS `zoom`.
+- Preserves: canonical visible geometry, `pageRef`, resize-engine interfaces, editor behavior, and all resume design ratios.
+
+- [ ] **Step 1: Strengthen the existing browser contract before changing CSS**
+
+Add these metrics to the existing fixed-canvas `page.evaluate` result:
+
+```ts
+const resumeStyle = getComputedStyle(resume)
+const representativeBullet = document.querySelector('.bullet-item') as HTMLElement
+
+return {
+  // Preserve every existing metric.
+  resumeOffsetWidth: resume.offsetWidth,
+  resumeCssZoom: resumeStyle.getPropertyValue('zoom') || '1',
+  representativeBulletFontSize: Number.parseFloat(
+    getComputedStyle(representativeBullet).fontSize
+  ),
+}
+```
+
+Add these assertions inside the existing width loop:
+
+```ts
+expect(metrics.resumeOffsetWidth, `author width at ${width}px`).toBe(1836)
+expect(metrics.resumeCssZoom, `CSS zoom at ${width}px`).toBe('1')
+expect(metrics.representativeBulletFontSize, `author font at ${width}px`).toBeGreaterThanOrEqual(18)
+```
+
+Change the deliberate complete-height synchronization input from 1400px author height to its 2.25× author-coordinate value while keeping the expected visible height canonical:
+
+```ts
+await resume.evaluate(element => {
+  element.style.minHeight = '3150px'
+})
+
+await expect.poll(async () =>
+  Math.round(await resumeViewport.evaluate(element => element.getBoundingClientRect().height))
+).toBe(1400)
+```
+
+- [ ] **Step 2: Run the focused contract and verify the corrected boundary is red**
+
+```sh
+npm run build
+CI=1 npx playwright test -c playwright.unconfigured.config.ts --grep "keeps viewport overflow inside the fixed resume canvas scroller"
+```
+
+Expected: FAIL because the current page has an 816px author width, computed CSS zoom of `2.25`, and an unscaled computed bullet font.
+
+- [ ] **Step 3: Remove CSS zoom and scale the page's author dimensions**
+
+Keep both scale constants, remove `zoom: var(--resume-layout-scale)`, and change the page box:
+
+```css
+.resume-viewport > .resume-page {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: scale(var(--resume-presentation-scale));
+  transform-origin: top left;
+}
+
+.resume-page {
+  width: calc(var(--page-width) * var(--resume-layout-scale));
+  min-height: calc(var(--page-height) * var(--resume-layout-scale));
+  padding: calc(var(--page-margin-y) * var(--resume-layout-scale))
+    calc(var(--page-margin-x) * var(--resume-layout-scale));
+}
+```
+
+Mechanically apply `* var(--resume-layout-scale)` to every resume-internal length in `resume.css` that affects typography, spacing, visible weight, or annotation geometry:
+
+```css
+.resume-name {
+  font-size: calc(var(--font-size-name) * var(--global-scale) * var(--resume-layout-scale));
+  margin-bottom: calc(4px * var(--resume-layout-scale));
+}
+
+.resume-contact {
+  column-gap: calc(12px * var(--resume-layout-scale));
+}
+
+.resume-contact-item {
+  font-size: calc(var(--font-size-contact) * var(--global-scale) * var(--resume-layout-scale));
+}
+
+.resume-section { margin-top: calc(6px * var(--resume-layout-scale)); }
+.resume-section-header-row { gap: calc(8px * var(--resume-layout-scale)); }
+.resume-section-title {
+  font-size: calc(var(--font-size-section) * var(--global-scale) * var(--resume-layout-scale));
+  border-bottom-width: calc(1px * var(--resume-layout-scale));
+  margin-bottom: calc(3px * var(--resume-layout-scale));
+}
+.resume-entry { margin-top: calc(4px * var(--resume-layout-scale)); }
+.entry-title,
+.entry-date {
+  font-size: calc(var(--font-size-entry-title) * var(--global-scale) * var(--resume-layout-scale));
+}
+.entry-subtitle,
+.entry-location {
+  font-size: calc(var(--font-size-entry-subtitle) * var(--global-scale) * var(--resume-layout-scale));
+}
+.bullet-list {
+  padding-left: calc(var(--bullet-indent) * var(--resume-layout-scale));
+  margin-block: calc(2px * var(--resume-layout-scale));
+}
+```
+
+Scale warning outlines/radii, annotation gaps/margins/sizes/padding/fonts/outlines/radii/shadows, and contenteditable focus outlines/offsets/radii by the same factor. Keep percentages, unitless line heights, colors, font weights, opacity, and text unchanged.
+
+- [ ] **Step 4: Scale only the in-document editor-control lengths in `app.css`**
+
+For the `.editor-control`, `.add-btn`, `.remove-btn`, `.editor-rail`, document/section action rows, and their in-document positioning rules, multiply the following lengths by `var(--resume-layout-scale)`:
+
+```css
+min-width / min-height
+padding and padding-inline
+border widths and border radii
+font sizes
+box-shadow offsets and blur
+focus outlines and offsets
+gaps and margins
+absolute top/right offsets expressed in px
+coarse-pointer 44px minimums and 12px add-button padding
+```
+
+Do not scale application-shell buttons, toolbar controls, Fit, Review, breakpoints, transition durations, percentages, colors, or opacity.
+
+- [ ] **Step 5: Run the focused contract until green**
+
+```sh
+npm run build
+CI=1 npx playwright test -c playwright.unconfigured.config.ts --grep "keeps viewport overflow inside the fixed resume canvas scroller"
+```
+
+Expected: PASS with 1836px author width, 816px visible width, CSS zoom `1`, at least 18px internal type, no scroll-width leak, and 1400px visible deliberate height.
+
+- [ ] **Step 6: Run unit and complete unconfigured browser regression**
+
+```sh
+NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage npm test -- --run
+CI=1 npm run test:e2e:unconfigured
+```
+
+Expected: all unit files and all four unconfigured E2E cases pass.
+
+- [ ] **Step 7: Commit the architecture correction**
+
+```sh
+git add e2e/unconfigured.spec.ts src/styles/resume.css src/styles/app.css
+git commit -m "fix: use stable author coordinates for resume layout"
 ```
 
 ---
@@ -424,7 +593,8 @@ Expected: the worktree is clean and the branch contains the design, implementati
 
 Before opening or merging a PR, request a fresh rigorous review focused on:
 
-- whether the 2.25×/inverse boundary is isolated and browser-zoom agnostic;
+- whether the genuine 2.25× author-coordinate/inverse-transform boundary is isolated and browser-zoom agnostic;
+- whether CSS `zoom` is absent from the resume presentation path;
 - synchronous resize-engine measurement versus asynchronous viewport-height synchronization;
 - direct-editing coordinate alignment;
 - multi-page visibility and PDF slicing;
