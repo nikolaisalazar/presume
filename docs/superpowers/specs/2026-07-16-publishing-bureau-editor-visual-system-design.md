@@ -2,16 +2,20 @@
 
 ## Status
 
-Design direction approved for planning. The temporary visualizer is a decision aid, not production source. Two product choices remain open before implementation planning:
+Design exploration complete. Root `DESIGN.md` is the normative visual authority; where this exploratory record differs, `DESIGN.md` wins. The temporary visualizer remains a decision aid, not production source.
 
-- Default brand accent: Verdigris is recommended; Cobalt remains the approved alternative.
-- Theme release scope: light only, dark only, or both with a user preference.
+The decisions that were open when this document was first written are resolved:
+
+- **Creative North Star:** The Precision Workbench. “Publishing Bureau” remains only the historical working name of this exploration.
+- **Production accent:** Verdigris. Cobalt remains a rejected visualizer reference, not a production alternative.
+- **Theme scope:** Light and Dark both ship, first visit follows the system theme, and an explicit System, Light, or Dark choice persists.
+- **Typography:** Geist carries the Presume wordmark and all application UI. EB Garamond is reserved for the resume canvas and exported PDF.
 
 ## Purpose
 
 This design evolves Presume's editor from a competent application shell into a distinctive, document-led publishing workspace. It is a new visual-system phase after the completed four-PR shadcn migration, not another migration step.
 
-The working name is **Publishing Bureau**. The interface should feel like a precise editorial production desk: the resume is the proof, Fit Constraints governs its measure, and Review is an advisory reading kept separate from editing.
+The historical working name was **Publishing Bureau**. The approved North Star is **The Precision Workbench**: the resume is the proof, Fit Constraints governs its measure, and Review is an advisory reading kept separate from editing.
 
 This phase must not change resume data, editing behavior, review semantics, export behavior, storage, routing, or the fixed document geometry.
 
@@ -32,8 +36,8 @@ This scene supports both a light workspace and a dark, ink-colored workspace. In
 
 ### Editorial, not ornamental
 
-- Use EB Garamond for the Presume wordmark and document voice.
-- Use the established system sans stack for controls, state, and application labels.
+- Use Geist for the Presume wordmark, controls, state, scores, steppers, and all other application UI.
+- Use EB Garamond only for the resume canvas and exported PDF.
 - Use precise rules, alignment, and proportion to create character.
 - Do not add decorative rulers, fake measurement marks, folio labels, manuscript kickers, or numbered section scaffolding unless they communicate real application state.
 
@@ -81,13 +85,13 @@ Success, warning, and destructive colors retain fixed semantic meaning and do no
 
 ### Accent candidates
 
-#### Verdigris — recommended
+#### Verdigris — selected
 
 Verdigris is more distinctive to Presume than conventional software blue and connects naturally to the existing deep-teal identity. It should be refined away from generic SaaS teal by pairing it with editorial typography, ink-tinted neutrals, and sparse application.
 
-#### Cobalt — approved alternative
+#### Cobalt — historical alternative
 
-Cobalt feels sharper and more explicitly editorial. It offers stronger contrast against warm warning states but is less ownable because blue is common across productivity software.
+Cobalt felt sharper and more explicitly editorial, but it was not selected because blue is common across productivity software and less ownable for Presume.
 
 Vermilion and Saffron remain visualizer references only. They are not proposed production brand colors.
 
@@ -114,7 +118,7 @@ Both themes use the same semantic token roles:
 
 Dark mode is not an inverted light palette. It uses a three-step opaque surface scale, slightly reduced text weight, lower accent chroma, and a warm-white document. The document itself does not enter dark mode.
 
-The visualizer's Light/Dark and color swatches are review controls. They do not automatically require a production accent picker. A user-facing theme preference is a separate product-scope decision.
+The visualizer's color swatches were review controls and do not imply a production accent picker. The production appearance control offers System, Light, and Dark only.
 
 ## Wide Composition
 
@@ -135,7 +139,7 @@ Constrained workspace through 1639px
 
 - Keep equal side tracks around the centered editor on wide screens.
 - Keep the editor workbench approximately 896px wide around the fixed 816px resume.
-- Side surfaces may use the Publishing Bureau's flatter rail treatment instead of generic cards.
+- Side surfaces may use the Precision Workbench's flatter rail treatment instead of generic cards.
 - Document actions remain in the masthead or a tightly integrated command rail, with Export PDF primary.
 - Do not stretch the document workbench to fill the browser.
 
@@ -191,8 +195,9 @@ The implementation should be staged rather than recreated from the visualizer wh
 
 ### PR A — semantic visual-system foundation and editor shell
 
-- Finalize Verdigris or Cobalt as the production accent.
-- Decide whether one or both themes ship in this PR.
+- Implement Verdigris as the production accent.
+- Ship complete Light and Dark themes with a persisted System, Light, or Dark preference.
+- Load Geist for the Presume wordmark and all application UI while preserving EB Garamond for the resume and PDF.
 - Define the semantic surface and accent tokens in the existing Tailwind v4 global stylesheet.
 - Restyle the masthead, action rail, Fit surface, document stage, and collapsed Review rail.
 - Apply the distilled-copy contract.
@@ -203,7 +208,7 @@ The implementation should be staged rather than recreated from the visualizer wh
 
 - Apply the approved system to the expanded Review report after the shell is stable.
 - Evaluate the landing page against the new identity in a separate PR.
-- Consider a user-facing theme preference only after the theme behavior and persistence contract are explicitly approved.
+- Extend the same approved tokens to additional product surfaces only in separately reviewed phases.
 
 ## Verification
 
@@ -233,10 +238,6 @@ Do not add visual snapshots. Direct visual QA must cover:
 - Reverting the visual-system PR must restore the current editor shell without data or schema rollback.
 - Do not mix unrelated product features into the visual-system branch.
 
-## Decision Gate Before Planning
+## Resolved Decision Gate
 
-Implementation planning begins after the user confirms:
-
-1. Verdigris or Cobalt as the production accent.
-2. Whether the first PR ships one theme or both themes with a user preference.
-
+Implementation planning may proceed from root `DESIGN.md`. Verdigris, complete Light and Dark themes, persisted System/Light/Dark preference, and the Geist-application/EB-Garamond-document boundary are approved.
