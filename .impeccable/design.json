@@ -1,0 +1,259 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-17T20:57:48Z",
+  "title": "Design System: Presume",
+  "extensions": {
+    "colorMeta": {
+      "verdigris": {
+        "role": "primary",
+        "displayName": "Verdigris",
+        "canonical": "#2e9e91",
+        "tonalRamp": ["#082b28", "#0d4540", "#14645c", "#1d8177", "#2e9e91", "#5ab8ad", "#91d3cb", "#d7f0ed"]
+      },
+      "canvas-light": {
+        "role": "neutral",
+        "displayName": "Light Workbench Canvas",
+        "canonical": "#edf2f0",
+        "tonalRamp": ["#18211e", "#30403b", "#52665f", "#7f948d", "#acbeb8", "#cfdcd8", "#edf2f0", "#f9fbfa"]
+      },
+      "canvas-dark": {
+        "role": "neutral",
+        "displayName": "Dark Workbench Canvas",
+        "canonical": "#101513",
+        "tonalRamp": ["#080b0a", "#101513", "#1a211f", "#29322f", "#46534e", "#77827e", "#aab4b0", "#f0f3f1"]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Resume Paper",
+        "canonical": "#fffefb",
+        "tonalRamp": ["#211f1a", "#454138", "#6f695d", "#9d9688", "#c8c1b4", "#e7e2d9", "#f7f4ed", "#fffefb"]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Product Identity",
+        "purpose": "Presume wordmark and rare product-level identity only."
+      },
+      "headline": {
+        "displayName": "Application Headline",
+        "purpose": "Major panel results and high-value state headings."
+      },
+      "title": {
+        "displayName": "Surface Title",
+        "purpose": "Fit, Review, toolbar groups, and local surface headings."
+      },
+      "body": {
+        "displayName": "Application Body",
+        "purpose": "Explanatory content, evidence, and settings descriptions."
+      },
+      "label": {
+        "displayName": "Control Label",
+        "purpose": "Buttons, compact controls, status metadata, and field labels."
+      },
+      "document": {
+        "displayName": "Resume Document",
+        "purpose": "Resume canvas and exported PDF only."
+      }
+    },
+    "shadows": [
+      {
+        "name": "inset-edge",
+        "value": "inset 0 1px 0 rgba(255,255,255,0.075)",
+        "purpose": "Restrained top highlight on structural Dark-mode surfaces."
+      },
+      {
+        "name": "control-edge",
+        "value": "inset 0 1px 0 rgba(255,255,255,0.12), inset 0 -1px 0 rgba(0,0,0,0.25)",
+        "purpose": "Primary and raised controls only."
+      },
+      {
+        "name": "structural-ambient",
+        "value": "0 10px 26px rgba(0,0,0,0.14)",
+        "purpose": "Major Fit, Review, and command-rail surfaces at wide layouts."
+      },
+      {
+        "name": "masthead-ambient",
+        "value": "0 8px 24px rgba(0,0,0,0.18)",
+        "purpose": "Separates the full-width masthead from the workbench."
+      },
+      {
+        "name": "document-ambient",
+        "value": "0 18px 46px rgba(31,52,45,0.16)",
+        "purpose": "The strongest elevation, reserved for the resume paper."
+      }
+    ],
+    "motion": [
+      {
+        "name": "state-standard",
+        "value": "180ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Hover, focus-adjacent, disclosure, and ordinary state transitions."
+      },
+      {
+        "name": "review-sweep",
+        "value": "1600ms cubic-bezier(0.2, 0.8, 0.2, 1) infinite",
+        "purpose": "Three-pixel bottom-edge progress sweep while Review is running."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "none",
+        "purpose": "Replace motion with an immediate state change and a static full-width Review indicator."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "touch-critical",
+        "value": "560px"
+      },
+      {
+        "name": "landing-compact-end",
+        "value": "640px"
+      },
+      {
+        "name": "landing-full-start",
+        "value": "921px"
+      },
+      {
+        "name": "workbench-wide-start",
+        "value": "1640px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The single highest-emphasis action in a local action group.",
+      "html": "<button class=\"ds-btn-primary\">Export PDF</button>",
+      "css": ".ds-btn-primary { height: 36px; padding: 0 14px; border: 1px solid #6bc8bd; border-radius: 4px; color: #f7fffd; background: #14796f; box-shadow: inset 0 1px 0 rgba(255,255,255,.22), inset 0 -1px 0 rgba(0,0,0,.34); font-family: Geist, system-ui, sans-serif; font-size: 12px; font-weight: 600; transition: background 180ms cubic-bezier(.16,1,.3,1), transform 180ms cubic-bezier(.16,1,.3,1); } .ds-btn-primary:hover { background: #0f685f; } .ds-btn-primary:active { transform: translateY(1px); } .ds-btn-primary:focus-visible { outline: 2px solid #6bc8bd; outline-offset: 3px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "A neutral document or panel action that supports the primary action.",
+      "html": "<button class=\"ds-btn-secondary\">Export JSON</button>",
+      "css": ".ds-btn-secondary { height: 36px; padding: 0 14px; border: 1px solid #46534e; border-radius: 4px; color: #f0f3f1; background: #202825; box-shadow: inset 0 1px 0 rgba(255,255,255,.12), inset 0 -1px 0 rgba(0,0,0,.25); font-family: Geist, system-ui, sans-serif; font-size: 12px; font-weight: 600; transition: background 180ms cubic-bezier(.16,1,.3,1), border-color 180ms cubic-bezier(.16,1,.3,1); } .ds-btn-secondary:hover { border-color: #6b7974; background: #252e2b; } .ds-btn-secondary:focus-visible { outline: 2px solid #6bc8bd; outline-offset: 3px; }"
+    },
+    {
+      "name": "Structural Shell",
+      "kind": "card",
+      "refersTo": "structural-shell",
+      "description": "A major Fit, Review, or command surface defined by tonal depth and a precise edge.",
+      "html": "<section class=\"ds-shell\"><header>Fit constraints</header><p>1 page · 1 line/bullet · 8px min</p></section>",
+      "css": ".ds-shell { width: 320px; padding: 16px; border: 1px solid #34403c; border-radius: 2px; color: #f0f3f1; background: #1a211f; box-shadow: inset 0 1px 0 rgba(255,255,255,.075), 0 10px 26px rgba(0,0,0,.14); font-family: Geist, system-ui, sans-serif; } .ds-shell header { font-size: 13px; font-weight: 650; letter-spacing: -.01em; } .ds-shell p { margin: 8px 0 0; color: #aab4b0; font-size: 12px; line-height: 1.25; }"
+    },
+    {
+      "name": "Fit Stepper",
+      "kind": "custom",
+      "description": "A single segmented control for constraints; the unit remains in the external label.",
+      "html": "<div class=\"ds-stepper\"><button aria-label=\"Decrease page limit\">−</button><output>1</output><button aria-label=\"Increase page limit\">+</button></div>",
+      "css": ".ds-stepper { display: grid; grid-template-columns: 34px 44px 34px; height: 34px; overflow: hidden; border: 1px solid #46534e; border-radius: 4px; background: #151b19; font-family: Geist, system-ui, sans-serif; font-variant-numeric: tabular-nums; } .ds-stepper button, .ds-stepper output { display: grid; place-items: center; border: 0; border-right: 1px solid #34403c; color: #f0f3f1; background: transparent; font: inherit; } .ds-stepper button:last-child { border-right: 0; } .ds-stepper button:hover { background: #202825; } .ds-stepper button:focus-visible { outline: 2px solid #6bc8bd; outline-offset: -2px; }"
+    },
+    {
+      "name": "Review Running",
+      "kind": "custom",
+      "refersTo": "review-progress",
+      "description": "A stable Review row whose three-pixel bottom sweep communicates progress.",
+      "html": "<div class=\"ds-review-running\"><span>Reviewing</span><span class=\"ds-review-sweep\" aria-hidden=\"true\"></span></div>",
+      "css": ".ds-review-running { position: relative; display: flex; width: 320px; height: 54px; align-items: center; padding: 0 14px; overflow: hidden; border: 1px solid #32675f; border-radius: 2px; color: #67c8bd; background: #142522; font-family: Geist, system-ui, sans-serif; font-size: 13px; font-weight: 650; } .ds-review-sweep { position: absolute; right: 0; bottom: 0; left: 0; height: 3px; overflow: hidden; background: rgba(46,158,145,.2); } .ds-review-sweep::after { position: absolute; width: 38%; height: 100%; background: #2e9e91; content: \"\"; animation: ds-review-progress 1600ms cubic-bezier(.2,.8,.2,1) infinite; } @keyframes ds-review-progress { from { transform: translateX(-120%); } to { transform: translateX(320%); } } @media (prefers-reduced-motion: reduce) { .ds-review-sweep::after { width: 100%; opacity: .55; animation: none; transform: none; } }"
+    },
+    {
+      "name": "Theme Control",
+      "kind": "nav",
+      "description": "A compact System, Light, or Dark choice placed after Saved locally in the masthead.",
+      "html": "<div class=\"ds-theme-control\" role=\"radiogroup\" aria-label=\"Appearance\"><button role=\"radio\" aria-checked=\"true\">System</button><button role=\"radio\" aria-checked=\"false\">Light</button><button role=\"radio\" aria-checked=\"false\">Dark</button></div>",
+      "css": ".ds-theme-control { display: inline-flex; padding: 2px; border: 1px solid #46534e; border-radius: 4px; background: #151b19; font-family: Geist, system-ui, sans-serif; } .ds-theme-control button { height: 30px; padding: 0 10px; border: 0; border-radius: 2px; color: #aab4b0; background: transparent; font: 600 11.5px/1 Geist, system-ui, sans-serif; } .ds-theme-control button[aria-checked=\"true\"] { color: #f0f3f1; background: #202825; box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 1px 2px rgba(0,0,0,.34); } .ds-theme-control button:focus-visible { outline: 2px solid #6bc8bd; outline-offset: 2px; }"
+    },
+    {
+      "name": "Resume Paper",
+      "kind": "custom",
+      "refersTo": "resume-paper",
+      "description": "The fixed Letter document remains warm white and typographically independent in every app theme.",
+      "html": "<article class=\"ds-resume\"><h2>Alex Johnson</h2><h3>EXPERIENCE</h3><p><strong>Software Engineer</strong></p><p><em>Acme Technologies</em></p></article>",
+      "css": ".ds-resume { width: 408px; height: 528px; padding: 24px; color: #101827; background: #fffefb; box-shadow: 0 18px 46px rgba(31,52,45,.16); font-family: \"EB Garamond\", Garamond, Georgia, serif; } .ds-resume h2 { margin: 0 0 20px; text-align: center; font-size: 24px; line-height: 1; } .ds-resume h3 { margin: 18px 0 8px; padding-bottom: 2px; border-bottom: 1px solid #101827; font-size: 11px; line-height: 1; letter-spacing: .055em; } .ds-resume p { margin: 3px 0; font-size: 10px; line-height: 1.2; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Precision Workbench",
+    "overview": "Presume is a calm, exacting instrument built around a document—not a dashboard that happens to contain one. The interface should feel engineered, coherent, and quietly premium: aligned like a drafting surface, materially consistent like a well-made tool, and restrained enough that the resume remains the visual anchor. The full-width masthead establishes the product, while the desktop workbench resolves into three deliberate zones: a 320px Fit surface, a center command rail and fixed 816 × 1056px resume, and a 320px Review surface. Through 1639px, Fit moves above the editor and Review moves below it. This reflow is graceful degradation, not a shift in product priority; the desktop document workbench remains primary and the fixed resume scrolls only inside its designated canvas on narrow screens. Light and Dark themes are equally authoritative. The first visit follows the system setting, and an explicit Light, Dark, or System choice persists. The resume paper remains warm white in every app theme, preserving the independence of the editable and exported artifact.",
+    "keyCharacteristics": [
+      "Document-led hierarchy with application chrome in a supporting role.",
+      "Rectilinear geometry: 2px structural shells and 4px controls.",
+      "Restrained Verdigris used for action, selection, focus, and active Review states.",
+      "Layered precision through borders, tonal surfaces, inset highlights, and sparse ambient shadow.",
+      "Progressive disclosure for Fit and Review rather than permanent information density.",
+      "State motion that communicates progress without decorating the workspace."
+    ],
+    "rules": [
+      {
+        "name": "The Document Anchor Rule",
+        "body": "The resume must remain the dominant visual object at desktop and laptop widths. No application surface may compete with its contrast, scale, or central placement.",
+        "section": "overview"
+      },
+      {
+        "name": "The Desktop-First Rule",
+        "body": "Wide-screen composition is the primary design. Narrow-screen base styles are an implementation technique for deterministic breakpoints, never a reason to redesign the product as mobile-first.",
+        "section": "overview"
+      },
+      {
+        "name": "The Ten-Percent Rule",
+        "body": "Verdigris should occupy no more than roughly ten percent of a normal screen. Its rarity gives it authority.",
+        "section": "colors"
+      },
+      {
+        "name": "The Semantic Isolation Rule",
+        "body": "Amber, green, and red communicate status only. They are forbidden as ornamental accents or section colors.",
+        "section": "colors"
+      },
+      {
+        "name": "The Paper Independence Rule",
+        "body": "App theme changes never tint the resume. The editable document and exported PDF remain warm white with dark ink.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Application Voice Rule",
+        "body": "All application text—including the Presume wordmark, Review scores, labels, buttons, and steppers—uses Geist. No second UI or display family is permitted.",
+        "section": "typography"
+      },
+      {
+        "name": "The Document Boundary Rule",
+        "body": "EB Garamond never leaks into application chrome, and Geist never replaces the resume font through ordinary theme work. A document-font change requires explicit browser/PDF wrapping, pagination, extraction, and fit validation.",
+        "section": "typography"
+      },
+      {
+        "name": "The Borders-Before-Shadows Rule",
+        "body": "A one-pixel border and tonal contrast must explain a surface before shadow is added. If shadow is doing the structural work, the component is over-elevated.",
+        "section": "elevation"
+      },
+      {
+        "name": "The No Glass Rule",
+        "body": "Blur, translucent glass panels, liquid-glass distortion, and glow-heavy surfaces are prohibited. Premium finish comes from exact edges and controlled highlights.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do keep the fixed resume visually dominant and centered within its stage.",
+      "Do use Geist for every application role and EB Garamond only for the resume/PDF.",
+      "Do use 2px structural corners, 4px control corners, and one-pixel borders consistently.",
+      "Do make Light and Dark themes complete peers and persist System, Light, or Dark preference.",
+      "Do reserve Verdigris for primary action, selection, focus, progress, and active Review state.",
+      "Do preserve clear hover, active, disabled, focus-visible, loading, success, warning, and error states.",
+      "Do keep motion between 150–250ms for ordinary state changes and provide a reduced-motion alternative.",
+      "Do treat narrow layouts as graceful degradation while keeping touch-critical controls usable and page-level overflow absent.",
+      "Do keep Fit above the editor and Review below it through 1639px; maintain the wide three-zone workbench from 1640px."
+    ],
+    "donts": [
+      "Don't create generic clickbait SaaS dashboards or template-heavy shadcn defaults.",
+      "Don't make the interface excessively rounded, soft, glassy, or decorative.",
+      "Don't create card-heavy layouts where every region receives equal visual weight.",
+      "Don't add marketing-style visual noise, ornamental animation, or oversized controls.",
+      "Don't build a resume editor that treats the document as a secondary preview pane.",
+      "Don't create automated-writing experiences that obscure or surrender user control.",
+      "Don't use decorative vertical accent strips, glow-heavy edges, gradient text, beige parchment app backgrounds, or blue merely because it is a familiar software accent.",
+      "Don't add redundant text when a button, title, or state label already communicates the same information.",
+      "Don't use a rounded pill for ordinary buttons, status rows, or disclosure controls.",
+      "Don't change src/styles/resume.css, resume geometry, PDF typography, or JSON structure as collateral to application-theme work."
+    ]
+  }
+}
