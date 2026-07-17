@@ -71,6 +71,7 @@ describe('App review availability boundaries', () => {
 
     render(<App />)
 
+    expect(screen.getByRole('group', { name: 'Appearance' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Edit your resume like the final document.' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Direct inline editing' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Fit constraints' })).toBeInTheDocument()
@@ -97,6 +98,7 @@ describe('App review availability boundaries', () => {
     const { container } = render(<App />)
 
     expect(container.querySelectorAll('[data-slot="button"]')).toHaveLength(3)
+    expect(container.querySelectorAll('[data-slot="toggle-group-item"]')).toHaveLength(3)
     expect(container.querySelectorAll('[data-slot="card"]')).toHaveLength(4)
     expect(container.querySelector('[data-slot="badge"]')).toHaveTextContent(
       'No account required'
@@ -219,9 +221,16 @@ describe('App review availability boundaries', () => {
 
     expect(screen.getByRole('banner')).toHaveTextContent('Presume')
     expect(
-      screen.getByText('Edit the final resume directly. Presume keeps it fitting.')
-    ).toBeInTheDocument()
-    expect(screen.getByText('Saved locally')).toHaveAttribute('data-slot', 'badge')
+      screen.queryByText('Edit the final resume directly. Presume keeps it fitting.')
+    ).not.toBeInTheDocument()
+
+    const saveStatus = screen.getByText('Saved locally')
+    const appearance = screen.getByRole('group', { name: 'Appearance' })
+    expect(saveStatus).toHaveAttribute('data-slot', 'editor-save-status')
+    expect(saveStatus).not.toHaveAttribute('data-slot', 'badge')
+    expect(
+      saveStatus.compareDocumentPosition(appearance) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy()
 
     const constraints = screen.getByRole('button', {
       name: /Fit constraints.*1 page.*1 line\/bullet.*8px min/i,

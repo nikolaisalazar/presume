@@ -7,6 +7,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
+import { ThemeControl } from '@/components/ThemeControl'
 
 export interface LandingPageProps {
   hasSavedResume: boolean
@@ -28,13 +29,16 @@ export function LandingPage({ hasSavedResume, onOpenEditor }: LandingPageProps) 
           <span className="app-header__brand-mark" aria-hidden="true">P</span>
           <span>Presume</span>
         </a>
-        <Button
-          variant="outline"
-          className="h-11 min-[641px]:h-8"
-          onClick={onOpenEditor}
-        >
-          {hasSavedResume ? 'Continue editing' : 'Open editor'}
-        </Button>
+        <div className="flex flex-wrap items-center justify-between gap-2 min-[641px]:justify-end">
+          <ThemeControl />
+          <Button
+            variant="outline"
+            className="h-11 min-[641px]:h-8"
+            onClick={onOpenEditor}
+          >
+            {hasSavedResume ? 'Continue editing' : 'Open editor'}
+          </Button>
+        </div>
       </header>
 
       <main className="flex w-full max-w-[1120px] flex-col gap-[18px]">

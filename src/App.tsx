@@ -9,7 +9,7 @@ import { ResumeViewport } from './components/ResumeViewport'
 import { ReviewPanel } from './components/ReviewPanel'
 import { ReviewRail } from './components/ReviewRail'
 import { LandingPage } from './components/LandingPage'
-import { Badge } from './components/ui/badge'
+import { AppHeader } from './components/AppHeader'
 import { useResumeReview } from './useResumeReview'
 import './styles/globals.css'
 import './styles/app.css'
@@ -83,26 +83,7 @@ function EditorApp({ onOpenLanding }: { onOpenLanding: () => void }) {
 
   return (
     <div className="app">
-      <header className="app-header">
-        <a
-          className="app-header__brand app-header__brand-link"
-          href="/presume/"
-          aria-label="Presume home"
-          onClick={event => {
-            event.preventDefault()
-            onOpenLanding()
-          }}
-        >
-          <span className="app-header__brand-mark" aria-hidden="true">P</span>
-          <div>
-            <h1>Presume</h1>
-            <p>Edit the final resume directly. Presume keeps it fitting.</p>
-          </div>
-        </a>
-        <div className="app-header__meta" aria-label="Editor status">
-          <Badge variant="secondary" size="status">Saved locally</Badge>
-        </div>
-      </header>
+      <AppHeader onOpenLanding={onOpenLanding} />
       <main className="workspace">
         <FitConstraintsPanel
           constraints={constraints}
