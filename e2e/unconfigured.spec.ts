@@ -20,9 +20,14 @@ test.describe('unconfigured browser contracts', () => {
     const resumePaper = page.locator('.resume-page')
     const initialPaper = await resumePaper.evaluate(element => ({
       backgroundColor: getComputedStyle(element).backgroundColor,
+      color: getComputedStyle(element).color,
       width: Math.round(element.getBoundingClientRect().width),
     }))
-    expect(initialPaper).toEqual({ backgroundColor: 'rgb(255, 255, 255)', width: 816 })
+    expect(initialPaper).toEqual({
+      backgroundColor: 'rgb(255, 255, 255)',
+      color: 'rgb(16, 24, 39)',
+      width: 816,
+    })
     await appearance.getByRole('button', { name: 'Dark' }).click()
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
     await expect(page.locator('.app-header')).toHaveCSS(
@@ -35,6 +40,7 @@ test.describe('unconfigured browser contracts', () => {
     )
     expect(await resumePaper.evaluate(element => ({
       backgroundColor: getComputedStyle(element).backgroundColor,
+      color: getComputedStyle(element).color,
       width: Math.round(element.getBoundingClientRect().width),
     }))).toEqual(initialPaper)
 

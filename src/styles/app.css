@@ -112,6 +112,7 @@ body {
 .resume-canvas {
   width: max-content;
   margin: 0 auto;
+  color: var(--paper-ink);
   filter: drop-shadow(0 28px 30px rgba(15, 23, 42, 0.12));
 }
 
