@@ -5,6 +5,7 @@
 This document is the durable source of truth for migrating Presume's application chrome toward shadcn/ui. The migration is incremental, reversible, and presentation-only: it must reduce duplicated component styling without changing resume data, editor behavior, export behavior, review behavior, or GitHub Pages routing.
 
 The first implementation plan is in [`docs/superpowers/plans/2026-07-09-shadcn-base-landing.md`](superpowers/plans/2026-07-09-shadcn-base-landing.md).
+The follow-on production-UI roadmap is in [`docs/superpowers/plans/2026-07-17-precision-workbench-production-ui.md`](superpowers/plans/2026-07-17-precision-workbench-production-ui.md).
 
 ## Current State
 
@@ -30,15 +31,15 @@ The first implementation plan is in [`docs/superpowers/plans/2026-07-09-shadcn-b
 
 - The landing page migration is utility-first. Landing layout, typography, spacing, responsive behavior, and decorative preview styling move to Tailwind utilities.
 - shadcn components use semantic tokens and built-in variants. `className` on a shadcn component is reserved for layout concerns such as sizing within a grid.
-- Presume's existing slate-and-deep-teal visual identity remains the source of truth. The app must not adopt generic rounded shadcn defaults.
-- The semantic radius scale starts from `0.375rem` to keep controls rectangular and cards restrained.
+- The approved Precision Workbench system in root [`DESIGN.md`](../DESIGN.md) is the visual authority. The app must not adopt generic rounded shadcn defaults.
+- Structural shells use `2px` corners and ordinary controls use `4px` corners; the resume paper remains square.
 - Existing application variables that collide with shadcn semantics are reconciled deliberately:
   - text uses of `--muted` move to `--muted-foreground`;
   - brand uses of `--accent` move to `--primary`;
   - the darker brand hover color becomes `--primary-hover`;
   - legacy application radius variables are renamed so they cannot override Tailwind's derived radius scale.
 - Tailwind's global stylesheet loads before `app.css`, and `resume.css` loads last.
-- Dark mode is not introduced by this migration.
+- The original four-PR primitive migration did not introduce Dark mode. The follow-on Precision Workbench roadmap adds persisted `System`, `Light`, and `Dark` appearance in Phase A while keeping resume paper theme-independent.
 
 ## Product Guardrails
 

@@ -104,4 +104,12 @@ describe('design-system primitive contracts', () => {
     )
   })
 
+  it('exposes the Precision Workbench font, surface, and geometry tokens', () => {
+    expect(globalsCss).toContain('font-family: "Geist"')
+    expect(globalsCss).toContain('--surface-raised: #ffffff;')
+    expect(globalsCss).toContain('--surface-raised: #202825;')
+    expect(globalsCss).toContain('--radius-structural: 2px;')
+    expect(globalsCss).toContain('--radius-control: 4px;')
+  })
+
 })

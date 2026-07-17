@@ -5,39 +5,30 @@
 }
 
 :root {
-  --app-bg: #e7ecf3;
-  --app-bg-deep: #d6e0eb;
-  --ink: #0f172a;
-  --muted-foreground: #536173;
-  --surface: #ffffff;
-  --surface-subtle: #f6f8fb;
-  --line: #c8d2de;
-  --border: #cbd5e1;
-  --border-strong: #9fb0c2;
-  --primary: #0f5f5c;
-  --primary-hover: #0a4543;
+  --app-bg: var(--background);
+  --app-bg-deep: var(--canvas-deep);
+  --ink: var(--foreground);
+  --surface-subtle: var(--muted);
+  --line: var(--border);
   --danger: var(--destructive);
-  --focus: #2563eb;
-  --stage-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(229, 236, 245, 0.72));
+  --focus: var(--ring);
+  --stage-surface: linear-gradient(180deg, color-mix(in srgb, var(--stage), white 8%), var(--stage));
   --stage-padding: 24px;
   --editor-shell-width: calc(var(--page-width) + (var(--stage-padding) * 2) + 32px);
   --editor-rail-height: calc(3.75rem + 2px);
   --wide-workspace-width: 1660px;
   --editor-control-resting-opacity: 0.34;
-  --shadow-panel: 0 18px 42px rgba(15, 23, 42, 0.09);
-  --shadow-stage: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 20px 60px rgba(15, 23, 42, 0.13);
-  --shadow-page-premium: 0 34px 80px rgba(15, 23, 42, 0.24), 0 8px 18px rgba(15, 23, 42, 0.12);
+  --shadow-panel: var(--shadow-structural);
+  --shadow-stage: var(--shadow-structural);
+  --shadow-page-premium: var(--shadow-document);
   --shadow-page: var(--shadow-page-premium);
 }
 
 body {
   margin: 0;
-  background:
-    radial-gradient(circle at 20% 0%, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0) 34rem),
-    radial-gradient(circle at 78% 12%, rgba(15, 95, 92, 0.12), rgba(15, 95, 92, 0) 28rem),
-    linear-gradient(180deg, var(--app-bg), var(--app-bg-deep));
+  background: linear-gradient(180deg, var(--app-bg), var(--app-bg-deep));
   color: var(--ink);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-sans);
 }
 
 /* App shell */
@@ -52,16 +43,17 @@ body {
 
 .app-header {
   display: flex;
-  width: min(var(--wide-workspace-width), 100%);
-  align-self: center;
+  width: 100%;
+  align-self: stretch;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 16px;
-  padding: 14px 16px;
-  border: 1px solid rgba(148, 163, 184, 0.45);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.72);
-  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-structural);
+  background: var(--surface);
+  box-shadow: var(--shadow-masthead);
 }
 
 .workspace {
@@ -138,13 +130,13 @@ body {
 }
 
 .app-header__brand-link {
-  border-radius: 8px;
+  border-radius: var(--radius-control);
 }
 
 .app-header__brand-link:hover .app-header__brand-mark,
 .landing-nav__brand:hover .app-header__brand-mark {
-  border-color: rgba(15, 95, 92, 0.52);
-  box-shadow: 0 12px 28px rgba(15, 95, 92, 0.3);
+  border-color: var(--ring);
+  background: var(--primary-hover);
 }
 
 .app-header__brand-link:focus-visible,
@@ -160,32 +152,25 @@ body {
   width: 38px;
   height: 38px;
   flex: 0 0 auto;
-  border: 1px solid rgba(15, 95, 92, 0.28);
-  border-radius: 6px;
-  background: linear-gradient(145deg, #123d3b, var(--primary));
-  color: #ffffff;
+  border: 1px solid var(--primary-hover);
+  border-radius: var(--radius-control);
+  background: var(--primary);
+  color: var(--primary-foreground);
   font-size: 18px;
   font-weight: 800;
   letter-spacing: -0.04em;
-  box-shadow: 0 10px 26px rgba(15, 95, 92, 0.24);
+  box-shadow: var(--shadow-control-edge);
 }
 
-.app-header__brand h1,
-.app-header__brand p {
+.app-header__brand h1 {
   margin: 0;
 }
 
 .app-header__brand h1 {
-  font-size: 25px;
+  font-size: 21px;
+  font-weight: 620;
   line-height: 1;
-  letter-spacing: -0.045em;
-}
-
-.app-header__brand p {
-  margin-top: 6px;
-  color: var(--muted-foreground);
-  font-size: 13px;
-  font-weight: 550;
+  letter-spacing: -0.025em;
 }
 
 .app-header__meta {
@@ -194,6 +179,13 @@ body {
   justify-content: flex-end;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+.app-header__save-status {
+  color: var(--muted-foreground);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 /* Review annotations */
@@ -446,11 +438,8 @@ body {
   }
 
   .app-header {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 8px;
+    gap: 12px;
     padding: 12px;
-    border-radius: 10px;
   }
 
   .app-header__brand-mark {
@@ -459,7 +448,8 @@ body {
   }
 
   .app-header__meta {
-    justify-content: flex-start;
+    width: 100%;
+    justify-content: space-between;
   }
 
   .resume-canvas-scroll {
