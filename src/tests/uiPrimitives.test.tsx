@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { createRef } from 'react'
-import { render } from '@testing-library/react'
+import { fireEvent, render, waitFor } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { Badge } from '../components/ui/badge'
 import {
@@ -24,6 +24,11 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '../components/ui/collapsible'
+import { Toggle } from '../components/ui/toggle'
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from '../components/ui/toggle-group'
 
 const globalsCss = readFileSync(
   `${process.cwd()}/src/styles/globals.css`,
@@ -38,6 +43,9 @@ describe('design-system primitive contracts', () => {
     const alertRef = createRef<HTMLDivElement>()
     const triggerRef = createRef<HTMLButtonElement>()
     const panelRef = createRef<HTMLDivElement>()
+    const toggleRef = createRef<HTMLButtonElement>()
+    const toggleGroupRef = createRef<HTMLDivElement>()
+    const toggleGroupItemRef = createRef<HTMLButtonElement>()
 
     render(
       <>
@@ -54,6 +62,12 @@ describe('design-system primitive contracts', () => {
           </CollapsibleTrigger>
           <CollapsibleContent ref={panelRef}>Controls</CollapsibleContent>
         </Collapsible>
+        <Toggle ref={toggleRef}>Pinned</Toggle>
+        <ToggleGroup ref={toggleGroupRef} defaultValue={['system']}>
+          <ToggleGroupItem ref={toggleGroupItemRef} value="system">
+            System
+          </ToggleGroupItem>
+        </ToggleGroup>
       </>
     )
 
@@ -63,6 +77,25 @@ describe('design-system primitive contracts', () => {
     expect(alertRef.current).toBeInstanceOf(HTMLDivElement)
     expect(triggerRef.current).toBeInstanceOf(HTMLButtonElement)
     expect(panelRef.current).toBeInstanceOf(HTMLDivElement)
+    expect(toggleRef.current).toBeInstanceOf(HTMLButtonElement)
+    expect(toggleGroupRef.current).toBeInstanceOf(HTMLDivElement)
+    expect(toggleGroupItemRef.current).toBeInstanceOf(HTMLButtonElement)
+  })
+
+  it('passes vertical orientation through to Base UI keyboard behavior', async () => {
+    const { getByRole } = render(
+      <ToggleGroup orientation="vertical" defaultValue={['system']}>
+        <ToggleGroupItem value="system">System</ToggleGroupItem>
+        <ToggleGroupItem value="light">Light</ToggleGroupItem>
+      </ToggleGroup>
+    )
+    const system = getByRole('button', { name: 'System' })
+    const light = getByRole('button', { name: 'Light' })
+
+    system.focus()
+    fireEvent.keyDown(system, { key: 'ArrowDown' })
+
+    await waitFor(() => expect(light).toHaveFocus())
   })
 
   it('forwards refs through every Card wrapper under React 18', () => {
@@ -102,6 +135,14 @@ describe('design-system primitive contracts', () => {
     expect.soft(globalsCss).toContain(
       '--color-primary-hover: var(--primary-hover);'
     )
+  })
+
+  it('exposes the Precision Workbench font, surface, and geometry tokens', () => {
+    expect(globalsCss).toContain('font-family: "Geist"')
+    expect(globalsCss).toContain('--surface-raised: #ffffff;')
+    expect(globalsCss).toContain('--surface-raised: #202825;')
+    expect(globalsCss).toContain('--radius-structural: 2px;')
+    expect(globalsCss).toContain('--radius-control: 4px;')
   })
 
 })

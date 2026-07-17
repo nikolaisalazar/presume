@@ -17,7 +17,7 @@ export function FitConstraintsPanel({
 }: FitConstraintsPanelProps) {
   return (
     <aside
-      className="fit-region min-w-0 overflow-hidden rounded-lg border border-border bg-background shadow-[var(--shadow-panel)]"
+      className="fit-region min-w-0 overflow-hidden rounded-[var(--radius-structural)] border border-border bg-background shadow-[var(--shadow-panel)]"
       aria-label="Fit constraints and formatting"
       data-slot="fit-region"
     >

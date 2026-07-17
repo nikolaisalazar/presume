@@ -16,6 +16,39 @@ test.describe('unconfigured browser contracts', () => {
     await expect(page.locator('[data-slot="review-rail"]')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Review details' })).toBeVisible()
 
+    const appearance = page.getByRole('group', { name: 'Appearance' })
+    const resumePaper = page.locator('.resume-page')
+    const initialPaper = await resumePaper.evaluate(element => ({
+      backgroundColor: getComputedStyle(element).backgroundColor,
+      color: getComputedStyle(element).color,
+      width: Math.round(element.getBoundingClientRect().width),
+    }))
+    expect(initialPaper).toEqual({
+      backgroundColor: 'rgb(255, 255, 255)',
+      color: 'rgb(16, 24, 39)',
+      width: 816,
+    })
+    await appearance.getByRole('button', { name: 'Dark' }).click()
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+    await expect(page.locator('.app-header')).toHaveCSS(
+      'background-color',
+      'rgb(26, 33, 31)'
+    )
+    await expect(appearance.getByRole('button', { name: 'Dark' })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    )
+    expect(await resumePaper.evaluate(element => ({
+      backgroundColor: getComputedStyle(element).backgroundColor,
+      color: getComputedStyle(element).color,
+      width: Math.round(element.getBoundingClientRect().width),
+    }))).toEqual(initialPaper)
+
+    await page.reload()
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+    await expect(page.getByRole('group', { name: 'Appearance' })
+      .getByRole('button', { name: 'Dark' })).toHaveAttribute('aria-pressed', 'true')
+
     const commandDeck = page.locator('[data-slot="document-actions"]')
     await expect(commandDeck).toBeVisible()
     await expect(commandDeck.locator('[data-slot="button"]')).toHaveCount(4)
@@ -35,6 +68,11 @@ test.describe('unconfigured browser contracts', () => {
       expect.stringContaining('rgba(255, 255, 255, 0.95) 0px 1px 0px 0px')
     )
 
+    const structuralRadii = await page
+      .locator('[data-slot="fit-region"], [data-slot="document-actions"], [data-slot="review-rail"]')
+      .evaluateAll(elements => elements.map(element => getComputedStyle(element).borderRadius))
+    expect(structuralRadii).toEqual(['2px', '2px', '2px'])
+
     const screenshot = await page.locator('.resume-page').screenshot()
     expect(hasNonblankPngBytes(screenshot)).toBe(true)
 
@@ -48,6 +86,13 @@ test.describe('unconfigured browser contracts', () => {
     await page.keyboard.press(process.platform === 'darwin' ? 'Meta+A' : 'Control+A')
     await page.keyboard.type('Ada Browser')
     await expect(name).toHaveText('Ada Browser')
+
+    await page.emulateMedia({ colorScheme: 'dark' })
+    await page.getByRole('group', { name: 'Appearance' })
+      .getByRole('button', { name: 'System' }).click()
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+    await page.emulateMedia({ colorScheme: 'light' })
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
   })
 
   test('keeps the landing workflow and feature cards responsive', async ({ page }) => {

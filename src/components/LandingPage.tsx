@@ -7,6 +7,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
+import { ThemeControl } from '@/components/ThemeControl'
 
 export interface LandingPageProps {
   hasSavedResume: boolean
@@ -28,13 +29,16 @@ export function LandingPage({ hasSavedResume, onOpenEditor }: LandingPageProps) 
           <span className="app-header__brand-mark" aria-hidden="true">P</span>
           <span>Presume</span>
         </a>
-        <Button
-          variant="outline"
-          className="h-11 min-[641px]:h-8"
-          onClick={onOpenEditor}
-        >
-          {hasSavedResume ? 'Continue editing' : 'Open editor'}
-        </Button>
+        <div className="flex flex-wrap items-center justify-between gap-2 min-[641px]:justify-end">
+          <ThemeControl />
+          <Button
+            variant="outline"
+            className="h-11 min-[641px]:h-8"
+            onClick={onOpenEditor}
+          >
+            {hasSavedResume ? 'Continue editing' : 'Open editor'}
+          </Button>
+        </div>
       </header>
 
       <main className="flex w-full max-w-[1120px] flex-col gap-[18px]">
@@ -43,7 +47,7 @@ export function LandingPage({ hasSavedResume, onOpenEditor }: LandingPageProps) 
           aria-labelledby="landing-title"
         >
           <div className="max-w-[670px]">
-            <p className="mb-2.5 text-[13px] font-extrabold text-primary">
+            <p className="mb-2.5 text-[13px] font-extrabold text-accent-foreground">
               Direct-editing resume workspace
             </p>
             <h1
@@ -176,18 +180,18 @@ export function LandingPage({ hasSavedResume, onOpenEditor }: LandingPageProps) 
           aria-labelledby="workflow-title"
         >
           <div className="max-w-[760px]">
-            <p className="mb-2.5 text-[13px] font-extrabold text-primary">Workflow</p>
+            <p className="mb-2.5 text-[13px] font-extrabold text-accent-foreground">Workflow</p>
             <h2 id="workflow-title" className="text-lg leading-tight font-bold tracking-[-0.025em] text-balance">
               From draft to export without leaving the page.
             </h2>
           </div>
           <ol className="relative grid list-none grid-cols-1 items-stretch gap-[18px] pt-1.5 pl-[26px] before:absolute before:top-5 before:bottom-5 before:left-[21px] before:w-px before:bg-primary/30 before:content-[''] min-[921px]:grid-cols-3 min-[921px]:gap-0 min-[921px]:pl-0 min-[921px]:before:top-[27px] min-[921px]:before:right-[7%] min-[921px]:before:bottom-auto min-[921px]:before:left-[7%] min-[921px]:before:h-px min-[921px]:before:w-auto">
-            <li className="relative grid min-h-0 grid-rows-[auto_auto_1fr] content-start gap-2.5 pl-7 after:absolute after:bottom-[-18px] after:left-[-11px] after:text-base after:font-extrabold after:leading-none after:text-primary/60 after:content-['↓'] min-[921px]:min-h-[132px] min-[921px]:pr-7 min-[921px]:pl-0 min-[921px]:after:top-[15px] min-[921px]:after:right-[22px] min-[921px]:after:bottom-auto min-[921px]:after:left-auto min-[921px]:after:text-lg min-[921px]:after:content-['→']">
+            <li className="relative grid min-h-0 grid-rows-[auto_auto_1fr] content-start gap-2.5 pl-7 after:absolute after:bottom-[-18px] after:left-[-11px] after:text-base after:font-extrabold after:leading-none after:text-accent-foreground/60 after:content-['↓'] min-[921px]:min-h-[132px] min-[921px]:pr-7 min-[921px]:pl-0 min-[921px]:after:top-[15px] min-[921px]:after:right-[22px] min-[921px]:after:bottom-auto min-[921px]:after:left-auto min-[921px]:after:text-lg min-[921px]:after:content-['→']">
               <span className="relative z-[1] block size-[18px] border-[3px] border-card bg-primary shadow-[0_0_0_1px_color-mix(in_oklch,var(--primary),transparent_72%),0_10px_24px_rgba(15,23,42,0.08)]" aria-hidden="true" />
               <strong className="text-sm text-secondary-foreground">Edit directly</strong>
               <span className="max-w-[28ch] text-[13px] leading-[1.45] text-muted-foreground">Click into names, bullets, sections, and dates.</span>
             </li>
-            <li className="relative grid min-h-0 grid-rows-[auto_auto_1fr] content-start gap-2.5 pl-7 after:absolute after:bottom-[-18px] after:left-[-11px] after:text-base after:font-extrabold after:leading-none after:text-primary/60 after:content-['↓'] min-[921px]:min-h-[132px] min-[921px]:pr-7 min-[921px]:pl-0 min-[921px]:after:top-[15px] min-[921px]:after:right-[22px] min-[921px]:after:bottom-auto min-[921px]:after:left-auto min-[921px]:after:text-lg min-[921px]:after:content-['→']">
+            <li className="relative grid min-h-0 grid-rows-[auto_auto_1fr] content-start gap-2.5 pl-7 after:absolute after:bottom-[-18px] after:left-[-11px] after:text-base after:font-extrabold after:leading-none after:text-accent-foreground/60 after:content-['↓'] min-[921px]:min-h-[132px] min-[921px]:pr-7 min-[921px]:pl-0 min-[921px]:after:top-[15px] min-[921px]:after:right-[22px] min-[921px]:after:bottom-auto min-[921px]:after:left-auto min-[921px]:after:text-lg min-[921px]:after:content-['→']">
               <span className="relative z-[1] block size-[18px] border-[3px] border-card bg-primary shadow-[0_0_0_1px_color-mix(in_oklch,var(--primary),transparent_72%),0_10px_24px_rgba(15,23,42,0.08)]" aria-hidden="true" />
               <strong className="text-sm text-secondary-foreground">Keep it fitting</strong>
               <span className="max-w-[28ch] text-[13px] leading-[1.45] text-muted-foreground">Use fit warnings and constraints as guardrails.</span>
