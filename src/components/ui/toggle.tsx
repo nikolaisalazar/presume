@@ -1,10 +1,11 @@
 import { Toggle as TogglePrimitive } from "@base-ui/react/toggle"
 import { cva, type VariantProps } from "class-variance-authority"
+import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
 const toggleVariants = cva(
-  "group/toggle inline-flex items-center justify-center gap-1 rounded-[var(--radius-control)] text-sm font-semibold whitespace-nowrap outline-none transition-[color,background-color,border-color,box-shadow] duration-[var(--duration-standard)] ease-[var(--ease-standard)] hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:outline-destructive aria-pressed:bg-surface-raised aria-pressed:text-foreground aria-pressed:shadow-[var(--shadow-control-edge)] data-[state=on]:bg-surface-raised data-[state=on]:text-foreground data-[state=on]:shadow-[var(--shadow-control-edge)] [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/toggle inline-flex items-center justify-center gap-1 rounded-[var(--radius-control)] text-sm font-semibold whitespace-nowrap outline-none transition-[color,background-color,border-color,box-shadow] duration-[var(--duration-standard)] ease-[var(--ease-standard)] hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ring focus-visible:ring-2 focus-visible:ring-focus-contrast disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:outline-destructive aria-pressed:bg-surface-raised aria-pressed:text-foreground aria-pressed:shadow-[var(--shadow-control-edge)] data-[state=on]:bg-surface-raised data-[state=on]:text-foreground data-[state=on]:shadow-[var(--shadow-control-edge)] [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
@@ -26,19 +27,25 @@ const toggleVariants = cva(
   }
 )
 
-function Toggle({
+type ToggleProps = Omit<TogglePrimitive.Props, "ref"> &
+  VariantProps<typeof toggleVariants>
+
+const Toggle = React.forwardRef<HTMLButtonElement, ToggleProps>(function Toggle({
   className,
   variant = "default",
   size = "default",
   ...props
-}: TogglePrimitive.Props & VariantProps<typeof toggleVariants>) {
+}, ref) {
   return (
     <TogglePrimitive
+      ref={ref}
       data-slot="toggle"
       className={cn(toggleVariants({ variant, size, className }))}
       {...props}
     />
   )
-}
+})
+
+Toggle.displayName = "Toggle"
 
 export { Toggle, toggleVariants }

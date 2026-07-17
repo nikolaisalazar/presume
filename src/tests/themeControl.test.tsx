@@ -63,4 +63,27 @@ describe('ThemeControl', () => {
     expect(document.documentElement).toHaveAttribute('data-theme', 'light')
     expect(light).toHaveAttribute('aria-pressed', 'true')
   })
+
+  it('keeps the selected appearance in sync when storage rejects writes', () => {
+    installColorSchemePreference()
+    vi.stubGlobal('localStorage', {
+      getItem: vi.fn(() => null),
+      setItem: vi.fn(() => {
+        throw new Error('blocked')
+      }),
+    })
+    initializeTheme()
+
+    render(<ThemeControl />)
+
+    const group = screen.getByRole('group', { name: 'Appearance' })
+    const system = within(group).getByRole('button', { name: 'System' })
+    const dark = within(group).getByRole('button', { name: 'Dark' })
+
+    fireEvent.click(dark)
+
+    expect(document.documentElement).toHaveAttribute('data-theme', 'dark')
+    expect(dark).toHaveAttribute('aria-pressed', 'true')
+    expect(system).toHaveAttribute('aria-pressed', 'false')
+  })
 })

@@ -18,7 +18,13 @@ const ToggleGroupContext = React.createContext<
   orientation: "horizontal",
 })
 
-function ToggleGroup({
+type ToggleGroupProps = Omit<ToggleGroupPrimitive.Props, "ref" | "orientation"> &
+  VariantProps<typeof toggleVariants> & {
+    spacing?: number
+    orientation?: "horizontal" | "vertical"
+  }
+
+const ToggleGroup = React.forwardRef<HTMLDivElement, ToggleGroupProps>(function ToggleGroup({
   className,
   variant,
   size,
@@ -26,13 +32,11 @@ function ToggleGroup({
   orientation = "horizontal",
   children,
   ...props
-}: ToggleGroupPrimitive.Props &
-  VariantProps<typeof toggleVariants> & {
-    spacing?: number
-    orientation?: "horizontal" | "vertical"
-  }) {
+}, ref) {
   return (
     <ToggleGroupPrimitive
+      ref={ref}
+      orientation={orientation}
       data-slot="toggle-group"
       data-variant={variant}
       data-size={size}
@@ -52,19 +56,23 @@ function ToggleGroup({
       </ToggleGroupContext.Provider>
     </ToggleGroupPrimitive>
   )
-}
+})
 
-function ToggleGroupItem({
+type ToggleGroupItemProps = Omit<TogglePrimitive.Props, "ref"> &
+  VariantProps<typeof toggleVariants>
+
+const ToggleGroupItem = React.forwardRef<HTMLButtonElement, ToggleGroupItemProps>(function ToggleGroupItem({
   className,
   children,
   variant = "default",
   size = "default",
   ...props
-}: TogglePrimitive.Props & VariantProps<typeof toggleVariants>) {
+}, ref) {
   const context = React.useContext(ToggleGroupContext)
 
   return (
     <TogglePrimitive
+      ref={ref}
       data-slot="toggle-group-item"
       data-variant={context.variant || variant}
       data-size={context.size || size}
@@ -82,6 +90,9 @@ function ToggleGroupItem({
       {children}
     </TogglePrimitive>
   )
-}
+})
+
+ToggleGroup.displayName = "ToggleGroup"
+ToggleGroupItem.displayName = "ToggleGroupItem"
 
 export { ToggleGroup, ToggleGroupItem }

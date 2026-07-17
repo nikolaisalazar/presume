@@ -78,7 +78,7 @@ export function ReviewRail({
   return (
     <section
       className={cn(
-        'review-rail relative flex h-[52px] min-w-0 items-center gap-2 overflow-hidden rounded-lg border bg-background px-3 shadow-[var(--shadow-panel)]',
+        'review-rail relative flex h-[52px] min-w-0 items-center gap-2 overflow-hidden rounded-[var(--radius-structural)] border bg-background px-3 shadow-[var(--shadow-panel)]',
         presentation.tone === 'success' && 'border-review-success-border bg-review-success-bg text-review-success-ink',
         presentation.tone === 'warning' && 'border-warning-border bg-warning-bg text-warning-ink',
         presentation.tone === 'destructive' && 'border-destructive/40 bg-destructive/10 text-destructive'

@@ -29,6 +29,7 @@
     --color-chart-2: var(--chart-2);
     --color-chart-1: var(--chart-1);
     --color-ring: var(--ring);
+    --color-focus-contrast: var(--focus-contrast);
     --color-input: var(--input);
     --color-border: var(--border);
     --color-border-strong: var(--border-strong);
@@ -100,6 +101,7 @@
     --border-strong: #9eafa9;
     --input: var(--border-strong);
     --ring: #6bc8bd;
+    --focus-contrast: #14796f;
     --paper: #fffefb;
     --paper-ink: #101827;
     --warning-bg: #fff1e8;
@@ -171,6 +173,7 @@
     --border-strong: #46534e;
     --input: var(--border-strong);
     --ring: #6bc8bd;
+    --focus-contrast: #6bc8bd;
     --paper: #fffefb;
     --paper-ink: #101827;
     --warning-bg: #2b1e18;

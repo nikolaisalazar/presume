@@ -68,6 +68,11 @@ test.describe('unconfigured browser contracts', () => {
       expect.stringContaining('rgba(255, 255, 255, 0.95) 0px 1px 0px 0px')
     )
 
+    const structuralRadii = await page
+      .locator('[data-slot="fit-region"], [data-slot="document-actions"], [data-slot="review-rail"]')
+      .evaluateAll(elements => elements.map(element => getComputedStyle(element).borderRadius))
+    expect(structuralRadii).toEqual(['2px', '2px', '2px'])
+
     const screenshot = await page.locator('.resume-page').screenshot()
     expect(hasNonblankPngBytes(screenshot)).toBe(true)
 

@@ -8,6 +8,7 @@ const DARK_MEDIA_QUERY = '(prefers-color-scheme: dark)'
 
 let activeMediaQuery: MediaQueryList | null = null
 let activeMediaListener: ((event: MediaQueryListEvent) => void) | null = null
+let currentPreference: ThemePreference = 'system'
 
 function isThemePreference(value: string | null): value is ThemePreference {
   return value === 'system' || value === 'light' || value === 'dark'
@@ -83,11 +84,17 @@ function applyThemePreference(preference: ThemePreference) {
 
 export function initializeTheme(): ThemePreference {
   const preference = readThemePreference(window.localStorage)
+  currentPreference = preference
   applyThemePreference(preference)
   return preference
 }
 
+export function getThemePreference(): ThemePreference {
+  return currentPreference
+}
+
 export function setThemePreference(preference: ThemePreference): void {
+  currentPreference = preference
   try {
     window.localStorage.setItem(THEME_STORAGE_KEY, preference)
   } catch {

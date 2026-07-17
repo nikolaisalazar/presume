@@ -141,8 +141,8 @@ function ReviewScore({ result }: { result: { totalScore: number; maxScore: numbe
   return (
     <div className="flex items-start justify-between gap-3 rounded-md border border-primary/35 bg-primary/5 p-2.5">
       <div>
-        <span className="block text-[22px] font-bold text-primary">{result.totalScore} / {result.maxScore}</span>
-        <p className="mt-1 text-[11px] leading-tight text-primary">Advisory score, not an ATS guarantee.</p>
+        <span className="block text-[22px] font-bold text-accent-foreground">{result.totalScore} / {result.maxScore}</span>
+        <p className="mt-1 text-[11px] leading-tight text-accent-foreground">Advisory score, not an ATS guarantee.</p>
       </div>
       <Badge variant="reviewTier" className="whitespace-nowrap">
         {formatTier(result.tier)}
@@ -195,7 +195,7 @@ function ReviewAdjustmentLedger({ bonuses, deductions }: {
   return (
     <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-y border-border py-2 text-xs">
       {hasBonuses ? (
-        <span>Bonus <strong className="text-primary">{formatSignedPoints(totalAdjustmentPoints(bonuses))}</strong></span>
+        <span>Bonus <strong className="text-accent-foreground">{formatSignedPoints(totalAdjustmentPoints(bonuses))}</strong></span>
       ) : null}
       {hasBonuses && hasDeductions ? (
         <Separator orientation="vertical" />

@@ -93,7 +93,7 @@ function EditorApp({ onOpenLanding }: { onOpenLanding: () => void }) {
         />
         <section className="editor-panel" aria-label="Resume editor">
           <div
-            className="document-actions-surface overflow-hidden rounded-lg border border-border bg-background shadow-[var(--shadow-panel)]"
+            className="document-actions-surface overflow-hidden rounded-[var(--radius-structural)] border border-border bg-background shadow-[var(--shadow-panel)]"
             data-slot="document-actions"
           >
             <Toolbar

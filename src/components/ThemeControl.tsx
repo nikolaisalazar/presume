@@ -4,7 +4,7 @@ import {
   ToggleGroupItem,
 } from '@/components/ui/toggle-group'
 import {
-  readThemePreference,
+  getThemePreference,
   setThemePreference,
   subscribeToTheme,
   type ThemePreference,
@@ -13,7 +13,7 @@ import {
 const THEME_OPTIONS: ThemePreference[] = ['system', 'light', 'dark']
 
 function getThemePreferenceSnapshot(): ThemePreference {
-  return readThemePreference(window.localStorage)
+  return getThemePreference()
 }
 
 function isThemePreference(value: string | undefined): value is ThemePreference {
