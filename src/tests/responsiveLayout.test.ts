@@ -8,9 +8,25 @@ describe('custom editor CSS invariants', () => {
   it('keeps named fixed-canvas and derived wide-workspace geometry', () => {
     expect(appCss).toContain('--editor-shell-width: calc(var(--page-width) + (var(--stage-padding) * 2) + 32px);')
     expect(appCss).toContain('--editor-rail-height: calc(3.75rem + 2px);')
-    expect(appCss).toContain('--wide-workspace-width: 1660px;')
+    expect(appCss).toContain('--wide-workspace-width: 1580px;')
     expect(appCss).toContain('@media (min-width: 1640px)')
-    expect(appCss).toContain('grid-template-columns: minmax(320px, 1fr) var(--editor-shell-width) minmax(320px, 1fr);')
+    expect(appCss).toContain('grid-template-columns: 320px var(--editor-shell-width) 320px;')
+  })
+
+  it('keeps the stage opaque and the final document viewport most elevated', () => {
+    expect(appCss).toContain('--editor-stage-surface: var(--stage);')
+    expect(appCss).toContain('--stage-surface: linear-gradient(')
+    expect(appCss).toContain('background: var(--editor-stage-surface);')
+    expect(appCss).toContain('border-radius: var(--radius-structural);')
+    expect(appCss).toContain('.resume-canvas .resume-viewport')
+    expect(appCss).toContain('box-shadow: var(--shadow-document);')
+    expect(appCss).not.toContain('filter: drop-shadow(')
+  })
+
+  it('reserves scrollbar tolerance at the exact wide-workbench boundary', () => {
+    expect(appCss).toMatch(
+      /@media \(min-width: 1640px\) \{[\s\S]*?\.app \{[\s\S]*?padding-inline: 20px;/
+    )
   })
 
   it('keeps fixed-canvas scrolling and the 3px review progress hook custom', () => {
@@ -19,6 +35,10 @@ describe('custom editor CSS invariants', () => {
     expect(appCss).not.toContain('scrollbar-gutter: stable both-edges')
     expect(appCss).toContain('.review-rail__progress')
     expect(appCss).toContain('height: 3px')
+    expect(appCss).toContain('background: var(--review-progress);')
+    expect(appCss).toMatch(
+      /@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.review-rail__progress \{[\s\S]*?width: 100%;[\s\S]*?left: 0;[\s\S]*?transform: none;[\s\S]*?animation: none;/
+    )
   })
 
   it('keeps in-document controls and print hiding intact', () => {

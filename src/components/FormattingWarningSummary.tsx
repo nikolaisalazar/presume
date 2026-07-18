@@ -20,7 +20,12 @@ export function FormattingWarningSummary({
       : `${constraints.maxLinesPerBullet} lines per bullet`
 
   return (
-    <Alert variant="warningDeck" role="status" aria-live="polite">
+    <Alert
+      variant="warningDeck"
+      className="border-t border-warning-border shadow-none"
+      role="status"
+      aria-live="polite"
+    >
       <AlertTitle>Cannot fit under current constraints</AlertTitle>
       <AlertDescription>
         {hasGlobalOverflow ? (

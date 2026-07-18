@@ -73,6 +73,14 @@ test.describe('unconfigured browser contracts', () => {
       .evaluateAll(elements => elements.map(element => getComputedStyle(element).borderRadius))
     expect(structuralRadii).toEqual(['2px', '2px', '2px'])
 
+    const stage = page.locator('.resume-canvas-scroll')
+    await expect(stage).toHaveCSS('border-radius', '2px')
+    await expect(stage).toHaveCSS('background-image', 'none')
+    expect(await stage.evaluate(element => getComputedStyle(element).boxShadow)).not.toBe('none')
+    expect(await page.locator('.resume-viewport').evaluate(
+      element => getComputedStyle(element).boxShadow
+    )).not.toBe('none')
+
     const screenshot = await page.locator('.resume-page').screenshot()
     expect(hasNonblankPngBytes(screenshot)).toBe(true)
 
@@ -99,6 +107,10 @@ test.describe('unconfigured browser contracts', () => {
     await page.emulateMedia({ reducedMotion: 'reduce' })
     await page.setViewportSize({ width: 1120, height: 980 })
     await page.goto('./')
+
+    expect(await page.getByRole('img', { name: 'Presume editor preview' }).evaluate(
+      element => getComputedStyle(element).backgroundImage
+    )).not.toBe('none')
 
     const workflow = page.getByRole('region', {
       name: 'From draft to export without leaving the page.',
@@ -256,14 +268,20 @@ test.describe('unconfigured browser contracts', () => {
       const content = document.querySelector('[data-slot="collapsible-content"]') as HTMLElement
       const row = content.firstElementChild?.firstElementChild as HTMLElement
       const stepper = row.querySelector('[aria-label="Page limit"]') as HTMLElement
+      const segments = stepper.querySelector('[data-slot="constraint-stepper-segments"]') as HTMLElement
       const toolbar = document.querySelector('[role="toolbar"]') as HTMLElement
       const actionGroups = Array.from(toolbar.querySelectorAll('[data-slot="toolbar-group"]'))
         .map(group => Array.from(group.querySelectorAll('[data-slot="button"]'))
           .map(button => button.textContent?.trim()))
       const decrease = stepper.querySelector('button') as HTMLElement
+      const value = stepper.querySelector('[data-slot="constraint-stepper-value"]') as HTMLElement
       const rowRect = row.getBoundingClientRect()
       const stepperRect = stepper.getBoundingClientRect()
       const decreaseRect = decrease.getBoundingClientRect()
+      const stepperStyle = getComputedStyle(stepper)
+      const segmentsStyle = segments ? getComputedStyle(segments) : null
+      const decreaseStyle = getComputedStyle(decrease)
+      const valueStyle = getComputedStyle(value)
       return {
         bodyClientWidth: document.documentElement.clientWidth,
         documentScrollWidth: document.documentElement.scrollWidth,
@@ -272,6 +290,12 @@ test.describe('unconfigured browser contracts', () => {
         stepperWidth: Math.round(stepperRect.width),
         buttonWidth: Math.round(decreaseRect.width),
         buttonHeight: Math.round(decreaseRect.height),
+        stepperBorderRadius: stepperStyle.borderRadius,
+        stepperOverflow: stepperStyle.overflow,
+        segmentsOverflow: segmentsStyle?.overflow ?? null,
+        stepperBackground: stepperStyle.backgroundColor,
+        buttonBorderWidth: decreaseStyle.borderWidth,
+        valueBackground: valueStyle.backgroundColor,
         actionGroups,
       }
     })
@@ -284,6 +308,11 @@ test.describe('unconfigured browser contracts', () => {
     expect(metrics.stepperWidth).toBeGreaterThanOrEqual(132)
     expect(metrics.buttonWidth).toBeGreaterThanOrEqual(44)
     expect(metrics.buttonHeight).toBeGreaterThanOrEqual(44)
+    expect(metrics.stepperBorderRadius).toBe('4px')
+    expect(metrics.stepperOverflow).toBe('visible')
+    expect(metrics.segmentsOverflow).toBe('hidden')
+    expect(metrics.buttonBorderWidth).toBe('0px')
+    expect(metrics.valueBackground).not.toBe(metrics.stepperBackground)
     expect(metrics.actionGroups).toEqual([
       ['Export PDF', 'Export JSON'],
       ['Import JSON', 'Reset template'],
@@ -313,6 +342,88 @@ test.describe('unconfigured browser contracts', () => {
       Math.round(element.getBoundingClientRect().height)
     )
     expect(wideExpandedHeight).toBe(wideCollapsedHeight)
+  })
+
+  test('keeps the wide Fit summary fully readable', async ({ page }) => {
+    await page.setViewportSize({ width: 1640, height: 1100 })
+    await page.goto('./editor/')
+
+    const fitTrigger = page.getByRole('button', { name: /Fit constraints/ })
+    const summary = fitTrigger.getByText('1 page · 1 line/bullet · 8px min', {
+      exact: true,
+    })
+    const summaryMetrics = await fitTrigger.evaluate((trigger, summaryText) => {
+      const label = Array.from(trigger.querySelectorAll('span')).find(
+        element => element.textContent?.trim() === 'Fit constraints'
+      )!
+      const summaryElement = Array.from(trigger.querySelectorAll('span')).find(
+        element => element.textContent?.trim() === summaryText
+      )!
+      const labelRect = label.getBoundingClientRect()
+      const summaryRect = summaryElement.getBoundingClientRect()
+      const triggerGap = Number.parseFloat(getComputedStyle(trigger).columnGap)
+      return {
+        client: summaryElement.clientWidth,
+        scroll: summaryElement.scrollWidth,
+        headroom: summaryRect.left - labelRect.right - triggerGap,
+      }
+    }, '1 page · 1 line/bullet · 8px min')
+    expect(summaryMetrics.scroll).toBeLessThanOrEqual(summaryMetrics.client)
+    expect(summaryMetrics.headroom).toBeGreaterThanOrEqual(4)
+  })
+
+  test('keeps the Light-theme Fit keyboard focus visible', async ({ page }) => {
+    await page.setViewportSize({ width: 1640, height: 1100 })
+    await page.goto('./editor/')
+
+    const appearance = page.getByRole('group', { name: 'Appearance' })
+    await appearance.getByRole('button', { name: 'Light' }).click()
+    const fitTrigger = page.getByRole('button', { name: /Fit constraints/ })
+
+    await page.keyboard.press('Tab')
+    await expect(fitTrigger).toBeFocused()
+
+    const focusStyle = async (element: ReturnType<typeof page.getByRole>) =>
+      element.evaluate(node => {
+        const style = getComputedStyle(node)
+        return {
+          outlineWidth: style.outlineWidth,
+          outlineOffset: style.outlineOffset,
+          outlineStyle: style.outlineStyle,
+          boxShadow: style.boxShadow,
+        }
+      })
+
+    expect(await focusStyle(fitTrigger)).toEqual({
+      outlineWidth: '2px',
+      outlineOffset: '3px',
+      outlineStyle: 'solid',
+      boxShadow: expect.stringContaining('rgb(20, 121, 111)'),
+    })
+    await expect(page.locator('[data-slot="fit-region"]')).toHaveCSS(
+      'overflow',
+      'visible'
+    )
+
+    await page.keyboard.press('Enter')
+    await page.keyboard.press('Tab')
+    const increasePages = page.getByRole('button', { name: 'Increase max pages' })
+    await expect(increasePages).toBeFocused()
+    const pageStepper = page.locator('[data-slot="constraint-stepper"]', {
+      has: increasePages,
+    })
+    expect(await focusStyle(pageStepper)).toEqual({
+      outlineWidth: '2px',
+      outlineOffset: '3px',
+      outlineStyle: 'solid',
+      boxShadow: expect.stringContaining('rgb(20, 121, 111)'),
+    })
+    await expect(pageStepper).toHaveCSS('overflow', 'visible')
+    await expect(
+      pageStepper.locator('[data-slot="constraint-stepper-segments"]')
+    ).toHaveCSS('overflow', 'hidden')
+    expect((await increasePages.evaluate(element => getComputedStyle(element).boxShadow)))
+      .toContain('rgb(20, 121, 111)')
   })
 
   test('keeps viewport overflow inside the fixed resume canvas scroller at narrow widths', async ({ page }) => {
@@ -432,10 +543,11 @@ test.describe('unconfigured browser contracts', () => {
     expect(wide.header.width).toBeGreaterThan(wide.editor.width)
     expect(wide.resumeWidth).toBe(816)
     expect(Math.abs(wide.fit.width - wide.review.width)).toBeLessThanOrEqual(1)
+    expect(wide.documentWidth).toBeLessThanOrEqual(wide.viewportWidth)
 
     const wideMax = await editorGeometry(1920)
-    expect(wideMax.fit.width).toBe(360)
-    expect(wideMax.review.width).toBe(360)
+    expect(wideMax.fit.width).toBe(320)
+    expect(wideMax.review.width).toBe(320)
     expect(Math.abs(wideMax.fit.bottom - wideMax.fit.top - wideMax.actionsHeight)).toBeLessThanOrEqual(1)
     expect(Math.abs(wideMax.reviewRailHeight - wideMax.actionsHeight)).toBeLessThanOrEqual(1)
     expect(
