@@ -73,6 +73,14 @@ test.describe('unconfigured browser contracts', () => {
       .evaluateAll(elements => elements.map(element => getComputedStyle(element).borderRadius))
     expect(structuralRadii).toEqual(['2px', '2px', '2px'])
 
+    const stage = page.locator('.resume-canvas-scroll')
+    await expect(stage).toHaveCSS('border-radius', '2px')
+    await expect(stage).toHaveCSS('background-image', 'none')
+    expect(await stage.evaluate(element => getComputedStyle(element).boxShadow)).not.toBe('none')
+    expect(await page.locator('.resume-viewport').evaluate(
+      element => getComputedStyle(element).boxShadow
+    )).not.toBe('none')
+
     const screenshot = await page.locator('.resume-page').screenshot()
     expect(hasNonblankPngBytes(screenshot)).toBe(true)
 
@@ -447,8 +455,8 @@ test.describe('unconfigured browser contracts', () => {
     expect(Math.abs(wide.fit.width - wide.review.width)).toBeLessThanOrEqual(1)
 
     const wideMax = await editorGeometry(1920)
-    expect(wideMax.fit.width).toBe(360)
-    expect(wideMax.review.width).toBe(360)
+    expect(wideMax.fit.width).toBe(320)
+    expect(wideMax.review.width).toBe(320)
     expect(Math.abs(wideMax.fit.bottom - wideMax.fit.top - wideMax.actionsHeight)).toBeLessThanOrEqual(1)
     expect(Math.abs(wideMax.reviewRailHeight - wideMax.actionsHeight)).toBeLessThanOrEqual(1)
     expect(

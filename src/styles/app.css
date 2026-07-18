@@ -12,11 +12,11 @@
   --line: var(--border);
   --danger: var(--destructive);
   --focus: var(--ring);
-  --stage-surface: linear-gradient(180deg, color-mix(in srgb, var(--stage), white 8%), var(--stage));
+  --stage-surface: var(--stage);
   --stage-padding: 24px;
   --editor-shell-width: calc(var(--page-width) + (var(--stage-padding) * 2) + 32px);
   --editor-rail-height: calc(3.75rem + 2px);
-  --wide-workspace-width: 1660px;
+  --wide-workspace-width: 1580px;
   --editor-control-resting-opacity: 0.34;
   --shadow-panel: var(--shadow-structural);
   --shadow-stage: var(--shadow-structural);
@@ -103,8 +103,8 @@ body {
   overflow-x: auto;
   overflow-y: visible;
   padding: var(--stage-padding);
-  border: 1px solid rgba(148, 163, 184, 0.38);
-  border-radius: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-structural);
   background: var(--stage-surface);
   box-shadow: var(--shadow-stage);
 }
@@ -113,7 +113,10 @@ body {
   width: max-content;
   margin: 0 auto;
   color: var(--paper-ink);
-  filter: drop-shadow(0 28px 30px rgba(15, 23, 42, 0.12));
+}
+
+.resume-canvas .resume-viewport {
+  box-shadow: var(--shadow-document);
 }
 
 /* Live editor brand */
@@ -366,12 +369,12 @@ body {
 @media (min-width: 1640px) {
   .workspace {
     width: min(var(--wide-workspace-width), 100%);
-    grid-template-columns: minmax(320px, 1fr) var(--editor-shell-width) minmax(320px, 1fr);
+    grid-template-columns: 320px var(--editor-shell-width) 320px;
     grid-template-areas: "fit editor review";
   }
 
   .fit-region {
-    width: min(360px, 100%);
+    width: 320px;
     justify-self: end;
   }
 
@@ -399,7 +402,7 @@ body {
   }
 
   .review-region {
-    width: min(360px, 100%);
+    width: 320px;
     justify-self: start;
   }
 
@@ -452,10 +455,6 @@ body {
   .app-header__meta {
     width: 100%;
     justify-content: space-between;
-  }
-
-  .resume-canvas-scroll {
-    border-radius: 10px;
   }
 }
 
