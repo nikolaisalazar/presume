@@ -135,6 +135,9 @@ test.describe('configured review browser contracts', () => {
     expect(reducedProgressBox).not.toBeNull()
     expect(reducedProgressBox!.height).toBe(3)
     expect(Math.abs(reducedProgressBox!.width - loadingBox!.width)).toBeLessThanOrEqual(2)
+    await page.emulateMedia({ reducedMotion: 'no-preference' })
+    await expect(reducedProgress).toHaveCSS('animation-name', 'review-progress-sweep')
+    expect((await reducedProgress.boundingBox())!.height).toBe(3)
 
     releaseFirst()
     await expect(rail.getByText('Review ready', { exact: true })).toBeVisible()

@@ -108,6 +108,10 @@ test.describe('unconfigured browser contracts', () => {
     await page.setViewportSize({ width: 1120, height: 980 })
     await page.goto('./')
 
+    expect(await page.getByRole('img', { name: 'Presume editor preview' }).evaluate(
+      element => getComputedStyle(element).backgroundImage
+    )).not.toBe('none')
+
     const workflow = page.getByRole('region', {
       name: 'From draft to export without leaving the page.',
     })
@@ -453,6 +457,7 @@ test.describe('unconfigured browser contracts', () => {
     expect(wide.header.width).toBeGreaterThan(wide.editor.width)
     expect(wide.resumeWidth).toBe(816)
     expect(Math.abs(wide.fit.width - wide.review.width)).toBeLessThanOrEqual(1)
+    expect(wide.documentWidth).toBeLessThanOrEqual(wide.viewportWidth)
 
     const wideMax = await editorGeometry(1920)
     expect(wideMax.fit.width).toBe(320)

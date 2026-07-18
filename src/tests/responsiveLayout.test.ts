@@ -14,12 +14,19 @@ describe('custom editor CSS invariants', () => {
   })
 
   it('keeps the stage opaque and the final document viewport most elevated', () => {
-    expect(appCss).toContain('--stage-surface: var(--stage);')
+    expect(appCss).toContain('--editor-stage-surface: var(--stage);')
+    expect(appCss).toContain('--stage-surface: linear-gradient(')
+    expect(appCss).toContain('background: var(--editor-stage-surface);')
     expect(appCss).toContain('border-radius: var(--radius-structural);')
     expect(appCss).toContain('.resume-canvas .resume-viewport')
     expect(appCss).toContain('box-shadow: var(--shadow-document);')
-    expect(appCss).not.toContain('linear-gradient(180deg, color-mix(in srgb, var(--stage)')
     expect(appCss).not.toContain('filter: drop-shadow(')
+  })
+
+  it('reserves scrollbar tolerance at the exact wide-workbench boundary', () => {
+    expect(appCss).toMatch(
+      /@media \(min-width: 1640px\) \{[\s\S]*?\.app \{[\s\S]*?padding-inline: 20px;/
+    )
   })
 
   it('keeps fixed-canvas scrolling and the 3px review progress hook custom', () => {

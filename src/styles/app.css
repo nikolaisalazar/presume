@@ -12,7 +12,8 @@
   --line: var(--border);
   --danger: var(--destructive);
   --focus: var(--ring);
-  --stage-surface: var(--stage);
+  --stage-surface: linear-gradient(180deg, color-mix(in srgb, var(--stage), white 8%), var(--stage));
+  --editor-stage-surface: var(--stage);
   --stage-padding: 24px;
   --editor-shell-width: calc(var(--page-width) + (var(--stage-padding) * 2) + 32px);
   --editor-rail-height: calc(3.75rem + 2px);
@@ -105,7 +106,7 @@ body {
   padding: var(--stage-padding);
   border: 1px solid var(--border);
   border-radius: var(--radius-structural);
-  background: var(--stage-surface);
+  background: var(--editor-stage-surface);
   box-shadow: var(--shadow-stage);
 }
 
@@ -367,6 +368,10 @@ body {
 }
 
 @media (min-width: 1640px) {
+  .app {
+    padding-inline: 20px;
+  }
+
   .workspace {
     width: min(var(--wide-workspace-width), 100%);
     grid-template-columns: 320px var(--editor-shell-width) 320px;
