@@ -216,7 +216,7 @@ body {
   width: 46%;
   height: 3px;
   transform: translateX(-120%);
-  background: linear-gradient(90deg, transparent, currentColor, transparent);
+  background: var(--review-progress);
   animation: review-progress-sweep 1.4s ease-in-out infinite;
 }
 
@@ -469,8 +469,9 @@ body {
   }
 
   .review-rail__progress {
-    left: 50%;
-    transform: translateX(-50%);
+    width: 100%;
+    left: 0;
+    transform: none;
     animation: none;
   }
 }

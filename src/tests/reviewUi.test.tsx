@@ -953,6 +953,14 @@ describe('ReviewRail', () => {
     const firstLoad = screen.getByLabelText('Resume review')
     expect(firstLoad).toHaveAttribute('aria-busy', 'true')
     expect(firstLoad).toHaveAttribute('data-loading', '')
+    expect(firstLoad).toHaveClass(
+      'bg-surface',
+      'shadow-[var(--shadow-structural)]'
+    )
+    expect(firstLoad.querySelector('.review-rail__progress')).toHaveAttribute(
+      'aria-hidden',
+      'true'
+    )
     expect(screen.queryByRole('button')).not.toBeInTheDocument()
 
     rerender(

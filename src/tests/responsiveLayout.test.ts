@@ -28,6 +28,10 @@ describe('custom editor CSS invariants', () => {
     expect(appCss).not.toContain('scrollbar-gutter: stable both-edges')
     expect(appCss).toContain('.review-rail__progress')
     expect(appCss).toContain('height: 3px')
+    expect(appCss).toContain('background: var(--review-progress);')
+    expect(appCss).toMatch(
+      /@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.review-rail__progress \{[\s\S]*?width: 100%;[\s\S]*?left: 0;[\s\S]*?transform: none;[\s\S]*?animation: none;/
+    )
   })
 
   it('keeps in-document controls and print hiding intact', () => {

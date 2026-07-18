@@ -75,6 +75,7 @@ test.describe('configured review browser contracts', () => {
   })
 
   test('submits a PDF review, renders normalized result, and marks it stale after edit', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' })
     let requestCount = 0
     let releaseFirst!: () => void
     let releaseSecond!: () => void
@@ -128,6 +129,12 @@ test.describe('configured review browser contracts', () => {
     await expect(rail.getByText('In progress', { exact: true })).toBeVisible()
     await expect(page.getByRole('complementary', { name: 'Resume review' })).toHaveCount(0)
     const loadingBox = await rail.boundingBox()
+    const reducedProgress = rail.locator('.review-rail__progress')
+    const reducedProgressBox = await reducedProgress.boundingBox()
+    await expect(reducedProgress).toHaveCSS('animation-name', 'none')
+    expect(reducedProgressBox).not.toBeNull()
+    expect(reducedProgressBox!.height).toBe(3)
+    expect(Math.abs(reducedProgressBox!.width - loadingBox!.width)).toBeLessThanOrEqual(2)
 
     releaseFirst()
     await expect(rail.getByText('Review ready', { exact: true })).toBeVisible()
