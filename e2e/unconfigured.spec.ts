@@ -340,6 +340,62 @@ test.describe('unconfigured browser contracts', () => {
     expect(wideExpandedHeight).toBe(wideCollapsedHeight)
   })
 
+  test('keeps the wide Fit summary fully readable', async ({ page }) => {
+    await page.setViewportSize({ width: 1640, height: 1100 })
+    await page.goto('./editor/')
+
+    const fitTrigger = page.getByRole('button', { name: /Fit constraints/ })
+    const summary = fitTrigger.getByText('1 page · 1 line/bullet · 8px min', {
+      exact: true,
+    })
+    const summaryWidth = await summary.evaluate(element => ({
+      client: element.clientWidth,
+      scroll: element.scrollWidth,
+    }))
+    expect(summaryWidth.scroll).toBeLessThanOrEqual(summaryWidth.client)
+  })
+
+  test('keeps the Light-theme Fit keyboard focus visible', async ({ page }) => {
+    await page.setViewportSize({ width: 1640, height: 1100 })
+    await page.goto('./editor/')
+
+    const appearance = page.getByRole('group', { name: 'Appearance' })
+    await appearance.getByRole('button', { name: 'Light' }).click()
+    const fitTrigger = page.getByRole('button', { name: /Fit constraints/ })
+
+    await page.keyboard.press('Tab')
+    await expect(fitTrigger).toBeFocused()
+
+    const focusStyle = async (element: ReturnType<typeof page.getByRole>) =>
+      element.evaluate(node => {
+        const style = getComputedStyle(node)
+        return {
+          outlineWidth: style.outlineWidth,
+          outlineOffset: style.outlineOffset,
+          outlineStyle: style.outlineStyle,
+          boxShadow: style.boxShadow,
+        }
+      })
+
+    expect(await focusStyle(fitTrigger)).toEqual({
+      outlineWidth: '2px',
+      outlineOffset: '3px',
+      outlineStyle: 'solid',
+      boxShadow: expect.stringContaining('rgb(20, 121, 111)'),
+    })
+
+    await page.keyboard.press('Enter')
+    await page.keyboard.press('Tab')
+    const increasePages = page.getByRole('button', { name: 'Increase max pages' })
+    await expect(increasePages).toBeFocused()
+    expect(await focusStyle(increasePages)).toEqual({
+      outlineWidth: '2px',
+      outlineOffset: '3px',
+      outlineStyle: 'solid',
+      boxShadow: expect.stringContaining('rgb(20, 121, 111)'),
+    })
+  })
+
   test('keeps viewport overflow inside the fixed resume canvas scroller at narrow widths', async ({ page }) => {
     const editorGeometry = async (width: number) => {
       await page.setViewportSize({ width, height: 1100 })
