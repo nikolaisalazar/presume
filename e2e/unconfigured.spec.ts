@@ -352,11 +352,24 @@ test.describe('unconfigured browser contracts', () => {
     const summary = fitTrigger.getByText('1 page · 1 line/bullet · 8px min', {
       exact: true,
     })
-    const summaryWidth = await summary.evaluate(element => ({
-      client: element.clientWidth,
-      scroll: element.scrollWidth,
-    }))
-    expect(summaryWidth.scroll).toBeLessThanOrEqual(summaryWidth.client)
+    const summaryMetrics = await fitTrigger.evaluate((trigger, summaryText) => {
+      const label = Array.from(trigger.querySelectorAll('span')).find(
+        element => element.textContent?.trim() === 'Fit constraints'
+      )!
+      const summaryElement = Array.from(trigger.querySelectorAll('span')).find(
+        element => element.textContent?.trim() === summaryText
+      )!
+      const labelRect = label.getBoundingClientRect()
+      const summaryRect = summaryElement.getBoundingClientRect()
+      const triggerGap = Number.parseFloat(getComputedStyle(trigger).columnGap)
+      return {
+        client: summaryElement.clientWidth,
+        scroll: summaryElement.scrollWidth,
+        headroom: summaryRect.left - labelRect.right - triggerGap,
+      }
+    }, '1 page · 1 line/bullet · 8px min')
+    expect(summaryMetrics.scroll).toBeLessThanOrEqual(summaryMetrics.client)
+    expect(summaryMetrics.headroom).toBeGreaterThanOrEqual(4)
   })
 
   test('keeps the Light-theme Fit keyboard focus visible', async ({ page }) => {

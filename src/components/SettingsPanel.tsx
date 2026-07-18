@@ -27,7 +27,7 @@ export function SettingsPanel({ constraints, onChange }: SettingsPanelProps) {
 
   return (
     <Collapsible className="settings-panel" open={open} onOpenChange={setOpen}>
-      <CollapsibleTrigger className="flex min-h-12 w-full items-center justify-between gap-2 px-3.5 py-3 text-left outline-none transition-colors duration-[var(--duration-standard)] ease-[var(--ease-standard)] hover:bg-surface-pressed focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-3 focus-visible:outline-ring focus-visible:ring-2 focus-visible:ring-focus-contrast motion-reduce:transition-none">
+      <CollapsibleTrigger className="flex min-h-12 w-full items-center justify-between gap-1 px-2.5 py-3 text-left outline-none transition-colors duration-[var(--duration-standard)] ease-[var(--ease-standard)] hover:bg-surface-pressed focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-3 focus-visible:outline-ring focus-visible:ring-2 focus-visible:ring-focus-contrast motion-reduce:transition-none">
         <span className="shrink-0 text-[13px] font-bold">Fit constraints</span>
         <span className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
           {!open ? (
