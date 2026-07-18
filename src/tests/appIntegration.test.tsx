@@ -260,11 +260,15 @@ describe('App review availability boundaries', () => {
     expect(stepperValues).toHaveLength(3)
     steppers.forEach(stepper => {
       expect(stepper).toHaveClass(
-        'overflow-hidden',
         'rounded-[var(--radius-control)]',
         'border-border',
-        'bg-surface-raised'
+        'bg-surface-raised',
+        'focus-within:outline-offset-3'
       )
+      expect(stepper).not.toHaveClass('overflow-hidden')
+      expect(
+        stepper.querySelector('[data-slot="constraint-stepper-segments"]')
+      ).toHaveClass('overflow-hidden')
     })
     stepperValues.forEach(value => {
       expect(value).toHaveClass('bg-surface-pressed', 'tabular-nums')
@@ -273,6 +277,7 @@ describe('App review availability boundaries', () => {
     const fitRegion = screen.getByRole('complementary', {
       name: 'Fit constraints and formatting',
     })
+    expect(fitRegion).toHaveClass('overflow-visible')
     const editor = screen.getByRole('region', { name: 'Resume editor' })
     const reviewRegion = screen.getByRole('region', { name: 'Review workspace' })
     const toolbar = screen.getByRole('toolbar', { name: 'Document actions' })

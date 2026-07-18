@@ -134,35 +134,40 @@ function ConstraintStepper({
         <small className="block text-[11px] leading-4 text-muted-foreground">{help}</small>
       </div>
       <div
-        className="flex shrink-0 overflow-hidden rounded-[var(--radius-control)] border border-border bg-surface-raised shadow-[var(--shadow-inset-edge)]"
+        className="shrink-0 rounded-[var(--radius-control)] border border-border bg-surface-raised outline-none shadow-[var(--shadow-inset-edge)] focus-within:outline-2 focus-within:outline-solid focus-within:outline-offset-3 focus-within:outline-ring focus-within:ring-2 focus-within:ring-focus-contrast"
         aria-label={label}
         data-slot="constraint-stepper"
       >
-        <button
-          type="button"
-          className="flex size-11 items-center justify-center border-0 bg-surface-raised text-sm font-bold outline-none transition-[background-color,transform] duration-[var(--duration-standard)] ease-[var(--ease-standard)] hover:bg-surface-pressed focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-3 focus-visible:outline-ring focus-visible:ring-2 focus-visible:ring-focus-contrast active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none min-[561px]:size-9"
-          onClick={onDecrease}
-          disabled={decreaseDisabled}
-          aria-label={decreaseLabel}
+        <div
+          className="flex overflow-hidden rounded-[calc(var(--radius-control)-1px)]"
+          data-slot="constraint-stepper-segments"
         >
-          −
-        </button>
-        <span
-          className="flex size-11 items-center justify-center border-x border-border bg-surface-pressed text-xs font-semibold tabular-nums min-[561px]:size-9"
-          aria-live="polite"
-          data-slot="constraint-stepper-value"
-        >
-          <strong>{value}</strong>
-        </span>
-        <button
-          type="button"
-          className="flex size-11 items-center justify-center border-0 bg-surface-raised text-sm font-bold outline-none transition-[background-color,transform] duration-[var(--duration-standard)] ease-[var(--ease-standard)] hover:bg-surface-pressed focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-3 focus-visible:outline-ring focus-visible:ring-2 focus-visible:ring-focus-contrast active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none min-[561px]:size-9"
-          onClick={onIncrease}
-          disabled={increaseDisabled}
-          aria-label={increaseLabel}
-        >
-          +
-        </button>
+          <button
+            type="button"
+            className="flex size-11 items-center justify-center border-0 bg-surface-raised text-sm font-bold outline-none transition-[background-color,color,transform] duration-[var(--duration-standard)] ease-[var(--ease-standard)] hover:bg-surface-pressed focus:z-10 focus:bg-accent focus:text-accent-foreground focus:shadow-[inset_0_0_0_2px_var(--focus-contrast)] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none min-[561px]:size-9"
+            onClick={onDecrease}
+            disabled={decreaseDisabled}
+            aria-label={decreaseLabel}
+          >
+            −
+          </button>
+          <span
+            className="flex size-11 items-center justify-center border-x border-border bg-surface-pressed text-xs font-semibold tabular-nums min-[561px]:size-9"
+            aria-live="polite"
+            data-slot="constraint-stepper-value"
+          >
+            <strong>{value}</strong>
+          </span>
+          <button
+            type="button"
+            className="flex size-11 items-center justify-center border-0 bg-surface-raised text-sm font-bold outline-none transition-[background-color,color,transform] duration-[var(--duration-standard)] ease-[var(--ease-standard)] hover:bg-surface-pressed focus:z-10 focus:bg-accent focus:text-accent-foreground focus:shadow-[inset_0_0_0_2px_var(--focus-contrast)] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none min-[561px]:size-9"
+            onClick={onIncrease}
+            disabled={increaseDisabled}
+            aria-label={increaseLabel}
+          >
+            +
+          </button>
+        </div>
       </div>
     </div>
   )

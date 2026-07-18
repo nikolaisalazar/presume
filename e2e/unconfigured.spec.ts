@@ -268,6 +268,7 @@ test.describe('unconfigured browser contracts', () => {
       const content = document.querySelector('[data-slot="collapsible-content"]') as HTMLElement
       const row = content.firstElementChild?.firstElementChild as HTMLElement
       const stepper = row.querySelector('[aria-label="Page limit"]') as HTMLElement
+      const segments = stepper.querySelector('[data-slot="constraint-stepper-segments"]') as HTMLElement
       const toolbar = document.querySelector('[role="toolbar"]') as HTMLElement
       const actionGroups = Array.from(toolbar.querySelectorAll('[data-slot="toolbar-group"]'))
         .map(group => Array.from(group.querySelectorAll('[data-slot="button"]'))
@@ -278,6 +279,7 @@ test.describe('unconfigured browser contracts', () => {
       const stepperRect = stepper.getBoundingClientRect()
       const decreaseRect = decrease.getBoundingClientRect()
       const stepperStyle = getComputedStyle(stepper)
+      const segmentsStyle = segments ? getComputedStyle(segments) : null
       const decreaseStyle = getComputedStyle(decrease)
       const valueStyle = getComputedStyle(value)
       return {
@@ -290,6 +292,7 @@ test.describe('unconfigured browser contracts', () => {
         buttonHeight: Math.round(decreaseRect.height),
         stepperBorderRadius: stepperStyle.borderRadius,
         stepperOverflow: stepperStyle.overflow,
+        segmentsOverflow: segmentsStyle?.overflow ?? null,
         stepperBackground: stepperStyle.backgroundColor,
         buttonBorderWidth: decreaseStyle.borderWidth,
         valueBackground: valueStyle.backgroundColor,
@@ -306,7 +309,8 @@ test.describe('unconfigured browser contracts', () => {
     expect(metrics.buttonWidth).toBeGreaterThanOrEqual(44)
     expect(metrics.buttonHeight).toBeGreaterThanOrEqual(44)
     expect(metrics.stepperBorderRadius).toBe('4px')
-    expect(metrics.stepperOverflow).toBe('hidden')
+    expect(metrics.stepperOverflow).toBe('visible')
+    expect(metrics.segmentsOverflow).toBe('hidden')
     expect(metrics.buttonBorderWidth).toBe('0px')
     expect(metrics.valueBackground).not.toBe(metrics.stepperBackground)
     expect(metrics.actionGroups).toEqual([
@@ -383,17 +387,30 @@ test.describe('unconfigured browser contracts', () => {
       outlineStyle: 'solid',
       boxShadow: expect.stringContaining('rgb(20, 121, 111)'),
     })
+    await expect(page.locator('[data-slot="fit-region"]')).toHaveCSS(
+      'overflow',
+      'visible'
+    )
 
     await page.keyboard.press('Enter')
     await page.keyboard.press('Tab')
     const increasePages = page.getByRole('button', { name: 'Increase max pages' })
     await expect(increasePages).toBeFocused()
-    expect(await focusStyle(increasePages)).toEqual({
+    const pageStepper = page.locator('[data-slot="constraint-stepper"]', {
+      has: increasePages,
+    })
+    expect(await focusStyle(pageStepper)).toEqual({
       outlineWidth: '2px',
       outlineOffset: '3px',
       outlineStyle: 'solid',
       boxShadow: expect.stringContaining('rgb(20, 121, 111)'),
     })
+    await expect(pageStepper).toHaveCSS('overflow', 'visible')
+    await expect(
+      pageStepper.locator('[data-slot="constraint-stepper-segments"]')
+    ).toHaveCSS('overflow', 'hidden')
+    expect((await increasePages.evaluate(element => getComputedStyle(element).boxShadow)))
+      .toContain('rgb(20, 121, 111)')
   })
 
   test('keeps viewport overflow inside the fixed resume canvas scroller at narrow widths', async ({ page }) => {
