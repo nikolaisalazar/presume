@@ -261,9 +261,13 @@ test.describe('unconfigured browser contracts', () => {
         .map(group => Array.from(group.querySelectorAll('[data-slot="button"]'))
           .map(button => button.textContent?.trim()))
       const decrease = stepper.querySelector('button') as HTMLElement
+      const value = stepper.querySelector('[data-slot="constraint-stepper-value"]') as HTMLElement
       const rowRect = row.getBoundingClientRect()
       const stepperRect = stepper.getBoundingClientRect()
       const decreaseRect = decrease.getBoundingClientRect()
+      const stepperStyle = getComputedStyle(stepper)
+      const decreaseStyle = getComputedStyle(decrease)
+      const valueStyle = getComputedStyle(value)
       return {
         bodyClientWidth: document.documentElement.clientWidth,
         documentScrollWidth: document.documentElement.scrollWidth,
@@ -272,6 +276,11 @@ test.describe('unconfigured browser contracts', () => {
         stepperWidth: Math.round(stepperRect.width),
         buttonWidth: Math.round(decreaseRect.width),
         buttonHeight: Math.round(decreaseRect.height),
+        stepperBorderRadius: stepperStyle.borderRadius,
+        stepperOverflow: stepperStyle.overflow,
+        stepperBackground: stepperStyle.backgroundColor,
+        buttonBorderWidth: decreaseStyle.borderWidth,
+        valueBackground: valueStyle.backgroundColor,
         actionGroups,
       }
     })
@@ -284,6 +293,10 @@ test.describe('unconfigured browser contracts', () => {
     expect(metrics.stepperWidth).toBeGreaterThanOrEqual(132)
     expect(metrics.buttonWidth).toBeGreaterThanOrEqual(44)
     expect(metrics.buttonHeight).toBeGreaterThanOrEqual(44)
+    expect(metrics.stepperBorderRadius).toBe('4px')
+    expect(metrics.stepperOverflow).toBe('hidden')
+    expect(metrics.buttonBorderWidth).toBe('0px')
+    expect(metrics.valueBackground).not.toBe(metrics.stepperBackground)
     expect(metrics.actionGroups).toEqual([
       ['Export PDF', 'Export JSON'],
       ['Import JSON', 'Reset template'],

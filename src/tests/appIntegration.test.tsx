@@ -252,16 +252,49 @@ describe('App review availability boundaries', () => {
     expect(screen.getByRole('button', { name: 'Increase max pages' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Decrease max pages' })).toBeInTheDocument()
 
+    const steppers = container.querySelectorAll('[data-slot="constraint-stepper"]')
+    const stepperValues = container.querySelectorAll(
+      '[data-slot="constraint-stepper-value"]'
+    )
+    expect(steppers).toHaveLength(3)
+    expect(stepperValues).toHaveLength(3)
+    steppers.forEach(stepper => {
+      expect(stepper).toHaveClass(
+        'overflow-hidden',
+        'rounded-[var(--radius-control)]',
+        'border-border',
+        'bg-surface-raised'
+      )
+    })
+    stepperValues.forEach(value => {
+      expect(value).toHaveClass('bg-surface-pressed', 'tabular-nums')
+    })
+
     const fitRegion = screen.getByRole('complementary', {
       name: 'Fit constraints and formatting',
     })
     const editor = screen.getByRole('region', { name: 'Resume editor' })
     const reviewRegion = screen.getByRole('region', { name: 'Review workspace' })
     const toolbar = screen.getByRole('toolbar', { name: 'Document actions' })
+    const actionSurface = container.querySelector('[data-slot="document-actions"]')
 
     expect(fitRegion.compareDocumentPosition(editor)).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
     expect(editor.compareDocumentPosition(reviewRegion)).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
     expect(editor).toContainElement(toolbar)
+    expect(fitRegion).toHaveClass(
+      'bg-surface',
+      'shadow-[var(--shadow-structural)]'
+    )
+    expect(actionSurface).toHaveClass(
+      'rounded-[var(--radius-structural)]',
+      'border-border',
+      'bg-surface',
+      'shadow-[var(--shadow-structural)]'
+    )
+    expect(actionSurface).not.toHaveClass(
+      'bg-background',
+      'shadow-[var(--shadow-panel)]'
+    )
     expect(container.querySelector('[data-slot="command-deck"]')).not.toBeInTheDocument()
     expect(screen.queryByText('Letter · fixed canvas')).not.toBeInTheDocument()
     expect(screen.queryByText('Direct edit')).not.toBeInTheDocument()
@@ -286,6 +319,11 @@ describe('App review availability boundaries', () => {
 
     const warning = screen.getByRole('status')
     expect(warning).toHaveAttribute('data-slot', 'alert')
+    expect(warning).toHaveClass(
+      'border-t',
+      'border-warning-border',
+      'shadow-none'
+    )
     expect(warning.querySelector('[data-slot="alert-title"]')).toHaveTextContent(
       'Cannot fit under current constraints'
     )

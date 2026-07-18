@@ -27,7 +27,7 @@ export function SettingsPanel({ constraints, onChange }: SettingsPanelProps) {
 
   return (
     <Collapsible className="settings-panel" open={open} onOpenChange={setOpen}>
-      <CollapsibleTrigger className="flex min-h-12 w-full items-center justify-between gap-3 px-4 py-3 text-left">
+      <CollapsibleTrigger className="flex min-h-12 w-full items-center justify-between gap-3 px-4 py-3 text-left outline-none transition-colors duration-[var(--duration-standard)] ease-[var(--ease-standard)] hover:bg-surface-pressed focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring motion-reduce:transition-none">
         <span className="shrink-0 text-[13px] font-bold">Fit constraints</span>
         <span className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
           {!open ? (
@@ -38,11 +38,10 @@ export function SettingsPanel({ constraints, onChange }: SettingsPanelProps) {
           <ChevronDown
             aria-hidden="true"
             className={cn(
-              'shrink-0 text-foreground transition-transform duration-[180ms] ease-out motion-reduce:transition-none',
+              'size-5 shrink-0 text-foreground transition-transform duration-[var(--duration-standard)] ease-[var(--ease-standard)] motion-reduce:transition-none',
               open && 'rotate-180'
             )}
             data-slot="fit-disclosure-icon"
-            size={18}
             strokeWidth={2.25}
           />
         </span>
@@ -51,7 +50,7 @@ export function SettingsPanel({ constraints, onChange }: SettingsPanelProps) {
         keepMounted
         className="h-[var(--collapsible-panel-height)] overflow-hidden opacity-100 transition-[height,opacity] duration-[180ms] ease-out data-[closed]:h-0 data-[closed]:opacity-0 motion-reduce:transition-none"
       >
-        <div className="border-t border-border bg-muted/30 px-4 py-2">
+        <div className="border-t border-border bg-surface-pressed px-4 py-2">
           <ConstraintStepper
             label="Page limit"
             value={constraints.maxPages}
@@ -134,22 +133,30 @@ function ConstraintStepper({
         <span className="block text-xs font-bold text-foreground">{label}</span>
         <small className="block text-[11px] leading-4 text-muted-foreground">{help}</small>
       </div>
-      <div className="flex shrink-0" aria-label={label}>
+      <div
+        className="flex shrink-0 overflow-hidden rounded-[var(--radius-control)] border border-border bg-surface-raised shadow-[var(--shadow-inset-edge)]"
+        aria-label={label}
+        data-slot="constraint-stepper"
+      >
         <button
           type="button"
-          className="flex h-11 w-11 items-center justify-center rounded-l-[3px] border border-border bg-background text-sm font-bold hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50 min-[561px]:h-9 min-[561px]:w-9"
+          className="flex size-11 items-center justify-center border-0 bg-surface-raised text-sm font-bold outline-none transition-[background-color,transform] duration-[var(--duration-standard)] ease-[var(--ease-standard)] hover:bg-surface-pressed focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none min-[561px]:size-9"
           onClick={onDecrease}
           disabled={decreaseDisabled}
           aria-label={decreaseLabel}
         >
           −
         </button>
-        <span className="flex h-11 w-11 items-center justify-center border border-l-0 border-border bg-background text-xs min-[561px]:h-9 min-[561px]:w-9" aria-live="polite">
+        <span
+          className="flex size-11 items-center justify-center border-x border-border bg-surface-pressed text-xs font-semibold tabular-nums min-[561px]:size-9"
+          aria-live="polite"
+          data-slot="constraint-stepper-value"
+        >
           <strong>{value}</strong>
         </span>
         <button
           type="button"
-          className="flex h-11 w-11 items-center justify-center rounded-r-[3px] border border-l-0 border-border bg-background text-sm font-bold hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50 min-[561px]:h-9 min-[561px]:w-9"
+          className="flex size-11 items-center justify-center border-0 bg-surface-raised text-sm font-bold outline-none transition-[background-color,transform] duration-[var(--duration-standard)] ease-[var(--ease-standard)] hover:bg-surface-pressed focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none min-[561px]:size-9"
           onClick={onIncrease}
           disabled={increaseDisabled}
           aria-label={increaseLabel}
