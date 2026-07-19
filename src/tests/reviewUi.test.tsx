@@ -144,6 +144,8 @@ describe('ReviewPanel', () => {
       .toBeInTheDocument()
     expect(screen.getByText('Experience section shows engineering work.'))
       .toBeInTheDocument()
+    expect(screen.getByText('Clarify user or business impact.'))
+      .toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: /Technical Skills, 8 of 10/i }))
     expect(onSelect).toHaveBeenCalledWith('technical_skills')
@@ -156,6 +158,9 @@ describe('ReviewPanel', () => {
       />
     )
     expect(screen.getByText('Broad supported toolset.')).toBeInTheDocument()
+    expect(screen.getByText('Add systems evidence.')).toBeInTheDocument()
+    expect(screen.queryByText('Clarify user or business impact.'))
+      .not.toBeInTheDocument()
     expect(categories[1].score).toBe(8)
   })
 
@@ -280,6 +285,48 @@ describe('ReviewPanel', () => {
     expect(screen.getByText('Missing scale')).toBeInTheDocument()
     expect(screen.getByText('Add measurable impact.')).toBeInTheDocument()
     expect(screen.getByText('Advisory evaluation')).toBeInTheDocument()
+  })
+
+  it('orders the completed report from score through selected detail, adjustments, and findings', () => {
+    render(
+      <ReviewPanel
+        state={{ status: 'success', result: reviewResult }}
+        onRequestReview={vi.fn()}
+      />
+    )
+
+    const panel = screen.getByRole('complementary', { name: 'Resume review' })
+    const reviewHeading = screen.getByRole('heading', { name: 'Review', level: 2 })
+    const overallHeading = screen.getByRole('heading', { name: 'Overall score', level: 3 })
+    const breakdownHeading = screen.getByRole('heading', { name: 'Score breakdown', level: 3 })
+    const categoryHeading = screen.getByRole('heading', {
+      name: 'Production Experience evidence',
+      level: 4,
+    })
+    const adjustmentsHeading = screen.getByRole('heading', { name: 'Score adjustments', level: 3 })
+    const findingsHeading = screen.getByRole('heading', { name: 'Findings', level: 3 })
+
+    for (const heading of [
+      reviewHeading,
+      overallHeading,
+      breakdownHeading,
+      categoryHeading,
+      adjustmentsHeading,
+      findingsHeading,
+    ]) {
+      expect(panel).toContainElement(heading)
+    }
+
+    expect(reviewHeading.compareDocumentPosition(overallHeading))
+      .toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+    expect(overallHeading.compareDocumentPosition(breakdownHeading))
+      .toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+    expect(breakdownHeading.compareDocumentPosition(categoryHeading))
+      .toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+    expect(categoryHeading.compareDocumentPosition(adjustmentsHeading))
+      .toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+    expect(adjustmentsHeading.compareDocumentPosition(findingsHeading))
+      .toBe(Node.DOCUMENT_POSITION_FOLLOWING)
   })
 
   it('defaults to the largest-deficit category and resets for a new review', () => {
