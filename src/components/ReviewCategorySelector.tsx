@@ -40,56 +40,61 @@ export function ReviewCategorySelector({
 
   const selected =
     categories.find(category => category.key === selectedKey) ?? categories[0]
+  const selectedDetailId = `review-category-${selected.key}-detail`
 
   return (
-    <section aria-labelledby="review-score-breakdown">
-      <h3 id="review-score-breakdown" className="mb-2 text-xs font-semibold">
+    <section className="review-category-section" aria-labelledby="review-score-breakdown">
+      <h3 id="review-score-breakdown" className="review-section-heading">
         Score breakdown
       </h3>
-      <div className="grid grid-cols-2 gap-2">
-        {categories.map(category => {
-          const ratio = category.maxScore > 0
-            ? Math.max(0, Math.min(100, (category.score / category.maxScore) * 100))
-            : 0
-
-          return (
-            <Button
-              key={category.key}
-              type="button"
-              variant="reviewCategory"
-              aria-label={`${category.label}, ${category.score} of ${category.maxScore}`}
-              aria-pressed={category.key === selected.key}
-              onClick={() => onSelect(category.key)}
-            >
-              <span className="text-xs text-muted-foreground">{category.label}</span>
-              <span className="text-base font-bold text-foreground">
-                {category.score}{' '}
-                <span className="text-xs font-medium text-muted-foreground">
-                  / {category.maxScore}
-                </span>
-              </span>
-              <span className="h-1 w-full overflow-hidden rounded-full bg-muted" aria-hidden="true">
-                <span
-                  className="block h-full bg-primary"
-                  style={{ width: `${ratio}%` }}
-                />
-              </span>
-            </Button>
-          )
-        })}
+      <div className="review-category-grid">
+        {categories.map(category => (
+          <Button
+            key={category.key}
+            type="button"
+            variant="reviewCategory"
+            className="review-category"
+            aria-label={`${category.label}, ${category.score} of ${category.maxScore}`}
+            aria-pressed={category.key === selected.key}
+            aria-controls={category.key === selected.key ? selectedDetailId : undefined}
+            onClick={() => onSelect(category.key)}
+          >
+            <span className="review-category__label">{category.label}</span>
+            <span className="review-category__score">
+              <strong>{category.score}</strong>
+              <span>/ {category.maxScore}</span>
+            </span>
+          </Button>
+        ))}
       </div>
-      <div className="mt-2 rounded-[4px] border border-primary/35 bg-primary/5 p-2.5">
-        <h3 className="text-xs font-semibold">{selected.label} evidence</h3>
+      <section
+        id={selectedDetailId}
+        className="review-category-detail"
+        aria-labelledby={`${selectedDetailId}-heading`}
+      >
+        <h4 id={`${selectedDetailId}-heading`} className="review-category-detail__heading">
+          {selected.label} evidence
+        </h4>
         {selected.evidence.length > 0 ? (
-          <ul className="mt-1.5 flex list-disc flex-col gap-1 pl-4 text-xs leading-relaxed text-muted-foreground">
+          <ul className="review-evidence-list">
             {selected.evidence.map((item, index) => (
               <li key={`${item}-${index}`}>{item}</li>
             ))}
           </ul>
         ) : (
-          <p className="mt-1.5 text-xs text-muted-foreground">No evidence returned.</p>
+          <p className="review-category-detail__empty">No evidence returned.</p>
         )}
-      </div>
+        {selected.suggestions.length > 0 ? (
+          <div className="review-category-suggestions">
+            <h5>Suggested next steps</h5>
+            <ul className="review-evidence-list">
+              {selected.suggestions.map((item, index) => (
+                <li key={`${item}-${index}`}>{item}</li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+      </section>
     </section>
   )
 }
