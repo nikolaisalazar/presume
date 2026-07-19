@@ -287,6 +287,26 @@ describe('ReviewPanel', () => {
     expect(screen.getByText('Advisory evaluation')).toBeInTheDocument()
   })
 
+  it('does not repeat selected category guidance already present in findings', () => {
+    const repeatedGuidance = 'Quantify production impact.'
+    const resultWithRepeatedGuidance: ReviewResult = {
+      ...reviewResult,
+      categories: reviewResult.categories.map(category => ({
+        ...category,
+        suggestions: [repeatedGuidance],
+      })),
+    }
+
+    render(
+      <ReviewPanel
+        state={{ status: 'success', result: resultWithRepeatedGuidance }}
+        onRequestReview={vi.fn()}
+      />
+    )
+
+    expect(screen.getAllByText(repeatedGuidance)).toHaveLength(1)
+  })
+
   it('orders the completed report from score through selected detail, adjustments, and findings', () => {
     render(
       <ReviewPanel

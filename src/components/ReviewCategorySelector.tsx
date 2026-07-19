@@ -29,18 +29,26 @@ interface ReviewCategorySelectorProps {
   categories: ReviewCategory[]
   selectedKey: ReviewCategoryKey | null
   onSelect: (key: ReviewCategoryKey) => void
+  excludedSuggestions?: readonly string[]
 }
 
 export function ReviewCategorySelector({
   categories,
   selectedKey,
   onSelect,
+  excludedSuggestions = [],
 }: ReviewCategorySelectorProps) {
   if (categories.length === 0) return null
 
   const selected =
     categories.find(category => category.key === selectedKey) ?? categories[0]
   const selectedDetailId = `review-category-${selected.key}-detail`
+  const excludedSuggestionText = new Set(
+    excludedSuggestions.map(suggestion => suggestion.trim())
+  )
+  const selectedSuggestions = selected.suggestions.filter(
+    suggestion => !excludedSuggestionText.has(suggestion.trim())
+  )
 
   return (
     <section className="review-category-section" aria-labelledby="review-score-breakdown">
@@ -84,11 +92,11 @@ export function ReviewCategorySelector({
         ) : (
           <p className="review-category-detail__empty">No evidence returned.</p>
         )}
-        {selected.suggestions.length > 0 ? (
+        {selectedSuggestions.length > 0 ? (
           <div className="review-category-suggestions">
             <h5>Suggested next steps</h5>
             <ul className="review-evidence-list">
-              {selected.suggestions.map((item, index) => (
+              {selectedSuggestions.map((item, index) => (
                 <li key={`${item}-${index}`}>{item}</li>
               ))}
             </ul>

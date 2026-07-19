@@ -122,6 +122,7 @@ function ReviewResultDetails({ state }: { state: ResumeReviewState }) {
         categories={result.categories}
         selectedKey={selectedCategoryKey}
         onSelect={setSelectedCategoryKey}
+        excludedSuggestions={result.improvements}
       />
       <ReviewAdjustmentLedger bonuses={result.bonuses} deductions={result.deductions} />
       <ReviewFindings
