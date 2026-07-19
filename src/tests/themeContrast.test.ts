@@ -64,4 +64,28 @@ describe('theme contrast contracts', () => {
     expect(appCss).not.toContain('color: #4b5563;')
     expect(appCss).toContain('var(--focus-contrast)')
   })
+
+  it('keeps Review annotation legend markers distinct on the surface in both themes', () => {
+    for (const selector of [':root', '.dark'] as const) {
+      const block = themeBlock(selector)
+      const surface = variable(block, 'surface')
+      const markers = [
+        variable(block, 'review-annotation-warning'),
+        variable(block, 'review-annotation-info'),
+        variable(block, 'review-annotation-strong'),
+      ]
+
+      expect(surface).toBeDefined()
+      for (const marker of markers) {
+        expect(marker).toBeDefined()
+        if (marker && surface) {
+          expect(contrastRatio(marker, surface)).toBeGreaterThanOrEqual(3)
+        }
+      }
+    }
+
+    expect(appCss).toContain('var(--review-annotation-warning)')
+    expect(appCss).toContain('var(--review-annotation-info)')
+    expect(appCss).toContain('var(--review-annotation-strong)')
+  })
 })

@@ -115,6 +115,9 @@
     --review-success-border: #9ac7af;
     --review-success-ink: #216a49;
     --review-progress: #2e9e91;
+    --review-annotation-warning: #0f766e;
+    --review-annotation-info: #0369a1;
+    --review-annotation-strong: #15803d;
     --error-bg: #f9ebe7;
     --error-border: #d7a092;
     --error-ink: #9c3f2e;
@@ -187,6 +190,9 @@
     --review-success-bg: #15271f;
     --review-success-border: #315d47;
     --review-success-ink: #88cfad;
+    --review-annotation-warning: #5eead4;
+    --review-annotation-info: #38bdf8;
+    --review-annotation-strong: #4ade80;
     --error-bg: #301d19;
     --error-border: #7c4438;
     --error-ink: #f0a28d;

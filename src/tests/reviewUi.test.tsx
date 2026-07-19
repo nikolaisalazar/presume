@@ -610,6 +610,9 @@ describe('ReviewPanel', () => {
 
     expect(screen.getByText('Annotation legend')).toBeInTheDocument()
     expect(screen.getAllByText('Needs attention')).toHaveLength(2)
+    const legend = screen.getByLabelText('Annotation legend')
+    expect(legend.querySelectorAll('.review-annotation-legend__marker')).toHaveLength(3)
+    expect(legend.querySelector('.review-annotation-marker')).not.toBeInTheDocument()
     expect(screen.getByText('Experience / Engineer')).toBeInTheDocument()
     expect(screen.getByText('Add measurable impact.')).toBeInTheDocument()
   })

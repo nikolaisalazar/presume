@@ -304,7 +304,7 @@ function ReviewSeverityLegendItem({
   return (
     <span className="review-annotation-legend__item">
       <span
-        className={`review-annotation-marker review-annotation--${severity}`}
+        className={`review-annotation-legend__marker review-annotation-legend__marker--${severity}`}
         aria-hidden="true"
       />
       {label}

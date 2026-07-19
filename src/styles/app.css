@@ -586,6 +586,26 @@ body {
   line-height: 1.3;
 }
 
+.review-annotation-legend__marker {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.review-annotation-legend__marker--warning {
+  color: var(--review-annotation-warning);
+}
+
+.review-annotation-legend__marker--info {
+  color: var(--review-annotation-info);
+}
+
+.review-annotation-legend__marker--strong {
+  color: var(--review-annotation-strong);
+}
+
 .review-rail__progress {
   position: absolute;
   bottom: 0;
