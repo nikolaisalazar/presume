@@ -20,8 +20,6 @@ const badgeVariants = cva(
         ghost:
           "hover:bg-muted hover:text-muted-foreground dark:hover:bg-muted/50",
         link: "text-accent-foreground underline-offset-4 hover:underline",
-        reviewTier:
-          "border-primary/35 bg-primary/5 text-accent-foreground",
         reviewWarning:
           "border-warning-border bg-warning-bg text-warning-ink",
         reviewInfo:

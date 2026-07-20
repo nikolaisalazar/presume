@@ -11,6 +11,7 @@ import { ReviewRail } from './components/ReviewRail'
 import { LandingPage } from './components/LandingPage'
 import { AppHeader } from './components/AppHeader'
 import { useResumeReview } from './useResumeReview'
+import type { ReviewAnnotation } from './reviewTypes'
 import './styles/globals.css'
 import './styles/app.css'
 import './styles/resume.css'
@@ -52,6 +53,7 @@ function EditorApp({ onOpenLanding }: { onOpenLanding: () => void }) {
   const { resume, setResume, constraints, setConstraints } = useResume()
   const pageRef = useRef<HTMLDivElement>(null)
   const [reviewPanelOpen, setReviewPanelOpen] = useState(false)
+  const [fitPanelOpen, setFitPanelOpen] = useState(false)
   const reviewPanelRef = useRef<HTMLElement>(null)
   const reviewRailActionRef = useRef<HTMLElement>(null)
   const previousReviewPanelOpen = useRef(reviewPanelOpen)
@@ -67,8 +69,21 @@ function EditorApp({ onOpenLanding }: { onOpenLanding: () => void }) {
   const requestReview = () => {
     void review.requestReview()
   }
-  const openReviewPanel = () => setReviewPanelOpen(true)
+  const openReviewPanel = () => {
+    setFitPanelOpen(false)
+    setReviewPanelOpen(true)
+  }
   const closeReviewPanel = () => setReviewPanelOpen(false)
+  const focusReviewAnnotation = (annotation: ReviewAnnotation) => {
+    const target = Array.from(
+      document.querySelectorAll<HTMLElement>('[data-review-annotation-ids]')
+    ).find(candidate =>
+      candidate.dataset.reviewAnnotationIds?.split(' ').includes(annotation.id)
+    )
+
+    target?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    target?.focus({ preventScroll: true })
+  }
 
   useEffect(() => {
     if (previousReviewPanelOpen.current === reviewPanelOpen) return
@@ -84,12 +99,19 @@ function EditorApp({ onOpenLanding }: { onOpenLanding: () => void }) {
   return (
     <div className="app">
       <AppHeader onOpenLanding={onOpenLanding} />
-      <main className="workspace">
+      <main
+        className="workspace"
+        data-review-layout="elastic"
+        data-review-open={reviewPanelOpen}
+        data-fit-layout="edge-drawer"
+      >
         <FitConstraintsPanel
           constraints={constraints}
           onChange={setConstraints}
           bulletWarningCount={bulletWarningCount}
           hasGlobalOverflow={hasGlobalOverflowWarning}
+          open={fitPanelOpen}
+          onOpenChange={setFitPanelOpen}
         />
         <section className="editor-panel" aria-label="Resume editor">
           <div
@@ -138,6 +160,7 @@ function EditorApp({ onOpenLanding }: { onOpenLanding: () => void }) {
             pdfReady={isScaleReady}
             onClose={closeReviewPanel}
             hidden={!reviewPanelOpen}
+            onFocusAnnotation={focusReviewAnnotation}
           />
         </section>
       </main>

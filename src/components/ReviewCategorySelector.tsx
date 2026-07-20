@@ -52,10 +52,12 @@ export function ReviewCategorySelector({
 
   return (
     <section className="review-category-section" aria-labelledby="review-score-breakdown">
-      <h3 id="review-score-breakdown" className="review-section-heading">
-        Score breakdown
-      </h3>
-      <div className="review-category-grid">
+      <div className="review-category-section__heading">
+        <h3 id="review-score-breakdown" className="review-section-heading">
+          Score breakdown
+        </h3>
+      </div>
+      <div className="review-category-table" role="group" aria-label="Review categories">
         {categories.map(category => (
           <Button
             key={category.key}
@@ -80,28 +82,33 @@ export function ReviewCategorySelector({
         className="review-category-detail"
         aria-labelledby={`${selectedDetailId}-heading`}
       >
-        <h4 id={`${selectedDetailId}-heading`} className="review-category-detail__heading">
-          {selected.label} evidence
+        <h4 id={`${selectedDetailId}-heading`} className="sr-only">
+          Selected category details
         </h4>
-        {selected.evidence.length > 0 ? (
-          <ul className="review-evidence-list">
-            {selected.evidence.map((item, index) => (
-              <li key={`${item}-${index}`}>{item}</li>
-            ))}
-          </ul>
-        ) : (
-          <p className="review-category-detail__empty">No evidence returned.</p>
-        )}
-        {selectedSuggestions.length > 0 ? (
-          <div className="review-category-suggestions">
-            <h5>Suggested next steps</h5>
-            <ul className="review-evidence-list">
-              {selectedSuggestions.map((item, index) => (
-                <li key={`${item}-${index}`}>{item}</li>
-              ))}
-            </ul>
+        <div className="review-category-detail__body">
+          <div className="review-category-evidence">
+            <h5>Evidence found</h5>
+            {selected.evidence.length > 0 ? (
+              <ul className="review-evidence-list">
+                {selected.evidence.map((item, index) => (
+                  <li key={`${item}-${index}`}>{item}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="review-category-detail__empty">No evidence returned.</p>
+            )}
           </div>
-        ) : null}
+          {selectedSuggestions.length > 0 ? (
+            <div className="review-category-suggestions">
+              <h5>How to gain more points</h5>
+              <ul className="review-evidence-list">
+                {selectedSuggestions.map((item, index) => (
+                  <li key={`${item}-${index}`}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+        </div>
       </section>
     </section>
   )
