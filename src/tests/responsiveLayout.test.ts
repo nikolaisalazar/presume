@@ -107,4 +107,13 @@ describe('custom editor CSS invariants', () => {
     expect(appCss).not.toContain('preview')
     expect(appCss).not.toContain('review-report--candidate')
   })
+
+  it('keeps keyboard focus visible inside the clipped Border Notch and on review targets', () => {
+    expect(appCss).toMatch(
+      /\.workspace\[data-review-open='true'\] > \.fit-region:not\(:has\(\[aria-expanded='true'\]\)\)[\s\S]*?\[data-slot='collapsible-trigger'\]:focus-visible \{[^}]*outline: none;[^}]*box-shadow:[^}]*inset/
+    )
+    expect(appCss).toMatch(
+      /\.review-annotation-marker:focus \{[^}]*outline:[^}]*var\(--paper-ink\);[^}]*outline-offset:/
+    )
+  })
 })

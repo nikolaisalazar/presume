@@ -37,6 +37,14 @@ test.describe('configured review browser contracts', () => {
 
     await page.setViewportSize({ width: 1640, height: 900 })
     await expect(page.locator('.fit-region')).toHaveCSS('width', '24px')
+    const fitTrigger = page.locator('.fit-region [data-slot="collapsible-trigger"]')
+    await fitTrigger.focus()
+    const fitFocus = await fitTrigger.evaluate(element => {
+      const style = getComputedStyle(element)
+      return { outline: style.outlineStyle, boxShadow: style.boxShadow }
+    })
+    expect(fitFocus.outline).toBe('none')
+    expect(fitFocus.boxShadow).toContain('inset')
     const wide = await page.evaluate(() => {
       const fit = document.querySelector('.fit-region')!.getBoundingClientRect()
       const editor = document.querySelector('.editor-panel')!.getBoundingClientRect()
@@ -78,6 +86,13 @@ test.describe('configured review browser contracts', () => {
 
   test('submits a PDF review, renders normalized result, and marks it stale after edit', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' })
+    await page.addInitScript(() => {
+      const originalScrollIntoView = HTMLElement.prototype.scrollIntoView
+      HTMLElement.prototype.scrollIntoView = function scrollIntoView(options) {
+        this.dataset.lastScrollIntoView = JSON.stringify(options)
+        originalScrollIntoView?.call(this, options)
+      }
+    })
     let requestCount = 0
     let releaseFirst!: () => void
     let releaseSecond!: () => void
@@ -167,6 +182,30 @@ test.describe('configured review browser contracts', () => {
     await expect(page.getByText('Missing scale')).toBeVisible()
     await page.getByRole('button', { name: 'Feedback', exact: true }).click()
     await expect(page.getByText('Good technical evidence.')).toBeVisible()
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    await page.getByRole('button', { name: /Good technical evidence/i }).click()
+    const annotationMarker = page.locator('[data-review-annotation-ids="ann_e2e"]')
+    await expect(annotationMarker).toBeFocused()
+    await expect(annotationMarker).toHaveAttribute(
+      'data-last-scroll-into-view',
+      JSON.stringify({ block: 'center', behavior: 'auto' })
+    )
+    const appearance = page.getByRole('group', { name: 'Appearance' })
+    for (const theme of ['Light', 'Dark']) {
+      await appearance.getByRole('button', { name: theme }).click()
+      await annotationMarker.focus()
+      const annotationFocus = await annotationMarker.evaluate(element => {
+        const style = getComputedStyle(element)
+        return {
+          outlineColor: style.outlineColor,
+          outlineStyle: style.outlineStyle,
+          outlineWidth: style.outlineWidth,
+        }
+      })
+      expect(annotationFocus.outlineColor).toBe('rgb(16, 24, 39)')
+      expect(annotationFocus.outlineStyle).toBe('solid')
+      expect(Number.parseFloat(annotationFocus.outlineWidth)).toBeGreaterThan(0)
+    }
     await page.getByRole('button', { name: 'Score', exact: true }).click()
     expect(requestCount).toBe(1)
 

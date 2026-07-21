@@ -81,7 +81,13 @@ function EditorApp({ onOpenLanding }: { onOpenLanding: () => void }) {
       candidate.dataset.reviewAnnotationIds?.split(' ').includes(annotation.id)
     )
 
-    target?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    const prefersReducedMotion =
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
+
+    target?.scrollIntoView({
+      block: 'center',
+      behavior: prefersReducedMotion ? 'auto' : 'smooth',
+    })
     target?.focus({ preventScroll: true })
   }
 

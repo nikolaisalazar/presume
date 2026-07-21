@@ -681,6 +681,11 @@ body {
   color: var(--review-annotation-strong);
 }
 
+.review-annotation-marker:focus {
+  outline: calc(2px * var(--resume-layout-scale)) solid var(--paper-ink);
+  outline-offset: calc(2px * var(--resume-layout-scale));
+}
+
 .review-rail__progress {
   position: absolute;
   bottom: 0;
@@ -963,6 +968,13 @@ body {
     min-height: 48px;
     justify-content: center;
     padding: 0;
+  }
+
+  .workspace[data-review-open='true'] > .fit-region:not(:has([aria-expanded='true'])) > .settings-panel > [data-slot='collapsible-trigger']:focus-visible {
+    outline: none;
+    box-shadow:
+      inset 0 0 0 2px var(--focus-contrast),
+      inset 0 0 0 4px var(--ring);
   }
 
   .workspace[data-review-open='true'] > .fit-region .settings-panel__title {
