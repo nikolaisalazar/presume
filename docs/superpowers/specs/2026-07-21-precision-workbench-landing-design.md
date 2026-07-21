@@ -116,7 +116,7 @@ All three call the existing `onOpenEditor` callback. No action may replace `push
 - Structural shells use `2px` corners; controls use `4px` corners.
 - Use opaque surfaces, one-pixel borders, inset edges, and sparse ambient shadows. No blur, glass, glow, gradient text, or decorative vertical stripe.
 - Verdigris remains below roughly ten percent of a normal screen and is reserved for action, focus, selection, measurement, and active state.
-- Warm white `--paper` may appear only inside the document-mechanics exhibit and Fit Lab measurement surface. It must remain the same in Light and Dark.
+- Warm white `--paper` may appear only inside the document-mechanics exhibit and Fit Lab measurement surface, using the production plan's allowance for app-owned previews and framing. It must remain the same in Light and Dark and must not change `.resume-page` or PDF rendering.
 - Prose stays at or below `70ch`. Headline wrapping should feel editorial but remain concise and understandable.
 - Feature organization is structural and joined, never a bento grid or a collection of unrelated elevated cards.
 - External project marks or logos are not introduced. Provenance uses text, links, rules, and system diagrams in Presume's visual language.
@@ -144,7 +144,9 @@ It contains:
 
 It must not contain a person's name, job title, employment history, education, contact information, or conventional resume sections. Its warm-white field represents a measurement surface, not a sheet of resume paper.
 
-At `641px–920px`, the exhibit is visible below or beside the hero copy according to the alternative's composition. At `921px+`, hero copy and exhibit form two non-overlapping columns. Through `640px`, the exhibit is hidden and the copy must remain complete without it.
+At `641px–920px`, the exhibit is visible below the hero copy in a single-column hero. At `921px+`, hero copy and exhibit form two non-overlapping columns. Through `640px`, the exhibit is hidden and the copy must remain complete without it.
+
+Use a semantic `figure` with an associated `figcaption` and `data-slot="hero-mechanics"`. Do not flatten its visible text into `role="img"`; the measurement labels and result should remain available to assistive technology.
 
 ## Pretext Fit Lab
 
@@ -154,7 +156,7 @@ The Fit Lab is the landing page's strongest proof that the technology is real.
 
 - Start with neutral editable text such as: `A precise tool should make invisible constraints visible before they become surprises.`
 - Let the visitor edit the text in a labeled multiline field.
-- Offer three width choices through an accessible single-choice ToggleGroup. Do not use a freely draggable control that makes exact keyboard values difficult.
+- Offer `180px`, `240px`, and `300px` through an accessible single-choice ToggleGroup, with `240px` selected initially. Do not use a freely draggable control that makes exact keyboard values difficult.
 - Prepare the text only when the text/font changes; reuse the prepared value for width-only measurements.
 - Report line count and widest line using `measureLineStats()`.
 - Compare line count with an explicit two-line target and state `Within constraint` or `Over constraint` in text, never color alone.
@@ -181,6 +183,8 @@ Under `prefers-reduced-motion: reduce`, the hero renders directly in its complet
 ## Three Complete Alternatives
 
 The alternatives share all contracts above but make materially different decisions about hierarchy, sequencing, and spatial rhythm. None is a low-fidelity wireframe or a superficial theme swap.
+
+Equal effort means every alternative uses complete production copy, the real Fit Lab, both themes, all three editor actions, the four-cell ledger, the four-stage workflow, provenance links, focus treatment, measured motion, and all responsive boundaries. No alternative may substitute placeholder content, omit narrow layouts, or reuse another alternative's composition with only cosmetic changes.
 
 ### Alternative A — Instrumented Workbench
 
@@ -213,7 +217,7 @@ This direction may communicate authorship and technical seriousness most clearly
 
 **Thesis:** Make the construction of Presume visible as part of understanding the product.
 
-- Hero centers a system flow that connects writing, Pretext measurement, optional Hiring Agent review, and stable artifact export.
+- Hero centers a system flow that connects writing, Pretext measurement, optional Hiring Agent review, and stable artifact export, while the document-mechanics measurement remains the largest and highest-contrast object in that flow.
 - Fit Lab appears earlier and acts as the primary proof surface.
 - Capabilities are interwoven with the system flow while remaining a four-cell Precision Ledger at the required breakpoints.
 - Provenance is presented as two upstream inputs feeding a Presume-owned boundary, not as partner logos or endorsements.
@@ -224,7 +228,7 @@ This is the most distinctive technical-showcase direction and therefore carries 
 
 ## Browser Comparison Architecture
 
-During comparison only, `LandingPage.tsx` may select among three full concept components using a development-only query parameter:
+During comparison only, `LandingPage.tsx` may select among three full concept components using a comparison-only query parameter:
 
 - `/presume/?concept=workbench`
 - `/presume/?concept=manual`
@@ -233,6 +237,7 @@ During comparison only, `LandingPage.tsx` may select among three full concept co
 Requirements:
 
 - The pathname and editor route remain unchanged.
+- The comparison parameter is intentionally available in the local production build used for browser evaluation; it is not gated by `import.meta.env.DEV`.
 - The parameter must not be written to storage or survive selection as a product preference.
 - Each concept receives the same `hasSavedResume` and `onOpenEditor` props.
 - Shared functional pieces may be reused, but each alternative owns its composition and section ordering.
@@ -366,3 +371,18 @@ Obtain an independent rigorous read-only review and resolve every Critical or Im
 - HackerRank Hiring Agent source and architecture: <https://github.com/interviewstreet/hiring-agent>
 - Official Phosphor React package: <https://github.com/phosphor-icons/react>
 - shadcn/Base UI component documentation: <https://ui.shadcn.com/docs/components/base>
+
+## Self-Review Record — 2026-07-21
+
+The specification was reread line by line against the user-approved decisions, `PRODUCT.md`, root `DESIGN.md`, Phase D's execution plan, the current landing component/tests, and the installed Pretext API before implementation.
+
+The review corrected six ambiguities:
+
+1. The comparison query must work in the local production build rather than being hidden behind `import.meta.env.DEV`.
+2. Fit Lab widths are fixed at `180px`, `240px`, and `300px`, with `240px` as the initial value.
+3. The mechanics exhibit uses semantic figure content instead of hiding readable measurement text inside `role="img"`.
+4. The hero remains single-column from `641px–920px` and becomes two-column only at `921px+`.
+5. Equal effort is defined as complete copy, behavior, theme, motion, accessibility, and responsive coverage for every alternative.
+6. The warm-white app-owned measurement surfaces are explicitly separated from the protected resume/PDF renderer.
+
+No unresolved contradiction, placeholder, or scope expansion remains. The final visual direction is intentionally unresolved until the three complete alternatives are compared in the browser.
