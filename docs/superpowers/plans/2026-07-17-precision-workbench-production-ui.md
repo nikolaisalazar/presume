@@ -441,6 +441,9 @@ git commit -m "feat: refine collapsed review states"
 - [ ] Directly inspect all Review states in Light and Dark at `1920px`, `1640px`, `1639px`, `960px`, `560px`, and `358px`.
 - [ ] Confirm no score wraps as `84` over `/100`, category labels remain readable, evidence is not duplicated, status is not communicated by color alone, and the document remains visually dominant.
 - [ ] Confirm focus returns to the rail after collapse and moves into the panel after expand.
+
+> **Phase C checkpoint — 2026-07-21 (`b59323a`):** The approved Elastic Review workbench, Border Notch Fit drawer, and information-first Score/Feedback report are implemented without temporary preview or mock runtime code. `npm run verify` passed 220 frontend and 50 backend tests; both E2E configurations passed 9/9; the production build, SPA fallback comparison, protected diff, and whitespace checks passed. Direct visual QA covered all ten Review states in Light and Dark at `1920`, `1640`, `1639`, `960`, `560`, and `358`, including score wrapping, category readability, duplicate evidence, non-color cues, document dominance, and focus transfer/return. Independent rigorous review reported no Critical, Important, or Minor findings.
+
 - [ ] Suggested commits:
 
 ```sh
