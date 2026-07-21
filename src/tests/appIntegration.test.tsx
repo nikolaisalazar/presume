@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '../App'
 import { DEFAULT_RESUME } from '../defaultResume'
 import { exportJSON, exportPDF, importJSON } from '../export'
@@ -30,14 +30,6 @@ vi.mock('../export', async importOriginal => {
   }
 })
 
-vi.mock('@chenglou/pretext', () => ({
-  prepareWithSegments: (text: string) => ({ text }),
-  measureLineStats: (_prepared: unknown, width: number) => ({
-    lineCount: width === 180 ? 3 : 2,
-    maxLineWidth: width - 12,
-  }),
-}))
-
 const exportPDFMock = vi.mocked(exportPDF)
 const exportJSONMock = vi.mocked(exportJSON)
 const importJSONMock = vi.mocked(importJSON)
@@ -62,6 +54,13 @@ const importedResume: Resume = {
 }
 
 describe('App review availability boundaries', () => {
+  beforeEach(() => {
+    Object.defineProperty(document, 'fonts', {
+      configurable: true,
+      value: { ready: new Promise(() => undefined) },
+    })
+  })
+
   afterEach(() => {
     vi.unstubAllEnvs()
     vi.unstubAllGlobals()
@@ -80,22 +79,20 @@ describe('App review availability boundaries', () => {
     render(<App />)
 
     expect(screen.getByRole('group', { name: 'Appearance' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', {
-      name: 'A resume editor that shows its work.',
-    })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Presume is a local-first resume workbench.' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Write on the document' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Measure while it changes' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Review as evidence' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Leave with a stable artifact' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Pretext Fit Lab' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', {
-      name: 'The document came first.',
-    })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'The document came first.' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Explore Pretext' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Explore Hiring Agent' })).toBeInTheDocument()
+    expect(screen.queryByLabelText('Presume editor preview')).not.toBeInTheDocument()
+    expect(document.querySelector('.resume-page')).not.toBeInTheDocument()
     expect(screen.queryByRole('toolbar', { name: 'Document actions' })).not.toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('button', { name: 'Start editing' }))
+    fireEvent.click(screen.getAllByRole('button', { name: 'Open the editor' })[0])
 
     expect(window.location.pathname).toBe('/presume/editor/')
     expect(screen.getByRole('toolbar', { name: 'Document actions' })).toBeInTheDocument()
@@ -120,7 +117,7 @@ describe('App review availability boundaries', () => {
     expect(brandMark).not.toHaveTextContent('P')
     expect(
       screen.getByRole('heading', {
-        name: 'A resume editor that shows its work.',
+        name: 'Presume is a local-first resume workbench.',
       })
     ).toBeInTheDocument()
   })
@@ -138,9 +135,7 @@ describe('App review availability boundaries', () => {
     fireEvent.click(screen.getByRole('link', { name: 'Presume home' }))
 
     expect(window.location.pathname).toBe('/presume/')
-    expect(screen.getByRole('heading', {
-      name: 'A resume editor that shows its work.',
-    })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Presume is a local-first resume workbench.' })).toBeInTheDocument()
     expect(screen.queryByRole('toolbar', { name: 'Document actions' })).not.toBeInTheDocument()
   })
 
@@ -151,7 +146,7 @@ describe('App review availability boundaries', () => {
 
     render(<App />)
 
-    expect(screen.getAllByRole('button', { name: 'Continue editing' }).length).toBeGreaterThan(0)
+    expect(screen.getAllByRole('button', { name: 'Continue editing' })).toHaveLength(3)
   })
 
   it('keeps editing, persistence, export, and import available', async () => {

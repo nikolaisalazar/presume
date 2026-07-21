@@ -14,7 +14,6 @@ import { useResumeReview } from './useResumeReview'
 import type { ReviewAnnotation } from './reviewTypes'
 import './styles/globals.css'
 import './styles/app.css'
-import './styles/landing.css'
 import './styles/resume.css'
 
 function getCurrentRoute() {

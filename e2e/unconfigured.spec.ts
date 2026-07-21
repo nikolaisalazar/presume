@@ -5,10 +5,10 @@ test.describe('unconfigured browser contracts', () => {
     await page.goto('./')
 
     await expect(page).toHaveURL(/\/presume\/$/)
-    await expect(page.getByRole('heading', { name: 'Edit your resume like the final document.' })).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Start editing' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Presume is a local-first resume workbench.' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Open the editor' }).first()).toBeVisible()
 
-    await page.getByRole('button', { name: 'Start editing' }).click()
+    await page.getByRole('button', { name: 'Open the editor' }).first().click()
 
     await expect(page).toHaveURL(/\/presume\/editor\/$/)
     await expect(page.getByRole('banner')).toContainText('Presume')
@@ -101,52 +101,19 @@ test.describe('unconfigured browser contracts', () => {
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
     await page.emulateMedia({ colorScheme: 'light' })
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
+
+    await page.goBack()
+    await expect(page).toHaveURL(/\/presume\/$/)
+    await expect(page.getByRole('heading', {
+      name: 'Presume is a local-first resume workbench.',
+    })).toBeVisible()
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
   })
 
-  test('keeps the landing workflow and feature cards responsive', async ({ page }) => {
+  test('keeps the landing identity responsive at its inclusive boundaries', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' })
     await page.setViewportSize({ width: 1120, height: 980 })
     await page.goto('./')
-
-    expect(await page.getByRole('img', { name: 'Presume editor preview' }).evaluate(
-      element => getComputedStyle(element).backgroundImage
-    )).not.toBe('none')
-
-    const workflow = page.getByRole('region', {
-      name: 'From draft to export without leaving the page.',
-    })
-    const workflowSteps = workflow.locator('ol > li')
-    const desktopSteps = await workflowSteps.evaluateAll(items =>
-      items.map(item => {
-        const rect = item.getBoundingClientRect()
-        return { left: Math.round(rect.left), top: Math.round(rect.top) }
-      })
-    )
-
-    expect(desktopSteps).toHaveLength(3)
-    expect(new Set(desktopSteps.map(step => step.top)).size).toBe(1)
-    expect(desktopSteps[0].left).toBeLessThan(desktopSteps[1].left)
-    expect(desktopSteps[1].left).toBeLessThan(desktopSteps[2].left)
-
-    await page.setViewportSize({ width: 358, height: 980 })
-
-    await expect(page.getByRole('img', { name: 'Presume editor preview' })).toBeHidden()
-    await expect(page.getByRole('button', { name: 'Start editing' })).toBeVisible()
-
-    const mobileMetrics = await page.evaluate(() => {
-      const cards = Array.from(document.querySelectorAll('[data-slot="card"]'))
-        .map(card => card.getBoundingClientRect())
-      return {
-        bodyClientWidth: document.documentElement.clientWidth,
-        documentScrollWidth: document.documentElement.scrollWidth,
-        cardLefts: cards.map(card => Math.round(card.left)),
-        cardTops: cards.map(card => Math.round(card.top)),
-      }
-    })
-
-    expect(mobileMetrics.documentScrollWidth).toBeLessThanOrEqual(mobileMetrics.bodyClientWidth)
-    expect(new Set(mobileMetrics.cardLefts).size).toBe(1)
-    expect(mobileMetrics.cardTops).toEqual([...mobileMetrics.cardTops].sort((a, b) => a - b))
 
     const collectBoundaryMetrics = async (width: number) => {
       await page.setViewportSize({ width, height: 980 })
@@ -159,45 +126,34 @@ test.describe('unconfigured browser contracts', () => {
           'header[aria-label="Presume landing navigation"]'
         )!
         const headerAction = header.querySelector<HTMLElement>('[data-slot="button"]')!
-        const preview = document.querySelector<HTMLElement>(
-          '[role="img"][aria-label="Presume editor preview"]'
-        )!
-        const hero = preview.parentElement!
-        const heroCopy = preview.previousElementSibling as HTMLElement
-        const cards = Array.from(
-          document.querySelectorAll<HTMLElement>('[data-slot="card"]')
-        ).map(card => card.getBoundingClientRect())
+        const hero = document.querySelector<HTMLElement>('[data-slot="landing-hero"]')!
+        const heroImage = hero.querySelector<HTMLElement>(':scope > img')!
+        const heroCopy = hero.querySelector<HTMLElement>('.landing-hero__content')!
+        const capabilities = Array.from(
+          document.querySelectorAll<HTMLElement>('[data-slot="capability-row"]')
+        ).map(row => row.getBoundingClientRect())
         const steps = Array.from(
           document.querySelectorAll<HTMLElement>('section[aria-labelledby="workflow-title"] ol > li')
         ).map(step => step.getBoundingClientRect())
-        const previewRect = preview.getBoundingClientRect()
         const heroRect = hero.getBoundingClientRect()
         const heroCopyRect = heroCopy.getBoundingClientRect()
-        const previewVisible = getComputedStyle(preview).display !== 'none'
-        const previewOverlapsCopy = previewVisible && !(
-          heroCopyRect.right <= previewRect.left ||
-          previewRect.right <= heroCopyRect.left ||
-          heroCopyRect.bottom <= previewRect.top ||
-          previewRect.bottom <= heroCopyRect.top
-        )
+        const imageVisible = getComputedStyle(heroImage).display !== 'none'
 
         return {
           bodyClientWidth: document.documentElement.clientWidth,
           documentScrollWidth: document.documentElement.scrollWidth,
           headerActionHeight: Math.round(headerAction.getBoundingClientRect().height),
           headerFlexDirection: getComputedStyle(header).flexDirection,
-          previewVisible,
-          featureLefts: cards.map(card => Math.round(card.left)),
-          featureTops: cards.map(card => Math.round(card.top)),
+          imageVisible,
+          featureLefts: capabilities.map(row => Math.round(row.left)),
+          featureTops: capabilities.map(row => Math.round(row.top)),
           workflowLefts: steps.map(step => Math.round(step.left)),
           workflowTops: steps.map(step => Math.round(step.top)),
-          heroColumnCount: getComputedStyle(hero).gridTemplateColumns.split(' ').length,
-          previewOverlapsCopy,
-          previewWithinHero: !previewVisible || (
-            previewRect.left >= heroRect.left &&
-            previewRect.right <= heroRect.right &&
-            previewRect.top >= heroRect.top &&
-            previewRect.bottom <= heroRect.bottom
+          heroCopyWithinHero: (
+            heroCopyRect.left >= heroRect.left
+            && heroCopyRect.right <= heroRect.right
+            && heroCopyRect.top >= heroRect.top
+            && heroCopyRect.bottom <= heroRect.bottom
           ),
         }
       })
@@ -206,7 +162,7 @@ test.describe('unconfigured browser contracts', () => {
     const at640 = await collectBoundaryMetrics(640)
     expect.soft(at640.headerActionHeight, 'header action height at 640px').toBeGreaterThanOrEqual(44)
     expect.soft(at640.headerFlexDirection, 'header direction at 640px').toBe('column')
-    expect.soft(at640.previewVisible, 'preview visibility at 640px').toBe(false)
+    expect.soft(at640.imageVisible, 'decorative image visibility at 640px').toBe(false)
     expect.soft(new Set(at640.featureLefts).size, 'feature columns at 640px').toBe(1)
     expect.soft(new Set(at640.featureTops).size, 'feature rows at 640px').toBe(4)
     expect.soft(at640.documentScrollWidth, 'document overflow at 640px').toBeLessThanOrEqual(
@@ -214,9 +170,9 @@ test.describe('unconfigured browser contracts', () => {
     )
 
     const at641 = await collectBoundaryMetrics(641)
-    expect.soft(at641.headerActionHeight, 'header action height at 641px').toBe(32)
+    expect.soft(at641.headerActionHeight, 'header action height at 641px').toBe(36)
     expect.soft(at641.headerFlexDirection, 'header direction at 641px').toBe('row')
-    expect.soft(at641.previewVisible, 'preview visibility at 641px').toBe(true)
+    expect.soft(at641.imageVisible, 'decorative image visibility at 641px').toBe(true)
     expect.soft(new Set(at641.featureLefts).size, 'feature columns at 641px').toBe(2)
     expect.soft(new Set(at641.featureTops).size, 'feature rows at 641px').toBe(2)
 
@@ -224,7 +180,7 @@ test.describe('unconfigured browser contracts', () => {
     expect.soft(new Set(at920.featureLefts).size, 'feature columns at 920px').toBe(2)
     expect.soft(new Set(at920.featureTops).size, 'feature rows at 920px').toBe(2)
     expect.soft(new Set(at920.workflowLefts).size, 'workflow columns at 920px').toBe(1)
-    expect.soft(new Set(at920.workflowTops).size, 'workflow rows at 920px').toBe(3)
+    expect.soft(new Set(at920.workflowTops).size, 'workflow rows at 920px').toBe(4)
     expect.soft(at920.documentScrollWidth, 'document overflow at 920px').toBeLessThanOrEqual(
       at920.bodyClientWidth
     )
@@ -239,10 +195,36 @@ test.describe('unconfigured browser contracts', () => {
     expect.soft(at921.workflowLefts[1], 'second workflow step at 921px').toBeLessThan(
       at921.workflowLefts[2]
     )
-    expect.soft(at921.previewVisible, 'preview visibility at 921px').toBe(true)
-    expect.soft(at921.heroColumnCount, 'hero columns at 921px').toBe(2)
-    expect.soft(at921.previewOverlapsCopy, 'hero overlap at 921px').toBe(false)
-    expect.soft(at921.previewWithinHero, 'preview bounds at 921px').toBe(true)
+    expect.soft(at921.workflowLefts[2], 'third workflow step at 921px').toBeLessThan(
+      at921.workflowLefts[3]
+    )
+    expect.soft(at921.imageVisible, 'decorative image visibility at 921px').toBe(true)
+    expect.soft(at921.heroCopyWithinHero, 'hero copy containment at 921px').toBe(true)
+
+    const brand = page.getByRole('link', { name: 'Presume home' })
+    await brand.focus()
+    await expect(brand).toBeFocused()
+    await expect(brand).toHaveCSS('outline-style', 'solid')
+
+    const headerAction = page.getByRole('banner', {
+      name: 'Presume landing navigation',
+    }).getByRole('button', { name: 'Open editor' })
+    await page.keyboard.press('Tab')
+    await expect(page.getByRole('button', { name: 'System' })).toBeFocused()
+    await page.keyboard.press('Tab')
+    await expect(headerAction).toBeFocused()
+    expect(await headerAction.evaluate(element => {
+      const style = getComputedStyle(element)
+      return {
+        focusVisible: element.matches(':focus-visible'),
+        outlineStyle: style.outlineStyle,
+        boxShadow: style.boxShadow,
+      }
+    })).toEqual({
+      focusVisible: true,
+      outlineStyle: 'solid',
+      boxShadow: expect.stringContaining('rgb(20, 121, 111)'),
+    })
   })
 
   test('keeps the Fit constraints header stable and its expanded controls usable', async ({ page }) => {
