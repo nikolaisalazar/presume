@@ -611,6 +611,144 @@ body {
   height: 20px;
 }
 
+/* Landing measurement exhibit */
+.landing-fit-lab {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-structural);
+  background: var(--surface);
+  padding: 24px;
+  box-shadow: var(--shadow-structural);
+}
+
+.landing-fit-lab__header {
+  max-width: 62ch;
+}
+
+.landing-fit-lab__header h2,
+.landing-fit-lab__header p {
+  margin: 0;
+}
+
+.landing-fit-lab__header h2 {
+  margin-top: 6px;
+  font-size: clamp(1.5rem, 3vw, 2.15rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+}
+
+.landing-fit-lab__header > p:last-child {
+  margin-top: 10px;
+  color: var(--muted-foreground);
+  line-height: 1.55;
+}
+
+.landing-kicker {
+  color: var(--accent-foreground);
+  font-size: 0.75rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.landing-fit-lab__workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: 16px;
+}
+
+.landing-fit-lab__input,
+.landing-fit-lab__measurement {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-structural);
+  padding: 16px;
+}
+
+.landing-fit-lab__input {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--surface-pressed);
+}
+
+.landing-fit-lab__input label,
+.landing-fit-lab__width-control > span {
+  font-size: 0.75rem;
+  font-weight: 650;
+}
+
+.landing-fit-lab__width-control {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.landing-fit-lab__measurement {
+  background: var(--paper);
+  color: var(--paper-ink);
+}
+
+.landing-fit-lab__constraint {
+  width: min(100%, var(--fit-lab-width));
+  min-height: 94px;
+  border-right: 1px solid var(--primary);
+  border-left: 1px solid var(--border);
+  padding: 10px 12px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.landing-fit-lab__status {
+  margin: 14px 0 0;
+  font-size: 0.8125rem;
+  font-weight: 650;
+  transition: opacity 160ms var(--ease-standard);
+}
+
+.landing-fit-lab__metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 16px 0 0;
+  border-top: 1px solid color-mix(in srgb, var(--paper-ink), transparent 78%);
+}
+
+.landing-fit-lab__metrics div {
+  min-width: 0;
+  padding: 10px 8px 0 0;
+}
+
+.landing-fit-lab__metrics dt {
+  color: color-mix(in srgb, var(--paper-ink), transparent 38%);
+  font-size: 0.6875rem;
+}
+
+.landing-fit-lab__metrics dd {
+  margin: 4px 0 0;
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 650;
+}
+
+@media (max-width: 640px) {
+  .landing-fit-lab {
+    gap: 18px;
+    padding: 16px;
+  }
+
+  .landing-fit-lab__workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-fit-lab__metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .app-header__brand h1 {
   margin: 0;
 }
