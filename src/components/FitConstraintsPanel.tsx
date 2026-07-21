@@ -7,6 +7,8 @@ interface FitConstraintsPanelProps {
   onChange: (constraints: Constraints) => void
   bulletWarningCount: number
   hasGlobalOverflow: boolean
+  open: boolean
+  onOpenChange: (open: boolean) => void
 }
 
 export function FitConstraintsPanel({
@@ -14,6 +16,8 @@ export function FitConstraintsPanel({
   onChange,
   bulletWarningCount,
   hasGlobalOverflow,
+  open,
+  onOpenChange,
 }: FitConstraintsPanelProps) {
   return (
     <aside
@@ -21,7 +25,12 @@ export function FitConstraintsPanel({
       aria-label="Fit constraints and formatting"
       data-slot="fit-region"
     >
-      <SettingsPanel constraints={constraints} onChange={onChange} />
+      <SettingsPanel
+        constraints={constraints}
+        onChange={onChange}
+        open={open}
+        onOpenChange={onOpenChange}
+      />
       <FormattingWarningSummary
         bulletWarningCount={bulletWarningCount}
         hasGlobalOverflow={hasGlobalOverflow}

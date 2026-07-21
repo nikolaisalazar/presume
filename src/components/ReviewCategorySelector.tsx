@@ -29,67 +29,87 @@ interface ReviewCategorySelectorProps {
   categories: ReviewCategory[]
   selectedKey: ReviewCategoryKey | null
   onSelect: (key: ReviewCategoryKey) => void
+  excludedSuggestions?: readonly string[]
 }
 
 export function ReviewCategorySelector({
   categories,
   selectedKey,
   onSelect,
+  excludedSuggestions = [],
 }: ReviewCategorySelectorProps) {
   if (categories.length === 0) return null
 
   const selected =
     categories.find(category => category.key === selectedKey) ?? categories[0]
+  const selectedDetailId = `review-category-${selected.key}-detail`
+  const excludedSuggestionText = new Set(
+    excludedSuggestions.map(suggestion => suggestion.trim())
+  )
+  const selectedSuggestions = selected.suggestions.filter(
+    suggestion => !excludedSuggestionText.has(suggestion.trim())
+  )
 
   return (
-    <section aria-labelledby="review-score-breakdown">
-      <h3 id="review-score-breakdown" className="mb-2 text-xs font-semibold">
-        Score breakdown
-      </h3>
-      <div className="grid grid-cols-2 gap-2">
-        {categories.map(category => {
-          const ratio = category.maxScore > 0
-            ? Math.max(0, Math.min(100, (category.score / category.maxScore) * 100))
-            : 0
-
-          return (
-            <Button
-              key={category.key}
-              type="button"
-              variant="reviewCategory"
-              aria-label={`${category.label}, ${category.score} of ${category.maxScore}`}
-              aria-pressed={category.key === selected.key}
-              onClick={() => onSelect(category.key)}
-            >
-              <span className="text-xs text-muted-foreground">{category.label}</span>
-              <span className="text-base font-bold text-foreground">
-                {category.score}{' '}
-                <span className="text-xs font-medium text-muted-foreground">
-                  / {category.maxScore}
-                </span>
-              </span>
-              <span className="h-1 w-full overflow-hidden rounded-full bg-muted" aria-hidden="true">
-                <span
-                  className="block h-full bg-primary"
-                  style={{ width: `${ratio}%` }}
-                />
-              </span>
-            </Button>
-          )
-        })}
+    <section className="review-category-section" aria-labelledby="review-score-breakdown">
+      <div className="review-category-section__heading">
+        <h3 id="review-score-breakdown" className="review-section-heading">
+          Score breakdown
+        </h3>
       </div>
-      <div className="mt-2 rounded-[4px] border border-primary/35 bg-primary/5 p-2.5">
-        <h3 className="text-xs font-semibold">{selected.label} evidence</h3>
-        {selected.evidence.length > 0 ? (
-          <ul className="mt-1.5 flex list-disc flex-col gap-1 pl-4 text-xs leading-relaxed text-muted-foreground">
-            {selected.evidence.map((item, index) => (
-              <li key={`${item}-${index}`}>{item}</li>
-            ))}
-          </ul>
-        ) : (
-          <p className="mt-1.5 text-xs text-muted-foreground">No evidence returned.</p>
-        )}
+      <div className="review-category-table" role="group" aria-label="Review categories">
+        {categories.map(category => (
+          <Button
+            key={category.key}
+            type="button"
+            variant="reviewCategory"
+            className="review-category"
+            aria-label={`${category.label}, ${category.score} of ${category.maxScore}`}
+            aria-pressed={category.key === selected.key}
+            aria-controls={category.key === selected.key ? selectedDetailId : undefined}
+            onClick={() => onSelect(category.key)}
+          >
+            <span className="review-category__label">{category.label}</span>
+            <span className="review-category__score">
+              <strong>{category.score}</strong>
+              <span>/ {category.maxScore}</span>
+            </span>
+          </Button>
+        ))}
       </div>
+      <section
+        id={selectedDetailId}
+        className="review-category-detail"
+        aria-labelledby={`${selectedDetailId}-heading`}
+      >
+        <h4 id={`${selectedDetailId}-heading`} className="sr-only">
+          Selected category details
+        </h4>
+        <div className="review-category-detail__body">
+          <div className="review-category-evidence">
+            <h5>Evidence found</h5>
+            {selected.evidence.length > 0 ? (
+              <ul className="review-evidence-list">
+                {selected.evidence.map((item, index) => (
+                  <li key={`${item}-${index}`}>{item}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="review-category-detail__empty">No evidence returned.</p>
+            )}
+          </div>
+          {selectedSuggestions.length > 0 ? (
+            <div className="review-category-suggestions">
+              <h5>How to gain more points</h5>
+              <ul className="review-evidence-list">
+                {selectedSuggestions.map((item, index) => (
+                  <li key={`${item}-${index}`}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+        </div>
+      </section>
     </section>
   )
 }

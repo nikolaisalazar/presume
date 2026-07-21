@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { ResumePage } from '../components/ResumePage'
 import { ReviewPanel } from '../components/ReviewPanel'
@@ -140,9 +140,11 @@ describe('ReviewPanel', () => {
 
     expect(screen.getByRole('button', { name: /Production Experience, 18 of 25/i }))
       .toHaveAttribute('aria-pressed', 'true')
-    expect(screen.getByRole('heading', { name: 'Production Experience evidence' }))
-      .toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Selected category details' }))
+      .toHaveClass('sr-only')
     expect(screen.getByText('Experience section shows engineering work.'))
+      .toBeInTheDocument()
+    expect(screen.getByText('Clarify user or business impact.'))
       .toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: /Technical Skills, 8 of 10/i }))
@@ -156,6 +158,9 @@ describe('ReviewPanel', () => {
       />
     )
     expect(screen.getByText('Broad supported toolset.')).toBeInTheDocument()
+    expect(screen.getByText('Add systems evidence.')).toBeInTheDocument()
+    expect(screen.queryByText('Clarify user or business impact.'))
+      .not.toBeInTheDocument()
     expect(categories[1].score).toBe(8)
   })
 
@@ -261,7 +266,7 @@ describe('ReviewPanel', () => {
   })
 
   it('renders successful review details as advisory findings', () => {
-    render(
+    const { container } = render(
       <ReviewPanel
         state={{ status: 'success', result: reviewResult }}
         onRequestReview={vi.fn()}
@@ -269,17 +274,368 @@ describe('ReviewPanel', () => {
     )
 
     expect(screen.getByText('72 / 100')).toBeInTheDocument()
-    expect(screen.getByText('Competitive')).toHaveAttribute('data-slot', 'badge')
-    expect(screen.getByText('Production Experience')).toBeInTheDocument()
-    expect(screen.getByText('Quantify production impact.')).toBeInTheDocument()
-    expect(screen.getByText('Needs attention', { selector: '[data-slot="badge"]' }))
+    expect(screen.getByRole('group', { name: 'Review report section' }))
       .toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Score' }))
+      .toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: 'Feedback' }))
+      .toHaveAttribute('aria-pressed', 'false')
+    expect(container.querySelector('.review-panel'))
+      .not.toHaveAttribute('data-preview-layout')
+    expect(screen.queryByText('Competitive')).not.toBeInTheDocument()
+    expect(screen.getByText('Production Experience')).toBeInTheDocument()
+    fireEvent.click(
+      screen.getByRole('button', { name: /Overall recommendations \(1\)/i })
+    )
+    expect(screen.getByText('Quantify production impact.')).toBeInTheDocument()
     expect(screen.getByRole('separator')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: /Adjustment details/i }))
     expect(screen.getByText('Open source signal')).toBeInTheDocument()
     expect(screen.getByText('Missing scale')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Feedback' }))
+    expect(
+      screen.getByText('Needs attention', { selector: '[data-slot="badge"]' })
+    ).toBeInTheDocument()
     expect(screen.getByText('Add measurable impact.')).toBeInTheDocument()
     expect(screen.getByText('Advisory evaluation')).toBeInTheDocument()
+  })
+
+  it('moves tier meaning to the score and discloses its advisory context on focus', async () => {
+    render(
+      <ReviewPanel
+        state={{ status: 'success', result: reviewResult }}
+        onRequestReview={vi.fn()}
+      />
+    )
+
+    expect(screen.getByText('72 / 100'))
+      .toHaveAttribute('data-review-tier', 'competitive')
+    expect(screen.getByText('72 / 100'))
+      .toHaveAttribute('aria-label', '72 out of 100, Competitive')
+    expect(screen.queryByText('Competitive')).not.toBeInTheDocument()
+    expect(screen.queryByText('Advisory score, not an ATS guarantee.'))
+      .not.toBeInTheDocument()
+
+    const info = screen.getByRole('button', { name: 'About this advisory score' })
+    await act(async () => {
+      fireEvent.keyDown(document, { key: 'Tab' })
+      info.focus()
+    })
+
+    expect(await screen.findByRole('tooltip'))
+      .toHaveTextContent('Advisory score, not an ATS guarantee.')
+  })
+
+  it('uses a compact rerun action when completed results are visible', () => {
+    render(
+      <ReviewPanel
+        state={{ status: 'success', result: reviewResult }}
+        onRequestReview={vi.fn()}
+        onClose={vi.fn()}
+      />
+    )
+
+    expect(screen.getByRole('button', { name: 'Review again' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Collapse review' }))
+      .toHaveClass('review-panel__collapse')
+  })
+
+  it('stages Score and Feedback in the Review panel', () => {
+    render(
+      <ReviewPanel
+        state={{ status: 'success', result: reviewResult }}
+        onRequestReview={vi.fn()}
+      />
+    )
+
+    const stages = screen.getByRole('group', { name: 'Review report section' })
+    expect(screen.getByText('72 / 100')).toBeVisible()
+    expect(screen.queryByText('Quantify production impact.')).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /Overall recommendations \(1\)/i }))
+    expect(screen.getByText('Quantify production impact.')).toBeVisible()
+    expect(screen.queryByText('Experience / Engineer')).not.toBeInTheDocument()
+
+    fireEvent.click(within(stages).getByRole('button', { name: 'Feedback' }))
+    expect(screen.getByText('Add measurable impact.')).toBeVisible()
+    expect(screen.queryByText('Experience / Engineer')).not.toBeInTheDocument()
+    expect(screen.queryByText('Quantify production impact.')).not.toBeInTheDocument()
+  })
+
+  it('keeps Score findings progressively disclosed', () => {
+    render(
+      <ReviewPanel
+        state={{ status: 'success', result: reviewResult }}
+        onRequestReview={vi.fn()}
+      />
+    )
+
+    expect(screen.getByText('72 / 100')).toBeVisible()
+    expect(screen.queryByText('Quantify production impact.')).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /Overall recommendations \(1\)/i }))
+    expect(screen.getByText('Quantify production impact.')).toBeVisible()
+    expect(screen.getByText('72 / 100')).toBeVisible()
+  })
+
+  it('keeps Score focused with progressive findings and a separate resume-location view', () => {
+    render(
+      <ReviewPanel
+        state={{ status: 'success', result: reviewResult }}
+        onRequestReview={vi.fn()}
+      />
+    )
+
+    const stages = screen.getByRole('group', { name: 'Review report section' })
+    const scoreStage = within(stages).getByRole('button', { name: 'Score' })
+    const feedbackStage = within(stages).getByRole('button', { name: 'Feedback' })
+    expect(scoreStage).toBeInTheDocument()
+    expect(feedbackStage).toBeInTheDocument()
+    expect(scoreStage.querySelector('small')).not.toBeInTheDocument()
+    expect(feedbackStage.querySelector('small')).not.toBeInTheDocument()
+    expect(scoreStage).toHaveAttribute('aria-pressed', 'true')
+    expect(feedbackStage).toHaveAttribute('aria-pressed', 'false')
+    expect(within(stages).queryByRole('button', { name: 'Improve' })).not.toBeInTheDocument()
+    expect(within(stages).getAllByRole('button')).toHaveLength(2)
+
+    expect(screen.getByRole('heading', { name: 'Overall score' })).toHaveClass('sr-only')
+    expect(screen.queryByText('7 points available')).not.toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: 'Why this score' })).not.toBeInTheDocument()
+    expect(screen.queryByText('Production Experience · 18 of 25')).not.toBeInTheDocument()
+    expect(screen.getByText('Experience section shows engineering work.')).toBeVisible()
+    expect(screen.getByText('Bonus').parentElement).toHaveTextContent('Bonus +3')
+    expect(screen.queryByText('Open source signal')).not.toBeInTheDocument()
+    expect(screen.queryByText('Quantify production impact.')).not.toBeInTheDocument()
+    expect(screen.queryByText('Clear technical ownership.')).not.toBeInTheDocument()
+
+    const adjustments = screen.getByRole('button', { name: /Adjustment details/i })
+    const recommendations = screen.getByRole('button', { name: /Overall recommendations \(1\)/i })
+    const strengths = screen.getByRole('button', { name: /What already works \(1\)/i })
+    for (const disclosure of [adjustments, recommendations, strengths]) {
+      expect(disclosure).toHaveAttribute('aria-expanded', 'false')
+    }
+
+    fireEvent.click(recommendations)
+    expect(screen.getByText('Quantify production impact.')).toBeVisible()
+    fireEvent.click(strengths)
+    expect(screen.getByText('Clear technical ownership.')).toBeVisible()
+    fireEvent.click(adjustments)
+    expect(screen.getByText('Open source signal')).toBeVisible()
+
+    fireEvent.click(within(stages).getByRole('button', { name: 'Feedback' }))
+    expect(screen.getByRole('heading', { name: 'Review feedback' })).toHaveClass('sr-only')
+    expect(screen.queryByText('Experience / Engineer')).not.toBeInTheDocument()
+    expect(screen.getByText('Add measurable impact.')).toBeVisible()
+  })
+
+  it('presents the overall score without a competing visible label', () => {
+    render(
+      <ReviewPanel
+        state={{ status: 'success', result: reviewResult }}
+        onRequestReview={vi.fn()}
+      />
+    )
+
+    const heading = screen.getByRole('heading', { name: 'Overall score', level: 3 })
+    expect(heading).toHaveClass('sr-only')
+    expect(screen.getByText('72 / 100')).toBeVisible()
+    expect(screen.queryByText('How you scored')).not.toBeInTheDocument()
+  })
+
+  it('shows direct Feedback copy while retaining target context for assistive technology', () => {
+    render(
+      <ReviewPanel
+        state={{ status: 'success', result: reviewResult }}
+        onRequestReview={vi.fn()}
+      />
+    )
+
+    const stages = screen.getByRole('group', { name: 'Review report section' })
+    expect(within(stages).getByRole('button', { name: 'Feedback' })).toBeInTheDocument()
+    expect(within(stages).queryByRole('button', { name: 'On résumé' })).not.toBeInTheDocument()
+    fireEvent.click(within(stages).getByRole('button', { name: 'Feedback' }))
+
+    expect(screen.getByRole('heading', { name: 'Review feedback', level: 3 })).toHaveClass('sr-only')
+    const finding = screen.getByRole('button', {
+      name: /Needs attention: Add measurable impact\.; Experience \/ Engineer/,
+    })
+    expect(within(finding).getByText('Add measurable impact.')).toBeVisible()
+    expect(within(finding).getByText('Needs attention')).toBeVisible()
+    expect(within(finding).queryByText('Experience / Engineer')).not.toBeInTheDocument()
+    expect(screen.queryByText('Select a note to move to the matching résumé passage.')).not.toBeInTheDocument()
+    expect(screen.queryByText(/View on résumé|Located on résumé/)).not.toBeInTheDocument()
+  })
+
+  it('lets the elastic Review grow without creating an internal scroll container', () => {
+    const { container } = render(
+      <ReviewPanel
+        state={{ status: 'success', result: reviewResult }}
+        onRequestReview={vi.fn()}
+      />
+    )
+
+    const shell = container.querySelector('.review-panel__shell')
+    expect(shell).toHaveClass('overflow-visible')
+    expect(shell).not.toHaveClass('overflow-auto')
+    expect(shell).not.toHaveClass('max-h-[inherit]')
+  })
+
+  it('brings each newly opened Score disclosure into view', () => {
+    const scrollIntoView = vi.fn()
+    const originalScrollIntoView = HTMLElement.prototype.scrollIntoView
+    HTMLElement.prototype.scrollIntoView = scrollIntoView
+
+    try {
+      render(
+        <ReviewPanel
+          state={{ status: 'success', result: reviewResult }}
+          onRequestReview={vi.fn()}
+        />
+      )
+
+      for (const name of [
+        /Adjustment details/i,
+        /Overall recommendations \(1\)/i,
+        /What already works \(1\)/i,
+      ]) {
+        fireEvent.click(screen.getByRole('button', { name }))
+        expect(scrollIntoView).toHaveBeenLastCalledWith({ block: 'nearest', behavior: 'auto' })
+      }
+    } finally {
+      HTMLElement.prototype.scrollIntoView = originalScrollIntoView
+    }
+  })
+
+  it('keeps the category table self-explanatory without helper copy', () => {
+    const { container } = render(
+      <ReviewPanel
+        state={{ status: 'success', result: reviewResult }}
+        onRequestReview={vi.fn()}
+      />
+    )
+
+    expect(screen.queryByText('Select a category to see the evidence behind its score.')).not.toBeInTheDocument()
+    expect(screen.getByRole('group', { name: 'Review categories' })).toBeInTheDocument()
+    expect(container.querySelector('.review-category-table__header')).not.toBeInTheDocument()
+  })
+
+  it('keeps the information-first score hierarchy and section disclosure', () => {
+    const { container } = render(
+      <ReviewPanel
+        state={{ status: 'success', result: reviewResult }}
+        onRequestReview={vi.fn()}
+      />
+    )
+
+    const report = container.querySelector('.review-report--information')
+    const score = screen.getByRole('heading', { name: 'Overall score' })
+    const categories = screen.getByRole('heading', { name: 'Score breakdown' })
+    const stages = screen.getByRole('group', { name: 'Review report section' })
+
+    expect(report).toHaveClass('review-report--information')
+    expect(score.compareDocumentPosition(categories) & Node.DOCUMENT_POSITION_FOLLOWING)
+      .toBeTruthy()
+    expect(screen.queryByText('Quantify production impact.')).not.toBeInTheDocument()
+
+    fireEvent.click(within(stages).getByRole('button', { name: 'Feedback' }))
+    expect(screen.getByText('Add measurable impact.')).toBeVisible()
+    expect(screen.queryByText('Experience / Engineer')).not.toBeInTheDocument()
+    expect(screen.queryByText('72 / 100')).not.toBeInTheDocument()
+  })
+
+  it('does not repeat a severity prefix already communicated by the annotation Badge', () => {
+    const prefixedResult: ReviewResult = {
+      ...reviewResult,
+      annotations: [{
+        ...reviewResult.annotations[0],
+        message: 'Needs attention: quantify the production impact.',
+        severity: 'warning',
+      }],
+    }
+
+    render(
+      <ReviewPanel
+        state={{ status: 'success', result: prefixedResult }}
+        onRequestReview={vi.fn()}
+      />
+    )
+
+    fireEvent.click(within(screen.getByRole('group', { name: 'Review report section' }))
+      .getByRole('button', { name: 'Feedback' }))
+
+    expect(screen.getByText('Quantify the production impact.')).toBeInTheDocument()
+    expect(screen.queryByText('Needs attention: quantify the production impact.'))
+      .not.toBeInTheDocument()
+  })
+
+  it('uses annotation findings to request focus on the matching resume target', () => {
+    const onFocusAnnotation = vi.fn()
+    render(
+      <ReviewPanel
+        state={{ status: 'success', result: reviewResult }}
+        onRequestReview={vi.fn()}
+        onFocusAnnotation={onFocusAnnotation}
+      />
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Feedback' }))
+    fireEvent.click(screen.getByRole('button', { name: /Add measurable impact/i }))
+    expect(onFocusAnnotation).toHaveBeenCalledWith(reviewResult.annotations[0])
+  })
+
+  it('does not repeat selected category guidance already present in findings', () => {
+    const repeatedGuidance = 'Quantify production impact.'
+    const resultWithRepeatedGuidance: ReviewResult = {
+      ...reviewResult,
+      categories: reviewResult.categories.map(category => ({
+        ...category,
+        suggestions: [repeatedGuidance],
+      })),
+    }
+
+    render(
+      <ReviewPanel
+        state={{ status: 'success', result: resultWithRepeatedGuidance }}
+        onRequestReview={vi.fn()}
+      />
+    )
+
+    expect(screen.queryByText(repeatedGuidance)).not.toBeInTheDocument()
+    fireEvent.click(
+      screen.getByRole('button', { name: /Overall recommendations \(1\)/i })
+    )
+    expect(screen.getAllByText(repeatedGuidance)).toHaveLength(1)
+  })
+
+  it('orders the Score report from overall score through selected detail and adjustments', () => {
+    render(
+      <ReviewPanel
+        state={{ status: 'success', result: reviewResult }}
+        onRequestReview={vi.fn()}
+      />
+    )
+
+    const panel = screen.getByRole('complementary', { name: 'Resume review' })
+    const reviewHeading = screen.getByRole('heading', { name: 'Review', level: 2 })
+    const overallHeading = screen.getByRole('heading', { name: 'Overall score', level: 3 })
+    const breakdownHeading = screen.getByRole('heading', { name: 'Score breakdown', level: 3 })
+    const adjustmentsHeading = screen.getByRole('heading', { name: 'Score adjustments', level: 3 })
+
+    for (const heading of [
+      reviewHeading,
+      overallHeading,
+      breakdownHeading,
+      adjustmentsHeading,
+    ]) {
+      expect(panel).toContainElement(heading)
+    }
+
+    expect(reviewHeading.compareDocumentPosition(overallHeading))
+      .toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+    expect(overallHeading.compareDocumentPosition(breakdownHeading))
+      .toBe(Node.DOCUMENT_POSITION_FOLLOWING)
+    expect(breakdownHeading.compareDocumentPosition(adjustmentsHeading))
+      .toBe(Node.DOCUMENT_POSITION_FOLLOWING)
   })
 
   it('defaults to the largest-deficit category and resets for a new review', () => {
@@ -361,7 +717,7 @@ describe('ReviewPanel', () => {
       .toHaveAttribute('aria-pressed', 'true')
   })
 
-  it('keeps improvements visible and supporting details closed by default', () => {
+  it('keeps supporting Score details closed by default', () => {
     render(
       <ReviewPanel
         state={{ status: 'success', result: reviewResult }}
@@ -369,8 +725,12 @@ describe('ReviewPanel', () => {
       />
     )
 
-    expect(screen.getByText('Quantify production impact.')).toBeVisible()
-    expect(screen.getByRole('button', { name: /Key strengths/i }))
+    const recommendations = screen.getByRole('button', {
+      name: /Overall recommendations \(1\)/i,
+    })
+    expect(recommendations).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.queryByText('Quantify production impact.')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /What already works/i }))
       .toHaveAttribute('aria-expanded', 'false')
     expect(screen.queryByText('Clear technical ownership.')).not.toBeInTheDocument()
     expect(screen.getByText('Bonus').parentElement).toHaveTextContent('Bonus +3')
@@ -379,7 +739,9 @@ describe('ReviewPanel', () => {
     expect(screen.getByRole('button', { name: /Adjustment details/i }))
       .toHaveAttribute('aria-expanded', 'false')
 
-    fireEvent.click(screen.getByRole('button', { name: /Key strengths/i }))
+    fireEvent.click(recommendations)
+    expect(screen.getByText('Quantify production impact.')).toBeVisible()
+    fireEvent.click(screen.getByRole('button', { name: /What already works/i }))
     expect(screen.getByText('Clear technical ownership.')).toBeVisible()
   })
 
@@ -449,8 +811,8 @@ describe('ReviewPanel', () => {
       />
     )
 
-    expect(screen.getByRole('heading', { name: 'Production Experience evidence' }))
-      .toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Selected category details' }))
+      .toHaveClass('sr-only')
     expect(screen.getByText('Experience section shows engineering work.'))
       .toBeInTheDocument()
   })
@@ -533,7 +895,7 @@ describe('ReviewPanel', () => {
     expect(screen.getByRole('alert')).toHaveAttribute('data-variant', 'destructive')
   })
 
-  it('shows annotation legend and target context in the review panel', () => {
+  it('uses severity Badges and retains target context without visible location copy', () => {
     render(
       <ReviewPanel
         state={{ status: 'success', result: reviewResult }}
@@ -541,10 +903,19 @@ describe('ReviewPanel', () => {
       />
     )
 
-    expect(screen.getByText('Annotation legend')).toBeInTheDocument()
-    expect(screen.getAllByText('Needs attention')).toHaveLength(2)
-    expect(screen.getByText('Experience / Engineer')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Feedback' }))
+    expect(screen.getByText('Needs attention')).toHaveAttribute(
+      'data-slot',
+      'badge'
+    )
+    expect(screen.queryByText('Annotation legend')).not.toBeInTheDocument()
+    expect(screen.queryByText('Experience / Engineer')).not.toBeInTheDocument()
     expect(screen.getByText('Add measurable impact.')).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', {
+        name: /Needs attention: Add measurable impact\.; Experience \/ Engineer/,
+      })
+    ).toBeInTheDocument()
   })
 
   it('keeps ambiguous annotations visible in the panel', () => {
@@ -564,8 +935,14 @@ describe('ReviewPanel', () => {
       <ReviewPanel state={{ status: 'success', result }} onRequestReview={vi.fn()} />
     )
 
+    fireEvent.click(screen.getByRole('button', { name: 'Feedback' }))
     expect(screen.getByText('Ambiguous entry title.')).toBeInTheDocument()
-    expect(screen.getByText('Target not matched inline')).toBeInTheDocument()
+    expect(screen.queryByText('Target not matched inline')).not.toBeInTheDocument()
+    expect(
+      screen.getByRole('button', {
+        name: /Context: Ambiguous entry title\.; Target not matched inline/,
+      })
+    ).toBeInTheDocument()
   })
 })
 

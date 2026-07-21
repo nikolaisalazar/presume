@@ -62,4 +62,58 @@ describe('custom editor CSS invariants', () => {
     expect(appCss).not.toContain('.app-header__status')
     expect(appCss).not.toContain('@media (max-width: 1220px)')
   })
+
+  it('stretches information-first Review sections across the expanded panel', () => {
+    expect(appCss).toMatch(
+      /\.review-report--information \.review-stage-panel\[data-review-stage\] \{[^}]*align-items: stretch;/
+    )
+  })
+
+  it('presents Score and Feedback as a filled segmented button control', () => {
+    expect(appCss).toMatch(
+      /\.review-report--information \.review-stage-navigation \{[^}]*border: 1px solid var\(--border\);[^}]*background: var\(--surface-pressed\);/
+    )
+    expect(appCss).toMatch(
+      /\.review-report--information \.review-stage-navigation > \*\[aria-pressed='true'\] \{[^}]*border-color: var\(--primary\);[^}]*background: var\(--surface-raised\);/
+    )
+    expect(appCss).not.toContain('box-shadow: inset 0 -2px 0 var(--primary);')
+  })
+
+  it('keeps the score-to-breakdown transition compact without enlarging the score', () => {
+    expect(appCss).toMatch(
+      /\.review-report--information \.review-overall \{[^}]*padding: 0 0 12px;/
+    )
+    expect(appCss).toMatch(
+      /\.review-report--information \.review-category-section \{[^}]*padding: 16px 0 20px;/
+    )
+    expect(appCss).toMatch(
+      /\.review-report--information \.review-overall__score \{[^}]*font-size: 30px;/
+    )
+  })
+
+  it('lets the wide elastic Review grow with the page instead of clipping to the viewport', () => {
+    expect(appCss).toMatch(
+      /@media \(min-width: 1640px\) \{[\s\S]*?\.review-panel \{[^}]*max-height: none;/
+    )
+  })
+
+  it('keeps the selected elastic workbench and Border Notch free of preview selectors', () => {
+    expect(appCss).toMatch(
+      /\.workspace\[data-review-open='true'\] \{[^}]*grid-template-columns: var\(--editor-shell-width\) minmax\(0, 1fr\);/
+    )
+    expect(appCss).toMatch(
+      /\.workspace\[data-review-open='true'\] > \.fit-region \{[^}]*width: 24px;[^}]*height: 48px;/
+    )
+    expect(appCss).not.toContain('preview')
+    expect(appCss).not.toContain('review-report--candidate')
+  })
+
+  it('keeps keyboard focus visible inside the clipped Border Notch and on review targets', () => {
+    expect(appCss).toMatch(
+      /\.workspace\[data-review-open='true'\] > \.fit-region:not\(:has\(\[aria-expanded='true'\]\)\)[\s\S]*?\[data-slot='collapsible-trigger'\]:focus-visible \{[^}]*outline: none;[^}]*box-shadow:[^}]*inset/
+    )
+    expect(appCss).toMatch(
+      /\.review-annotation-marker:focus \{[^}]*outline:[^}]*var\(--paper-ink\);[^}]*outline-offset:/
+    )
+  })
 })

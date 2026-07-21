@@ -214,6 +214,59 @@ describe('App review availability boundaries', () => {
     expect(panel).toHaveAttribute('hidden')
   })
 
+  it('uses the selected elastic workbench without preview-only activation', () => {
+    vi.stubEnv('VITE_REVIEW_API_URL', '')
+
+    const { container } = render(<App />)
+    const workspace = container.querySelector('.workspace')
+    const reviewPanel = container.querySelector('.review-panel')
+
+    expect(screen.queryByRole('region', { name: 'Review layout preview' }))
+      .not.toBeInTheDocument()
+    expect(workspace).toHaveAttribute('data-review-layout', 'elastic')
+    expect(workspace).toHaveAttribute('data-fit-layout', 'edge-drawer')
+    expect(workspace).toHaveAttribute('data-review-open', 'false')
+    expect(reviewPanel).toHaveAttribute('hidden')
+    expect(screen.getByRole('button', {
+      name: /Fit constraints.*1 page.*1 line\/bullet.*8px min/i,
+    })).toHaveAttribute('aria-expanded', 'false')
+  })
+
+  it('collapses Fit before opening the Review workspace', async () => {
+    vi.stubEnv('VITE_REVIEW_API_URL', '')
+
+    const { container } = render(<App />)
+    const workspace = container.querySelector('.workspace')
+    const fitTrigger = screen.getByRole('button', {
+      name: /Fit constraints.*1 page.*1 line\/bullet.*8px min/i,
+    })
+
+    fireEvent.click(fitTrigger)
+    expect(fitTrigger).toHaveAttribute('aria-expanded', 'true')
+    fireEvent.click(screen.getByRole('button', { name: 'Review details' }))
+
+    await waitFor(() => expect(fitTrigger).toHaveAttribute('aria-expanded', 'false'))
+    const reviewPanel = container.querySelector('.review-panel')
+
+    expect(workspace).toHaveAttribute('data-review-layout', 'elastic')
+    expect(workspace).toHaveAttribute('data-review-open', 'true')
+    expect(workspace).toHaveAttribute('data-fit-layout', 'edge-drawer')
+    expect(reviewPanel).not.toHaveAttribute('hidden')
+  })
+
+  it('does not activate mock review behavior from the legacy preview query', () => {
+    vi.stubEnv('VITE_REVIEW_API_URL', '')
+    window.history.pushState({}, '', '/presume/editor/?preview=fit')
+
+    const { container } = render(<App />)
+    const workspace = container.querySelector('.workspace')
+    const reviewPanel = container.querySelector('.review-panel')
+
+    expect(workspace).toHaveAttribute('data-review-open', 'false')
+    expect(reviewPanel).toHaveAttribute('hidden')
+    expect(container.querySelector('.review-overall__score')).not.toBeInTheDocument()
+  })
+
   it('renders a premium document-editor shell with constraints before document actions', () => {
     vi.stubEnv('VITE_REVIEW_API_URL', '')
 

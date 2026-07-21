@@ -5,7 +5,8 @@ import type {
   ReviewResult,
 } from '../reviewTypes'
 import type { ResumeReviewState } from '../useResumeReview'
-import { forwardRef, useEffect, useState } from 'react'
+import { Info, PanelRightClose, RotateCcw } from 'lucide-react'
+import { forwardRef, useEffect, useId, useRef, useState } from 'react'
 import {
   ReviewCategorySelector,
   selectLargestDeficitCategory,
@@ -27,6 +28,13 @@ import {
 } from './ui/collapsible'
 import { Badge } from './ui/badge'
 import { Separator } from './ui/separator'
+import { ToggleGroup, ToggleGroupItem } from './ui/toggle-group'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from './ui/tooltip'
 
 interface ReviewPanelProps {
   id?: string
@@ -35,10 +43,19 @@ interface ReviewPanelProps {
   pdfReady?: boolean
   onClose?: () => void
   hidden?: boolean
+  onFocusAnnotation?: (annotation: ReviewAnnotation) => void
 }
 
 export const ReviewPanel = forwardRef<HTMLElement, ReviewPanelProps>(function ReviewPanel(
-  { id, state, onRequestReview, pdfReady = true, onClose, hidden },
+  {
+    id,
+    state,
+    onRequestReview,
+    pdfReady = true,
+    onClose,
+    hidden,
+    onFocusAnnotation,
+  },
   ref
 ) {
   const result = 'result' in state ? state.result : undefined
@@ -62,49 +79,74 @@ export const ReviewPanel = forwardRef<HTMLElement, ReviewPanelProps>(function Re
       tabIndex={-1}
       hidden={hidden}
     >
-      <Card size="sm" variant="reviewPanel" className="max-h-[inherit] overflow-auto">
-        <CardHeader className="border-b">
-          <CardTitle><h2>Review</h2></CardTitle>
-          <CardDescription>Advisory evaluation</CardDescription>
-          <CardAction className="flex flex-wrap justify-end gap-1.5">
-          <Button
-            size="editor"
-            onClick={onRequestReview}
-            disabled={actionDisabled}
-          >
-            {isLoading ? 'Reviewing' : 'Review resume'}
-          </Button>
-          {onClose ? (
+      <Card
+        variant="reviewPanel"
+        className="review-panel__shell overflow-visible"
+      >
+        <CardHeader className="review-panel__header border-b">
+          <CardTitle className="review-panel__title"><h2>Review</h2></CardTitle>
+          <CardDescription className="review-panel__description">Advisory evaluation</CardDescription>
+          <CardAction className="review-panel__actions flex flex-wrap justify-end gap-2">
             <Button
-              variant="outline"
               size="editor"
-              onClick={onClose}
-              aria-label="Collapse review"
-              aria-controls={id}
-              aria-expanded="true"
+              onClick={onRequestReview}
+              disabled={actionDisabled}
             >
-              Collapse
+              {result && !isLoading ? <RotateCcw aria-hidden="true" data-icon="inline-start" /> : null}
+              {isLoading ? 'Reviewing' : result ? 'Review again' : 'Review resume'}
             </Button>
-          ) : null}
+            {onClose ? (
+              <Button
+                variant="ghost"
+                size="editor"
+                onClick={onClose}
+                aria-label="Collapse review"
+                aria-controls={id}
+                aria-expanded="true"
+                className="review-panel__collapse"
+              >
+                <PanelRightClose aria-hidden="true" data-icon="inline-start" />
+                Collapse
+              </Button>
+            ) : null}
           </CardAction>
         </CardHeader>
-        <CardContent className="flex flex-col gap-3">
+        <CardContent className="review-panel__content flex flex-col gap-4">
           {renderReviewStateAlert(state, result, resultIsStale)}
-          {result ? <ReviewResultDetails state={state} /> : null}
+          {result ? (
+            <ReviewResultDetails
+              state={state}
+              onFocusAnnotation={onFocusAnnotation}
+            />
+          ) : null}
         </CardContent>
       </Card>
     </aside>
   )
 })
 
-function ReviewResultDetails({ state }: { state: ResumeReviewState }) {
+type StagedReviewSection = 'summary' | 'annotations'
+
+function ReviewResultDetails({
+  state,
+  onFocusAnnotation,
+}: {
+  state: ResumeReviewState
+  onFocusAnnotation?: (annotation: ReviewAnnotation) => void
+}) {
   const result = 'result' in state ? state.result : undefined
   if (!result) return null
   const defaultCategoryKey = selectLargestDeficitCategory(result.categories)
   const [selectedCategoryKey, setSelectedCategoryKey] = useState(defaultCategoryKey)
+  const [stagedSection, setStagedSection] = useState<StagedReviewSection>('summary')
+  const [selectedAnnotationId, setSelectedAnnotationId] = useState(
+    result.annotations[0]?.id ?? null
+  )
 
   useEffect(() => {
     setSelectedCategoryKey(selectLargestDeficitCategory(result.categories))
+    setStagedSection('summary')
+    setSelectedAnnotationId(result.annotations[0]?.id ?? null)
   }, [result.id])
 
   useEffect(() => {
@@ -115,61 +157,195 @@ function ReviewResultDetails({ state }: { state: ResumeReviewState }) {
     )
   }, [result.categories])
 
+  useEffect(() => {
+    setSelectedAnnotationId(selectedId =>
+      selectedId && result.annotations.some(annotation => annotation.id === selectedId)
+        ? selectedId
+        : result.annotations[0]?.id ?? null
+    )
+  }, [result.annotations])
+
+  const categorySelector = (
+    <ReviewCategorySelector
+      categories={result.categories}
+      selectedKey={selectedCategoryKey}
+      onSelect={setSelectedCategoryKey}
+      excludedSuggestions={result.improvements}
+    />
+  )
+
   return (
-    <div className="flex flex-col gap-3">
-      <ReviewScore result={result} />
-      <ReviewCategorySelector
-        categories={result.categories}
-        selectedKey={selectedCategoryKey}
-        onSelect={setSelectedCategoryKey}
+    <div className="review-report review-report--staged review-report--information">
+      <ReviewStageNavigation
+        value={stagedSection}
+        onValueChange={setStagedSection}
       />
-      <ReviewAdjustmentLedger bonuses={result.bonuses} deductions={result.deductions} />
-      <ReviewList title="Areas for improvement" items={result.improvements} />
-      <ReviewFindings annotations={result.annotations} />
-      <ReviewDisclosure title="Key strengths" items={result.strengths} />
-      <ReviewAdjustmentDetails bonuses={result.bonuses} deductions={result.deductions} />
+      <div className="review-stage-content" data-review-stage={stagedSection}>
+        {stagedSection === 'summary' ? (
+          <div className="review-stage-panel" data-review-stage="summary">
+            <ReviewScore result={result} />
+            {categorySelector}
+            <ReviewAdjustmentLedger
+              bonuses={result.bonuses}
+              deductions={result.deductions}
+            />
+            <ReviewScoreDisclosures
+              improvements={result.improvements}
+              strengths={result.strengths}
+            />
+          </div>
+        ) : null}
+        {stagedSection === 'annotations' ? (
+          <ReviewAnnotationExplorer
+            annotations={result.annotations}
+            selectedId={selectedAnnotationId}
+            onSelect={annotation => {
+              setSelectedAnnotationId(annotation.id)
+              onFocusAnnotation?.(annotation)
+            }}
+          />
+        ) : null}
+      </div>
       {hasNoDetailedFindings(result) ? (
-        <p className="rounded-[4px] border border-dashed border-border p-2.5 text-xs text-muted-foreground">
-          No detailed findings returned.
-        </p>
+        <p className="review-empty-result">No detailed findings returned.</p>
       ) : null}
     </div>
   )
 }
 
-function ReviewScore({ result }: { result: { totalScore: number; maxScore: number; tier: string } }) {
+function ReviewStageNavigation({
+  value,
+  onValueChange,
+}: {
+  value: StagedReviewSection
+  onValueChange: (value: StagedReviewSection) => void
+}) {
   return (
-    <div className="flex items-start justify-between gap-3 rounded-md border border-primary/35 bg-primary/5 p-2.5">
-      <div>
-        <span className="block text-[22px] font-bold text-accent-foreground">{result.totalScore} / {result.maxScore}</span>
-        <p className="mt-1 text-[11px] leading-tight text-accent-foreground">Advisory score, not an ATS guarantee.</p>
-      </div>
-      <Badge variant="reviewTier" className="whitespace-nowrap">
-        {formatTier(result.tier)}
-      </Badge>
-    </div>
+    <ToggleGroup
+      aria-label="Review report section"
+      value={[value]}
+      onValueChange={values => {
+        const nextValue = values[0] as StagedReviewSection | undefined
+        if (nextValue) onValueChange(nextValue)
+      }}
+      variant="outline"
+      spacing={1}
+      orientation="horizontal"
+      className="review-stage-navigation"
+    >
+      {(['summary', 'annotations'] as StagedReviewSection[]).map(section => (
+        <ToggleGroupItem key={section} value={section} aria-label={formatStageLabel(section)}>
+          <span>{formatStageLabel(section)}</span>
+        </ToggleGroupItem>
+      ))}
+    </ToggleGroup>
   )
 }
 
-function ReviewList({
-  title,
-  items,
-  compact = false,
+function formatStageLabel(section: StagedReviewSection) {
+  const labels: Record<StagedReviewSection, string> = {
+    summary: 'Score',
+    annotations: 'Feedback',
+  }
+  return labels[section]
+}
+
+function ReviewAnnotationExplorer({
+  annotations,
+  selectedId,
+  onSelect,
 }: {
-  title: string
-  items: string[]
-  compact?: boolean
+  annotations: ReviewAnnotation[]
+  selectedId: string | null
+  onSelect: (annotation: ReviewAnnotation) => void
 }) {
-  if (items.length === 0) return null
+  if (annotations.length === 0) {
+    return (
+      <section
+        className="review-annotations"
+        aria-labelledby="review-annotations-heading"
+      >
+        <h3 id="review-annotations-heading" className="sr-only">Review feedback</h3>
+        <p className="review-category-detail__empty">No feedback returned.</p>
+      </section>
+    )
+  }
+
+  const selected = annotations.find(annotation => annotation.id === selectedId) ?? annotations[0]
 
   return (
-    <section className={compact ? 'flex flex-col gap-1' : 'flex flex-col gap-1.5'}>
-      <h3 className="text-xs font-semibold">{title}</h3>
-      <ul className="flex list-disc flex-col gap-1 pl-[18px] text-[13px] leading-snug text-muted-foreground">
-        {items.map((item, index) => (
-          <li key={`${item}-${index}`}>{item}</li>
+    <section
+      className="review-annotations review-annotation-explorer"
+      aria-labelledby="review-annotations-heading"
+      data-information-first="true"
+    >
+      <h3 id="review-annotations-heading" className="sr-only">Review feedback</h3>
+      <div className="review-annotation-explorer__list">
+        {annotations.map(annotation => (
+          <Button
+            key={annotation.id}
+            type="button"
+            variant="reviewCategory"
+            className="review-annotation-explorer__item"
+            aria-label={`${formatSeverity(annotation.severity)}: ${formatAnnotationMessage(annotation)}; ${formatAnnotationTarget(annotation)}`}
+            aria-pressed={annotation.id === selected.id}
+            onClick={() => onSelect(annotation)}
+          >
+            <span className="review-annotation-explorer__message">
+              {formatAnnotationMessage(annotation)}
+            </span>
+            <Badge variant={getSeverityBadgeVariant(annotation.severity)}>
+              {formatSeverity(annotation.severity)}
+            </Badge>
+          </Button>
         ))}
-      </ul>
+      </div>
+    </section>
+  )
+}
+
+function ReviewScore({ result }: { result: { totalScore: number; maxScore: number; tier: string } }) {
+  const formattedTier = formatTier(result.tier)
+  const advisoryTooltipId = useId()
+
+  return (
+    <section className="review-overall" aria-labelledby="review-overall-heading">
+      <div className="review-overall__primary">
+        <h3 id="review-overall-heading" className="sr-only">Overall score</h3>
+        <span
+          className="review-overall__score"
+          data-review-tier={result.tier}
+          aria-label={`${result.totalScore} out of ${result.maxScore}, ${formattedTier}`}
+        >
+          {result.totalScore} / {result.maxScore}
+        </span>
+      </div>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-xs"
+                className="review-overall__info"
+                aria-label="About this advisory score"
+                aria-describedby={advisoryTooltipId}
+              />
+            }
+          >
+            <Info aria-hidden="true" />
+          </TooltipTrigger>
+          <TooltipContent
+            id={advisoryTooltipId}
+            role="tooltip"
+            side="bottom"
+            align="end"
+          >
+            Advisory score, not an ATS guarantee.
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     </section>
   )
 }
@@ -193,30 +369,78 @@ function ReviewAdjustmentLedger({ bonuses, deductions }: {
   const hasDeductions = deductions.length > 0
 
   return (
-    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-y border-border py-2 text-xs">
-      {hasBonuses ? (
-        <span>Bonus <strong className="text-accent-foreground">{formatSignedPoints(totalAdjustmentPoints(bonuses))}</strong></span>
-      ) : null}
-      {hasBonuses && hasDeductions ? (
-        <Separator orientation="vertical" />
-      ) : null}
-      {hasDeductions ? (
-        <span>Deductions <strong className="text-destructive">{formatSignedPoints(totalAdjustmentPoints(deductions))}</strong></span>
-      ) : null}
-    </div>
+    <section className="review-adjustments" aria-labelledby="review-adjustments-heading">
+      <h3 id="review-adjustments-heading" className="review-section-heading">
+        Score adjustments
+      </h3>
+      <div className="review-adjustments__summary">
+        {hasBonuses ? (
+          <div className="review-adjustments__side">
+            <span className="review-adjustments__side-heading">
+              <span>Bonus</span>
+              {' '}
+              <strong>{formatSignedPoints(totalAdjustmentPoints(bonuses))}</strong>
+            </span>
+          </div>
+        ) : null}
+        {hasBonuses && hasDeductions ? (
+          <Separator orientation="vertical" className="review-adjustments__separator" />
+        ) : null}
+        {hasDeductions ? (
+          <div className="review-adjustments__side review-adjustments__side--deduction">
+            <span className="review-adjustments__side-heading">
+              <span>Deductions</span>
+              {' '}
+              <strong>{formatSignedPoints(totalAdjustmentPoints(deductions))}</strong>
+            </span>
+          </div>
+        ) : null}
+      </div>
+      <ReviewAdjustmentDetails bonuses={bonuses} deductions={deductions} />
+    </section>
   )
 }
 
 function ReviewDisclosure({ title, items }: { title: string; items: string[] }) {
   const [open, setOpen] = useState(false)
+  const contentRef = useDisclosureReveal(open)
   if (items.length === 0) return null
   return (
-    <Collapsible open={open} onOpenChange={setOpen}>
-      <CollapsibleTrigger className="flex w-full items-center justify-between text-xs font-semibold">
+    <Collapsible className="review-disclosure" open={open} onOpenChange={setOpen}>
+      <CollapsibleTrigger className="review-disclosure__trigger">
         <span>{title}</span><span>{open ? 'Hide' : 'Show'}</span>
       </CollapsibleTrigger>
-      <CollapsibleContent><ReviewList title={title} items={items} /></CollapsibleContent>
+      <CollapsibleContent ref={contentRef}>
+        <ul className="review-disclosure__list">
+          {items.map((item, index) => (
+            <li key={`${item}-${index}`}>{item}</li>
+          ))}
+        </ul>
+      </CollapsibleContent>
     </Collapsible>
+  )
+}
+
+function ReviewScoreDisclosures({
+  improvements,
+  strengths,
+}: {
+  improvements: string[]
+  strengths: string[]
+}) {
+  if (improvements.length === 0 && strengths.length === 0) return null
+
+  return (
+    <section className="review-score-disclosures" aria-label="Additional review findings">
+      <ReviewDisclosure
+        title={`Overall recommendations (${improvements.length})`}
+        items={improvements}
+      />
+      <ReviewDisclosure
+        title={`What already works (${strengths.length})`}
+        items={strengths}
+      />
+    </section>
   )
 }
 
@@ -225,19 +449,22 @@ function ReviewAdjustmentDetails({ bonuses, deductions }: {
   deductions: ReviewAdjustment[]
 }) {
   const [open, setOpen] = useState(false)
+  const contentRef = useDisclosureReveal(open)
   const adjustments = [...bonuses, ...deductions]
   if (adjustments.length === 0) return null
   return (
-    <Collapsible open={open} onOpenChange={setOpen}>
-      <CollapsibleTrigger className="flex w-full items-center justify-between text-xs font-semibold">
+    <Collapsible className="review-disclosure review-adjustment-details" open={open} onOpenChange={setOpen}>
+      <CollapsibleTrigger className="review-disclosure__trigger">
         <span>Adjustment details</span><span>{open ? 'Hide' : 'Show'}</span>
       </CollapsibleTrigger>
-      <CollapsibleContent>
-        <ul className="mt-2 flex list-disc flex-col gap-1 pl-4 text-xs">
+      <CollapsibleContent ref={contentRef}>
+        <ul className="review-adjustment-details__list">
           {adjustments.map((adjustment, index) => (
             <li key={`${adjustment.label}-${index}`}>
-              <span>{adjustment.label}</span>{' '}
-              <span>({formatSignedPoints(adjustment.points)})</span>
+              <div>
+                <span>{adjustment.label}</span>{' '}
+                <span>({formatSignedPoints(adjustment.points)})</span>
+              </div>
               {adjustment.evidence ? <p>{adjustment.evidence}</p> : null}
             </li>
           ))}
@@ -247,71 +474,15 @@ function ReviewAdjustmentDetails({ bonuses, deductions }: {
   )
 }
 
-function ReviewAnnotationLegend({
-  annotations,
-}: {
-  annotations: ReviewAnnotation[]
-}) {
-  if (annotations.length === 0) return null
+function useDisclosureReveal(open: boolean) {
+  const contentRef = useRef<HTMLDivElement>(null)
 
-  return (
-    <section className="flex flex-col gap-1.5">
-      <h3 className="text-xs font-semibold">Annotation legend</h3>
-      <div className="review-annotation-legend__items" aria-label="Annotation legend">
-        <ReviewSeverityLegendItem severity="warning" label="Needs attention" />
-        <ReviewSeverityLegendItem severity="info" label="Context" />
-        <ReviewSeverityLegendItem severity="strong" label="Strength" />
-      </div>
-    </section>
-  )
-}
+  useEffect(() => {
+    if (!open) return
+    contentRef.current?.scrollIntoView?.({ block: 'nearest', behavior: 'auto' })
+  }, [open])
 
-function ReviewSeverityLegendItem({
-  severity,
-  label,
-}: {
-  severity: ReviewAnnotationSeverity
-  label: string
-}) {
-  return (
-    <span className="review-annotation-legend__item">
-      <span
-        className={`review-annotation-marker review-annotation--${severity}`}
-        aria-hidden="true"
-      />
-      {label}
-    </span>
-  )
-}
-
-function ReviewFindings({
-  annotations,
-}: {
-  annotations: ReviewAnnotation[]
-}) {
-  if (annotations.length === 0) return null
-
-  return (
-    <section className="flex flex-col gap-1.5">
-      <ReviewAnnotationLegend annotations={annotations} />
-      <h3 className="text-xs font-semibold">Findings</h3>
-      <ul className="flex list-none flex-col gap-2 p-0 text-[13px] leading-snug text-muted-foreground">
-        {annotations.map(annotation => (
-          <li key={annotation.id} className="rounded-md border bg-card p-2">
-            <div className="mb-1 flex flex-wrap items-center gap-x-2 gap-y-1">
-              <Badge variant={getSeverityBadgeVariant(annotation.severity)}>
-                {formatSeverity(annotation.severity)}
-              </Badge>
-              <span className="text-xs text-muted-foreground">
-                {formatAnnotationTarget(annotation)}
-              </span>
-            </div>
-            <p>{annotation.message}</p>
-          </li>
-        ))}
-      </ul>
-    </section>
-  )
+  return contentRef
 }
 
 function ReviewStateAlert({
@@ -370,6 +541,19 @@ function formatSeverity(severity: ReviewAnnotationSeverity): string {
   if (severity === 'warning') return 'Needs attention'
   if (severity === 'strong') return 'Strength'
   return 'Context'
+}
+
+function formatAnnotationMessage(annotation: ReviewAnnotation): string {
+  const severityPrefix = {
+    warning: /^needs attention:\s*/i,
+    strong: /^(?:strong|strength):\s*/i,
+    info: /^context:\s*/i,
+  }[annotation.severity]
+  const message = annotation.message.replace(severityPrefix, '').trim()
+
+  if (!message) return annotation.message
+
+  return message.charAt(0).toUpperCase() + message.slice(1)
 }
 
 function getSeverityBadgeVariant(

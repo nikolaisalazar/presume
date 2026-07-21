@@ -69,6 +69,8 @@ export function ReviewAnnotations({
           className={`review-annotation-marker review-annotation-marker--count ${severityClass}`}
           aria-label={label}
           title={annotations.map(annotation => annotation.message).join('\n')}
+          data-review-annotation-ids={annotations.map(annotation => annotation.id).join(' ')}
+          tabIndex={-1}
         >
           {annotations.length}
         </span>
@@ -77,6 +79,8 @@ export function ReviewAnnotations({
           className={`review-annotation-marker ${severityClass}`}
           aria-label={label}
           title={annotations[0].message}
+          data-review-annotation-ids={annotations[0].id}
+          tabIndex={-1}
         />
       )}
     </span>

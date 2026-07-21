@@ -1,5 +1,4 @@
-import { ChevronDown } from 'lucide-react'
-import { useState } from 'react'
+import { ChevronDown, SlidersHorizontal } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { Constraints } from '../types'
 import {
@@ -16,23 +15,44 @@ import {
 interface SettingsPanelProps {
   constraints: Constraints
   onChange: (constraints: Constraints) => void
+  open: boolean
+  onOpenChange: (open: boolean) => void
 }
 
-export function SettingsPanel({ constraints, onChange }: SettingsPanelProps) {
-  const [open, setOpen] = useState(false)
+export function SettingsPanel({
+  constraints,
+  onChange,
+  open,
+  onOpenChange,
+}: SettingsPanelProps) {
+  const constraintSummary = `${constraints.maxPages} page · ${constraints.maxLinesPerBullet} line/bullet · ${constraints.minFontSize}px min`
 
   const step = (key: ConstraintKey, delta: number) => {
     onChange(updateConstraint(constraints, key, constraints[key] + delta))
   }
 
   return (
-    <Collapsible className="settings-panel" open={open} onOpenChange={setOpen}>
-      <CollapsibleTrigger className="flex min-h-12 w-full items-center justify-between gap-1 px-2.5 py-3 text-left outline-none transition-colors duration-[var(--duration-standard)] ease-[var(--ease-standard)] hover:bg-surface-pressed focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-3 focus-visible:outline-ring focus-visible:ring-2 focus-visible:ring-focus-contrast motion-reduce:transition-none">
-        <span className="shrink-0 text-[13px] font-bold">Fit constraints</span>
+    <Collapsible
+      className="settings-panel"
+      open={open}
+      onOpenChange={onOpenChange}
+    >
+      <CollapsibleTrigger
+        className="flex min-h-12 w-full items-center justify-between gap-1 px-2.5 py-3 text-left outline-none transition-colors duration-[var(--duration-standard)] ease-[var(--ease-standard)] hover:bg-surface-pressed focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-3 focus-visible:outline-ring focus-visible:ring-2 focus-visible:ring-focus-contrast motion-reduce:transition-none"
+      >
+        <span className="settings-panel__title shrink-0 text-[13px] font-bold">
+          <SlidersHorizontal
+            aria-hidden="true"
+            className="hidden size-4"
+            data-slot="fit-canvas-icon"
+            strokeWidth={2.25}
+          />
+          <span data-slot="fit-title-text">Fit constraints</span>
+        </span>
         <span className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
           {!open ? (
             <span className="min-w-0 truncate">
-              {constraints.maxPages} page · {constraints.maxLinesPerBullet} line/bullet · {constraints.minFontSize}px min
+              {constraintSummary}
             </span>
           ) : null}
           <ChevronDown
