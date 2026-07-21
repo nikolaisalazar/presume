@@ -1,0 +1,705 @@
+/* Phase D comparison, iteration two: an open page rather than stacked cards. */
+.landing-v2 {
+  min-height: 100vh;
+  overflow-x: clip;
+  padding: 0 24px 72px;
+  color: var(--foreground);
+}
+
+.landing-v2-header,
+.landing-v2 > main {
+  width: min(1180px, 100%);
+  margin-inline: auto;
+}
+
+.landing-v2-header {
+  display: flex;
+  min-height: 72px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  border-bottom: 1px solid var(--border-strong);
+}
+
+.landing-v2-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  border-radius: var(--radius-control);
+  color: inherit;
+  font-size: 1.0625rem;
+  font-weight: 680;
+  letter-spacing: -0.025em;
+  text-decoration: none;
+}
+
+.landing-v2-brand:focus-visible,
+.landing-v2 a:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+}
+
+.landing-v2-brand:hover .app-header__brand-mark {
+  border-color: var(--ring);
+  background: var(--primary-hover);
+}
+
+.landing-v2-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.landing-v2-header__actions > [data-slot='button'] {
+  min-height: 36px;
+}
+
+.landing-v2-kicker,
+.landing-v2-measurement figcaption,
+.landing-v2-register > li > span,
+.landing-v2-workflow li > span,
+.landing-v2-folio-section > aside,
+.landing-v2-folio-hero__margin-note,
+.landing-v2-provenance article > span {
+  margin: 0;
+  color: var(--accent-foreground);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.075em;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.landing-v2 h1,
+.landing-v2 h2,
+.landing-v2 h3,
+.landing-v2 p {
+  margin-block: 0;
+}
+
+.landing-v2 h1,
+.landing-v2 h2 {
+  letter-spacing: -0.045em;
+}
+
+.landing-v2-standard-hero {
+  display: grid;
+  min-height: 610px;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: stretch;
+  border-bottom: 1px solid var(--border-strong);
+}
+
+.landing-v2-hero-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(64px, 10vw, 124px) clamp(0px, 4vw, 48px) clamp(64px, 10vw, 124px) 0;
+}
+
+.landing-v2-hero-copy h1 {
+  max-width: 16ch;
+  margin-top: 17px;
+  font-size: clamp(3.15rem, 7.1vw, 5.9rem);
+  font-weight: 660;
+  line-height: 0.94;
+}
+
+.landing-v2-hero-copy__description {
+  max-width: 57ch;
+  margin-top: 25px !important;
+  color: var(--muted-foreground);
+  font-size: 1.0625rem;
+  line-height: 1.62;
+}
+
+.landing-v2-hero-copy__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 15px;
+  margin-top: 31px;
+}
+
+.landing-v2-hero-copy__actions > span {
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+}
+
+.landing-v2-measurement {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+  gap: 24px;
+  margin: 0;
+  padding: clamp(50px, 7vw, 84px) 0 clamp(50px, 7vw, 84px) clamp(32px, 5vw, 64px);
+  border-left: 1px solid var(--border);
+  color: var(--paper-ink);
+}
+
+.landing-v2-measurement::before {
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  right: calc((100vw - min(1180px, calc(100vw - 48px))) / -2);
+  bottom: 0;
+  left: 0;
+  background: var(--paper);
+  content: '';
+}
+
+.landing-v2-measurement figcaption {
+  color: color-mix(in srgb, var(--paper-ink), transparent 46%);
+}
+
+.landing-v2-measurement__sample {
+  position: relative;
+  width: min(100%, 340px);
+  padding: 20px 30px;
+  border-block: 1px solid color-mix(in srgb, var(--paper-ink), transparent 76%);
+}
+
+.landing-v2-measurement__sample p {
+  max-width: 29ch;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}
+
+.landing-v2-measurement__start,
+.landing-v2-measurement__limit {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 4px;
+  color: color-mix(in srgb, var(--paper-ink), transparent 52%);
+  font-size: 0.625rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.landing-v2-measurement__start {
+  left: 0;
+  border-left: 1px solid color-mix(in srgb, var(--paper-ink), transparent 66%);
+}
+
+.landing-v2-measurement__limit {
+  right: 0;
+  border-right: 1px solid var(--primary);
+}
+
+.landing-v2-measurement__rule {
+  position: relative;
+  width: min(100%, 340px);
+  height: 12px;
+  border-inline: 1px solid color-mix(in srgb, var(--paper-ink), transparent 54%);
+}
+
+.landing-v2-measurement__rule::before {
+  position: absolute;
+  top: 5px;
+  right: 0;
+  left: 0;
+  height: 1px;
+  background: color-mix(in srgb, var(--paper-ink), transparent 67%);
+  content: '';
+}
+
+.landing-v2-measurement__rule span {
+  position: absolute;
+  z-index: 1;
+  top: 2px;
+  right: 0;
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--primary);
+  background: var(--paper);
+}
+
+.landing-v2-measurement dl {
+  display: grid;
+  width: min(100%, 340px);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  border-top: 1px solid color-mix(in srgb, var(--paper-ink), transparent 76%);
+}
+
+.landing-v2-measurement dl div {
+  padding-top: 10px;
+}
+
+.landing-v2-measurement dt {
+  color: color-mix(in srgb, var(--paper-ink), transparent 48%);
+  font-size: 0.6875rem;
+}
+
+.landing-v2-measurement dd {
+  margin: 4px 0 0;
+  font-size: 0.8125rem;
+  font-weight: 680;
+  font-variant-numeric: tabular-nums;
+}
+
+.landing-v2-section,
+.landing-v2-demo,
+.landing-v2-final {
+  padding-block: clamp(72px, 10vw, 124px);
+  border-bottom: 1px solid var(--border-strong);
+}
+
+.landing-v2-section-heading,
+.landing-v2-demo__introduction {
+  max-width: 720px;
+}
+
+.landing-v2-section-heading h2,
+.landing-v2-demo__introduction h2,
+.landing-v2-final h2 {
+  max-width: 20ch;
+  margin-top: 12px;
+  font-size: clamp(2.25rem, 5vw, 4.15rem);
+  font-weight: 650;
+  line-height: 0.99;
+}
+
+.landing-v2-section-heading > p:last-child,
+.landing-v2-final p {
+  max-width: 62ch;
+  margin-top: 18px;
+  color: var(--muted-foreground);
+  line-height: 1.6;
+}
+
+.landing-v2-register {
+  margin: clamp(44px, 7vw, 78px) 0 0;
+  padding: 0;
+  border-top: 1px solid var(--border-strong);
+  list-style: none;
+}
+
+.landing-v2-register > li {
+  display: grid;
+  grid-template-columns: 58px minmax(170px, 0.72fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+  padding: 25px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.landing-v2-register h3,
+.landing-v2-workflow h3,
+.landing-v2-provenance h3 {
+  font-size: 1rem;
+  font-weight: 680;
+  letter-spacing: -0.02em;
+}
+
+.landing-v2-register li > p,
+.landing-v2-workflow li p,
+.landing-v2-provenance article div > p:not(.landing-v2-provenance__source) {
+  color: var(--muted-foreground);
+  line-height: 1.55;
+}
+
+.landing-v2-demo {
+  display: grid;
+  grid-template-columns: minmax(0, 0.58fr) minmax(0, 1.42fr);
+  gap: clamp(42px, 8vw, 100px);
+  align-items: start;
+}
+
+.landing-v2-demo__introduction {
+  position: sticky;
+  top: 28px;
+}
+
+.landing-v2-demo__introduction h2 {
+  font-size: clamp(2rem, 4vw, 3.35rem);
+}
+
+.landing-v2 .landing-fit-lab {
+  gap: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.landing-v2 .landing-fit-lab__header h2 {
+  margin-top: 8px;
+  font-size: clamp(1.75rem, 3.5vw, 2.75rem);
+}
+
+.landing-v2 .landing-fit-lab__workspace {
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+  gap: 0;
+  border-block: 1px solid var(--border-strong);
+}
+
+.landing-v2 .landing-fit-lab__input,
+.landing-v2 .landing-fit-lab__measurement {
+  border: 0;
+  border-radius: 0;
+  padding: 22px;
+}
+
+.landing-v2 .landing-fit-lab__input {
+  border-right: 1px solid var(--border);
+  background: transparent;
+}
+
+.landing-v2-workflow ol {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  margin: clamp(44px, 7vw, 78px) 0 0;
+  padding: 0;
+  border-top: 1px solid var(--border-strong);
+  list-style: none;
+}
+
+.landing-v2-workflow li {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 12px;
+  padding: 23px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.landing-v2-workflow h3 {
+  display: inline;
+}
+
+.landing-v2-workflow [data-slot='badge'] {
+  margin-left: 7px;
+  vertical-align: 1px;
+}
+
+.landing-v2-workflow li p {
+  margin-top: 8px;
+  font-size: 0.875rem;
+}
+
+.landing-v2-provenance__list {
+  margin-top: clamp(44px, 7vw, 78px);
+  border-top: 1px solid var(--border-strong);
+}
+
+.landing-v2-provenance article {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  gap: 18px;
+  padding: 28px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.landing-v2-provenance__source {
+  margin-bottom: 7px !important;
+  color: var(--foreground);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.landing-v2-provenance article h3 + p {
+  max-width: 76ch;
+  margin-top: 10px;
+}
+
+.landing-v2-provenance article a {
+  display: inline-block;
+  margin-top: 14px;
+  border-radius: 2px;
+  color: var(--accent-foreground);
+  font-size: 0.8125rem;
+  font-weight: 680;
+  text-underline-offset: 3px;
+}
+
+.landing-v2-final {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.landing-v2-final h2 {
+  max-width: 18ch;
+  font-size: clamp(2.15rem, 4.6vw, 3.75rem);
+}
+
+/* The folio uses the same content as marginalia and working notes. */
+.landing-v2--folio > main {
+  position: relative;
+}
+
+.landing-v2-folio-hero {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1.08fr) minmax(320px, 0.92fr);
+  min-height: 680px;
+  border-bottom: 1px solid var(--border-strong);
+}
+
+.landing-v2-folio-hero__margin-note {
+  display: grid;
+  align-content: center;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  padding-right: 24px;
+  border-right: 1px solid var(--border);
+  color: var(--muted-foreground);
+}
+
+.landing-v2-folio-hero__margin-note strong {
+  margin-bottom: 14px;
+  color: var(--foreground);
+  font-size: 0.75rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.landing-v2--folio .landing-v2-hero-copy {
+  padding-left: clamp(30px, 5vw, 64px);
+}
+
+.landing-v2--folio .landing-v2-hero-copy h1 {
+  font-size: clamp(3.4rem, 7vw, 6.2rem);
+}
+
+.landing-v2-folio-section {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  border-bottom: 1px solid var(--border-strong);
+}
+
+.landing-v2-folio-section > aside {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 7px;
+  padding: clamp(72px, 10vw, 124px) 24px 40px 0;
+  border-right: 1px solid var(--border);
+  color: var(--muted-foreground);
+}
+
+.landing-v2-folio-section > aside strong {
+  color: var(--foreground);
+}
+
+.landing-v2-folio-section > div {
+  min-width: 0;
+}
+
+.landing-v2-folio-section .landing-v2-section,
+.landing-v2-folio-section .landing-fit-lab {
+  padding-left: clamp(30px, 5vw, 64px);
+  border-bottom: 0;
+}
+
+.landing-v2-folio-section .landing-fit-lab {
+  padding-block: clamp(72px, 10vw, 124px);
+}
+
+.landing-v2--folio .landing-v2-final {
+  margin-left: 150px;
+  padding-left: clamp(30px, 5vw, 64px);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .landing-v2-measurement__rule span {
+    animation: landing-v2-measure 240ms var(--ease-standard) 180ms both;
+  }
+}
+
+@keyframes landing-v2-measure {
+  from {
+    right: 100%;
+    opacity: 0.55;
+  }
+
+  to {
+    right: 0;
+    opacity: 1;
+  }
+}
+
+@media (min-width: 921px) {
+  .landing-v2-standard-hero {
+    grid-template-columns: minmax(0, 1.14fr) minmax(370px, 0.86fr);
+  }
+
+  .landing-v2-workflow ol {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .landing-v2-workflow li {
+    min-height: 144px;
+    align-content: start;
+    padding: 23px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .landing-v2-workflow li:first-child {
+    padding-left: 0;
+  }
+
+  .landing-v2-workflow li + li {
+    border-left: 1px solid var(--border);
+  }
+}
+
+@media (max-width: 920px) {
+  .landing-v2-measurement {
+    min-height: 400px;
+    padding-left: 0;
+    border-top: 1px solid var(--border);
+    border-left: 0;
+  }
+
+  .landing-v2-measurement::before {
+    right: calc((100vw - min(1180px, calc(100vw - 48px))) / -2);
+    left: calc((100vw - min(1180px, calc(100vw - 48px))) / -2);
+  }
+
+  .landing-v2-demo {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-v2-demo__introduction {
+    position: static;
+  }
+
+  .landing-v2-folio-hero {
+    grid-template-columns: 118px minmax(0, 1fr);
+  }
+
+  .landing-v2-folio-hero__margin-note {
+    grid-row: 1 / span 2;
+  }
+
+  .landing-v2-folio-hero .landing-v2-measurement {
+    grid-column: 2;
+    padding-left: clamp(30px, 5vw, 64px);
+  }
+
+  .landing-v2-folio-section {
+    grid-template-columns: 118px minmax(0, 1fr);
+  }
+
+  .landing-v2--folio .landing-v2-final {
+    margin-left: 118px;
+  }
+}
+
+@media (max-width: 640px) {
+  .landing-v2 {
+    padding-inline: 14px;
+  }
+
+  .landing-v2-header {
+    min-height: 0;
+    align-items: stretch;
+    flex-direction: column;
+    padding-block: 13px;
+  }
+
+  .landing-v2-header__actions {
+    justify-content: space-between;
+  }
+
+  .landing-v2-header__actions > [data-slot='button'] {
+    min-height: 44px;
+  }
+
+  .landing-v2-standard-hero {
+    min-height: 0;
+  }
+
+  .landing-v2-hero-copy {
+    padding: 58px 0 64px;
+  }
+
+  .landing-v2-hero-copy h1,
+  .landing-v2--folio .landing-v2-hero-copy h1 {
+    font-size: clamp(2.8rem, 14.5vw, 4.15rem);
+  }
+
+  .landing-v2-hero-copy__actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .landing-v2-hero-copy__actions > [data-slot='button'] {
+    min-height: 44px;
+  }
+
+  .landing-v2-measurement,
+  .landing-v2-folio-hero__margin-note {
+    display: none;
+  }
+
+  .landing-v2-section,
+  .landing-v2-demo,
+  .landing-v2-final {
+    padding-block: 66px;
+  }
+
+  .landing-v2-section-heading h2,
+  .landing-v2-demo__introduction h2,
+  .landing-v2-final h2 {
+    font-size: clamp(2.15rem, 11vw, 3.1rem);
+  }
+
+  .landing-v2-register > li {
+    grid-template-columns: 38px minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .landing-v2-register li > p {
+    grid-column: 2;
+  }
+
+  .landing-v2 .landing-fit-lab__workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-v2 .landing-fit-lab__input {
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .landing-v2-final {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .landing-v2-final [data-slot='button'] {
+    min-height: 44px;
+  }
+
+  .landing-v2-folio-hero,
+  .landing-v2-folio-section {
+    display: block;
+  }
+
+  .landing-v2--folio .landing-v2-hero-copy,
+  .landing-v2-folio-section .landing-v2-section,
+  .landing-v2-folio-section .landing-fit-lab,
+  .landing-v2--folio .landing-v2-final {
+    margin-left: 0;
+    padding-left: 0;
+  }
+
+  .landing-v2-folio-section > aside {
+    flex-direction: row;
+    gap: 10px;
+    padding: 18px 0;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+}

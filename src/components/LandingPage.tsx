@@ -1,7 +1,6 @@
-import { InstrumentedWorkbenchLanding } from '@/components/landing/InstrumentedWorkbenchLanding'
-import { InteractiveProjectExhibitLanding } from '@/components/landing/InteractiveProjectExhibitLanding'
-import { OpenTechnicalManualLanding } from '@/components/landing/OpenTechnicalManualLanding'
-import { getLandingConcept } from '@/components/landing/landingContent'
+import { StandardLanding } from '@/components/landing/StandardLanding'
+import { TechnicalFolioLanding } from '@/components/landing/TechnicalFolioLanding'
+import { getIterationTwoConcept } from '@/components/landing/landingIterationTwoContent'
 
 export interface LandingPageProps {
   hasSavedResume: boolean
@@ -9,9 +8,8 @@ export interface LandingPageProps {
 }
 
 export function LandingPage(props: LandingPageProps) {
-  const concept = getLandingConcept(window.location.search)
+  const concept = getIterationTwoConcept(window.location.search)
 
-  if (concept === 'manual') return <OpenTechnicalManualLanding {...props} />
-  if (concept === 'exhibit') return <InteractiveProjectExhibitLanding {...props} />
-  return <InstrumentedWorkbenchLanding {...props} />
+  if (concept === 'folio') return <TechnicalFolioLanding {...props} />
+  return <StandardLanding {...props} />
 }

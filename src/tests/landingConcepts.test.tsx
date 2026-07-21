@@ -14,16 +14,12 @@ vi.mock('@chenglou/pretext', () => pretextMocks)
 
 const concepts = [
   {
-    query: 'workbench',
-    heading: 'Write against the constraints that shape the final page.',
+    query: 'standard',
+    heading: 'A precise place to write, measure, and finish your resume.',
   },
   {
-    query: 'manual',
-    heading: 'A resume workbench, documented from the inside out.',
-  },
-  {
-    query: 'exhibit',
-    heading: 'The mechanics behind a finished document, made visible.',
+    query: 'folio',
+    heading: 'A working document, with its constraints left visible.',
   },
 ] as const
 
@@ -50,7 +46,8 @@ describe('Phase D landing alternatives', () => {
       expect(screen.getByRole('heading', { level: 1, name: concept.heading }))
         .toBeInTheDocument()
       expect(container.querySelectorAll('[data-slot="button"]')).toHaveLength(3)
-      expect(container.querySelectorAll('[data-slot="card"]')).toHaveLength(4)
+      expect(container.querySelectorAll('[data-slot="card"]')).toHaveLength(0)
+      expect(container.querySelectorAll('[data-slot="capability-row"]')).toHaveLength(4)
       expect(container.querySelectorAll('[data-slot="workflow-step"]')).toHaveLength(4)
       expect(container.querySelector('figure[data-slot="hero-mechanics"]'))
         .toBeInTheDocument()
@@ -68,20 +65,20 @@ describe('Phase D landing alternatives', () => {
     })
   }
 
-  it('falls back to the workbench concept for an unknown comparison value', () => {
+  it('falls back to the standard concept for an unknown comparison value', () => {
     window.history.pushState({}, '', '/presume/?concept=unknown')
 
     render(<App />)
 
     expect(screen.getByRole('heading', {
       level: 1,
-      name: 'Write against the constraints that shape the final page.',
+      name: 'A precise place to write, measure, and finish your resume.',
     })).toBeInTheDocument()
   })
 
   it('uses saved-resume wording for all three editor actions', () => {
     localStorage.setItem('presume:resume', JSON.stringify({ name: 'Saved resume' }))
-    window.history.pushState({}, '', '/presume/?concept=workbench')
+    window.history.pushState({}, '', '/presume/?concept=standard')
 
     render(<App />)
 

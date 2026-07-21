@@ -81,14 +81,16 @@ describe('App review availability boundaries', () => {
 
     expect(screen.getByRole('group', { name: 'Appearance' })).toBeInTheDocument()
     expect(screen.getByRole('heading', {
-      name: 'Write against the constraints that shape the final page.',
+      name: 'A precise place to write, measure, and finish your resume.',
     })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Edit directly' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Fit continuously' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Review without rewriting' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Export predictably' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Write on the document' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Measure while it changes' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Review as evidence' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Leave with a stable artifact' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Pretext Fit Lab' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Built with visible foundations.' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', {
+      name: 'The important influences are part of the story.',
+    })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Explore Pretext' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Explore Hiring Agent' })).toBeInTheDocument()
     expect(screen.queryByRole('toolbar', { name: 'Document actions' })).not.toBeInTheDocument()
@@ -107,17 +109,18 @@ describe('App review availability boundaries', () => {
 
     expect(container.querySelectorAll('[data-slot="button"]')).toHaveLength(3)
     expect(container.querySelectorAll('[data-slot="toggle-group-item"]')).toHaveLength(6)
-    expect(container.querySelectorAll('[data-slot="card"]')).toHaveLength(4)
+    expect(container.querySelectorAll('[data-slot="card"]')).toHaveLength(0)
+    expect(container.querySelectorAll('[data-slot="capability-row"]')).toHaveLength(4)
     expect(container.querySelector('[data-slot="badge"]')).toHaveTextContent(
-      'No account required'
+      'Optional'
     )
-    expect(container.querySelector('[data-slot="separator"]')).toBeInTheDocument()
+    expect(container.querySelector('[data-slot="separator"]')).not.toBeInTheDocument()
     const brandMark = container.querySelector('.app-header__brand-mark')
     expect(brandMark?.querySelector('svg')).toBeInTheDocument()
     expect(brandMark).not.toHaveTextContent('P')
     expect(
       screen.getByRole('heading', {
-        name: 'Write against the constraints that shape the final page.',
+        name: 'A precise place to write, measure, and finish your resume.',
       })
     ).toBeInTheDocument()
   })
@@ -136,7 +139,7 @@ describe('App review availability boundaries', () => {
 
     expect(window.location.pathname).toBe('/presume/')
     expect(screen.getByRole('heading', {
-      name: 'Write against the constraints that shape the final page.',
+      name: 'A precise place to write, measure, and finish your resume.',
     })).toBeInTheDocument()
     expect(screen.queryByRole('toolbar', { name: 'Document actions' })).not.toBeInTheDocument()
   })
