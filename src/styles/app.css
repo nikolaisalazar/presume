@@ -606,6 +606,11 @@ body {
   box-shadow: var(--shadow-control-edge);
 }
 
+.app-header__brand-mark svg {
+  width: 20px;
+  height: 20px;
+}
+
 .app-header__brand h1 {
   margin: 0;
 }

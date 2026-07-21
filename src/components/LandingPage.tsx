@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { ThemeControl } from '@/components/ThemeControl'
+import { BrandMark } from '@/components/BrandMark'
 
 export interface LandingPageProps {
   hasSavedResume: boolean
@@ -26,7 +27,7 @@ export function LandingPage({ hasSavedResume, onOpenEditor }: LandingPageProps) 
           href="/presume/"
           aria-label="Presume home"
         >
-          <span className="app-header__brand-mark" aria-hidden="true">P</span>
+          <BrandMark />
           <span>Presume</span>
         </a>
         <div className="flex flex-wrap items-center justify-between gap-2 min-[641px]:justify-end">

@@ -104,6 +104,9 @@ describe('App review availability boundaries', () => {
       'No account required'
     )
     expect(container.querySelector('[data-slot="separator"]')).toBeInTheDocument()
+    const brandMark = container.querySelector('.app-header__brand-mark')
+    expect(brandMark?.querySelector('svg')).toBeInTheDocument()
+    expect(brandMark).not.toHaveTextContent('P')
     expect(
       screen.getByRole('heading', {
         name: 'Edit your resume like the final document.',
@@ -115,7 +118,11 @@ describe('App review availability boundaries', () => {
     vi.stubEnv('VITE_REVIEW_API_URL', '')
     window.history.pushState({}, '', '/presume/editor/')
 
-    render(<App />)
+    const { container } = render(<App />)
+
+    const brandMark = container.querySelector('.app-header__brand-mark')
+    expect(brandMark?.querySelector('svg')).toBeInTheDocument()
+    expect(brandMark).not.toHaveTextContent('P')
 
     fireEvent.click(screen.getByRole('link', { name: 'Presume home' }))
 
