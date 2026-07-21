@@ -81,7 +81,7 @@ describe('App review availability boundaries', () => {
 
     expect(screen.getByRole('group', { name: 'Appearance' })).toBeInTheDocument()
     expect(screen.getByRole('heading', {
-      name: 'A precise place to write, measure, and finish your resume.',
+      name: 'A resume editor that shows its work.',
     })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Write on the document' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Measure while it changes' })).toBeInTheDocument()
@@ -89,7 +89,7 @@ describe('App review availability boundaries', () => {
     expect(screen.getByRole('heading', { name: 'Leave with a stable artifact' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Pretext Fit Lab' })).toBeInTheDocument()
     expect(screen.getByRole('heading', {
-      name: 'The important influences are part of the story.',
+      name: 'The document came first.',
     })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Explore Pretext' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Explore Hiring Agent' })).toBeInTheDocument()
@@ -120,7 +120,7 @@ describe('App review availability boundaries', () => {
     expect(brandMark).not.toHaveTextContent('P')
     expect(
       screen.getByRole('heading', {
-        name: 'A precise place to write, measure, and finish your resume.',
+        name: 'A resume editor that shows its work.',
       })
     ).toBeInTheDocument()
   })
@@ -139,7 +139,7 @@ describe('App review availability boundaries', () => {
 
     expect(window.location.pathname).toBe('/presume/')
     expect(screen.getByRole('heading', {
-      name: 'A precise place to write, measure, and finish your resume.',
+      name: 'A resume editor that shows its work.',
     })).toBeInTheDocument()
     expect(screen.queryByRole('toolbar', { name: 'Document actions' })).not.toBeInTheDocument()
   })

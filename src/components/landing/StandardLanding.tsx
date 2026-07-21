@@ -4,9 +4,8 @@ import {
   IterationTwoFinalAction,
   IterationTwoHeader,
   IterationTwoHeroCopy,
-  OpenMeasurementFigure,
-  OpenProvenance,
   OpenWorkflow,
+  ProjectNarrative,
   type LandingIterationTwoProps,
 } from './LandingIterationTwoShared'
 
@@ -15,20 +14,19 @@ export function StandardLanding(props: LandingIterationTwoProps) {
     <div className="landing-v2 landing-v2--standard" data-concept="standard">
       <IterationTwoHeader {...props} />
       <main>
-        <section className="landing-v2-standard-hero" aria-labelledby="landing-title">
+        <section className="landing-v2-readme-hero" aria-labelledby="landing-title">
           <IterationTwoHeroCopy concept="standard" {...props} />
-          <OpenMeasurementFigure label="One constraint, made legible" />
-        </section>
-        <CapabilityRegister intro="A conventional product flow, without turning each capability into its own floating container." />
-        <section className="landing-v2-demo" aria-label="Working product example">
-          <div className="landing-v2-demo__introduction">
-            <p className="landing-v2-kicker">Try the underlying measurement</p>
-            <h2>Change the text. Change the width. See the result.</h2>
+          <div className="landing-v2-readme-hero__demo">
+            <div className="landing-v2-readme-hero__demo-label">
+              <span>Live system 01</span>
+              <strong>Text geometry</strong>
+            </div>
+            <FitLab />
           </div>
-          <FitLab />
         </section>
+        <CapabilityRegister intro="A technical product flow organized around the work, not around marketing tiles." />
         <OpenWorkflow />
-        <OpenProvenance />
+        <ProjectNarrative concise />
         <IterationTwoFinalAction {...props} />
       </main>
     </div>

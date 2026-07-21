@@ -6,6 +6,7 @@ import {
   ITERATION_TWO_CAPABILITIES,
   ITERATION_TWO_HERO,
   ITERATION_TWO_WORKFLOW,
+  PROJECT_ORIGIN,
   type LandingIterationTwoConcept,
 } from './landingIterationTwoContent'
 import { PROVENANCE } from './landingContent'
@@ -150,6 +151,35 @@ export function OpenProvenance({ colophon = false }: { colophon?: boolean }) {
             </div>
           </article>
         ))}
+      </div>
+    </section>
+  )
+}
+
+export function ProjectNarrative({ concise = false }: { concise?: boolean }) {
+  return (
+    <section
+      className={`landing-v2-section landing-v2-origins${concise ? ' landing-v2-origins--concise' : ''}`}
+      aria-labelledby="origins-title"
+    >
+      <div className="landing-v2-origins__heading">
+        <p className="landing-v2-kicker">Why Presume exists</p>
+        <h2 id="origins-title">The document came first.</h2>
+        <p>{PROJECT_ORIGIN.introduction}</p>
+      </div>
+      <div className="landing-v2-origins__chapters">
+        <section>
+          <span>01 / Measurement</span>
+          <h3>Pretext made fit observable.</h3>
+          <p>{PROJECT_ORIGIN.pretext}</p>
+          <a href={PROVENANCE[0].href}>Explore Pretext<span aria-hidden="true"> ↗</span></a>
+        </section>
+        <section>
+          <span>02 / Advisory review</span>
+          <h3>Hiring Agent made the review boundary tangible.</h3>
+          <p>{PROJECT_ORIGIN.hiringAgent}</p>
+          <a href={PROVENANCE[1].href}>Explore Hiring Agent<span aria-hidden="true"> ↗</span></a>
+        </section>
       </div>
     </section>
   )

@@ -15,11 +15,11 @@ vi.mock('@chenglou/pretext', () => pretextMocks)
 const concepts = [
   {
     query: 'standard',
-    heading: 'A precise place to write, measure, and finish your resume.',
+    heading: 'A resume editor that shows its work.',
   },
   {
     query: 'folio',
-    heading: 'A working document, with its constraints left visible.',
+    heading: 'It began as a resume project. The product grew around the document.',
   },
 ] as const
 
@@ -50,7 +50,7 @@ describe('Phase D landing alternatives', () => {
       expect(container.querySelectorAll('[data-slot="capability-row"]')).toHaveLength(4)
       expect(container.querySelectorAll('[data-slot="workflow-step"]')).toHaveLength(4)
       expect(container.querySelector('figure[data-slot="hero-mechanics"]'))
-        .toBeInTheDocument()
+        .not.toBeInTheDocument()
       expect(screen.getByRole('region', { name: 'Pretext Fit Lab' })).toBeInTheDocument()
       expect(screen.getByRole('link', { name: 'Explore Pretext' })).toHaveAttribute(
         'href',
@@ -72,7 +72,7 @@ describe('Phase D landing alternatives', () => {
 
     expect(screen.getByRole('heading', {
       level: 1,
-      name: 'A precise place to write, measure, and finish your resume.',
+      name: 'A resume editor that shows its work.',
     })).toBeInTheDocument()
   })
 

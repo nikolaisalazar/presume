@@ -2,16 +2,16 @@ export type LandingIterationTwoConcept = 'standard' | 'folio'
 
 export const ITERATION_TWO_HERO = {
   standard: {
-    eyebrow: 'A local-first resume editor',
-    title: 'A precise place to write, measure, and finish your resume.',
+    eyebrow: 'A local-first resume workbench',
+    title: 'A resume editor that shows its work.',
     description:
-      'Edit the document directly, see fit pressure while you write, request an optional evidence-based review, and export a stable PDF without creating an account.',
+      'Write on the document, inspect fit pressure while it changes, request optional advisory evidence, and export a stable PDF from the same controlled surface.',
   },
   folio: {
-    eyebrow: 'Presume · Working notes 01',
-    title: 'A working document, with its constraints left visible.',
+    eyebrow: 'The project behind Presume',
+    title: 'It began as a resume project. The product grew around the document.',
     description:
-      'Presume is a resume project built as a complete product: direct editing, measurable fit, optional advisory review, and deterministic export on one local-first surface.',
+      'Presume was not conceived as another account-gated resume service. It is a personal tool developed until editing, measurement, review, and export felt like one complete product.',
   },
 } as const
 
@@ -44,6 +44,15 @@ export const ITERATION_TWO_WORKFLOW = [
   ['Review', 'Optionally inspect advisory evidence.'],
   ['Export', 'Create the PDF or carry the data forward.'],
 ] as const
+
+export const PROJECT_ORIGIN = {
+  introduction:
+    'Most resume builders begin with a form and reconstruct a document afterward. Presume began with the opposite question: what if the document stayed live while every supporting system formed around it?',
+  pretext:
+    "Cheng Lou's Pretext made the measurement layer both possible and legible. Presume uses its text-layout primitives to reason about multiline wrapping and exposes that relationship in the Fit Lab instead of hiding it behind marketing language.",
+  hiringAgent:
+    "HackerRank's open-source Hiring Agent helped make an evidence-oriented Review workflow concrete. Presume adapts that idea behind an optional service boundary, presents the result as advisory evidence, and never describes it as an ATS or lets it rewrite the resume.",
+} as const
 
 export function getIterationTwoConcept(search: string): LandingIterationTwoConcept {
   return new URLSearchParams(search).get('concept') === 'folio' ? 'folio' : 'standard'
