@@ -19,7 +19,25 @@ const concepts = [
   },
   {
     query: 'folio',
-    heading: 'It began as a resume project. The product grew around the document.',
+    heading: 'Presume is a local-first resume workbench.',
+  },
+] as const
+
+const folioHeroes = [
+  {
+    query: 'quiet',
+    heading: 'Presume is a local-first resume workbench.',
+    asset: '/presume/landing/handmade-paper.jpg',
+  },
+  {
+    query: 'direct',
+    heading: 'Edit the document. Measure the result.',
+    asset: '/presume/landing/printing-machine.jpg',
+  },
+  {
+    query: 'abstract',
+    heading: 'A working document, with its constraints left visible.',
+    asset: '/presume/landing/letterpress-type.jpg',
   },
 ] as const
 
@@ -62,6 +80,24 @@ describe('Phase D landing alternatives', () => {
       )
       expect(screen.queryByLabelText('Presume editor preview')).not.toBeInTheDocument()
       expect(container.querySelector('.resume-page')).not.toBeInTheDocument()
+    })
+  }
+
+  for (const hero of folioHeroes) {
+    it(`renders the complete ${hero.query} Folio hero`, () => {
+      window.history.pushState({}, '', `/presume/?concept=folio&hero=${hero.query}`)
+
+      const { container } = render(<App />)
+
+      expect(screen.getByRole('heading', { level: 1, name: hero.heading }))
+        .toBeInTheDocument()
+      expect(container.querySelector('[data-slot="folio-hero"]'))
+        .toHaveAttribute('data-hero', hero.query)
+      expect(container.querySelector('[data-slot="folio-hero"] img'))
+        .toHaveAttribute('src', hero.asset)
+      expect(container.querySelectorAll('[data-slot="button"]')).toHaveLength(3)
+      expect(container.querySelectorAll('[data-slot="card"]')).toHaveLength(0)
+      expect(screen.getByRole('region', { name: 'Pretext Fit Lab' })).toBeInTheDocument()
     })
   }
 

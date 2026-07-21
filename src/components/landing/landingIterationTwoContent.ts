@@ -1,4 +1,5 @@
 export type LandingIterationTwoConcept = 'standard' | 'folio'
+export type FolioHeroVariant = 'quiet' | 'direct' | 'abstract'
 
 export const ITERATION_TWO_HERO = {
   standard: {
@@ -56,4 +57,9 @@ export const PROJECT_ORIGIN = {
 
 export function getIterationTwoConcept(search: string): LandingIterationTwoConcept {
   return new URLSearchParams(search).get('concept') === 'folio' ? 'folio' : 'standard'
+}
+
+export function getFolioHeroVariant(search: string): FolioHeroVariant {
+  const variant = new URLSearchParams(search).get('hero')
+  return variant === 'direct' || variant === 'abstract' ? variant : 'quiet'
 }

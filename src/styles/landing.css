@@ -704,6 +704,385 @@
   }
 }
 
+/* Folio hero study: three complete openings above one shared page. */
+.folio-hero {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border-strong);
+}
+
+.folio-hero h1 {
+  margin: 0;
+  font-weight: 650;
+  letter-spacing: -0.055em;
+}
+
+.folio-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.folio-hero__actions > span {
+  color: inherit;
+  font-size: 0.75rem;
+  opacity: 0.68;
+}
+
+.folio-hero__credit {
+  z-index: 3;
+  border-radius: 2px;
+  color: inherit;
+  font-size: 0.625rem;
+  opacity: 0.62;
+  text-underline-offset: 3px;
+}
+
+.folio-hero--quiet {
+  display: grid;
+  min-height: 720px;
+  place-items: center;
+  color: var(--paper-ink);
+}
+
+.folio-hero--quiet::after {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background: rgb(255 254 251 / 68%);
+  content: '';
+}
+
+.folio-hero--quiet > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 46%;
+  filter: saturate(0.62) contrast(1.04);
+}
+
+.folio-hero--quiet__content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  width: min(910px, calc(100% - 64px));
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+}
+
+.folio-hero--quiet__content .landing-v2-kicker {
+  color: var(--primary-hover);
+}
+
+.folio-hero--quiet h1 {
+  max-width: 17ch;
+  margin-top: 17px;
+  font-size: clamp(3.75rem, 7.4vw, 6.65rem);
+  line-height: 0.93;
+}
+
+.folio-hero--quiet__content > p:not(.landing-v2-kicker) {
+  max-width: 60ch;
+  margin-top: 25px;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+
+.folio-hero--quiet .folio-hero__credit {
+  position: absolute;
+  right: 18px;
+  bottom: 15px;
+}
+
+.folio-hero--direct {
+  display: grid;
+  min-height: 690px;
+  grid-template-columns: minmax(0, 0.86fr) minmax(480px, 1.14fr);
+}
+
+.folio-hero--direct__copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(72px, 10vw, 124px) clamp(42px, 6vw, 78px) clamp(72px, 10vw, 124px) 0;
+}
+
+.folio-hero--direct h1 {
+  max-width: 10ch;
+  margin-top: 18px;
+  font-size: clamp(4rem, 7vw, 6.3rem);
+  line-height: 0.9;
+}
+
+.folio-hero--direct__copy > p:not(.landing-v2-kicker) {
+  max-width: 49ch;
+  margin-top: 26px;
+  color: var(--muted-foreground);
+  font-size: 1.0625rem;
+  line-height: 1.62;
+}
+
+.folio-hero--direct__image {
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  border-left: 1px solid var(--border);
+  background: #151918;
+  color: #f7fffd;
+}
+
+.folio-hero--direct__image::after {
+  position: absolute;
+  inset: 0;
+  background: rgb(9 15 13 / 16%);
+  content: '';
+}
+
+.folio-hero--direct__image > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 48% center;
+  filter: saturate(0.45) contrast(1.12);
+}
+
+.folio-hero--direct__image > p {
+  position: absolute;
+  z-index: 2;
+  bottom: 72px;
+  left: 0;
+  margin: 0;
+  padding: 14px 20px;
+  border-block: 1px solid rgb(247 255 253 / 46%);
+  background: rgb(9 15 13 / 82%);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.folio-hero--direct .folio-hero__credit {
+  position: absolute;
+  right: 18px;
+  bottom: 16px;
+  color: #f7fffd;
+}
+
+.folio-hero--abstract {
+  display: grid;
+  min-height: 720px;
+  grid-template-columns: minmax(0, 1.12fr) minmax(330px, 0.88fr);
+  grid-template-rows: auto 330px;
+}
+
+.folio-hero--abstract__heading,
+.folio-hero--abstract__summary {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+  padding-block: clamp(62px, 8vw, 96px);
+}
+
+.folio-hero--abstract__heading {
+  padding-right: clamp(44px, 7vw, 90px);
+}
+
+.folio-hero--abstract h1 {
+  max-width: 17ch;
+  margin-top: 17px;
+  font-size: clamp(3.35rem, 6.4vw, 5.7rem);
+  line-height: 0.95;
+}
+
+.folio-hero--abstract__summary {
+  padding-left: clamp(32px, 5vw, 64px);
+  border-left: 1px solid var(--border);
+}
+
+.folio-hero--abstract__summary > p {
+  max-width: 43ch;
+  color: var(--muted-foreground);
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.folio-hero--abstract__plate {
+  position: relative;
+  grid-column: 1 / -1;
+  overflow: hidden;
+  border-top: 1px solid var(--border);
+  background: #161817;
+  color: #f7fffd;
+}
+
+.folio-hero--abstract__plate::after {
+  position: absolute;
+  inset: 0;
+  background: rgb(10 13 12 / 26%);
+  content: '';
+}
+
+.folio-hero--abstract__plate > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 46%;
+  filter: grayscale(1) contrast(1.18);
+}
+
+.folio-hero--abstract__plate > div {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  width: 232px;
+  align-content: center;
+  grid-template-columns: 1fr;
+  gap: 4px;
+  padding: 32px;
+  border-left: 1px solid rgb(247 255 253 / 38%);
+  background: rgb(9 15 13 / 84%);
+}
+
+.folio-hero--abstract__plate > div span {
+  margin-top: 13px;
+  color: rgb(247 255 253 / 58%);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.folio-hero--abstract__plate > div strong {
+  font-size: 0.75rem;
+}
+
+.folio-hero--abstract .folio-hero__credit {
+  position: absolute;
+  z-index: 3;
+  bottom: 15px;
+  left: 18px;
+  color: #f7fffd;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .folio-hero > img,
+  .folio-hero [class$='__image'] > img,
+  .folio-hero--abstract__plate > img {
+    animation: folio-hero-image-settle 480ms var(--ease-standard) both;
+  }
+}
+
+@keyframes folio-hero-image-settle {
+  from {
+    opacity: 0.72;
+    transform: scale(1.018);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (max-width: 920px) {
+  .folio-hero--direct {
+    grid-template-columns: 1fr;
+  }
+
+  .folio-hero--direct__copy {
+    padding-right: 0;
+  }
+
+  .folio-hero--direct__image {
+    min-height: 390px;
+    border-top: 1px solid var(--border);
+    border-left: 0;
+  }
+
+  .folio-hero--abstract {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto 320px;
+  }
+
+  .folio-hero--abstract__heading {
+    padding-right: 0;
+  }
+
+  .folio-hero--abstract__summary {
+    padding: 0 0 64px;
+    border-left: 0;
+  }
+
+  .folio-hero--abstract__plate {
+    grid-column: 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .folio-hero {
+    min-height: 0;
+  }
+
+  .folio-hero--quiet {
+    display: block;
+    padding-block: 66px;
+    background: var(--paper);
+  }
+
+  .folio-hero--quiet > img,
+  .folio-hero--quiet::after,
+  .folio-hero--direct__image,
+  .folio-hero--abstract__plate {
+    display: none;
+  }
+
+  .folio-hero--quiet__content {
+    width: 100%;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .folio-hero--quiet h1,
+  .folio-hero--direct h1,
+  .folio-hero--abstract h1 {
+    max-width: 13ch;
+    font-size: clamp(2.8rem, 14vw, 4rem);
+  }
+
+  .folio-hero--quiet .folio-hero__credit {
+    display: none;
+  }
+
+  .folio-hero__actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .folio-hero__actions > [data-slot='button'] {
+    min-height: 44px;
+  }
+
+  .folio-hero--direct__copy,
+  .folio-hero--abstract__heading {
+    padding-block: 66px;
+  }
+
+  .folio-hero--abstract__summary {
+    padding-bottom: 66px;
+  }
+}
+
 /* ReadMe-led proposal: technical evidence is part of the hero itself. */
 .landing-v2-readme-hero {
   display: grid;
