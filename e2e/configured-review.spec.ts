@@ -39,6 +39,9 @@ test.describe('configured review browser contracts', () => {
     await expect(page.locator('.fit-region')).toHaveCSS('width', '24px')
     const fitTrigger = page.locator('.fit-region [data-slot="collapsible-trigger"]')
     await fitTrigger.focus()
+    await page.keyboard.press('Tab')
+    await page.keyboard.press('Shift+Tab')
+    await expect(fitTrigger).toBeFocused()
     const fitFocus = await fitTrigger.evaluate(element => {
       const style = getComputedStyle(element)
       return { outline: style.outlineStyle, boxShadow: style.boxShadow }
