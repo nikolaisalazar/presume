@@ -556,11 +556,11 @@ rg -n "#[0-9a-fA-F]{3,8}|rgba?\(|oklch\(|rounded-(lg|xl|2xl)|border-radius|box-s
 - [ ] Mark this program complete only after all five PRs are merged and final QA passes.
 - [x] Note any intentionally deferred work as a separate issue; do not leave vague “later” bullets that look like unfinished scope. Phase E introduces no unnamed deferral.
 
-> **Phase E reviewed checkpoint — 2026-07-22:** The conservative audit retired 220 stylesheet lines and added 20 contract-preserving lines, including the `--shadow-page` bridge still consumed by protected resume styling. Every remaining custom class has a source consumer. One confirmed Light-theme accent contrast defect moved from 4.400:1 to 5.552:1 by reusing `--primary-hover`; no subjective refresh or speculative abstraction was introduced. `npm run verify` passes 223 frontend and 50 backend tests, the production build passes, and both E2E configurations pass 10/10. Direct visual QA covers the complete landing and editor matrices, all Review states, keyboard/focus restoration, reduced motion, theme persistence, browser back, the 50%-zoom-equivalent viewport, and PDF rendering. Independent review of checkpoint `b0346c76f0bddb7c9667d146c848676d1781793b` found no Critical, Important, or Minor issues. This later documentation-only review-record commit is not part of that reviewed head. Phase E is PR #40, opened from documentation checkpoint `a3ec9e5b7fccc3d9a32bbc195dc7d0a8700931c8`; merge evidence remains pending.
+> **Phase E PR remediation — 2026-07-22:** The conservative audit retires 220 stylesheet lines and adds 23 contract-preserving or accessibility-correcting lines, including the `--shadow-page` bridge still consumed by protected resume styling. Every remaining custom class has a source consumer. The Light accent defect moves from 4.400:1 to 5.552:1. A fresh context-isolated review of PR head `8cf79feb52b1653ca3da496f8e18803112c90b53` then found standalone custom focus outlines measuring only 1.747–1.960:1 and incomplete retirement-test coverage. The test-first remediation pairs application outlines with `--focus-contrast`, theme-independent document controls with `--paper-ink`, and expands the retirement boundary. `npm run verify` now passes 224 frontend and 50 backend tests; the production build and both E2E configurations pass 10/10. Direct Light/Dark focus inspection confirms the approved two-edge treatment. The earlier full route/PDF/reduced-motion matrix remains valid because geometry, behavior, and document output are unchanged. Final remediation re-review and merge evidence remain pending for PR #40.
 
 ### Task E4: Final release gate
 
-- [x] Run from a clean worktree:
+- [ ] Run from a clean worktree after the PR review remediation:
 
 ```sh
 NODE_OPTIONS=--no-experimental-webstorage npm run verify
@@ -591,7 +591,7 @@ git status --short --branch
 | `/presume/editor/` | representative desktop | reduced motion, keyboard only, 50% zoom, PDF export |
 
 - [x] Verify the resume remains `816px` wide, horizontal overflow remains inside `.resume-canvas-scroll`, and exported PDFs are theme- and zoom-independent.
-- [x] Request one final independent read-only review of the complete program state. Checkpoint `b0346c76f0bddb7c9667d146c848676d1781793b` passed with no Critical, Important, or Minor findings.
+- [ ] Obtain final independent re-review of the context-isolated review remediation. The fresh review of PR head `8cf79feb52b1653ca3da496f8e18803112c90b53` found one Important focus-contrast defect and one Minor test-boundary gap; both are remediated pending exact-head re-review.
 - [ ] PR E is #40. Merge only when the repository-required `verify` check and the recorded visual gate pass.
 
 ---

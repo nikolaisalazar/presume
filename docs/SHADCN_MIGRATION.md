@@ -196,11 +196,11 @@ The Node 24 workflow-maintenance follow-up is not a visual phase: PR #39, checkp
 
 Automated verification:
 
-- `npm run verify` passes 22 Vitest files / 223 frontend tests and 50 backend tests. On the local Node 26.5 host, `NODE_OPTIONS=--no-experimental-webstorage` disables Node's incomplete process-level `localStorage` so Vitest's jsdom environment owns the API; repository CI remains pinned to Node 24.
+- `npm run verify` passes 22 Vitest files / 224 frontend tests and 50 backend tests. On the local Node 26.5 host, `NODE_OPTIONS=--no-experimental-webstorage` disables Node's incomplete process-level `localStorage` so Vitest's jsdom environment owns the API; repository CI remains pinned to Node 24.
 - The production build passes after 6,746 modules are transformed. The existing JavaScript chunk-size advisory remains non-blocking and is not a Phase E visual-system defect.
 - Both Playwright configurations pass under `CI=1`: 7 unconfigured contracts and 3 configured-Review contracts.
-- The cleanup removes 220 lines from the two application stylesheets while adding 20 contract-preserving lines. Every remaining custom class selector has a source consumer. Superseded shell aliases, unused chart/sidebar/Review tokens, dead Review selector generations, and one duplicated Review declaration are retired; the `--shadow-page` bridge remains because protected resume styling consumes it.
-- Focused tests enforce the retired-token/selector boundary, semantic `4px` Review-category radius, and Light/Dark accent contrast.
+- The cleanup removes 220 lines from the two application stylesheets while adding 23 contract-preserving or accessibility-correcting lines. Every remaining custom class selector has a source consumer. Superseded shell aliases, unused chart/sidebar/Review tokens, dead Review selector generations, and one duplicated Review declaration are retired; the `--shadow-page` bridge remains because protected resume styling consumes it.
+- Focused tests enforce the complete retired-token/selector boundary, semantic `4px` Review-category radius, Light/Dark accent contrast, and the two-color focus edge on custom application and document controls.
 
 Direct visual QA:
 
@@ -213,8 +213,9 @@ Direct visual QA:
 Contrast disposition:
 
 - The deferred Phase A contrast note was re-tested. Light `--accent-foreground` on `--accent` measured 4.400:1 and was a confirmed WCAG 2.2 AA defect in focused Fit steppers. Mapping the foreground to the existing `--primary-hover` token raises the pair to 5.552:1 without new art direction. All audited body, muted, action, focus-companion, warning, success, error, and Review text pairs pass their applicable thresholds.
+- A fresh context-isolated PR review found that three custom Verdigris focus outlines lacked their darker companion edge in Light mode. The standalone ring measured 1.747–1.960:1 against adjacent application/paper surfaces. Review disclosures and landing links now pair it with `--focus-contrast`; theme-independent in-document controls pair it with `--paper-ink`. Direct Light/Dark browser inspection confirms the approved two-edge treatment remains visible without changing geometry or behavior.
 
-Independent review of checkpoint `b0346c76f0bddb7c9667d146c848676d1781793b` found no Critical, Important, or Minor issues and concluded the branch was ready to merge. This later documentation-only review-record commit is not part of that reviewed head. Phase E is PR #40, opened from documentation checkpoint `a3ec9e5b7fccc3d9a32bbc195dc7d0a8700931c8`; merge evidence remains pending. The program must not be marked complete until the merge commit and required-check result are recorded.
+An earlier independent review of checkpoint `b0346c76f0bddb7c9667d146c848676d1781793b` found no remaining issues after its shadow-token remediation. A later context-isolated review of PR head `8cf79feb52b1653ca3da496f8e18803112c90b53` found the focus-edge defect above and incomplete retirement-test coverage; both were corrected test-first. Final remediation re-review and merge evidence remain pending for PR #40, and the program is not yet complete.
 
 ### Later evaluation
 

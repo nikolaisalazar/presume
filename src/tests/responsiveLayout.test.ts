@@ -63,10 +63,10 @@ describe('custom editor CSS invariants', () => {
     expect(appCss).not.toContain('.app-header__status')
     expect(appCss).not.toContain('@media (max-width: 1220px)')
     expect(appCss).not.toMatch(
-      /--(?:app-bg|app-bg-deep|danger|editor-stage-surface|focus|ink|line|shadow-panel|shadow-stage|stage-surface|surface-subtle):/
+      /--(?:app-bg|app-bg-deep|danger|editor-stage-surface|focus|ink|line|shadow-page-premium|shadow-panel|shadow-stage|stage-surface|surface-subtle):/
     )
     expect(appCss).not.toMatch(
-      /\.(?:landing-nav__brand|review-annotation-explorer__detail|review-annotation-legend|review-annotation__meta|review-annotations__list|review-category-detail__heading|review-category-grid|review-findings|review-list|review-subsection-heading)(?![\w-])/
+      /\.(?:landing-nav__brand|review-annotation-explorer__(?:detail|heading)|review-annotation-legend(?:__item|__label|__swatch)?|review-annotation__meta|review-annotations__list|review-category-detail__heading|review-category-grid|review-findings|review-list(?:__item|__meta)?|review-subsection-heading)(?![\w-])/
     )
   })
 

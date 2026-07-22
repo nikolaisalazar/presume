@@ -400,6 +400,7 @@ body {
   border-radius: var(--radius-control);
   outline: 2px solid var(--ring);
   outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--focus-contrast);
 }
 
 .review-disclosure__list,
@@ -776,6 +777,7 @@ body {
 .editor-control:focus-visible {
   outline: calc(2px * var(--resume-layout-scale)) solid var(--ring);
   outline-offset: calc(2px * var(--resume-layout-scale));
+  box-shadow: 0 0 0 calc(2px * var(--resume-layout-scale)) var(--paper-ink);
 }
 
 .editor-control--add:hover,
@@ -1127,6 +1129,7 @@ body {
 .landing-page__main a:focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: 3px;
+  box-shadow: 0 0 0 2px var(--focus-contrast);
 }
 
 .landing-page [data-slot='button']:focus-visible {
