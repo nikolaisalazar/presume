@@ -1,12 +1,7 @@
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
+import { BrandMark } from '@/components/BrandMark'
+import { FitLab } from '@/components/landing/FitLab'
 import { ThemeControl } from '@/components/ThemeControl'
 
 export interface LandingPageProps {
@@ -14,213 +9,211 @@ export interface LandingPageProps {
   onOpenEditor: () => void
 }
 
+const CAPABILITIES = [
+  {
+    title: 'Write on the document',
+    description:
+      'Edit names, dates, sections, and bullets where they appear instead of translating them through a separate form.',
+  },
+  {
+    title: 'Measure while it changes',
+    description:
+      'Page count, line wrapping, and minimum type size remain visible while the content is still editable.',
+  },
+  {
+    title: 'Review as evidence',
+    description:
+      'When configured, Review returns category scores and supporting evidence without rewriting your words.',
+  },
+  {
+    title: 'Leave with a stable artifact',
+    description:
+      'Export a Letter-size PDF or a portable JSON backup from the same source used by the editor.',
+  },
+] as const
+
+const WORKFLOW = [
+  ['Write', 'Work directly on the live document.'],
+  ['Measure', 'Expose wrapping and page pressure.'],
+  ['Review', 'Optionally inspect advisory evidence.'],
+  ['Export', 'Create the PDF or carry the data forward.'],
+] as const
+
+function editorActionLabel(hasSavedResume: boolean, freshLabel: string) {
+  return hasSavedResume ? 'Continue editing' : freshLabel
+}
+
 export function LandingPage({ hasSavedResume, onOpenEditor }: LandingPageProps) {
   return (
-    <div className="flex min-h-screen flex-col items-center gap-[18px] px-3 pt-3.5 pb-10 text-foreground min-[641px]:px-4 min-[641px]:pt-6 min-[641px]:pb-14 min-[961px]:px-7">
+    <div className="landing-page">
       <header
-        className="flex w-full max-w-[1120px] flex-col items-stretch justify-between gap-4 rounded-xl border border-border/80 bg-card/75 p-3.5 shadow-[var(--shadow-panel)] min-[641px]:flex-row min-[641px]:items-center"
+        className="landing-page__header"
         aria-label="Presume landing navigation"
       >
-        <a
-          className="landing-nav__brand inline-flex items-center gap-2.5 text-sm font-extrabold text-foreground no-underline"
-          href="/presume/"
-          aria-label="Presume home"
-        >
-          <span className="app-header__brand-mark" aria-hidden="true">P</span>
+        <a className="landing-page__brand" href="/presume/" aria-label="Presume home">
+          <BrandMark />
           <span>Presume</span>
         </a>
-        <div className="flex flex-wrap items-center justify-between gap-2 min-[641px]:justify-end">
+        <div className="landing-page__header-actions">
           <ThemeControl />
-          <Button
-            variant="outline"
-            className="h-11 min-[641px]:h-8"
-            onClick={onOpenEditor}
-          >
-            {hasSavedResume ? 'Continue editing' : 'Open editor'}
+          <Button variant="outline" onClick={onOpenEditor}>
+            {editorActionLabel(hasSavedResume, 'Open editor')}
           </Button>
         </div>
       </header>
 
-      <main className="flex w-full max-w-[1120px] flex-col gap-[18px]">
+      <main className="landing-page__main">
         <section
-          className="grid grid-cols-1 items-center gap-9 rounded-xl border border-border/80 bg-card/75 p-[22px] shadow-[var(--shadow-panel)] min-[641px]:p-8 min-[921px]:grid-cols-[minmax(0,0.95fr)_minmax(340px,0.75fr)]"
+          className="landing-hero"
+          data-slot="landing-hero"
           aria-labelledby="landing-title"
         >
-          <div className="max-w-[670px]">
-            <p className="mb-2.5 text-[13px] font-extrabold text-accent-foreground">
-              Direct-editing resume workspace
-            </p>
-            <h1
-              id="landing-title"
-              className="max-w-[11ch] text-[clamp(2.625rem,5.2vw,3.625rem)] leading-[0.98] font-extrabold tracking-[-0.04em] text-balance text-foreground"
-            >
-              Edit your resume like the final document.
-            </h1>
-            <p className="mt-[22px] max-w-[60ch] text-base leading-[1.65] text-muted-foreground text-pretty">
-              Presume gives you a fixed resume canvas, inline editing, fit guidance, and export tools in one focused workspace.
-            </p>
-            <div className="mt-7 flex flex-wrap items-center gap-3.5">
-              <Button size="lg" onClick={onOpenEditor}>
-                {hasSavedResume ? 'Continue editing' : 'Start editing'}
-              </Button>
-              <div className="flex flex-wrap items-center gap-2 text-[13px] font-semibold text-muted-foreground">
-                <Badge variant="outline">No account required</Badge>
-                <span>Stored locally in your browser</span>
-              </div>
-            </div>
-          </div>
-
-          <div
-            className="hidden rounded-2xl border border-border/75 bg-[image:var(--stage-surface)] p-3.5 shadow-[var(--shadow-stage)] min-[641px]:block"
-            role="img"
-            aria-label="Presume editor preview"
+          <picture
+            className="landing-hero__media"
+            data-slot="landing-hero-media"
+            aria-hidden="true"
           >
-            <div className="mb-3.5 flex justify-between gap-3 rounded-xl border border-border/70 bg-card/85 px-3 py-2.5 text-xs font-extrabold text-secondary-foreground">
-              <span>Fit constraints</span>
-              <span>1 page · 1 line · 8px</span>
-            </div>
-            <div className="rounded-xl bg-[image:var(--stage-surface)] p-5">
-              <div className="mx-auto min-h-[426px] w-full max-w-[330px] rounded-md bg-card px-8 py-[34px] shadow-[var(--shadow-page-premium)]">
-                <div className="h-[13px] w-[62%] bg-foreground" />
-                <div className="mt-3 h-2 w-[44%] rounded-full bg-border" />
-                <div className="my-[18px] h-0.5 w-full bg-foreground" />
-                <div className="mt-3 h-2 rounded-full bg-border" />
-                <div className="mt-3 h-2 rounded-full bg-border" />
-                <div className="mt-3 h-2 w-[72%] rounded-full bg-border" />
-                <div className="my-[18px] h-0.5 w-full bg-foreground" />
-                <div className="mt-3 h-2 rounded-full bg-border" />
-                <div className="mt-3 h-2 w-[44%] rounded-full bg-border" />
-              </div>
+            <source
+              media="(min-width: 641px)"
+              type="image/webp"
+              srcSet="/presume/landing/handmade-paper-1120.webp 1120w, /presume/landing/handmade-paper-2200.webp 2200w"
+              sizes="(max-width: 1120px) calc(100vw - 48px), 1120px"
+            />
+            <img
+              src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
+              alt=""
+              width="1120"
+              height="720"
+            />
+          </picture>
+          <div className="landing-hero__content">
+            <p className="landing-kicker">Presume</p>
+            <h1 id="landing-title">Presume is a local-first resume workbench.</h1>
+            <p className="landing-hero__description">
+              A personal resume project developed into a complete tool for direct
+              editing, measurable fit, optional review, and stable export.
+            </p>
+            <div className="landing-hero__actions">
+              <Button size="lg" onClick={onOpenEditor}>
+                {editorActionLabel(hasSavedResume, 'Open the editor')}
+              </Button>
+              <span>Open project · No account required</span>
             </div>
           </div>
+          <a
+            className="landing-hero__credit"
+            href="https://unsplash.com/photos/DsPYLmU4Ty0"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Photograph: 360floralflaves / Unsplash
+          </a>
         </section>
 
-        <section
-          className="grid grid-cols-1 items-stretch gap-3.5 min-[641px]:grid-cols-2 min-[921px]:grid-cols-4"
-          aria-label="Features"
-        >
-          <Card size="sm" className="h-full">
-            <CardHeader>
-              <CardTitle><h2>Direct inline editing</h2></CardTitle>
-              <CardDescription>
-                <p>Edit the resume itself instead of translating your history through a long form.</p>
-              </CardDescription>
-            </CardHeader>
-          </Card>
-          <Card size="sm" className="h-full">
-            <CardHeader>
-              <CardTitle><h2>Fit constraints</h2></CardTitle>
-              <CardDescription>
-                <p>Keep page count, bullet wrapping, and type size visible while you shape content.</p>
-              </CardDescription>
-            </CardHeader>
-          </Card>
-          <Card size="sm" className="h-full">
-            <CardHeader>
-              <CardTitle><h2>PDF + JSON export</h2></CardTitle>
-              <CardDescription>
-                <p>Export a polished PDF and keep a portable JSON backup of your resume data.</p>
-              </CardDescription>
-            </CardHeader>
-          </Card>
-          <Card size="sm" className="h-full">
-            <CardHeader>
-              <CardTitle><h2>Optional advisory review</h2></CardTitle>
-              <CardDescription>
-                <p>When configured, request a non-mutating review without changing your document.</p>
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </section>
-
-        <section
-          className="grid grid-cols-1 items-start gap-7 rounded-xl border border-border/80 bg-card/75 p-[30px] shadow-[var(--shadow-panel)] min-[921px]:grid-cols-[minmax(260px,0.62fr)_minmax(0,1fr)]"
-          aria-labelledby="why-title"
-        >
-          <div>
-            <h2 id="why-title" className="text-lg leading-tight font-bold tracking-[-0.025em] text-balance">
-              Why direct editing?
-            </h2>
-            <p className="mt-2.5 max-w-[38ch] text-sm leading-[1.55] text-muted-foreground text-pretty">
-              Resume editing should happen where the resume is actually read. Presume keeps layout, fit, and content decisions on the same surface.
+        <section className="landing-origins" aria-labelledby="origins-title">
+          <div className="landing-origins__heading">
+            <p className="landing-kicker">Why Presume exists</p>
+            <h2 id="origins-title">The document came first.</h2>
+            <p>
+              Most resume builders begin with a form and reconstruct a document
+              afterward. Presume began with the opposite question: what if the
+              document stayed live while every supporting system formed around it?
             </p>
           </div>
-          <div className="grid grid-cols-1 overflow-hidden rounded-xl border border-border/70 bg-secondary/70 min-[921px]:grid-cols-2">
-            <article className="p-[18px]">
-              <h3 className="text-lg leading-tight font-bold tracking-[-0.025em] text-balance">
-                Form-first builders
-              </h3>
-              <ul className="mt-3.5 flex list-none flex-col gap-2 p-0 text-[13px] leading-[1.45] text-muted-foreground">
-                <li className="relative pl-[18px] before:absolute before:top-[0.58em] before:left-0 before:size-1.5 before:border before:border-primary/35 before:bg-card before:content-['']">Edit fields somewhere else</li>
-                <li className="relative pl-[18px] before:absolute before:top-[0.58em] before:left-0 before:size-1.5 before:border before:border-primary/35 before:bg-card before:content-['']">Guess how bullets will wrap</li>
-                <li className="relative pl-[18px] before:absolute before:top-[0.58em] before:left-0 before:size-1.5 before:border before:border-primary/35 before:bg-card before:content-['']">Find layout surprises at export</li>
-              </ul>
-            </article>
-            <article className="border-t border-border/70 bg-primary/5 p-[18px] min-[921px]:border-t-0 min-[921px]:border-l">
-              <h3 className="text-lg leading-tight font-bold tracking-[-0.025em] text-balance">
-                Presume keeps the document live
-              </h3>
-              <ul className="mt-3.5 flex list-none flex-col gap-2 p-0 text-[13px] leading-[1.45] text-muted-foreground">
-                <li className="relative pl-[18px] before:absolute before:top-[0.58em] before:left-0 before:size-1.5 before:bg-primary before:content-['']">Edit directly on the resume</li>
-                <li className="relative pl-[18px] before:absolute before:top-[0.58em] before:left-0 before:size-1.5 before:bg-primary before:content-['']">See fit constraints while writing</li>
-                <li className="relative pl-[18px] before:absolute before:top-[0.58em] before:left-0 before:size-1.5 before:bg-primary before:content-['']">Export from the same surface</li>
-              </ul>
-            </article>
-          </div>
-          <div className="col-span-full -mt-2 flex flex-col gap-3">
-            <Separator />
-            <p className="text-[13px] font-semibold text-muted-foreground">
-              Not a job board, account-gated builder, or resume content farm.
-            </p>
+          <div className="landing-origins__chapters">
+            <section>
+              <span>01 / Measurement</span>
+              <h3>Pretext made fit observable.</h3>
+              <p>
+                Cheng Lou&apos;s Pretext made the measurement layer both possible
+                and legible. Presume uses its text-layout primitives to reason
+                about multiline wrapping and exposes that relationship in the Fit
+                Lab instead of hiding it behind marketing language.
+              </p>
+              <a href="https://github.com/chenglou/pretext">
+                Explore Pretext<span aria-hidden="true"> ↗</span>
+              </a>
+            </section>
+            <section>
+              <span>02 / Advisory review</span>
+              <h3>Hiring Agent made the review boundary tangible.</h3>
+              <p>
+                HackerRank&apos;s open-source Hiring Agent helped make an
+                evidence-oriented Review workflow concrete. Presume adapts that
+                idea behind an optional service boundary, presents the result as
+                advisory evidence, and never lets it rewrite the resume.
+              </p>
+              <a href="https://github.com/interviewstreet/hiring-agent">
+                Explore Hiring Agent<span aria-hidden="true"> ↗</span>
+              </a>
+            </section>
           </div>
         </section>
 
-        <section
-          className="flex flex-col gap-7 rounded-xl border border-border/80 bg-card/75 p-[30px] shadow-[var(--shadow-panel)]"
-          aria-labelledby="workflow-title"
-        >
-          <div className="max-w-[760px]">
-            <p className="mb-2.5 text-[13px] font-extrabold text-accent-foreground">Workflow</p>
-            <h2 id="workflow-title" className="text-lg leading-tight font-bold tracking-[-0.025em] text-balance">
-              From draft to export without leaving the page.
-            </h2>
+        <section className="landing-fit-study" aria-label="Working product example">
+          <div className="landing-fit-study__introduction">
+            <p className="landing-kicker">A working example</p>
+            <h2>Pretext, exposed as a small experiment.</h2>
+            <p>Change either input and inspect the line geometry Presume receives.</p>
           </div>
-          <ol className="relative grid list-none grid-cols-1 items-stretch gap-[18px] pt-1.5 pl-[26px] before:absolute before:top-5 before:bottom-5 before:left-[21px] before:w-px before:bg-primary/30 before:content-[''] min-[921px]:grid-cols-3 min-[921px]:gap-0 min-[921px]:pl-0 min-[921px]:before:top-[27px] min-[921px]:before:right-[7%] min-[921px]:before:bottom-auto min-[921px]:before:left-[7%] min-[921px]:before:h-px min-[921px]:before:w-auto">
-            <li className="relative grid min-h-0 grid-rows-[auto_auto_1fr] content-start gap-2.5 pl-7 after:absolute after:bottom-[-18px] after:left-[-11px] after:text-base after:font-extrabold after:leading-none after:text-accent-foreground/60 after:content-['↓'] min-[921px]:min-h-[132px] min-[921px]:pr-7 min-[921px]:pl-0 min-[921px]:after:top-[15px] min-[921px]:after:right-[22px] min-[921px]:after:bottom-auto min-[921px]:after:left-auto min-[921px]:after:text-lg min-[921px]:after:content-['→']">
-              <span className="relative z-[1] block size-[18px] border-[3px] border-card bg-primary shadow-[0_0_0_1px_color-mix(in_oklch,var(--primary),transparent_72%),0_10px_24px_rgba(15,23,42,0.08)]" aria-hidden="true" />
-              <strong className="text-sm text-secondary-foreground">Edit directly</strong>
-              <span className="max-w-[28ch] text-[13px] leading-[1.45] text-muted-foreground">Click into names, bullets, sections, and dates.</span>
-            </li>
-            <li className="relative grid min-h-0 grid-rows-[auto_auto_1fr] content-start gap-2.5 pl-7 after:absolute after:bottom-[-18px] after:left-[-11px] after:text-base after:font-extrabold after:leading-none after:text-accent-foreground/60 after:content-['↓'] min-[921px]:min-h-[132px] min-[921px]:pr-7 min-[921px]:pl-0 min-[921px]:after:top-[15px] min-[921px]:after:right-[22px] min-[921px]:after:bottom-auto min-[921px]:after:left-auto min-[921px]:after:text-lg min-[921px]:after:content-['→']">
-              <span className="relative z-[1] block size-[18px] border-[3px] border-card bg-primary shadow-[0_0_0_1px_color-mix(in_oklch,var(--primary),transparent_72%),0_10px_24px_rgba(15,23,42,0.08)]" aria-hidden="true" />
-              <strong className="text-sm text-secondary-foreground">Keep it fitting</strong>
-              <span className="max-w-[28ch] text-[13px] leading-[1.45] text-muted-foreground">Use fit warnings and constraints as guardrails.</span>
-            </li>
-            <li className="relative grid min-h-0 grid-rows-[auto_auto_1fr] content-start gap-2.5 pl-7 after:hidden min-[921px]:min-h-[132px] min-[921px]:pr-7 min-[921px]:pl-0">
-              <span className="relative z-[1] block size-[18px] border-[3px] border-card bg-primary shadow-[0_0_0_1px_color-mix(in_oklch,var(--primary),transparent_72%),0_10px_24px_rgba(15,23,42,0.08)]" aria-hidden="true" />
-              <strong className="text-sm text-secondary-foreground">Export when ready</strong>
-              <span className="max-w-[28ch] text-[13px] leading-[1.45] text-muted-foreground">Save a PDF or carry your data forward as JSON.</span>
-            </li>
+          <FitLab />
+        </section>
+
+        <section className="landing-capabilities" aria-labelledby="capabilities-title">
+          <div className="landing-section-heading">
+            <p className="landing-kicker">What the workbench controls</p>
+            <h2 id="capabilities-title">
+              The document stays central from first edit to final export.
+            </h2>
+            <p>
+              The project behaves like a complete product without pretending to
+              be a conventional SaaS business.
+            </p>
+          </div>
+          <ol className="landing-capabilities__register">
+            {CAPABILITIES.map((item, index) => (
+              <li key={item.title} data-slot="capability-row">
+                <span>0{index + 1}</span>
+                <h3>{item.title}</h3>
+                <p>{item.description}</p>
+              </li>
+            ))}
           </ol>
         </section>
 
-        <section
-          className="grid grid-cols-1 items-center gap-[18px] rounded-xl border border-border/80 bg-card/75 px-[26px] py-6 shadow-[var(--shadow-panel)] min-[921px]:grid-cols-[minmax(0,1fr)_auto_auto]"
-          aria-label="Privacy and storage"
-        >
-          <div>
-            <h2 className="text-lg leading-tight font-bold tracking-[-0.025em] text-balance">Private by default</h2>
-            <p className="mt-2.5 max-w-[62ch] text-sm leading-[1.55] text-muted-foreground text-pretty">
-              Presume is built as a convenient local-first editor. Your resume is saved in browser storage,
-              and JSON export gives you an explicit backup you control.
+        <section className="landing-workflow" aria-labelledby="workflow-title">
+          <div className="landing-section-heading">
+            <p className="landing-kicker">Operating sequence</p>
+            <h2 id="workflow-title">Write → Measure → Review → Export</h2>
+            <p>
+              Review is optional. Every other stage remains available without a
+              configured service.
             </p>
           </div>
-          <ul className="flex list-disc flex-col gap-1.5 pl-[18px] text-[13px] leading-[1.35] text-secondary-foreground">
-            <li>No account required</li>
-            <li>Saved locally in your browser</li>
-            <li>Optional review only when configured</li>
-          </ul>
-          <Button size="lg" onClick={onOpenEditor}>Open the editor</Button>
+          <ol>
+            {WORKFLOW.map(([title, description], index) => (
+              <li key={title} data-slot="workflow-step">
+                <span>0{index + 1}</span>
+                <div>
+                  <h3>{title}</h3>
+                  {title === 'Review' ? <Badge variant="outline">Optional</Badge> : null}
+                  <p>{description}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section className="landing-final" aria-labelledby="final-action-title">
+          <div>
+            <p className="landing-kicker">The workbench is ready</p>
+            <h2 id="final-action-title">
+              Open the document and start where the work happens.
+            </h2>
+          </div>
+          <Button size="lg" onClick={onOpenEditor}>
+            {editorActionLabel(hasSavedResume, 'Open the editor')}
+          </Button>
         </section>
       </main>
     </div>

@@ -1,4 +1,5 @@
 import { ThemeControl } from './ThemeControl'
+import { BrandMark } from './BrandMark'
 
 export interface AppHeaderProps {
   onOpenLanding: () => void
@@ -16,7 +17,7 @@ export function AppHeader({ onOpenLanding }: AppHeaderProps) {
           onOpenLanding()
         }}
       >
-        <span className="app-header__brand-mark" aria-hidden="true">P</span>
+        <BrandMark />
         <h1>Presume</h1>
       </a>
       <div className="app-header__meta" aria-label="Editor status and appearance">
