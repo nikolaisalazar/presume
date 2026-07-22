@@ -129,6 +129,7 @@ test.describe('unconfigured browser contracts', () => {
         const hero = document.querySelector<HTMLElement>('[data-slot="landing-hero"]')!
         const heroImage = hero.querySelector<HTMLElement>('[data-slot="landing-hero-media"]')!
         const heroCopy = hero.querySelector<HTMLElement>('.landing-hero__content')!
+        const heroHeading = hero.querySelector<HTMLElement>('h1')!
         const capabilities = Array.from(
           document.querySelectorAll<HTMLElement>('[data-slot="capability-row"]')
         ).map(row => row.getBoundingClientRect())
@@ -137,7 +138,11 @@ test.describe('unconfigured browser contracts', () => {
         ).map(step => step.getBoundingClientRect())
         const heroRect = hero.getBoundingClientRect()
         const heroCopyRect = heroCopy.getBoundingClientRect()
+        const heroHeadingRect = heroHeading.getBoundingClientRect()
         const imageVisible = getComputedStyle(heroImage).display !== 'none'
+        const heroHeadingLineHeight = Number.parseFloat(
+          getComputedStyle(heroHeading).lineHeight
+        )
 
         return {
           bodyClientWidth: document.documentElement.clientWidth,
@@ -145,6 +150,13 @@ test.describe('unconfigured browser contracts', () => {
           headerActionHeight: Math.round(headerAction.getBoundingClientRect().height),
           headerFlexDirection: getComputedStyle(header).flexDirection,
           imageVisible,
+          heroHeadingFontSize: Number.parseFloat(
+            getComputedStyle(heroHeading).fontSize
+          ),
+          heroHeadingWidth: Math.round(heroHeadingRect.width),
+          heroHeadingLines: Math.round(
+            heroHeadingRect.height / heroHeadingLineHeight
+          ),
           featureLefts: capabilities.map(row => Math.round(row.left)),
           featureTops: capabilities.map(row => Math.round(row.top)),
           workflowLefts: steps.map(step => Math.round(step.left)),
@@ -158,6 +170,15 @@ test.describe('unconfigured browser contracts', () => {
         }
       })
     }
+
+    const at358 = await collectBoundaryMetrics(358)
+    expect.soft(
+      at358.heroHeadingLines,
+      `hero heading lines at 358px (${at358.heroHeadingWidth}px wide at ${at358.heroHeadingFontSize}px)`
+    ).toBeLessThanOrEqual(3)
+    expect.soft(at358.documentScrollWidth, 'document overflow at 358px').toBeLessThanOrEqual(
+      at358.bodyClientWidth
+    )
 
     const at640 = await collectBoundaryMetrics(640)
     expect.soft(at640.headerActionHeight, 'header action height at 640px').toBeGreaterThanOrEqual(44)

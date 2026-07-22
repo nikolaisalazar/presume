@@ -1677,8 +1677,8 @@ body {
   }
 
   .landing-hero h1 {
-    max-width: 13ch;
-    font-size: clamp(2.8rem, 14vw, 4rem);
+    max-width: 100%;
+    font-size: clamp(2.3rem, 9vw, 3.6rem);
   }
 
   .landing-hero__actions {

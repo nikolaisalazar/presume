@@ -196,18 +196,17 @@ test.describe('configured review browser contracts', () => {
     const appearance = page.getByRole('group', { name: 'Appearance' })
     for (const theme of ['Light', 'Dark']) {
       await appearance.getByRole('button', { name: theme }).click()
+      await expect(page.locator('html')).toHaveAttribute(
+        'data-theme',
+        theme.toLowerCase()
+      )
       await annotationMarker.focus()
-      const annotationFocus = await annotationMarker.evaluate(element => {
-        const style = getComputedStyle(element)
-        return {
-          outlineColor: style.outlineColor,
-          outlineStyle: style.outlineStyle,
-          outlineWidth: style.outlineWidth,
-        }
-      })
-      expect(annotationFocus.outlineColor).toBe('rgb(16, 24, 39)')
-      expect(annotationFocus.outlineStyle).toBe('solid')
-      expect(Number.parseFloat(annotationFocus.outlineWidth)).toBeGreaterThan(0)
+      await expect(annotationMarker).toBeFocused()
+      await expect(annotationMarker).toHaveCSS('outline-color', 'rgb(16, 24, 39)')
+      await expect(annotationMarker).toHaveCSS('outline-style', 'solid')
+      await expect.poll(async () => Number.parseFloat(
+        await annotationMarker.evaluate(element => getComputedStyle(element).outlineWidth)
+      )).toBeGreaterThan(0)
     }
     await page.getByRole('button', { name: 'Score', exact: true }).click()
     expect(requestCount).toBe(1)
