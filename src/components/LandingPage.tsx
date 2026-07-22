@@ -68,11 +68,24 @@ export function LandingPage({ hasSavedResume, onOpenEditor }: LandingPageProps) 
           data-slot="landing-hero"
           aria-labelledby="landing-title"
         >
-          <img
-            src="/presume/landing/handmade-paper.jpg"
-            alt=""
+          <picture
+            className="landing-hero__media"
+            data-slot="landing-hero-media"
             aria-hidden="true"
-          />
+          >
+            <source
+              media="(min-width: 641px)"
+              type="image/webp"
+              srcSet="/presume/landing/handmade-paper-1120.webp 1120w, /presume/landing/handmade-paper-2200.webp 2200w"
+              sizes="(max-width: 1120px) calc(100vw - 48px), 1120px"
+            />
+            <img
+              src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
+              alt=""
+              width="1120"
+              height="720"
+            />
+          </picture>
           <div className="landing-hero__content">
             <p className="landing-kicker">Presume</p>
             <h1 id="landing-title">Presume is a local-first resume workbench.</h1>

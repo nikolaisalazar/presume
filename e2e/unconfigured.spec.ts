@@ -127,7 +127,7 @@ test.describe('unconfigured browser contracts', () => {
         )!
         const headerAction = header.querySelector<HTMLElement>('[data-slot="button"]')!
         const hero = document.querySelector<HTMLElement>('[data-slot="landing-hero"]')!
-        const heroImage = hero.querySelector<HTMLElement>(':scope > img')!
+        const heroImage = hero.querySelector<HTMLElement>('[data-slot="landing-hero-media"]')!
         const heroCopy = hero.querySelector<HTMLElement>('.landing-hero__content')!
         const capabilities = Array.from(
           document.querySelectorAll<HTMLElement>('[data-slot="capability-row"]')
@@ -225,6 +225,61 @@ test.describe('unconfigured browser contracts', () => {
       outlineStyle: 'solid',
       boxShadow: expect.stringContaining('rgb(20, 121, 111)'),
     })
+  })
+
+  test('measures the rendered Fit Lab width and avoids hidden hero image transfer', async ({ page }) => {
+    await page.setViewportSize({ width: 560, height: 980 })
+    const heroImageRequests: string[] = []
+    page.on('request', request => {
+      if (request.url().includes('/landing/handmade-paper')) {
+        heroImageRequests.push(request.url())
+      }
+    })
+
+    await page.goto('./')
+    await expect(page.getByRole('region', { name: 'Pretext Fit Lab' })).toBeVisible()
+    expect(heroImageRequests).toEqual([])
+
+    const widthGroup = page.getByRole('group', { name: 'Measurement width' })
+    const widthButtons = widthGroup.getByRole('button')
+    await expect(widthButtons).toHaveCount(3)
+    expect(await widthButtons.evaluateAll(buttons =>
+      buttons.map(button => Math.round(button.getBoundingClientRect().height))
+    )).toEqual([44, 44, 44])
+
+    await widthGroup.getByRole('button', { name: '300px' }).click()
+    const constrainedText = page.locator('[data-slot="fit-lab-constrained-text"]')
+    const renderedWidthMetric = page
+      .locator('.landing-fit-lab__metrics > div')
+      .filter({ hasText: 'Rendered width' })
+      .locator('dd')
+    await expect(page.locator('.landing-fit-lab__status')).not.toHaveText(
+      /Preparing measurement|Measurement unavailable/
+    )
+    await expect.poll(async () => ({
+      metric: Number.parseInt((await renderedWidthMetric.textContent()) ?? '', 10),
+      rendered: await constrainedText.evaluate(element =>
+        Math.round(element.getBoundingClientRect().width)
+      ),
+    })).toEqual({ metric: 300, rendered: 300 })
+
+    await page.setViewportSize({ width: 358, height: 980 })
+    await expect.poll(async () => {
+      const metric = Number.parseInt((await renderedWidthMetric.textContent()) ?? '', 10)
+      const rendered = await constrainedText.evaluate(element =>
+        Math.round(element.getBoundingClientRect().width)
+      )
+      return metric - rendered
+    }).toBe(0)
+    expect(await constrainedText.evaluate(element =>
+      Math.round(element.getBoundingClientRect().width)
+    )).toBeLessThan(300)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(358)
+
+    await page.setViewportSize({ width: 561, height: 980 })
+    expect(await widthButtons.evaluateAll(buttons =>
+      buttons.map(button => Math.round(button.getBoundingClientRect().height))
+    )).toEqual([36, 36, 36])
   })
 
   test('keeps the Fit constraints header stable and its expanded controls usable', async ({ page }) => {

@@ -23,7 +23,7 @@ export function prepareFitLabText(text: string): PreparedTextWithSegments {
 
 export function measurePreparedFitLab(
   prepared: PreparedTextWithSegments,
-  width: FitLabWidth
+  width: number
 ): FitLabMeasurement {
   const { lineCount, maxLineWidth } = measureLineStats(prepared, width)
 
