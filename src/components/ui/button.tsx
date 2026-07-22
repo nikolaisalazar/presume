@@ -22,7 +22,7 @@ const buttonVariants = cva(
         dangerOutline:
           "border-border bg-surface-raised text-foreground hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive",
         reviewCategory:
-          "h-auto min-h-18 w-full flex-col items-stretch gap-1 rounded-[4px] border-border bg-background px-2.5 py-2 text-left whitespace-normal hover:border-primary/45 hover:bg-muted/60 aria-pressed:border-primary aria-pressed:bg-primary/6 aria-pressed:ring-1 aria-pressed:ring-primary/20",
+          "h-auto min-h-18 w-full flex-col items-stretch gap-1 rounded-[var(--radius-control)] border-border bg-background px-2.5 py-2 text-left whitespace-normal hover:border-primary/45 hover:bg-muted/60 aria-pressed:border-primary aria-pressed:bg-primary/6 aria-pressed:ring-1 aria-pressed:ring-primary/20",
       },
       size: {
         default:

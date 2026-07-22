@@ -17,7 +17,11 @@ function themeBlock(selector: ':root' | '.dark'): string {
 }
 
 function variable(block: string, name: string): string | undefined {
-  return block.match(new RegExp(`--${name}:\\s*(#[0-9a-fA-F]{6})`))?.[1]
+  const value = block.match(
+    new RegExp(`--${name}:\\s*(#[0-9a-fA-F]{6}|var\\(--([a-z-]+)\\))`)
+  )
+  if (!value) return undefined
+  return value[1].startsWith('#') ? value[1] : variable(block, value[2])
 }
 
 function contrastRatio(foreground: string, background: string): number {
@@ -38,6 +42,12 @@ function contrastRatio(foreground: string, background: string): number {
 }
 
 describe('theme contrast contracts', () => {
+  it('does not retain unused shadcn or retired Review theme tokens', () => {
+    expect(globalsCss).not.toMatch(
+      /--(?:color-)?(?:chart-[1-5]|sidebar(?:-[a-z-]+)?|review-border|review-hover|review-annotation-(?:warning|info|strong)):/
+    )
+  })
+
   it('keeps semantic accent text and the focus companion accessible in both themes', () => {
     for (const selector of [':root', '.dark'] as const) {
       const block = themeBlock(selector)
@@ -45,17 +55,30 @@ describe('theme contrast contracts', () => {
       const focusContrast = variable(block, 'focus-contrast')
       const background = variable(block, 'background')
       const surface = variable(block, 'surface')
+      const paper = variable(block, 'paper')
+      const paperInk = variable(block, 'paper-ink')
+      const primary = variable(block, 'primary')
 
       expect(accentForeground).toBeDefined()
       expect(focusContrast).toBeDefined()
       expect(background).toBeDefined()
       expect(surface).toBeDefined()
-      if (!accentForeground || !focusContrast || !background || !surface) continue
+      expect(paper).toBeDefined()
+      expect(paperInk).toBeDefined()
+      expect(primary).toBeDefined()
+      if (!accentForeground || !focusContrast || !background || !surface || !paper || !paperInk || !primary) continue
 
       expect(contrastRatio(accentForeground, background)).toBeGreaterThanOrEqual(4.5)
       expect(contrastRatio(accentForeground, surface)).toBeGreaterThanOrEqual(4.5)
+      const accent = variable(block, 'accent')
+      expect(accent).toBeDefined()
+      if (accent) {
+        expect(contrastRatio(accentForeground, accent)).toBeGreaterThanOrEqual(4.5)
+      }
       expect(contrastRatio(focusContrast, background)).toBeGreaterThanOrEqual(3)
       expect(contrastRatio(focusContrast, surface)).toBeGreaterThanOrEqual(3)
+      expect(contrastRatio(paperInk, paper)).toBeGreaterThanOrEqual(3)
+      expect(contrastRatio(paperInk, primary)).toBeGreaterThanOrEqual(3)
     }
 
     for (const source of accentTextSources) {
@@ -65,27 +88,22 @@ describe('theme contrast contracts', () => {
     expect(appCss).toContain('var(--focus-contrast)')
   })
 
-  it('keeps Review annotation legend markers distinct on the surface in both themes', () => {
-    for (const selector of [':root', '.dark'] as const) {
-      const block = themeBlock(selector)
-      const surface = variable(block, 'surface')
-      const markers = [
-        variable(block, 'review-annotation-warning'),
-        variable(block, 'review-annotation-info'),
-        variable(block, 'review-annotation-strong'),
-      ]
-
-      expect(surface).toBeDefined()
-      for (const marker of markers) {
-        expect(marker).toBeDefined()
-        if (marker && surface) {
-          expect(contrastRatio(marker, surface)).toBeGreaterThanOrEqual(3)
-        }
-      }
-    }
-
-    expect(appCss).toContain('var(--review-annotation-warning)')
-    expect(appCss).toContain('var(--review-annotation-info)')
-    expect(appCss).toContain('var(--review-annotation-strong)')
+  it('pairs every custom Verdigris focus outline with its contrasting companion edge', () => {
+    expect(appCss).toMatch(
+      /\.review-disclosure__trigger:focus-visible \{[^}]*outline: 2px solid var\(--ring\);[^}]*box-shadow: 0 0 0 2px var\(--focus-contrast\);/
+    )
+    expect(appCss).toMatch(
+      /\.add-btn:focus-visible,[\s\S]*?\.editor-control:focus-visible \{[^}]*outline:[^}]*var\(--ring\);[^}]*box-shadow: 0 0 0 calc\(2px \* var\(--resume-layout-scale\)\) var\(--paper-ink\);/
+    )
+    expect(appCss).toMatch(
+      /\.landing-page__brand:focus-visible,[\s\S]*?\.landing-page__main a:focus-visible \{[^}]*outline: 2px solid var\(--ring\);[^}]*box-shadow: 0 0 0 2px var\(--focus-contrast\);/
+    )
+    expect(appCss).toMatch(
+      /\.landing-hero \.landing-hero__credit:focus-visible \{[^}]*box-shadow: 0 0 0 2px var\(--paper-ink\);/
+    )
+    expect(appCss).toMatch(
+      /\.landing-hero \[data-slot='button'\]:focus-visible \{[^}]*box-shadow:[^}]*var\(--paper-ink\)/
+    )
   })
+
 })

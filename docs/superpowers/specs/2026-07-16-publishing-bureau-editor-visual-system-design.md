@@ -232,6 +232,21 @@ Do not add visual snapshots. Direct visual QA must cover:
 - Keyboard focus and reduced motion.
 - 50% browser zoom for shell-edge integrity while keeping issue #27's resolved document geometry contract intact.
 
+### Production implementation record
+
+The approved system shipped sequentially in PRs #35–#38:
+
+- Phase A: checkpoint `72ec00bba2379bc91b1146f8b12cdd405995700a`, merge `d03eb29f243482a26f9ac44d5515a275875e8fc2`.
+- Phase B: checkpoint `c4b99ec289292cb6f9bd5439decebb5ef2dfcfb0`, merge `04cb53eb84bf77e62c8dbd4e86137581c98464cf`.
+- Phase C: checkpoint `8c6b45a5e7d958131bd26846b5e1b6f3b4ae325a`, merge `ddaa03b6a145d85e4822b615789211168c5cc9f5`.
+- Phase D: checkpoint `24bb3c131b85f30dae97f0eb71d8c95fc560cd26`, merge `9536f5d3591d047e3119599b0a6bb4323475764f`.
+
+Phase E's 2026-07-22 audit confirms that the production implementation still matches this specification: the landing page, editor shell, Fit, and Review share the approved semantic tokens and rectilinear geometry; the fixed resume and PDF remain theme-independent; reduced motion preserves a visible static progress state; and all required responsive boundaries remain intact. The audit retired obsolete parallel selector/token generations rather than introducing a new visual system.
+
+Two concrete contrast defects were corrected. Light accent text on the accent surface measured 4.400:1; reusing the approved `--primary-hover` token raises it to 5.552:1. A fresh context-isolated review then found custom Verdigris-only focus outlines measuring 1.747–1.960:1 against adjacent Light or theme-independent paper surfaces. Pairing those outlines with the existing `--focus-contrast` application edge or `--paper-ink` edge on the fixed document and landing hero restores the required contrast while preserving the approved Verdigris cue. The existing Border Notch transition remains because it is purposeful, limited to 220ms, and disabled under reduced motion; a transform rewrite would change the approved interaction without evidence of a performance or accessibility defect.
+
+An earlier independent review of Phase E checkpoint `b0346c76f0bddb7c9667d146c848676d1781793b` found no remaining issues after its shadow-token remediation. A later context-isolated review of PR head `8cf79feb52b1653ca3da496f8e18803112c90b53` and first remediation `b2e3088aa0346c77135bd659ed948e8a53a832b3` exposed the complete focus-context and retirement-boundary gaps now remediated. Final exact-head review of `b25e3ac6c081dc449ddb62d7e64541c1acf54796` found no Critical, Important, or Minor issues. Merge evidence remains pending for PR #40, and the program is not complete before that closeout.
+
 ## Rollback
 
 - Keep token changes and surface conversions in reviewable commits.
