@@ -563,7 +563,7 @@ rg -n "#[0-9a-fA-F]{3,8}|rgba?\(|oklch\(|rounded-(lg|xl|2xl)|border-radius|box-s
 - [ ] Run from a clean worktree:
 
 ```sh
-NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage npm run verify
+NODE_OPTIONS=--no-experimental-webstorage npm run verify
 npm run build
 CI=1 npm run test:e2e
 test -f dist/index.html
