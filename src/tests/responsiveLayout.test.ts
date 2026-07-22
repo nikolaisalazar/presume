@@ -20,6 +20,7 @@ describe('custom editor CSS invariants', () => {
     expect(appCss).toContain('border-radius: var(--radius-structural);')
     expect(appCss).toContain('.resume-canvas .resume-viewport')
     expect(appCss).toContain('box-shadow: var(--shadow-document);')
+    expect(appCss).toContain('--shadow-page: var(--shadow-document);')
     expect(appCss).not.toContain('filter: drop-shadow(')
   })
 
@@ -62,7 +63,7 @@ describe('custom editor CSS invariants', () => {
     expect(appCss).not.toContain('.app-header__status')
     expect(appCss).not.toContain('@media (max-width: 1220px)')
     expect(appCss).not.toMatch(
-      /--(?:app-bg|app-bg-deep|danger|editor-stage-surface|focus|ink|line|shadow-page|shadow-panel|shadow-stage|stage-surface|surface-subtle):/
+      /--(?:app-bg|app-bg-deep|danger|editor-stage-surface|focus|ink|line|shadow-panel|shadow-stage|stage-surface|surface-subtle):/
     )
     expect(appCss).not.toMatch(
       /\.(?:landing-nav__brand|review-annotation-explorer__detail|review-annotation-legend|review-annotation__meta|review-annotations__list|review-category-detail__heading|review-category-grid|review-findings|review-list|review-subsection-heading)(?![\w-])/

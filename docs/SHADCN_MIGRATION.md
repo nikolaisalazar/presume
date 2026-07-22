@@ -199,7 +199,7 @@ Automated verification:
 - `npm run verify` passes 22 Vitest files / 223 frontend tests and 50 backend tests. On the local Node 26.5 host, `NODE_OPTIONS=--no-experimental-webstorage` disables Node's incomplete process-level `localStorage` so Vitest's jsdom environment owns the API; repository CI remains pinned to Node 24.
 - The production build passes after 6,746 modules are transformed. The existing JavaScript chunk-size advisory remains non-blocking and is not a Phase E visual-system defect.
 - Both Playwright configurations pass under `CI=1`: 7 unconfigured contracts and 3 configured-Review contracts.
-- The cleanup removes 220 lines from the two application stylesheets while adding 19 contract-preserving lines. Every remaining custom class selector has a source consumer. Superseded shell aliases, unused chart/sidebar/Review tokens, dead Review selector generations, and one duplicated Review declaration are retired.
+- The cleanup removes 220 lines from the two application stylesheets while adding 20 contract-preserving lines. Every remaining custom class selector has a source consumer. Superseded shell aliases, unused chart/sidebar/Review tokens, dead Review selector generations, and one duplicated Review declaration are retired; the `--shadow-page` bridge remains because protected resume styling consumes it.
 - Focused tests enforce the retired-token/selector boundary, semantic `4px` Review-category radius, and Light/Dark accent contrast.
 
 Direct visual QA:
@@ -250,10 +250,10 @@ Acceptance also requires:
 - No committed visual snapshots or network-dependent tests.
 - Manual comparison at desktop, tablet, and 358px mobile widths for UI-only PRs.
 
-CI uses Node 20. On Node 26, the current Vitest/jsdom setup requires:
+CI uses Node 24. On Node 26, disable Node's experimental process-level Web Storage so the Vitest/jsdom environment owns `localStorage`:
 
 ```sh
-NODE_OPTIONS=--localstorage-file=/tmp/presume-vitest-localstorage npm test -- --run
+NODE_OPTIONS=--no-experimental-webstorage npm test -- --run
 ```
 
 That local runtime workaround is not part of the design-system migration.

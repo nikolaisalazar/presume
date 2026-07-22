@@ -10,6 +10,7 @@
   --editor-rail-height: calc(3.75rem + 2px);
   --wide-workspace-width: 1580px;
   --editor-control-resting-opacity: 0.34;
+  --shadow-page: var(--shadow-document);
 }
 
 body {
