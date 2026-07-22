@@ -57,6 +57,7 @@ describe('theme contrast contracts', () => {
       const surface = variable(block, 'surface')
       const paper = variable(block, 'paper')
       const paperInk = variable(block, 'paper-ink')
+      const primary = variable(block, 'primary')
 
       expect(accentForeground).toBeDefined()
       expect(focusContrast).toBeDefined()
@@ -64,7 +65,8 @@ describe('theme contrast contracts', () => {
       expect(surface).toBeDefined()
       expect(paper).toBeDefined()
       expect(paperInk).toBeDefined()
-      if (!accentForeground || !focusContrast || !background || !surface || !paper || !paperInk) continue
+      expect(primary).toBeDefined()
+      if (!accentForeground || !focusContrast || !background || !surface || !paper || !paperInk || !primary) continue
 
       expect(contrastRatio(accentForeground, background)).toBeGreaterThanOrEqual(4.5)
       expect(contrastRatio(accentForeground, surface)).toBeGreaterThanOrEqual(4.5)
@@ -76,6 +78,7 @@ describe('theme contrast contracts', () => {
       expect(contrastRatio(focusContrast, background)).toBeGreaterThanOrEqual(3)
       expect(contrastRatio(focusContrast, surface)).toBeGreaterThanOrEqual(3)
       expect(contrastRatio(paperInk, paper)).toBeGreaterThanOrEqual(3)
+      expect(contrastRatio(paperInk, primary)).toBeGreaterThanOrEqual(3)
     }
 
     for (const source of accentTextSources) {
@@ -94,6 +97,12 @@ describe('theme contrast contracts', () => {
     )
     expect(appCss).toMatch(
       /\.landing-page__brand:focus-visible,[\s\S]*?\.landing-page__main a:focus-visible \{[^}]*outline: 2px solid var\(--ring\);[^}]*box-shadow: 0 0 0 2px var\(--focus-contrast\);/
+    )
+    expect(appCss).toMatch(
+      /\.landing-hero \.landing-hero__credit:focus-visible \{[^}]*box-shadow: 0 0 0 2px var\(--paper-ink\);/
+    )
+    expect(appCss).toMatch(
+      /\.landing-hero \[data-slot='button'\]:focus-visible \{[^}]*box-shadow:[^}]*var\(--paper-ink\)/
     )
   })
 

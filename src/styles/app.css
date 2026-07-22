@@ -1264,6 +1264,16 @@ body {
   text-underline-offset: 3px;
 }
 
+.landing-hero .landing-hero__credit:focus-visible {
+  box-shadow: 0 0 0 2px var(--paper-ink);
+}
+
+.landing-hero [data-slot='button']:focus-visible {
+  box-shadow:
+    0 0 0 2px var(--paper-ink),
+    var(--shadow-control-edge);
+}
+
 .landing-origins,
 .landing-fit-study,
 .landing-capabilities,

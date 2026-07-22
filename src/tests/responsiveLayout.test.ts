@@ -66,7 +66,7 @@ describe('custom editor CSS invariants', () => {
       /--(?:app-bg|app-bg-deep|danger|editor-stage-surface|focus|ink|line|shadow-page-premium|shadow-panel|shadow-stage|stage-surface|surface-subtle):/
     )
     expect(appCss).not.toMatch(
-      /\.(?:landing-nav__brand|review-annotation-explorer__(?:detail|heading)|review-annotation-legend(?:__item|__label|__swatch)?|review-annotation__meta|review-annotations__list|review-category-detail__heading|review-category-grid|review-findings|review-list(?:__item|__meta)?|review-subsection-heading)(?![\w-])/
+      /\.(?:landing-nav__brand|review-annotation-explorer__(?:detail|heading)|review-annotation-legend(?:__(?:item|items|label|swatch|marker(?:-(?:warning|info|strong))?))?|review-annotation__meta|review-annotations__list|review-category-detail__heading|review-category-grid|review-findings|review-list(?:--compact|__item|__meta)?|review-subsection-heading)(?![\w-])/
     )
   })
 
