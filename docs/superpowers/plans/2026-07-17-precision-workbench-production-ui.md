@@ -514,20 +514,20 @@ git commit -m "test: preserve landing responsive boundaries"
 - Read: `src/components/ui/alert.tsx`
 - Modify: `src/tests/responsiveLayout.test.ts`
 
-- [ ] Fast-forward merged Phase D and create `chore/precision-workbench-css-hardening`.
-- [ ] Inventory raw colors, arbitrary radii, unapproved shadows, duplicate surface variables, and obsolete selector generations:
+- [x] Fast-forward merged Phase D and create `chore/precision-workbench-css-hardening`.
+- [x] Inventory raw colors, arbitrary radii, unapproved shadows, duplicate surface variables, and obsolete selector generations:
 
 ```sh
 rg -n "#[0-9a-fA-F]{3,8}|rgba?\(|oklch\(|rounded-(lg|xl|2xl)|border-radius|box-shadow" \
   src/styles/globals.css src/styles/app.css src/components
 ```
 
-- [ ] Keep intentional raw values only where they define the approved tokens, document editor-control behavior, or semantic state. Replace component-level visual literals with semantic roles.
-- [ ] Remove unused legacy `--app-*`, `--surface-*`, shadow, and radius variables after confirming no references remain.
-- [ ] Remove superseded selectors rather than keeping old and new shell systems in parallel.
-- [ ] Consolidate repeated shadcn variant strings only when at least two real consumers share the same semantic role. Do not build speculative abstractions.
-- [ ] Keep `app.css` for genuinely custom layout, fixed-canvas containment, in-document editor controls, print hiding, and the Review sweep.
-- [ ] Do not move resume styling into Tailwind and do not touch `resume.css`.
+- [x] Keep intentional raw values only where they define the approved tokens, document editor-control behavior, or semantic state. Replace component-level visual literals with semantic roles.
+- [x] Remove unused legacy `--app-*`, `--surface-*`, shadow, and radius variables after confirming no references remain.
+- [x] Remove superseded selectors rather than keeping old and new shell systems in parallel.
+- [x] Consolidate repeated shadcn variant strings only when at least two real consumers share the same semantic role. Do not build speculative abstractions. No new shared abstraction met this threshold.
+- [x] Keep `app.css` for genuinely custom layout, fixed-canvas containment, in-document editor controls, print hiding, and the Review sweep.
+- [x] Do not move resume styling into Tailwind and do not touch `resume.css`.
 
 ### Task E2: Audit accessibility, motion, and token completeness
 
@@ -537,12 +537,12 @@ rg -n "#[0-9a-fA-F]{3,8}|rgba?\(|oklch\(|rounded-(lg|xl|2xl)|border-radius|box-s
 - Modify: `src/styles/app.css`
 - Modify focused existing tests only
 
-- [ ] Check WCAG 2.2 AA contrast for Light/Dark body text, muted text, buttons, focus edges, warnings, success, and error states.
-- [ ] Keyboard through landing and editor without a mouse; confirm visible focus, disclosure order, toolbar grouping, radio-group semantics, and Review focus restoration.
-- [ ] Confirm `prefers-reduced-motion` removes the sweep animation but retains a visible progress state.
-- [ ] Confirm no ordinary control has pill geometry, no decorative vertical stripe exists, and no structural shell exceeds `2px` corners.
-- [ ] Confirm `Saved locally` reads as status, not as a button.
-- [ ] Confirm Verdigris is reserved for action/selection/focus/progress, not broad decoration.
+- [x] Check WCAG 2.2 AA contrast for Light/Dark body text, muted text, buttons, focus edges, warnings, success, and error states.
+- [x] Keyboard through landing and editor without a mouse; confirm visible focus, disclosure order, toolbar grouping, radio-group semantics, and Review focus restoration.
+- [x] Confirm `prefers-reduced-motion` removes the sweep animation but retains a visible progress state.
+- [x] Confirm no ordinary control has pill geometry, no decorative vertical stripe exists, and no structural shell exceeds `2px` corners.
+- [x] Confirm `Saved locally` reads as status, not as a button.
+- [x] Confirm Verdigris is reserved for action/selection/focus/progress, not broad decoration.
 
 ### Task E3: Close the migration record
 
@@ -551,10 +551,12 @@ rg -n "#[0-9a-fA-F]{3,8}|rgba?\(|oklch\(|rounded-(lg|xl|2xl)|border-radius|box-s
 - Modify: `docs/superpowers/specs/2026-07-16-publishing-bureau-editor-visual-system-design.md`
 - Modify: `docs/superpowers/plans/2026-07-17-precision-workbench-production-ui.md`
 
-- [ ] Record each merged PR number and merge SHA.
-- [ ] Distinguish automated verification, independent code review, direct visual QA, and merge status.
+- [x] Record every already-merged PR number and merge SHA. Phase E remains explicitly pending until merge.
+- [x] Distinguish automated verification, independent code review, direct visual QA, and merge status.
 - [ ] Mark this program complete only after all five PRs are merged and final QA passes.
-- [ ] Note any intentionally deferred work as a separate issue; do not leave vague “later” bullets that look like unfinished scope.
+- [x] Note any intentionally deferred work as a separate issue; do not leave vague “later” bullets that look like unfinished scope. Phase E introduces no unnamed deferral.
+
+> **Phase E pre-review checkpoint — 2026-07-22:** The conservative audit retired 220 stylesheet lines and added 19 contract-preserving lines. Every remaining custom class has a source consumer. One confirmed Light-theme accent contrast defect moved from 4.400:1 to 5.552:1 by reusing `--primary-hover`; no subjective refresh or speculative abstraction was introduced. `npm run verify` passes 223 frontend and 50 backend tests, the production build passes, and both E2E configurations pass 10/10. Direct visual QA covers the complete landing and editor matrices, all Review states, keyboard/focus restoration, reduced motion, theme persistence, browser back, the 50%-zoom-equivalent viewport, and PDF rendering. Independent review and PR/merge evidence remain pending.
 
 ### Task E4: Final release gate
 
@@ -579,8 +581,8 @@ git diff --check
 git status --short --branch
 ```
 
-- [ ] Confirm no generated `dist/`, `test-results/`, screenshots, traces, or local visualizer artifacts are staged.
-- [ ] Perform a final cross-route manual matrix:
+- [x] Confirm no generated `dist/`, `test-results/`, screenshots, traces, or local visualizer artifacts are staged.
+- [x] Perform a final cross-route manual matrix:
 
 | Route | Widths | Appearance/states |
 | --- | --- | --- |
@@ -588,7 +590,7 @@ git status --short --branch
 | `/presume/editor/` | 1920, 1640, 1639, 960, 561, 560, 358 | Light/Dark; Fit open/closed; Review all states |
 | `/presume/editor/` | representative desktop | reduced motion, keyboard only, 50% zoom, PDF export |
 
-- [ ] Verify the resume remains `816px` wide, horizontal overflow remains inside `.resume-canvas-scroll`, and exported PDFs are theme- and zoom-independent.
+- [x] Verify the resume remains `816px` wide, horizontal overflow remains inside `.resume-canvas-scroll`, and exported PDFs are theme- and zoom-independent.
 - [ ] Request one final independent read-only review of the complete program state.
 - [ ] Open PR E and merge only when the repository-required `verify` check and the recorded visual gate pass.
 

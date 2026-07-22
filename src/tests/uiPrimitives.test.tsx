@@ -143,6 +143,12 @@ describe('design-system primitive contracts', () => {
     expect(globalsCss).toContain('--surface-raised: #202825;')
     expect(globalsCss).toContain('--radius-structural: 2px;')
     expect(globalsCss).toContain('--radius-control: 4px;')
+    expect(buttonVariants({ variant: 'reviewCategory' })).toContain(
+      'rounded-[var(--radius-control)]'
+    )
+    expect(buttonVariants({ variant: 'reviewCategory' })).not.toContain(
+      'rounded-[4px]'
+    )
   })
 
 })

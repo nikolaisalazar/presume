@@ -15,19 +15,6 @@
 @theme inline {
     --font-heading: var(--font-sans);
     --font-sans: "Geist", "Helvetica Neue", system-ui, sans-serif;
-    --color-sidebar-ring: var(--sidebar-ring);
-    --color-sidebar-border: var(--sidebar-border);
-    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-    --color-sidebar-accent: var(--sidebar-accent);
-    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-    --color-sidebar-primary: var(--sidebar-primary);
-    --color-sidebar-foreground: var(--sidebar-foreground);
-    --color-sidebar: var(--sidebar);
-    --color-chart-5: var(--chart-5);
-    --color-chart-4: var(--chart-4);
-    --color-chart-3: var(--chart-3);
-    --color-chart-2: var(--chart-2);
-    --color-chart-1: var(--chart-1);
     --color-ring: var(--ring);
     --color-focus-contrast: var(--focus-contrast);
     --color-input: var(--input);
@@ -54,9 +41,7 @@
     --color-warning-border: var(--warning-border);
     --color-warning-ink: var(--warning-ink);
     --color-review-bg: var(--review-bg);
-    --color-review-border: var(--review-border);
     --color-review-ink: var(--review-ink);
-    --color-review-hover: var(--review-hover);
     --color-review-success-bg: var(--review-success-bg);
     --color-review-success-border: var(--review-success-border);
     --color-review-success-ink: var(--review-success-ink);
@@ -95,7 +80,7 @@
     --muted: var(--surface-pressed);
     --muted-foreground: #56635e;
     --accent: #d7f0ed;
-    --accent-foreground: #14796f;
+    --accent-foreground: var(--primary-hover);
     --destructive: #9c3f2e;
     --border: #bccbc6;
     --border-strong: #9eafa9;
@@ -108,16 +93,11 @@
     --warning-border: #e5a986;
     --warning-ink: #984a2d;
     --review-bg: #e4f4f1;
-    --review-border: #9bcfc7;
     --review-ink: #176c63;
-    --review-hover: #d7f0ed;
     --review-success-bg: #e8f3ed;
     --review-success-border: #9ac7af;
     --review-success-ink: #216a49;
     --review-progress: #2e9e91;
-    --review-annotation-warning: #0f766e;
-    --review-annotation-info: #0369a1;
-    --review-annotation-strong: #15803d;
     --error-bg: #f9ebe7;
     --error-border: #d7a092;
     --error-ink: #9c3f2e;
@@ -130,20 +110,7 @@
     --shadow-structural: var(--shadow-inset-edge), 0 10px 26px rgb(31 52 45 / 12%);
     --shadow-masthead: var(--shadow-inset-edge), 0 8px 24px rgb(31 52 45 / 12%);
     --shadow-document: 0 18px 46px rgb(31 52 45 / 16%);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
     --radius: 0.25rem;
-    --sidebar: var(--surface);
-    --sidebar-foreground: var(--foreground);
-    --sidebar-primary: var(--primary);
-    --sidebar-primary-foreground: var(--primary-foreground);
-    --sidebar-accent: var(--accent);
-    --sidebar-accent-foreground: var(--accent-foreground);
-    --sidebar-border: var(--border);
-    --sidebar-ring: var(--ring);
 }
 
 @keyframes review-progress-sweep {
@@ -184,15 +151,10 @@
     --warning-border: #744832;
     --warning-ink: #e6a56f;
     --review-bg: #142522;
-    --review-border: #32675f;
     --review-ink: #67c8bd;
-    --review-hover: #19302c;
     --review-success-bg: #15271f;
     --review-success-border: #315d47;
     --review-success-ink: #88cfad;
-    --review-annotation-warning: #5eead4;
-    --review-annotation-info: #38bdf8;
-    --review-annotation-strong: #4ade80;
     --error-bg: #301d19;
     --error-border: #7c4438;
     --error-ink: #f0a28d;
@@ -201,19 +163,6 @@
     --shadow-structural: var(--shadow-inset-edge), 0 10px 26px rgb(0 0 0 / 14%);
     --shadow-masthead: var(--shadow-inset-edge), 0 8px 24px rgb(0 0 0 / 18%);
     --shadow-document: 0 18px 46px rgb(0 0 0 / 42%);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: var(--surface);
-    --sidebar-foreground: var(--foreground);
-    --sidebar-primary: var(--primary);
-    --sidebar-primary-foreground: var(--primary-foreground);
-    --sidebar-accent: var(--accent);
-    --sidebar-accent-foreground: var(--accent-foreground);
-    --sidebar-border: var(--border);
-    --sidebar-ring: var(--ring);
 }
 
 @layer base {

@@ -17,7 +17,11 @@ function themeBlock(selector: ':root' | '.dark'): string {
 }
 
 function variable(block: string, name: string): string | undefined {
-  return block.match(new RegExp(`--${name}:\\s*(#[0-9a-fA-F]{6})`))?.[1]
+  const value = block.match(
+    new RegExp(`--${name}:\\s*(#[0-9a-fA-F]{6}|var\\(--([a-z-]+)\\))`)
+  )
+  if (!value) return undefined
+  return value[1].startsWith('#') ? value[1] : variable(block, value[2])
 }
 
 function contrastRatio(foreground: string, background: string): number {
@@ -38,6 +42,12 @@ function contrastRatio(foreground: string, background: string): number {
 }
 
 describe('theme contrast contracts', () => {
+  it('does not retain unused shadcn or retired Review theme tokens', () => {
+    expect(globalsCss).not.toMatch(
+      /--(?:color-)?(?:chart-[1-5]|sidebar(?:-[a-z-]+)?|review-border|review-hover):/
+    )
+  })
+
   it('keeps semantic accent text and the focus companion accessible in both themes', () => {
     for (const selector of [':root', '.dark'] as const) {
       const block = themeBlock(selector)
@@ -54,6 +64,11 @@ describe('theme contrast contracts', () => {
 
       expect(contrastRatio(accentForeground, background)).toBeGreaterThanOrEqual(4.5)
       expect(contrastRatio(accentForeground, surface)).toBeGreaterThanOrEqual(4.5)
+      const accent = variable(block, 'accent')
+      expect(accent).toBeDefined()
+      if (accent) {
+        expect(contrastRatio(accentForeground, accent)).toBeGreaterThanOrEqual(4.5)
+      }
       expect(contrastRatio(focusContrast, background)).toBeGreaterThanOrEqual(3)
       expect(contrastRatio(focusContrast, surface)).toBeGreaterThanOrEqual(3)
     }
@@ -65,27 +80,4 @@ describe('theme contrast contracts', () => {
     expect(appCss).toContain('var(--focus-contrast)')
   })
 
-  it('keeps Review annotation legend markers distinct on the surface in both themes', () => {
-    for (const selector of [':root', '.dark'] as const) {
-      const block = themeBlock(selector)
-      const surface = variable(block, 'surface')
-      const markers = [
-        variable(block, 'review-annotation-warning'),
-        variable(block, 'review-annotation-info'),
-        variable(block, 'review-annotation-strong'),
-      ]
-
-      expect(surface).toBeDefined()
-      for (const marker of markers) {
-        expect(marker).toBeDefined()
-        if (marker && surface) {
-          expect(contrastRatio(marker, surface)).toBeGreaterThanOrEqual(3)
-        }
-      }
-    }
-
-    expect(appCss).toContain('var(--review-annotation-warning)')
-    expect(appCss).toContain('var(--review-annotation-info)')
-    expect(appCss).toContain('var(--review-annotation-strong)')
-  })
 })

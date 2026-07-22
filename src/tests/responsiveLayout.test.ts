@@ -14,9 +14,9 @@ describe('custom editor CSS invariants', () => {
   })
 
   it('keeps the stage opaque and the final document viewport most elevated', () => {
-    expect(appCss).toContain('--editor-stage-surface: var(--stage);')
-    expect(appCss).toContain('--stage-surface: linear-gradient(')
-    expect(appCss).toContain('background: var(--editor-stage-surface);')
+    expect(appCss).not.toContain('--editor-stage-surface:')
+    expect(appCss).not.toContain('--stage-surface:')
+    expect(appCss).toContain('background: var(--stage);')
     expect(appCss).toContain('border-radius: var(--radius-structural);')
     expect(appCss).toContain('.resume-canvas .resume-viewport')
     expect(appCss).toContain('box-shadow: var(--shadow-document);')
@@ -61,6 +61,12 @@ describe('custom editor CSS invariants', () => {
     expect(appCss).not.toContain('.resume-stage__chrome')
     expect(appCss).not.toContain('.app-header__status')
     expect(appCss).not.toContain('@media (max-width: 1220px)')
+    expect(appCss).not.toMatch(
+      /--(?:app-bg|app-bg-deep|danger|editor-stage-surface|focus|ink|line|shadow-page|shadow-panel|shadow-stage|stage-surface|surface-subtle):/
+    )
+    expect(appCss).not.toMatch(
+      /\.(?:landing-nav__brand|review-annotation-explorer__detail|review-annotation-legend|review-annotation__meta|review-annotations__list|review-category-detail__heading|review-category-grid|review-findings|review-list|review-subsection-heading)(?![\w-])/
+    )
   })
 
   it('stretches information-first Review sections across the expanded panel', () => {

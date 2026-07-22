@@ -178,6 +178,44 @@ Manual QA evidence (2026-07-14):
 - Audit and remove dead application-chrome selectors after PRs 2 and 3.
 - Preserve the fixed resume canvas, scroller, print/export behavior, and `src/styles/resume.css` as custom layout infrastructure.
 
+## Precision Workbench Production UI Closeout
+
+The five-PR follow-on program uses root [`DESIGN.md`](../DESIGN.md) as its visual authority and the [production UI plan](superpowers/plans/2026-07-17-precision-workbench-production-ui.md) as its execution record. Merge evidence is kept separate from implementation checkpoints:
+
+| Phase | PR | Implementation checkpoint | Merge commit | Merge status |
+| --- | --- | --- | --- | --- |
+| A — semantic foundation and appearance | #35 | `72ec00bba2379bc91b1146f8b12cdd405995700a` | `d03eb29f243482a26f9ac44d5515a275875e8fc2` | Merged |
+| B — editor shell and collapsed workbench | #36 | `c4b99ec289292cb6f9bd5439decebb5ef2dfcfb0` | `04cb53eb84bf77e62c8dbd4e86137581c98464cf` | Merged |
+| C — expanded Review report | #37 | `8c6b45a5e7d958131bd26846b5e1b6f3b4ae325a` | `ddaa03b6a145d85e4822b615789211168c5cc9f5` | Merged |
+| D — landing identity | #38 | `24bb3c131b85f30dae97f0eb71d8c95fc560cd26` | `9536f5d3591d047e3119599b0a6bb4323475764f` | Merged |
+| E — CSS retirement and closeout | Pending | Pending | Pending | In progress on `chore/precision-workbench-css-hardening` |
+
+The Node 24 workflow-maintenance follow-up is not a visual phase: PR #39, checkpoint `1b25a38e7ed7cbb0524c8c106d02a701433c027c`, merged as `fc58d0c7743170af303fdbe88b1ed96b54322cbe`; its post-merge verification and Pages deployment passed.
+
+### Phase E evidence — 2026-07-22
+
+Automated verification:
+
+- `npm run verify` passes 22 Vitest files / 223 frontend tests and 50 backend tests. On the local Node 26.5 host, `NODE_OPTIONS=--no-experimental-webstorage` disables Node's incomplete process-level `localStorage` so Vitest's jsdom environment owns the API; repository CI remains pinned to Node 24.
+- The production build passes after 6,746 modules are transformed. The existing JavaScript chunk-size advisory remains non-blocking and is not a Phase E visual-system defect.
+- Both Playwright configurations pass under `CI=1`: 7 unconfigured contracts and 3 configured-Review contracts.
+- The cleanup removes 220 lines from the two application stylesheets while adding 19 contract-preserving lines. Every remaining custom class selector has a source consumer. Superseded shell aliases, unused chart/sidebar/Review tokens, dead Review selector generations, and one duplicated Review declaration are retired.
+- Focused tests enforce the retired-token/selector boundary, semantic `4px` Review-category radius, and Light/Dark accent contrast.
+
+Direct visual QA:
+
+- `/presume/` was directly captured and inspected at 1120, 921, 920, 641, 640, and 358px in Light, Dark, and System, including saved and unsaved wording. All three open/continue-editing calls remain present, System follows the OS palette, and the inclusive 921/920 and 641/640 transitions remain intact.
+- `/presume/editor/` was directly captured and inspected at 1920, 1640, 1639, 960, 561, 560, and 358px in Light and Dark with Fit open/closed and Review checking, unconfigured, disabled, configuration-error, ready, loading, success, stale, updating, fresh-error, and preserved-result error states.
+- Keyboard traversal exposes visible focus, Review focus moves into the expanded panel and returns to the rail on collapse, theme choice persists across reload, and editor → landing → browser-back navigation returns to the editor.
+- Reduced-motion inspection shows a static 3px full-width Review progress edge with `animation-name: none`. The existing 220ms Border Notch layout transition remains intentional, infrequent, and reduced-motion-disabled; replacing it would be a material motion redesign without evidence of a defect.
+- At the 50%-zoom-equivalent desktop viewport, shell edges remain aligned, the resume remains 816px, and no page-level overflow appears. Normal and zoomed PDF exports are both one-page US Letter documents; extracted text and 144-DPI rendered pixels are identical, confirming theme/zoom-independent output.
+
+Contrast disposition:
+
+- The deferred Phase A contrast note was re-tested. Light `--accent-foreground` on `--accent` measured 4.400:1 and was a confirmed WCAG 2.2 AA defect in focused Fit steppers. Mapping the foreground to the existing `--primary-hover` token raises the pair to 5.552:1 without new art direction. All audited body, muted, action, focus-companion, warning, success, error, and Review text pairs pass their applicable thresholds.
+
+Independent review and Phase E merge evidence remain pending. The program must not be marked complete until those records are replaced with the final PR number, reviewed head, merge commit, and required-check result.
+
 ### Later evaluation
 
 - Add `Tooltip` only for ambiguous icon-only controls.
