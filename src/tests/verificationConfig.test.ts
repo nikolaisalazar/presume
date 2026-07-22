@@ -9,6 +9,11 @@ const workflow = readFileSync(
   'utf8'
 )
 
+function workflowValues(key: string) {
+  const pattern = new RegExp(`^\\s+${key}:\\s+(\\S+)\\s*$`, 'gm')
+  return Array.from(workflow.matchAll(pattern), (match) => match[1])
+}
+
 describe('repository verification configuration', () => {
   it('offers one local full-verification command', () => {
     expect(packageJson.scripts.typecheck).toBe(
@@ -33,5 +38,19 @@ describe('repository verification configuration', () => {
     expect(workflow).toContain('npm run verify:full')
     expect(workflow).toContain('needs: verify')
     expect(workflow).toContain("github.event_name != 'pull_request'")
+  })
+
+  it('runs the workflow and official actions on Node 24', () => {
+    expect(workflowValues('uses')).toEqual([
+      'actions/checkout@v7',
+      'actions/setup-node@v7',
+      'actions/setup-python@v7',
+      'actions/checkout@v7',
+      'actions/setup-node@v7',
+      'actions/configure-pages@v6',
+      'actions/upload-pages-artifact@v5',
+      'actions/deploy-pages@v5',
+    ])
+    expect(workflowValues('node-version')).toEqual(['24', '24'])
   })
 })
