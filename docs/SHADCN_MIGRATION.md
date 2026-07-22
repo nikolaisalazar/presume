@@ -214,7 +214,7 @@ Contrast disposition:
 
 - The deferred Phase A contrast note was re-tested. Light `--accent-foreground` on `--accent` measured 4.400:1 and was a confirmed WCAG 2.2 AA defect in focused Fit steppers. Mapping the foreground to the existing `--primary-hover` token raises the pair to 5.552:1 without new art direction. All audited body, muted, action, focus-companion, warning, success, error, and Review text pairs pass their applicable thresholds.
 
-Independent review of checkpoint `b0346c76f0bddb7c9667d146c848676d1781793b` found no Critical, Important, or Minor issues and concluded the branch was ready to merge. This later documentation-only review-record commit is not part of that reviewed head. Phase E PR and merge evidence remain pending; the program must not be marked complete until those records are replaced with the final PR number, merge commit, and required-check result.
+Independent review of checkpoint `b0346c76f0bddb7c9667d146c848676d1781793b` found no Critical, Important, or Minor issues and concluded the branch was ready to merge. This later documentation-only review-record commit is not part of that reviewed head. Phase E is PR #40, opened from documentation checkpoint `a3ec9e5b7fccc3d9a32bbc195dc7d0a8700931c8`; merge evidence remains pending. The program must not be marked complete until the merge commit and required-check result are recorded.
 
 ### Later evaluation
 

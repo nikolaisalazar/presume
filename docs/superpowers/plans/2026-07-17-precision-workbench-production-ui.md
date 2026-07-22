@@ -556,7 +556,7 @@ rg -n "#[0-9a-fA-F]{3,8}|rgba?\(|oklch\(|rounded-(lg|xl|2xl)|border-radius|box-s
 - [ ] Mark this program complete only after all five PRs are merged and final QA passes.
 - [x] Note any intentionally deferred work as a separate issue; do not leave vague “later” bullets that look like unfinished scope. Phase E introduces no unnamed deferral.
 
-> **Phase E reviewed checkpoint — 2026-07-22:** The conservative audit retired 220 stylesheet lines and added 20 contract-preserving lines, including the `--shadow-page` bridge still consumed by protected resume styling. Every remaining custom class has a source consumer. One confirmed Light-theme accent contrast defect moved from 4.400:1 to 5.552:1 by reusing `--primary-hover`; no subjective refresh or speculative abstraction was introduced. `npm run verify` passes 223 frontend and 50 backend tests, the production build passes, and both E2E configurations pass 10/10. Direct visual QA covers the complete landing and editor matrices, all Review states, keyboard/focus restoration, reduced motion, theme persistence, browser back, the 50%-zoom-equivalent viewport, and PDF rendering. Independent review of checkpoint `b0346c76f0bddb7c9667d146c848676d1781793b` found no Critical, Important, or Minor issues. This later documentation-only review-record commit is not part of that reviewed head. PR and merge evidence remain pending.
+> **Phase E reviewed checkpoint — 2026-07-22:** The conservative audit retired 220 stylesheet lines and added 20 contract-preserving lines, including the `--shadow-page` bridge still consumed by protected resume styling. Every remaining custom class has a source consumer. One confirmed Light-theme accent contrast defect moved from 4.400:1 to 5.552:1 by reusing `--primary-hover`; no subjective refresh or speculative abstraction was introduced. `npm run verify` passes 223 frontend and 50 backend tests, the production build passes, and both E2E configurations pass 10/10. Direct visual QA covers the complete landing and editor matrices, all Review states, keyboard/focus restoration, reduced motion, theme persistence, browser back, the 50%-zoom-equivalent viewport, and PDF rendering. Independent review of checkpoint `b0346c76f0bddb7c9667d146c848676d1781793b` found no Critical, Important, or Minor issues. This later documentation-only review-record commit is not part of that reviewed head. Phase E is PR #40, opened from documentation checkpoint `a3ec9e5b7fccc3d9a32bbc195dc7d0a8700931c8`; merge evidence remains pending.
 
 ### Task E4: Final release gate
 
@@ -592,7 +592,7 @@ git status --short --branch
 
 - [x] Verify the resume remains `816px` wide, horizontal overflow remains inside `.resume-canvas-scroll`, and exported PDFs are theme- and zoom-independent.
 - [x] Request one final independent read-only review of the complete program state. Checkpoint `b0346c76f0bddb7c9667d146c848676d1781793b` passed with no Critical, Important, or Minor findings.
-- [ ] Open PR E and merge only when the repository-required `verify` check and the recorded visual gate pass.
+- [ ] PR E is #40. Merge only when the repository-required `verify` check and the recorded visual gate pass.
 
 ---
 

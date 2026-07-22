@@ -245,7 +245,7 @@ Phase E's 2026-07-22 audit confirms that the production implementation still mat
 
 One concrete contrast defect was corrected: Light accent text on the accent surface measured 4.400:1. Reusing the approved `--primary-hover` token raises it to 5.552:1. The existing Border Notch transition remains because it is purposeful, limited to 220ms, and disabled under reduced motion; a transform rewrite would change the approved interaction without evidence of a performance or accessibility defect.
 
-Independent review of Phase E checkpoint `b0346c76f0bddb7c9667d146c848676d1781793b` found no Critical, Important, or Minor issues. Final PR and merge evidence remains intentionally pending until those events occur; the program is not complete before that closeout.
+Independent review of Phase E checkpoint `b0346c76f0bddb7c9667d146c848676d1781793b` found no Critical, Important, or Minor issues. Phase E is PR #40, opened from documentation checkpoint `a3ec9e5b7fccc3d9a32bbc195dc7d0a8700931c8`; merge evidence remains intentionally pending until that event occurs, and the program is not complete before that closeout.
 
 ## Rollback
 
