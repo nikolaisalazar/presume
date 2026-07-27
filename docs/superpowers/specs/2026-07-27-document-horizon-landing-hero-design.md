@@ -188,13 +188,15 @@ Selected:
 Task 4 release-gate disposition: **PASS**. The retained cmux visual matrix,
 structured browser evidence, automated release gate, and direct browser-level
 WebKit reduced-motion result cover the required release checks. Whole-branch
-review and merge remain pending.
+review is approved; merge remains pending.
 
 ### Verified implementation
 
 - Branch: `feat/document-horizon-landing-hero`.
 - Verified runtime implementation SHA:
   `6c40bac5ede3b7e0b92aeb6a97c41c946e807043`.
+- Whole-branch reviewed HEAD:
+  `e00ff877d03ed5551a43eb5020fa3a5412314ced`.
 - The implementation consists of the reviewed Task 1 through Task 3 commits.
   This documentation record does not mark the branch merged.
 - Production assets:
@@ -362,7 +364,13 @@ native macOS-preference or cmux reduced-motion testing.
   prescribed composite verification run. Correction commit
   `6141c1a7ce19cf7f5458399e007546422bb497d1` addressed all four findings, and
   the scoped re-review approved the correction.
-- Whole-branch review: pending.
+- Whole-branch review of
+  `origin/main...e00ff877d03ed5551a43eb5020fa3a5412314ced`:
+  approved with no Critical, Important, or Minor findings. Its independent
+  validation passed typecheck, `23/23` Vitest files and `227/227` tests,
+  focused production Playwright `4/4`, the protected-path comparison, SPA
+  fallback parity, and a `36/36` structured-matrix audit with zero invariant
+  errors.
 
 The protected comparison against `origin/main...HEAD` produced no diff for:
 
