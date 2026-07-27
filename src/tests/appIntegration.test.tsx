@@ -115,6 +115,20 @@ describe('App review availability boundaries', () => {
     const brandMark = container.querySelector('.app-header__brand-mark')
     expect(brandMark?.querySelector('svg')).toBeInTheDocument()
     expect(brandMark).not.toHaveTextContent('P')
+    const heroMedia = container.querySelector<HTMLPictureElement>(
+      '[data-slot="landing-hero-media"]'
+    )
+    const heroSource = heroMedia?.querySelector('source')
+    const heroImage = heroMedia?.querySelector('img')
+
+    expect(heroMedia).toHaveAttribute('aria-hidden', 'true')
+    expect(heroSource).toHaveAttribute('media', '(min-width: 641px)')
+    expect(heroSource).toHaveAttribute(
+      'srcset',
+      '/presume/landing/document-horizon-1120.webp 1120w, /presume/landing/document-horizon-2200.webp 2200w'
+    )
+    expect(heroImage).toHaveAttribute('alt', '')
+    expect(screen.queryByRole('link', { name: /Photograph:/ })).not.toBeInTheDocument()
     expect(
       screen.getByRole('heading', {
         name: 'Presume is a local-first resume workbench.',

@@ -249,10 +249,10 @@ test.describe('unconfigured browser contracts', () => {
   })
 
   test('measures the rendered Fit Lab width and avoids hidden hero image transfer', async ({ page }) => {
-    await page.setViewportSize({ width: 560, height: 980 })
+    await page.setViewportSize({ width: 640, height: 980 })
     const heroImageRequests: string[] = []
     page.on('request', request => {
-      if (request.url().includes('/landing/handmade-paper')) {
+      if (request.url().includes('/landing/document-horizon')) {
         heroImageRequests.push(request.url())
       }
     })
@@ -260,6 +260,10 @@ test.describe('unconfigured browser contracts', () => {
     await page.goto('./')
     await expect(page.getByRole('region', { name: 'Pretext Fit Lab' })).toBeVisible()
     expect(heroImageRequests).toEqual([])
+
+    await page.setViewportSize({ width: 641, height: 980 })
+    await expect.poll(() => heroImageRequests.length).toBeGreaterThanOrEqual(1)
+    await page.setViewportSize({ width: 560, height: 980 })
 
     const widthGroup = page.getByRole('group', { name: 'Measurement width' })
     const widthButtons = widthGroup.getByRole('button')
@@ -301,6 +305,30 @@ test.describe('unconfigured browser contracts', () => {
     expect(await widthButtons.evaluateAll(buttons =>
       buttons.map(button => Math.round(button.getBoundingClientRect().height))
     )).toEqual([36, 36, 36])
+  })
+
+  test('keeps live hero content complete when the decorative image fails', async ({ page }) => {
+    let requestAborted = false
+    await page.route('**/landing/document-horizon-*.webp', async route => {
+      requestAborted = true
+      await route.abort()
+    })
+    await page.setViewportSize({ width: 1120, height: 980 })
+
+    await page.goto('./')
+
+    expect(requestAborted).toBe(true)
+    const hero = page.getByRole('region', {
+      name: 'Presume is a local-first resume workbench.',
+    })
+    await expect(
+      hero.getByRole('heading', {
+        name: 'Presume is a local-first resume workbench.',
+      })
+    ).toBeVisible()
+    const primaryAction = hero.getByRole('button', { name: 'Open the editor' })
+    await expect(primaryAction).toBeVisible()
+    await expect(primaryAction).toBeEnabled()
   })
 
   test('keeps the Fit constraints header stable and its expanded controls usable', async ({ page }) => {

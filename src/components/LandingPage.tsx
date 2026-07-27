@@ -76,7 +76,7 @@ export function LandingPage({ hasSavedResume, onOpenEditor }: LandingPageProps) 
             <source
               media="(min-width: 641px)"
               type="image/webp"
-              srcSet="/presume/landing/handmade-paper-1120.webp 1120w, /presume/landing/handmade-paper-2200.webp 2200w"
+              srcSet="/presume/landing/document-horizon-1120.webp 1120w, /presume/landing/document-horizon-2200.webp 2200w"
               sizes="(max-width: 1120px) calc(100vw - 48px), 1120px"
             />
             <img
@@ -100,14 +100,6 @@ export function LandingPage({ hasSavedResume, onOpenEditor }: LandingPageProps) 
               <span>Open project · No account required</span>
             </div>
           </div>
-          <a
-            className="landing-hero__credit"
-            href="https://unsplash.com/photos/DsPYLmU4Ty0"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Photograph: 360floralflaves / Unsplash
-          </a>
         </section>
 
         <section className="landing-origins" aria-labelledby="origins-title">
