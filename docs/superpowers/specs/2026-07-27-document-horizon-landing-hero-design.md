@@ -185,10 +185,10 @@ Selected:
 
 ## Implementation Evidence
 
-Release disposition: **LIMITED / PENDING** solely for direct reduced-motion
-CSS-engine QA. The retained visual matrix, structured browser evidence,
-automated release gate, and parsed reduced-motion rule show no product defect,
-but automated/parsing evidence does not replace the outstanding direct check.
+Task 4 release-gate disposition: **PASS**. The retained cmux visual matrix,
+structured browser evidence, automated release gate, and direct browser-level
+WebKit reduced-motion result cover the required release checks. Whole-branch
+review and merge remain pending.
 
 ### Verified implementation
 
@@ -307,16 +307,47 @@ Direct observations:
   a complete semantic Dark hero fallback with zero page overflow.
 - A final clean reload reported no browser errors and no console entries.
 
-Direct reduced-motion CSS-engine QA is **LIMITED / PENDING**. The dedicated
-experiment used a separate fresh cmux surface and a pre-navigation
-`matchMedia` shim. JavaScript reported reduced motion as enabled, but
-WKWebView's CSS engine does not consume a JavaScript shim for media evaluation:
-computed hero animation remained `220ms` and control transition remained
-`180ms`. No macOS accessibility preference was changed. The browser parsed the
-shipped reduced-motion rule that forces transition and animation duration to
-`0.01ms`, one iteration, and automatic scrolling; the fresh automated CSS
-contract and full test suite also passed. This supporting evidence found no
-product defect, but it does not satisfy the required direct CSS-engine gate.
+Direct reduced-motion CSS-engine QA: **PASS** through browser-level WebKit
+media emulation and direct visual inspection. The user explicitly directed
+browser-level handling rather than changing System Settings. macOS Reduce
+Motion therefore stayed off: the direct `NSWorkspace` accessibility query
+reported `false`, and both checked preference keys remained `0`.
+
+The production build was inspected in Playwright WebKit `1.61.1` at
+`1120 × 980` in Dark mode with `reducedMotion: "reduce"`. Direct computed
+evidence was:
+
+```json
+{
+  "reducedMotion": true,
+  "noPreference": false,
+  "theme": "dark",
+  "heroAnimationName": "none",
+  "heroAnimationDuration": "0.00001s",
+  "heroAnimationIterations": "1",
+  "buttonTransitionDuration": "0.00001s",
+  "scrollBehavior": "auto",
+  "heroHeight": 720,
+  "overflow": 0
+}
+```
+
+The retained screenshot
+`.superpowers/sdd/cmux-final-qa/reduced-motion-webkit.png` was inspected at
+original detail. It showed the complete Dark Surround hero with contained,
+legible live content, the integrated printed-resume treatment, and no visual
+layout defect or page overflow. A no-preference baseline in the same browser
+reported `reducedMotion: false`, `noPreference: true`,
+`heroAnimationName: "landing-hero-settle"`,
+`heroAnimationDuration: "0.22s"`, and
+`buttonTransitionDuration: "0.18s"`, proving that the reduced result exercised
+the shipped media-query branch rather than a generally motionless page.
+
+cmux WKWebView remains the direct matrix surface, but it does not expose CSS
+media emulation; its earlier JavaScript `matchMedia` shim appropriately did not
+count as reduced-motion evidence. This PASS is specifically browser-level
+WebKit forced-media QA plus direct screenshot inspection. It is not a claim of
+native macOS-preference or cmux reduced-motion testing.
 
 ### Reviews and protected boundaries
 
@@ -328,8 +359,9 @@ product defect, but it does not satisfy the required direct CSS-engine gate.
   `48e5c4a4b028de93d51e943dd82beee39b3f22d8`: changes required; the review
   found an inconsistent paper invariant, an overstated reduced-motion/pass
   disposition, missing retained structured matrix data, and no successful
-  prescribed composite verification run. This correction addresses those
-  findings; scoped re-review remains pending.
+  prescribed composite verification run. Correction commit
+  `6141c1a7ce19cf7f5458399e007546422bb497d1` addressed all four findings, and
+  the scoped re-review approved the correction.
 - Whole-branch review: pending.
 
 The protected comparison against `origin/main...HEAD` produced no diff for:

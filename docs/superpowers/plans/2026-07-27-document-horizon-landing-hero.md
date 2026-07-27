@@ -564,7 +564,7 @@ files with `227/227` tests, and `50/50` backend tests (`0.54s`). This replaces
 the earlier record that reconstructed the gate from separately successful
 component runs.
 
-- [ ] **Step 2: Run direct cmux WKWebView visual QA — LIMITED / PENDING**
+- [x] **Step 2: Run direct browser visual QA**
 
 Use the user-approved cmux browser surface, not an automated geometry report,
 to inspect `/presume/` at exact logical viewports:
@@ -604,15 +604,31 @@ Also verify:
 - System follows the current OS appearance without a wrong-theme hero flash;
 - aborting the hero image request leaves the headline and action complete.
 
-Recorded disposition (July 27, 2026): the direct visual matrix, keyboard,
-theme, navigation, and failure-fallback checks above are complete. A fresh
-structured run retained all `36` width/theme/state cells at
-`.superpowers/sdd/cmux-final-qa/structured-matrix-20260727.json`. Direct
-reduced-motion CSS-engine QA remains `LIMITED / PENDING`: the available
-JavaScript `matchMedia` shim does not change WKWebView CSS media evaluation,
-and no macOS accessibility preference was changed. Parsed-rule and automated
-evidence pass and no product defect was found, but they do not complete this
-direct gate.
+Recorded disposition (July 27, 2026): **PASS**. The direct cmux visual matrix,
+keyboard, theme, navigation, and failure-fallback checks above are complete. A
+fresh structured run retained all `36` width/theme/state cells at
+`.superpowers/sdd/cmux-final-qa/structured-matrix-20260727.json`.
+
+Reduced-motion CSS-engine QA was completed separately with browser-level
+Playwright WebKit `1.61.1` media emulation against the production build at
+`1120 × 980` in Dark mode. The user explicitly directed browser-level handling
+instead of changing System Settings, so macOS Reduce Motion stayed off
+(`NSWorkspace` accessibility query `false`; both checked preference keys `0`).
+With reduced motion emulated, WebKit reported the reduced media query matching,
+the no-preference query not matching, no named hero animation, `0.00001s`
+animation and button-transition durations, one animation iteration, automatic
+scrolling, a `720px` hero, and zero page overflow. The retained
+`.superpowers/sdd/cmux-final-qa/reduced-motion-webkit.png` screenshot was
+directly inspected at original detail and showed no visual defect.
+
+The same WebKit surface without the reduced preference reported the
+`landing-hero-settle` animation at `0.22s` and the button transition at
+`0.18s`, confirming that the reduced result exercised the shipped
+`prefers-reduced-motion` branch. cmux WKWebView does not expose CSS media
+emulation, and its earlier JavaScript `matchMedia` shim did not alter CSS media
+evaluation. The recorded PASS therefore applies to browser-level WebKit forced
+media plus direct screenshot inspection; it does not claim native
+macOS-preference or cmux reduced-motion testing.
 
 - [x] **Step 3: Record exact implementation evidence**
 
