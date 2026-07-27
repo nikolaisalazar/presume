@@ -17,9 +17,13 @@ The new visual must make the resume—not generic stationery—the meaningful ob
 The selected direction is **Document Horizon**.
 
 - Preserve the current centered hero composition, copy, hierarchy, call to action, secondary note, dimensions, and structural border.
-- Replace the envelope with a high-key photograph or photoreal composite of disciplined paper sheets.
-- Show one anonymized resume convincingly printed into a photographed sheet.
-- Let the resume enter the lower image plane without competing with the centered headline.
+- Use the exact **Working Stack** photograph from
+  [Pexels photo 9869075](https://www.pexels.com/photo/white-paper-on-white-table-9869075/):
+  one loose foreground sheet in the lower-left, one blank paper stack in the
+  upper-right, and quiet negative space across the upper and central field.
+- Show one anonymized resume convincingly printed into the existing loose
+  foreground sheet.
+- Do not regenerate, rearrange, add, or remove the photographed paper forms.
 - Preserve ample clear space behind all hero copy.
 - Do not add a measurement rule, meter, ruler, badge, stat, decorative interface layer, or shader.
 
@@ -27,7 +31,9 @@ The hero remains an atmospheric introduction. It must not imitate the editor, ad
 
 ## Image and Resume Treatment
 
-The resume must appear physically printed on the photographed paper. A flat UI layer floating above the image is not acceptable.
+The resume must appear physically printed on the photographed loose foreground
+sheet. A flat UI layer floating above the image or a newly generated resume
+sheet entering from another edge is not acceptable.
 
 The final asset must match:
 
@@ -43,9 +49,11 @@ The visible resume may echo Presume's document hierarchy, but it should not repr
 
 ## Theme Treatment
 
-### Light mode: True White
+### Light mode: Application Background Match
 
-- Use the existing raised-surface white, `--surface-raised: #ffffff`, as the hero's dominant field.
+- Use the existing application field, `--background: #edf2f0`, as the hero's
+  dominant field so the photograph belongs to the surrounding landing page
+  instead of reading as a separate white panel.
 - Neutralize the photograph away from beige, tan, or cream.
 - Preserve subtle paper depth through luminance, edge definition, texture, and shadow rather than a warm color cast.
 - Keep the live hero text in the existing light-theme ink family.
@@ -75,7 +83,7 @@ Approved:
 
 - existing Light and Dark semantic surface tokens;
 - existing foreground and muted-foreground tokens;
-- `--surface-raised: #ffffff` for the Light hero field;
+- `--background: #edf2f0` for the Light hero field;
 - `--paper: #fffefb` for the functional editor/PDF resume, not as a required
   literal color inside the decorative hero raster;
 - restrained Verdigris in existing semantic accent roles.
@@ -144,7 +152,10 @@ This design does not authorize:
 
 Expected production scope is limited to the landing hero component, its landing-specific styles and tests, and new static hero assets or attribution.
 
-Implementation may adjust the exact CSS filter, overlay opacity, and object position only to reproduce the approved True White and Dark Surround results across supported browsers. Any material change to composition, copy, theme behavior, or responsive behavior requires another visual checkpoint.
+Implementation may adjust the exact CSS filter, overlay opacity, and object
+position only to reproduce the approved Application Background Match and Dark
+Surround results across supported browsers. Any material change to composition,
+copy, theme behavior, or responsive behavior requires another visual checkpoint.
 
 ## Verification
 
@@ -176,8 +187,11 @@ Rejected during exploration:
 
 Selected:
 
-- Document Horizon composition;
-- True White in Light mode;
+- Document Horizon / Working Stack composition using the retained Pexels photo
+  `9869075`;
+- a clear anonymized resume hierarchy printed only into the existing loose
+  foreground sheet;
+- Application Background Match in Light mode;
 - Dark Surround in Dark mode;
 - invariant warm-white functional editor/PDF resume; the decorative landing
   resume follows the approved theme grade;
@@ -185,27 +199,84 @@ Selected:
 
 ## Implementation Evidence
 
-Task 4 release-gate disposition: **PASS**. The retained cmux visual matrix,
-structured browser evidence, automated release gate, and direct browser-level
-WebKit reduced-motion result cover the required release checks. Whole-branch
-review is approved; merge remains pending.
+The original Task 4 release gate and whole-branch review apply only to the
+superseded pre-correction implementation. The final-D correction has fresh
+automated and direct visual evidence, but its exact commit and corrected
+whole-branch review record are pending below. Merge remains pending.
 
-### Verified implementation
+### Superseded pre-correction implementation
 
 - Branch: `feat/document-horizon-landing-hero`.
-- Verified runtime implementation SHA:
+- Pre-correction runtime implementation SHA:
   `6c40bac5ede3b7e0b92aeb6a97c41c946e807043`.
-- Whole-branch reviewed HEAD:
+- Pre-correction whole-branch reviewed HEAD:
   `e00ff877d03ed5551a43eb5020fa3a5412314ced`.
-- The implementation consists of the reviewed Task 1 through Task 3 commits.
-  This documentation record does not mark the branch merged.
+- These SHAs do not describe the corrected production rasters or Light field.
+  They remain here only as historical evidence.
 - Production assets:
   - `public/landing/document-horizon-1120.webp` — `1120 × 720`,
-    `14,876` bytes.
+    `15,172` bytes.
   - `public/landing/document-horizon-2200.webp` — `2200 × 1414`,
-    `51,532` bytes.
+    `69,110` bytes.
 
-### Automated release gate
+### Composition correction
+
+The first PR implementation generated a new paper-field photograph from a text
+prompt. Although it satisfied the later prose description, it did not preserve
+the Working Stack image the user had approved. Direct inspection of the retained
+visual-companion artifacts identified that discrepancy before merge.
+
+The corrected production rasters preserve the approved Pexels composition and
+add only perspective-matched, anonymized resume structure to its loose
+foreground sheet. A second direct visual comparison then selected option D:
+stronger resume hierarchy plus the existing Light application background. Dark
+Surround remains unchanged. `src/tests/landingHeroAsset.test.ts` now
+fingerprints both reviewed responsive assets so a different paper scene or the
+earlier ambiguous imprint cannot silently satisfy the file-existence and
+dimension checks.
+
+### Final-D correction verification
+
+Status before the correction commit: **automated gate PASS; direct visual
+checkpoint PASS; independent re-review changes requested for documentation
+only**. The exact correction commit SHA and final re-review disposition remain
+pending. This section must be updated after the correction is committed and
+re-reviewed; it does not authorize merge on its own.
+
+Fresh correction-state results:
+
+- review-contract generation and both TypeScript checks passed;
+- Vitest passed `23/23` files and `228/228` tests;
+- backend pytest passed `50/50` tests;
+- both production builds and SPA fallback generation passed;
+- Playwright passed unconfigured `9/9` and configured `3/3`;
+- `dist/index.html` and `dist/404.html` remained byte-identical;
+- both protected-path comparisons and `git diff --check` passed;
+- the responsive assets remained exactly `1120 × 720` and `2200 × 1414` with
+  the approved SHA-256 fingerprints recorded above.
+
+The first composite `verify:full` attempt used the system Python and could not
+import FastAPI. Re-running through the established isolated backend environment
+passed the full non-browser gate; the browser portion initially encountered the
+workspace sandbox's localhost-listen restriction, then passed unchanged when
+run with permission to start Playwright's local preview servers.
+
+Direct inspection of the real local build on cmux surface `43` covered the
+final-D Light and Dark renderings. Light visually joined the existing
+application field without a separate beige or white panel. Dark retained Dark
+Surround. The lower-left document read clearly as an anonymous resume, the
+upper-right stack remained blank, the live copy remained dominant, and no
+meter, shader, Canvas layer, glass, glow, or ornamental motion appeared. The
+visible preview was left in Light mode. The existing structured 36-cell matrix
+remains evidence for the unchanged responsive and saved-state contracts; the
+new fingerprint and browser tests cover the corrected raster and theme values.
+
+The context-isolated reviewer found no Critical or runtime/visual findings. It
+requested correction of stale pre-D gate/review language and non-portable
+provenance references before approval. Those record changes are included in the
+pending correction commit.
+
+### Superseded pre-correction automated release gate
 
 Fresh commands were run from the isolated worktree on July 27, 2026:
 
@@ -240,7 +311,7 @@ and passed as one command.
 The only build concern is the pre-existing, non-blocking Vite advisory for the
 minified `renderResumePdf` chunk exceeding `500 kB`.
 
-### Direct cmux WKWebView QA
+### Superseded pre-correction direct cmux WKWebView QA
 
 The user-approved cmux `0.64.20` native WKWebView retained the existing visual
 screenshots from `http://127.0.0.1:4191/presume/`. A fresh structured run used
@@ -275,8 +346,10 @@ that proof.
 
 Direct observations:
 
-- Light resolved to True White (`rgb(255, 255, 255)`) without a beige or cream
-  cast. Dark and System-resolved-Dark used the approved Dark Surround
+- The earlier True White checkpoint was superseded by the approved final
+  direction. Light now matches the application background
+  (`rgb(237, 242, 240)`) without introducing a separate beige or cream field.
+  Dark and System-resolved-Dark use the approved Dark Surround
   (`rgb(26, 33, 31)`) without a fixed white folio or teal wash.
 - The resume printing remained physically integrated with the photographed
   sheet: perspective, focus, paper overlap, print absorption, and crop remained
@@ -351,7 +424,7 @@ count as reduced-motion evidence. This PASS is specifically browser-level
 WebKit forced-media QA plus direct screenshot inspection. It is not a claim of
 native macOS-preference or cmux reduced-motion testing.
 
-### Reviews and protected boundaries
+### Pre-correction reviews and current protected boundaries
 
 - Task 1 independent review: approved; no Critical or Important finding.
 - Task 2 independent review: approved; no Critical or Important finding.
@@ -371,6 +444,9 @@ native macOS-preference or cmux reduced-motion testing.
   focused production Playwright `4/4`, the protected-path comparison, SPA
   fallback parity, and a `36/36` structured-matrix audit with zero invariant
   errors.
+- Final-D correction review of the uncommitted diff: no Critical or
+  runtime/visual findings; documentation changes requested and addressed in
+  the pending correction commit. Exact-commit re-review remains pending.
 
 The protected comparison against `origin/main...HEAD` produced no diff for:
 

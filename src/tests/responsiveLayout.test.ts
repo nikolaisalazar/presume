@@ -124,12 +124,12 @@ describe('custom editor CSS invariants', () => {
     expect(appCss).not.toContain('review-report--candidate')
   })
 
-  it('uses True White in Light mode and Dark Surround in Dark mode', () => {
+  it('matches the Light application field and uses Dark Surround in Dark mode', () => {
     expect(appCss).toMatch(
-      /\.landing-hero \{[^}]*background: var\(--surface-raised\);[^}]*color: var\(--foreground\);/
+      /\.landing-hero \{[^}]*background: var\(--background\);[^}]*color: var\(--foreground\);/
     )
     expect(appCss).toMatch(
-      /\.landing-hero::after \{[^}]*background: color-mix\(in srgb, var\(--surface-raised\) 76%, transparent\);/
+      /\.landing-hero::after \{[^}]*background: color-mix\(in srgb, var\(--background\) 76%, transparent\);/
     )
     expect(appCss).toMatch(
       /\.dark \.landing-hero \{[^}]*background: var\(--surface\);[^}]*color: var\(--foreground\);/

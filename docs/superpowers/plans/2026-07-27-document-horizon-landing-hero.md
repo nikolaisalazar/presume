@@ -2,30 +2,36 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Implement the approved Document Horizon hero: a convincingly printed resume on disciplined paper, True White in Light mode, and Dark Surround in Dark mode.
+**Goal:** Implement the approved Document Horizon hero: a clearly recognizable
+resume printed on the Working Stack foreground sheet, Application Background
+Match in Light mode, and Dark Surround in Dark mode.
 
-**Architecture:** Keep the current `LandingPage` information architecture and responsive `<picture>` loading contract. Ship one neutral, custom-generated image composition at the existing `1120 × 720` and `2200 × 1414` delivery sizes, then use semantic theme tokens plus theme-specific filters and overlays to produce the approved Light and Dark treatments without downloading duplicate theme assets. Protect the asset, theme, focus, mobile-transfer, and route contracts with focused Vitest and Playwright coverage.
+**Architecture:** Keep the current `LandingPage` information architecture and responsive `<picture>` loading contract. Preserve the exact user-approved Working Stack photograph, print an anonymized resume hierarchy only into its existing loose foreground sheet, and ship that composition at the existing `1120 × 720` and `2200 × 1414` delivery sizes. Use semantic theme tokens plus theme-specific filters and overlays to produce the approved Light and Dark treatments without downloading duplicate theme assets. Protect the reviewed raster, theme, focus, mobile-transfer, and route contracts with focused Vitest and Playwright coverage.
 
-**Tech Stack:** React 18, TypeScript 5.7, Vite 6, semantic CSS tokens, Vitest/Testing Library, Playwright, built-in image generation, FFmpeg, and `cwebp`.
+**Tech Stack:** React 18, TypeScript 5.7, Vite 6, semantic CSS tokens, Vitest/Testing Library, Playwright, FFmpeg, and `cwebp`.
 
 ## Global Constraints
 
 - `DESIGN.md` is the visual authority, `PRODUCT.md` is the product authority, and `docs/superpowers/specs/2026-07-27-document-horizon-landing-hero-design.md` is the feature authority.
 - Preserve the current centered hero composition, content, calls to open/continue editing, saved-resume wording, route behavior, and `720px` desktop height.
-- Light mode uses True White through the existing `--surface-raised: #ffffff` token.
+- Light mode matches the landing-page field through the existing
+  `--background: #edf2f0` token.
 - Dark mode uses Dark Surround through the existing dark background/surface token family.
 - The functional editor/PDF resume remains `--paper: #fffefb` in every theme.
   The decorative landing raster contains no real personal information and
-  follows the approved True White or Dark Surround grade with the complete
+  follows the approved Application Background Match or Dark Surround grade with the complete
   photograph; it is not covered by the functional paper-independence invariant.
 - The printed resume must match the photographed sheet's perspective, lighting, focus, texture, and cropping; a floating UI overlay is not acceptable.
+- Preserve the retained Pexels photo `9869075` exactly: the loose foreground
+  sheet remains lower-left, the blank paper stack remains upper-right, and the
+  upper/central negative space remains uninterrupted.
 - Preserve the current `641px` image boundary. Through `640px`, the image, overlay, and any asset credit remain hidden and the image must not download.
 - Use one neutral responsive asset set unless browser evidence proves that it cannot produce both approved theme treatments.
 - Do not add a measurement rule, meter, ruler, badge, stat, shader, parallax, Canvas UI, WebGL, glow, glass, or ornamental motion.
 - Keep Verdigris below the Ten-Percent threshold and restricted to existing semantic action, focus, and approved emphasis roles.
 - Do not change `src/styles/resume.css`, runtime resume rendering, saved data, storage, export, PDF, Review, Fit, resize, routing, or GitHub Pages fallback behavior.
 - Do not add visual snapshots. Automated geometry and token tests supplement but never replace direct visual QA.
-- Every production-code change follows red-green-refactor. The generated raster asset is exercised by a failing asset contract before it is created.
+- Every production-code change follows red-green-refactor. The reviewed raster asset is exercised by a failing composition-fingerprint contract before it replaces the incorrect generated scene.
 - Implementation occurs on `feat/document-horizon-landing-hero` in an isolated `.worktrees/document-horizon-landing-hero` worktree based on current `origin/main`.
 
 ---
@@ -34,9 +40,9 @@
 
 - `public/landing/document-horizon-1120.webp` — normal-density responsive hero asset at exactly `1120 × 720`.
 - `public/landing/document-horizon-2200.webp` — high-density responsive hero asset at exactly `2200 × 1414`.
-- `public/landing/README.md` — provenance, final image-generation prompt, post-processing commands, and license/attribution disposition.
+- `public/landing/README.md` — approved visual references, source-photo provenance, production treatment, fingerprints, and license disposition.
 - `src/components/LandingPage.tsx` — responsive asset references and removal of the obsolete external photograph credit.
-- `src/styles/app.css` — True White and Dark Surround presentation, theme-aware typography/filter/overlay/focus, and unchanged mobile hiding.
+- `src/styles/app.css` — Application Background Match and Dark Surround presentation, theme-aware typography/filter/overlay/focus, and unchanged mobile hiding.
 - `src/tests/landingHeroAsset.test.ts` — on-disk responsive-asset existence, WebP signature, size ceiling, and obsolete-asset retirement.
 - `src/tests/appIntegration.test.tsx` — runtime decorative-picture and copy/behavior contract.
 - `src/tests/themeContrast.test.ts` — theme-appropriate hero focus companion edge.
@@ -139,42 +145,32 @@ Expected:
 - The focused Playwright tests fail because no `document-horizon` request occurs at `641px` and the new route-abort matcher does not see the intended asset.
 - The production build remains otherwise valid.
 
-- [x] **Step 4: Generate the neutral production source with the built-in image tool**
+- [x] **Step 4: Restore the approved Working Stack source**
 
-Use the built-in image-generation tool in `generate` mode with this exact prompt:
+Use the exact photograph retained by every approved visual-companion artifact:
 
 ```text
-Use case: photorealistic-natural
-Asset type: Presume landing-page hero background, wide landscape 14:9 composition
-Primary request: Create a restrained editorial photograph of disciplined white paper sheets on a clean studio surface. One US Letter resume sheet enters from the lower-right edge and is naturally integrated into the photograph.
-Scene/backdrop: high-key neutral white studio field with layered white paper, generous clear negative space across the central and upper-middle area for live website text
-Subject: one warm-white resume page physically resting among the paper sheets; the resume contains an abstract but unmistakable professional layout with a name line, contact line, section rules, role headings, dates, and short body lines printed directly into the paper
-Style/medium: premium natural product photography, subtle paper fibers, exact edges, quiet editorial materiality, realistic optical depth
-Composition/framing: wide 14:9 landscape; camera nearly overhead with slight perspective; resume enters from lower right and remains subordinate to the empty central text area; no object crosses the central headline zone
-Lighting/mood: soft diffuse studio daylight, restrained short shadows, calm and precise
-Color palette: neutral white and soft gray only; no beige, tan, cream cast, teal wash, colored surface, or colored shadow
-Text: no readable words, names, addresses, companies, contact information, logos, or watermarks; use only non-legible typographic marks that clearly form a resume hierarchy
-Constraints: the resume printing must follow the sheet perspective, focus, lighting, surface texture, and paper absorption; it must look physically printed, never composited above the sheet; preserve large quiet negative space for centered website copy
-Avoid: envelope, stationery set, letterpress, typewriter, hands, people, laptop, phone, pen, ruler, measurement marks, interface widgets, meter, badge, statistics, glass, glow, gradient, shader, ornamental motion, legible personal information
+https://images.pexels.com/photos/9869075/pexels-photo-9869075.jpeg
 ```
 
-Inspect the generated image at original detail. Reject it if:
+Preserve the photographed pixels and geometry. Add only abstract resume line
+work to the existing loose foreground sheet. Warp that line work to the sheet's
+four perspective corners, alpha-composite it into the photograph, and verify at
+original detail that:
 
-- the resume appears to float;
-- any text or personal information is legible;
-- the central copy region is busy;
-- the color reads beige or teal;
-- the resume is not visibly a printed professional document;
-- the composition contains any avoided object.
+- the upper-right paper stack is unchanged and blank;
+- the loose lower-left sheet has not moved, resized, or changed shape;
+- the resume print stays within that sheet and follows its perspective;
+- no text is readable and no personal data is present;
+- the upper and central negative space is unchanged;
+- no lower-right sheet, meter, ruler, or interface ornament is introduced.
 
-If one targeted correction is needed, edit the generated image once with a prompt that names only the failed criterion and repeats every invariant.
+- [x] **Step 5: Produce and fingerprint the exact responsive WebP assets**
 
-- [x] **Step 5: Produce the exact responsive WebP assets**
-
-Move the accepted built-in output to `tmp/imagegen/document-horizon-source.png`, then run:
+Center-crop the corrected source to the existing delivery contract:
 
 ```sh
-ffmpeg -y -i tmp/imagegen/document-horizon-source.png \
+ffmpeg -y -i /tmp/presume-approved-document-horizon-composite.png \
   -vf "scale=2200:1414:force_original_aspect_ratio=increase,crop=2200:1414" \
   /tmp/presume-document-horizon-2200.png
 cwebp -quiet -q 86 /tmp/presume-document-horizon-2200.png \
@@ -187,6 +183,9 @@ cwebp -quiet -q 84 /tmp/presume-document-horizon-1120.png \
 sips -g pixelWidth -g pixelHeight \
   public/landing/document-horizon-1120.webp \
   public/landing/document-horizon-2200.webp
+shasum -a 256 \
+  public/landing/document-horizon-1120.webp \
+  public/landing/document-horizon-2200.webp
 ```
 
 Expected dimensions:
@@ -194,6 +193,13 @@ Expected dimensions:
 ```text
 document-horizon-1120.webp  1120 × 720
 document-horizon-2200.webp  2200 × 1414
+```
+
+Expected fingerprints:
+
+```text
+ccce41026d7eae284b392a4fc66be3683ca225d168e4ee56282dc4877f7eb843  document-horizon-1120.webp
+245f1d7bb59330ae6a02e7d5e5411eb18aeac5946da41ca50c7cda7bc85f4b15  document-horizon-2200.webp
 ```
 
 Delete only the two superseded `handmade-paper-*.webp` files after the new files pass inspection.
@@ -209,12 +215,13 @@ In `LandingPage.tsx`:
 
 Create `public/landing/README.md` containing:
 
-- generated date `2026-07-27`;
-- built-in image-generation workflow;
-- the exact final prompt above;
-- the exact FFmpeg/`cwebp` commands;
+- correction date `2026-07-27`;
+- the canonical Pexels photo page, photographer, stable photo ID, direct source
+  URL, and Pexels License;
+- the deterministic perspective-print and responsive-encoding treatment;
+- the approved fingerprints above;
 - a statement that the asset contains no real resume or personal data;
-- a statement that no third-party attribution is required.
+- the license/attribution disposition without inventing a contributor name.
 
 - [x] **Step 7: Run focused tests and verify GREEN**
 
@@ -239,7 +246,7 @@ git commit -m "feat: add Document Horizon landing artwork"
 
 ---
 
-### Task 2: Implement True White and Dark Surround with accessible focus
+### Task 2: Implement Application Background Match and Dark Surround with accessible focus
 
 **Files:**
 - Modify: `src/styles/app.css`
@@ -256,12 +263,12 @@ git commit -m "feat: add Document Horizon landing artwork"
 Add a focused case to `src/tests/responsiveLayout.test.ts`:
 
 ```ts
-it('uses True White in Light mode and Dark Surround in Dark mode', () => {
+it('matches the Light application field and uses Dark Surround in Dark mode', () => {
   expect(appCss).toMatch(
-    /\.landing-hero \{[^}]*background: var\(--surface-raised\);[^}]*color: var\(--foreground\);/
+    /\.landing-hero \{[^}]*background: var\(--background\);[^}]*color: var\(--foreground\);/
   )
   expect(appCss).toMatch(
-    /\.landing-hero::after \{[^}]*background: color-mix\(in srgb, var\(--surface-raised\) 76%, transparent\);/
+    /\.landing-hero::after \{[^}]*background: color-mix\(in srgb, var\(--background\) 76%, transparent\);/
   )
   expect(appCss).toMatch(
     /\.dark \.landing-hero \{[^}]*background: var\(--surface\);[^}]*color: var\(--foreground\);/
@@ -280,7 +287,7 @@ Update `src/tests/themeContrast.test.ts` so the hero button focus contract expec
 Add this Playwright test to `e2e/unconfigured.spec.ts`:
 
 ```ts
-test('renders True White in Light and Dark Surround in Dark', async ({ page }) => {
+test('matches the Light application field and renders Dark Surround in Dark', async ({ page }) => {
   await page.setViewportSize({ width: 1120, height: 980 })
   await page.goto('./')
 
@@ -289,7 +296,7 @@ test('renders True White in Light and Dark Surround in Dark', async ({ page }) =
 
   await appearance.getByRole('button', { name: 'Light' }).click()
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
-  await expect(hero).toHaveCSS('background-color', 'rgb(255, 255, 255)')
+  await expect(hero).toHaveCSS('background-color', 'rgb(237, 242, 240)')
   await expect(hero).toHaveCSS('color', 'rgb(23, 33, 30)')
   expect(await hero.evaluate(element =>
     getComputedStyle(element, '::after').backgroundColor
@@ -318,7 +325,7 @@ Run:
 
 ```sh
 NODE_OPTIONS=--no-experimental-webstorage npm test -- --run src/tests/responsiveLayout.test.ts src/tests/themeContrast.test.ts
-npx playwright test -c playwright.unconfigured.config.ts -g "True White"
+npx playwright test -c playwright.unconfigured.config.ts -g "Light application field"
 ```
 
 Expected failures:
@@ -333,12 +340,12 @@ Update only the landing-hero rules in `src/styles/app.css`:
 
 ```css
 .landing-hero {
-  background: var(--surface-raised);
+  background: var(--background);
   color: var(--foreground);
 }
 
 .landing-hero::after {
-  background: color-mix(in srgb, var(--surface-raised) 76%, transparent);
+  background: color-mix(in srgb, var(--background) 76%, transparent);
 }
 
 .landing-hero__media > img {
@@ -389,7 +396,7 @@ Run:
 
 ```sh
 NODE_OPTIONS=--no-experimental-webstorage npm test -- --run src/tests/responsiveLayout.test.ts src/tests/themeContrast.test.ts
-npx playwright test -c playwright.unconfigured.config.ts -g "True White"
+npx playwright test -c playwright.unconfigured.config.ts -g "Light application field"
 npx playwright test -c playwright.unconfigured.config.ts -g "keeps the landing identity responsive"
 git diff --check
 ```
@@ -483,7 +490,7 @@ NODE_OPTIONS=--no-experimental-webstorage npm test -- --run \
   src/tests/responsiveLayout.test.ts \
   src/tests/themeContrast.test.ts
 npm run build
-npx playwright test -c playwright.unconfigured.config.ts -g "True White|hidden hero image transfer|decorative image fails|landing identity responsive"
+npx playwright test -c playwright.unconfigured.config.ts -g "Light application field|hidden hero image transfer|decorative image fails|landing identity responsive"
 git diff --check
 ```
 
@@ -554,7 +561,7 @@ git status --short --branch
 
 Expected: all commands exit `0`; only intended landing, asset, test, and documentation changes appear.
 
-Execution correction (July 27, 2026): in one command subshell, the isolated
+Pre-correction execution record (July 27, 2026): in one command subshell, the isolated
 backend environment was activated with
 `source /private/tmp/presume-review-backend-venv-20260727/bin/activate`, then
 the exact prescribed
@@ -563,6 +570,14 @@ It passed review-contract generation, both TypeScript checks, `23/23` Vitest
 files with `227/227` tests, and `50/50` backend tests (`0.54s`). This replaces
 the earlier record that reconstructed the gate from separately successful
 component runs.
+
+Final-D correction record (July 27, 2026): the same gate passed with `23/23`
+Vitest files and `228/228` tests, `50/50` backend tests, successful production
+build and SPA fallback generation, and Playwright unconfigured `9/9` plus
+configured `3/3`. SPA fallback parity, protected-path comparisons, asset
+dimensions/fingerprints, and `git diff --check` also passed. The correction
+commit SHA and corrected whole-branch re-review remain pending until the
+following closeout commit.
 
 - [x] **Step 2: Run direct browser visual QA**
 
@@ -577,10 +592,11 @@ saved and unsaved states
 
 At each relevant desktop/tablet width confirm:
 
-- Light reads as True White, not beige or cream.
+- Light matches the existing application background, not beige, cream, or a
+  separate white panel.
 - Dark reads as Dark Surround, not a fixed white folio or teal wash.
 - The decorative resume is visibly printed into the photographed sheet; it is
-  neutral white in Light and follows the approved whole-image Dark Surround
+  the application field in Light and follows the approved whole-image Dark Surround
   grade in Dark.
 - The resume perspective, focus, lighting, ink absorption, and crop are physically convincing.
 - The resume remains subordinate to the live headline and no image detail competes with the copy.
@@ -604,7 +620,7 @@ Also verify:
 - System follows the current OS appearance without a wrong-theme hero flash;
 - aborting the hero image request leaves the headline and action complete.
 
-Recorded disposition (July 27, 2026): **PASS**. The direct cmux visual matrix,
+Pre-correction recorded disposition (July 27, 2026): **PASS**. The direct cmux visual matrix,
 keyboard, theme, navigation, and failure-fallback checks above are complete. A
 fresh structured run retained all `36` width/theme/state cells at
 `.superpowers/sdd/cmux-final-qa/structured-matrix-20260727.json`.
@@ -629,6 +645,14 @@ emulation, and its earlier JavaScript `matchMedia` shim did not alter CSS media
 evaluation. The recorded PASS therefore applies to browser-level WebKit forced
 media plus direct screenshot inspection; it does not claim native
 macOS-preference or cmux reduced-motion testing.
+
+Final-D correction checkpoint (July 27, 2026): the user selected the clearer
+resume plus Application Background Match direction in the dedicated visual
+comparison. The real local build was then inspected directly on cmux surface
+`43` in Light and Dark. Light joined the application field without a separate
+beige or white panel; Dark retained Dark Surround; the resume hierarchy was
+clear, anonymous, and physically integrated; the blank stack and live-copy
+hierarchy remained intact. The visible preview was left in Light mode.
 
 - [x] **Step 3: Record exact implementation evidence**
 

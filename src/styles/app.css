@@ -1183,7 +1183,7 @@ body {
   place-items: center;
   overflow: hidden;
   border-bottom: 1px solid var(--border-strong);
-  background: var(--surface-raised);
+  background: var(--background);
   color: var(--foreground);
 }
 
@@ -1191,7 +1191,7 @@ body {
   position: absolute;
   z-index: 1;
   inset: 0;
-  background: color-mix(in srgb, var(--surface-raised) 76%, transparent);
+  background: color-mix(in srgb, var(--background) 76%, transparent);
   content: '';
 }
 

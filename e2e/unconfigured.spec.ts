@@ -248,7 +248,7 @@ test.describe('unconfigured browser contracts', () => {
     })
   })
 
-  test('renders True White in Light and Dark Surround in Dark', async ({ page }) => {
+  test('matches the Light application field and renders Dark Surround in Dark', async ({ page }) => {
     await page.setViewportSize({ width: 1120, height: 980 })
     await page.goto('./')
 
@@ -257,11 +257,11 @@ test.describe('unconfigured browser contracts', () => {
 
     await appearance.getByRole('button', { name: 'Light' }).click()
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
-    await expect(hero).toHaveCSS('background-color', 'rgb(255, 255, 255)')
+    await expect(hero).toHaveCSS('background-color', 'rgb(237, 242, 240)')
     await expect(hero).toHaveCSS('color', 'rgb(23, 33, 30)')
     expect(await hero.evaluate(element =>
       getComputedStyle(element, '::after').backgroundColor
-    )).toBe('color(srgb 1 1 1 / 0.76)')
+    )).toBe('color(srgb 0.929412 0.94902 0.941176 / 0.76)')
 
     await appearance.getByRole('button', { name: 'Dark' }).click()
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
