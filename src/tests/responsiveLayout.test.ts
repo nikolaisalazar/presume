@@ -124,6 +124,40 @@ describe('custom editor CSS invariants', () => {
     expect(appCss).not.toContain('review-report--candidate')
   })
 
+  it('matches the Light application field and uses Dark Surround in Dark mode', () => {
+    expect(appCss).toMatch(
+      /\.landing-hero \{[^}]*background: var\(--background\);[^}]*color: var\(--foreground\);/
+    )
+    expect(appCss).toMatch(
+      /\.landing-hero::after \{[^}]*background: color-mix\(in srgb, var\(--background\) 76%, transparent\);/
+    )
+    expect(appCss).toMatch(
+      /\.dark \.landing-hero \{[^}]*background: var\(--surface\);[^}]*color: var\(--foreground\);/
+    )
+    expect(appCss).toMatch(
+      /\.dark \.landing-hero::after \{[^}]*background: color-mix\(in srgb, var\(--background\) 72%, transparent\);/
+    )
+    expect(appCss).toMatch(
+      /\.dark \.landing-hero__media > img \{[^}]*filter: grayscale\(0\.78\) saturate\(0\.28\) contrast\(1\.12\) brightness\(0\.43\);/
+    )
+    expect(appCss).not.toMatch(/\.landing-hero__media > img \{[^}]*sepia\(/)
+  })
+
+  it('drives compact hero geometry from the runtime layout attribute', () => {
+    expect(appCss).toMatch(
+      /\[data-slot='landing-hero'\]\[data-layout='compact'\] \{[^}]*display: block;[^}]*min-height: 0;[^}]*padding-block: 66px;/
+    )
+    expect(appCss).toMatch(
+      /\[data-slot='landing-hero'\]\[data-layout='compact'\] \.landing-hero__media,[\s\S]*?\[data-slot='landing-hero'\]\[data-layout='compact'\]::after \{[^}]*display: none;/
+    )
+
+    const compactMediaQuery = appCss.match(
+      /@media \(max-width: 640px\) \{\n  \.landing-page \{([\s\S]*?)\n\}\n\n@media \(prefers-reduced-motion: reduce\)/
+    )?.[1]
+    expect(compactMediaQuery).toBeDefined()
+    expect(compactMediaQuery).not.toContain('.landing-hero')
+  })
+
   it('keeps keyboard focus visible inside the clipped Border Notch and on review targets', () => {
     expect(appCss).toMatch(
       /\.workspace\[data-review-open='true'\] > \.fit-region:not\(:has\(\[aria-expanded='true'\]\)\)[\s\S]*?\[data-slot='collapsible-trigger'\]:focus-visible \{[^}]*outline: none;[^}]*box-shadow:[^}]*inset/

@@ -61,6 +61,10 @@ describe('App review availability boundaries', () => {
     })
   })
 
+  function setViewportWidth(width: number) {
+    vi.stubGlobal('innerWidth', width)
+  }
+
   afterEach(() => {
     vi.unstubAllEnvs()
     vi.unstubAllGlobals()
@@ -98,9 +102,10 @@ describe('App review availability boundaries', () => {
     expect(screen.getByRole('toolbar', { name: 'Document actions' })).toBeInTheDocument()
   })
 
-  it('composes the landing page from the approved design-system primitives', () => {
+  it('renders the hero source only above the inclusive viewport boundary', () => {
     vi.stubEnv('VITE_REVIEW_API_URL', '')
     window.history.pushState({}, '', '/presume/')
+    setViewportWidth(640)
 
     const { container } = render(<App />)
 
@@ -115,6 +120,28 @@ describe('App review availability boundaries', () => {
     const brandMark = container.querySelector('.app-header__brand-mark')
     expect(brandMark?.querySelector('svg')).toBeInTheDocument()
     expect(brandMark).not.toHaveTextContent('P')
+    const heroMedia = container.querySelector<HTMLPictureElement>(
+      '[data-slot="landing-hero-media"]'
+    )
+    const heroImage = heroMedia?.querySelector('img')
+    const hero = container.querySelector('[data-slot="landing-hero"]')
+
+    expect(heroMedia).toHaveAttribute('aria-hidden', 'true')
+    expect(hero).toHaveAttribute('data-layout', 'compact')
+    expect(heroMedia?.querySelectorAll('source')).toHaveLength(0)
+    expect(heroImage).toHaveAttribute('alt', '')
+
+    setViewportWidth(641)
+    fireEvent(window, new Event('resize'))
+
+    expect(hero).toHaveAttribute('data-layout', 'wide')
+    expect(heroMedia?.querySelectorAll('source')).toHaveLength(1)
+    expect(heroMedia?.querySelector('source')).toHaveAttribute(
+      'srcset',
+      '/presume/landing/document-horizon-1120.webp 1120w, /presume/landing/document-horizon-2200.webp 2200w'
+    )
+    expect(heroMedia?.querySelector('source')).not.toHaveAttribute('media')
+    expect(screen.queryByRole('link', { name: /Photograph:/ })).not.toBeInTheDocument()
     expect(
       screen.getByRole('heading', {
         name: 'Presume is a local-first resume workbench.',

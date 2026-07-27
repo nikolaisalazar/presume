@@ -1,3 +1,4 @@
+import { useSyncExternalStore } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { BrandMark } from '@/components/BrandMark'
@@ -43,7 +44,22 @@ function editorActionLabel(hasSavedResume: boolean, freshLabel: string) {
   return hasSavedResume ? 'Continue editing' : freshLabel
 }
 
+function subscribeToViewport(listener: () => void) {
+  window.addEventListener('resize', listener)
+  return () => window.removeEventListener('resize', listener)
+}
+
+function getWideViewportSnapshot() {
+  return window.innerWidth >= 641
+}
+
 export function LandingPage({ hasSavedResume, onOpenEditor }: LandingPageProps) {
+  const isWide = useSyncExternalStore(
+    subscribeToViewport,
+    getWideViewportSnapshot,
+    () => false
+  )
+
   return (
     <div className="landing-page">
       <header
@@ -66,6 +82,7 @@ export function LandingPage({ hasSavedResume, onOpenEditor }: LandingPageProps) 
         <section
           className="landing-hero"
           data-slot="landing-hero"
+          data-layout={isWide ? 'wide' : 'compact'}
           aria-labelledby="landing-title"
         >
           <picture
@@ -73,12 +90,13 @@ export function LandingPage({ hasSavedResume, onOpenEditor }: LandingPageProps) 
             data-slot="landing-hero-media"
             aria-hidden="true"
           >
-            <source
-              media="(min-width: 641px)"
-              type="image/webp"
-              srcSet="/presume/landing/handmade-paper-1120.webp 1120w, /presume/landing/handmade-paper-2200.webp 2200w"
-              sizes="(max-width: 1120px) calc(100vw - 48px), 1120px"
-            />
+            {isWide ? (
+              <source
+                type="image/webp"
+                srcSet="/presume/landing/document-horizon-1120.webp 1120w, /presume/landing/document-horizon-2200.webp 2200w"
+                sizes="(max-width: 1120px) calc(100vw - 48px), 1120px"
+              />
+            ) : null}
             <img
               src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
               alt=""
@@ -100,14 +118,6 @@ export function LandingPage({ hasSavedResume, onOpenEditor }: LandingPageProps) 
               <span>Open project · No account required</span>
             </div>
           </div>
-          <a
-            className="landing-hero__credit"
-            href="https://unsplash.com/photos/DsPYLmU4Ty0"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Photograph: 360floralflaves / Unsplash
-          </a>
         </section>
 
         <section className="landing-origins" aria-labelledby="origins-title">

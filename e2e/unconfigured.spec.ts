@@ -248,18 +248,63 @@ test.describe('unconfigured browser contracts', () => {
     })
   })
 
+  test('matches the Light application field and renders Dark Surround in Dark', async ({ page }) => {
+    await page.setViewportSize({ width: 1120, height: 980 })
+    await page.goto('./')
+
+    const appearance = page.getByRole('group', { name: 'Appearance' })
+    const hero = page.locator('[data-slot="landing-hero"]')
+
+    await appearance.getByRole('button', { name: 'Light' }).click()
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
+    await expect(hero).toHaveCSS('background-color', 'rgb(237, 242, 240)')
+    await expect(hero).toHaveCSS('color', 'rgb(23, 33, 30)')
+    expect(await hero.evaluate(element =>
+      getComputedStyle(element, '::after').backgroundColor
+    )).toBe('color(srgb 0.929412 0.94902 0.941176 / 0.76)')
+
+    await appearance.getByRole('button', { name: 'Dark' }).click()
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+    await expect(hero).toHaveCSS('background-color', 'rgb(26, 33, 31)')
+    await expect(hero).toHaveCSS('color', 'rgb(240, 243, 241)')
+    expect(await hero.evaluate(element =>
+      getComputedStyle(element, '::after').backgroundColor
+    )).toBe('color(srgb 0.0627451 0.0823529 0.0745098 / 0.72)')
+
+    const heroAction = hero.getByRole('button', { name: /Open the editor|Continue editing/ })
+    await page.keyboard.press('Tab')
+    await page.keyboard.press('Tab')
+    await expect(heroAction).toBeFocused()
+    await expect(heroAction).toHaveCSS('outline-style', 'solid')
+  })
+
   test('measures the rendered Fit Lab width and avoids hidden hero image transfer', async ({ page }) => {
-    await page.setViewportSize({ width: 560, height: 980 })
+    await page.setViewportSize({ width: 640, height: 980 })
     const heroImageRequests: string[] = []
     page.on('request', request => {
-      if (request.url().includes('/landing/handmade-paper')) {
+      if (request.url().includes('/landing/document-horizon')) {
         heroImageRequests.push(request.url())
       }
     })
 
     await page.goto('./')
     await expect(page.getByRole('region', { name: 'Pretext Fit Lab' })).toBeVisible()
+    const hero = page.locator('[data-slot="landing-hero"]')
+    await expect(hero).toHaveAttribute('data-layout', 'compact')
+    await expect(hero.locator('source')).toHaveCount(0)
     expect(heroImageRequests).toEqual([])
+
+    await page.setViewportSize({ width: 641, height: 980 })
+    await expect(hero).toHaveAttribute('data-layout', 'wide')
+    await expect(hero.locator('source')).toHaveCount(1)
+    await expect(hero.locator('source')).toHaveAttribute(
+      'srcset',
+      /document-horizon-1120\.webp.*document-horizon-2200\.webp/
+    )
+    await expect.poll(() => heroImageRequests.some(path =>
+      /document-horizon-(?:1120|2200)\.webp/.test(path)
+    )).toBe(true)
+    await page.setViewportSize({ width: 560, height: 980 })
 
     const widthGroup = page.getByRole('group', { name: 'Measurement width' })
     const widthButtons = widthGroup.getByRole('button')
@@ -301,6 +346,30 @@ test.describe('unconfigured browser contracts', () => {
     expect(await widthButtons.evaluateAll(buttons =>
       buttons.map(button => Math.round(button.getBoundingClientRect().height))
     )).toEqual([36, 36, 36])
+  })
+
+  test('keeps live hero content complete when the decorative image fails', async ({ page }) => {
+    let requestAborted = false
+    await page.route('**/landing/document-horizon-*.webp', async route => {
+      requestAborted = true
+      await route.abort()
+    })
+    await page.setViewportSize({ width: 1120, height: 980 })
+
+    await page.goto('./')
+
+    expect(requestAborted).toBe(true)
+    const hero = page.getByRole('region', {
+      name: 'Presume is a local-first resume workbench.',
+    })
+    await expect(
+      hero.getByRole('heading', {
+        name: 'Presume is a local-first resume workbench.',
+      })
+    ).toBeVisible()
+    const primaryAction = hero.getByRole('button', { name: 'Open the editor' })
+    await expect(primaryAction).toBeVisible()
+    await expect(primaryAction).toBeEnabled()
   })
 
   test('keeps the Fit constraints header stable and its expanded controls usable', async ({ page }) => {
