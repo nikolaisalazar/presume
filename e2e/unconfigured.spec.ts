@@ -248,6 +248,36 @@ test.describe('unconfigured browser contracts', () => {
     })
   })
 
+  test('renders True White in Light and Dark Surround in Dark', async ({ page }) => {
+    await page.setViewportSize({ width: 1120, height: 980 })
+    await page.goto('./')
+
+    const appearance = page.getByRole('group', { name: 'Appearance' })
+    const hero = page.locator('[data-slot="landing-hero"]')
+
+    await appearance.getByRole('button', { name: 'Light' }).click()
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
+    await expect(hero).toHaveCSS('background-color', 'rgb(255, 255, 255)')
+    await expect(hero).toHaveCSS('color', 'rgb(23, 33, 30)')
+    expect(await hero.evaluate(element =>
+      getComputedStyle(element, '::after').backgroundColor
+    )).toBe('color(srgb 1 1 1 / 0.76)')
+
+    await appearance.getByRole('button', { name: 'Dark' }).click()
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
+    await expect(hero).toHaveCSS('background-color', 'rgb(26, 33, 31)')
+    await expect(hero).toHaveCSS('color', 'rgb(240, 243, 241)')
+    expect(await hero.evaluate(element =>
+      getComputedStyle(element, '::after').backgroundColor
+    )).toBe('color(srgb 0.0627451 0.0823529 0.0745098 / 0.72)')
+
+    const heroAction = hero.getByRole('button', { name: /Open the editor|Continue editing/ })
+    await page.keyboard.press('Tab')
+    await page.keyboard.press('Tab')
+    await expect(heroAction).toBeFocused()
+    await expect(heroAction).toHaveCSS('outline-style', 'solid')
+  })
+
   test('measures the rendered Fit Lab width and avoids hidden hero image transfer', async ({ page }) => {
     await page.setViewportSize({ width: 640, height: 980 })
     const heroImageRequests: string[] = []

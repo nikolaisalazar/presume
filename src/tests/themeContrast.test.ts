@@ -99,10 +99,7 @@ describe('theme contrast contracts', () => {
       /\.landing-page__brand:focus-visible,[\s\S]*?\.landing-page__main a:focus-visible \{[^}]*outline: 2px solid var\(--ring\);[^}]*box-shadow: 0 0 0 2px var\(--focus-contrast\);/
     )
     expect(appCss).toMatch(
-      /\.landing-hero \.landing-hero__credit:focus-visible \{[^}]*box-shadow: 0 0 0 2px var\(--paper-ink\);/
-    )
-    expect(appCss).toMatch(
-      /\.landing-hero \[data-slot='button'\]:focus-visible \{[^}]*box-shadow:[^}]*var\(--paper-ink\)/
+      /\.landing-hero \[data-slot='button'\]:focus-visible \{[^}]*box-shadow:[^}]*var\(--focus-contrast\)/
     )
   })
 

@@ -124,6 +124,22 @@ describe('custom editor CSS invariants', () => {
     expect(appCss).not.toContain('review-report--candidate')
   })
 
+  it('uses True White in Light mode and Dark Surround in Dark mode', () => {
+    expect(appCss).toMatch(
+      /\.landing-hero \{[^}]*background: var\(--surface-raised\);[^}]*color: var\(--foreground\);/
+    )
+    expect(appCss).toMatch(
+      /\.landing-hero::after \{[^}]*background: color-mix\(in srgb, var\(--surface-raised\) 76%, transparent\);/
+    )
+    expect(appCss).toMatch(
+      /\.dark \.landing-hero \{[^}]*background: var\(--surface\);[^}]*color: var\(--foreground\);/
+    )
+    expect(appCss).toMatch(
+      /\.dark \.landing-hero::after \{[^}]*background: color-mix\(in srgb, var\(--background\) 72%, transparent\);/
+    )
+    expect(appCss).not.toMatch(/\.landing-hero__media > img \{[^}]*sepia\(/)
+  })
+
   it('keeps keyboard focus visible inside the clipped Border Notch and on review targets', () => {
     expect(appCss).toMatch(
       /\.workspace\[data-review-open='true'\] > \.fit-region:not\(:has\(\[aria-expanded='true'\]\)\)[\s\S]*?\[data-slot='collapsible-trigger'\]:focus-visible \{[^}]*outline: none;[^}]*box-shadow:[^}]*inset/
