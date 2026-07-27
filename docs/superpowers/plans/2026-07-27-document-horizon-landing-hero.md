@@ -576,8 +576,9 @@ Vitest files and `228/228` tests, `50/50` backend tests, successful production
 build and SPA fallback generation, and Playwright unconfigured `9/9` plus
 configured `3/3`. SPA fallback parity, protected-path comparisons, asset
 dimensions/fingerprints, and `git diff --check` also passed. The correction
-commit SHA and corrected whole-branch re-review remain pending until the
-following closeout commit.
+commit is `1fbd627d6ef969a0216f6f6c758b942d6caabd9d`; its context-isolated
+exact-commit re-review approved the reviewed range with no Critical, Important,
+or Minor findings.
 
 - [x] **Step 2: Run direct browser visual QA**
 

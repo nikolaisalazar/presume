@@ -201,8 +201,8 @@ Selected:
 
 The original Task 4 release gate and whole-branch review apply only to the
 superseded pre-correction implementation. The final-D correction has fresh
-automated and direct visual evidence, but its exact commit and corrected
-whole-branch review record are pending below. Merge remains pending.
+automated and direct visual evidence and an approved exact-commit review.
+Merge remains pending.
 
 ### Superseded pre-correction implementation
 
@@ -237,11 +237,16 @@ dimension checks.
 
 ### Final-D correction verification
 
-Status before the correction commit: **automated gate PASS; direct visual
-checkpoint PASS; independent re-review changes requested for documentation
-only**. The exact correction commit SHA and final re-review disposition remain
-pending. This section must be updated after the correction is committed and
-re-reviewed; it does not authorize merge on its own.
+Disposition: **PASS**.
+
+- Exact correction commit:
+  `1fbd627d6ef969a0216f6f6c758b942d6caabd9d`.
+- Reviewed range:
+  `0a5694ef8b4b21ec375772ff8401ca76bad42222..1fbd627d6ef969a0216f6f6c758b942d6caabd9d`.
+- Independent exact-commit re-review: approved with no Critical, Important, or
+  Minor findings.
+- Reviewed binary diff SHA-256:
+  `7409a6ed4ca0d32f7350d2560344196045cf9e83b4fca848c0d0efa9d53cf210`.
 
 Fresh correction-state results:
 
@@ -271,10 +276,10 @@ visible preview was left in Light mode. The existing structured 36-cell matrix
 remains evidence for the unchanged responsive and saved-state contracts; the
 new fingerprint and browser tests cover the corrected raster and theme values.
 
-The context-isolated reviewer found no Critical or runtime/visual findings. It
-requested correction of stale pre-D gate/review language and non-portable
-provenance references before approval. Those record changes are included in the
-pending correction commit.
+The context-isolated reviewer first found no Critical or runtime/visual
+findings, but requested correction of stale pre-D gate/review language and
+non-portable provenance references. The exact-commit re-review confirmed both
+findings resolved and approved the correction with no remaining findings.
 
 ### Superseded pre-correction automated release gate
 
@@ -444,9 +449,12 @@ native macOS-preference or cmux reduced-motion testing.
   focused production Playwright `4/4`, the protected-path comparison, SPA
   fallback parity, and a `36/36` structured-matrix audit with zero invariant
   errors.
-- Final-D correction review of the uncommitted diff: no Critical or
-  runtime/visual findings; documentation changes requested and addressed in
-  the pending correction commit. Exact-commit re-review remains pending.
+- Final-D correction review of
+  `0a5694ef8b4b21ec375772ff8401ca76bad42222..1fbd627d6ef969a0216f6f6c758b942d6caabd9d`:
+  approved with no Critical, Important, or Minor findings. Fresh independent
+  checks passed typecheck, `23/23` Vitest files and `228/228` tests, focused
+  Playwright `4/4`, asset-to-build parity, protected-path comparison, and
+  `git diff --check`.
 
 The protected comparison against `origin/main...HEAD` produced no diff for:
 
