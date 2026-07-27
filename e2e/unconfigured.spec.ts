@@ -289,10 +289,21 @@ test.describe('unconfigured browser contracts', () => {
 
     await page.goto('./')
     await expect(page.getByRole('region', { name: 'Pretext Fit Lab' })).toBeVisible()
+    const hero = page.locator('[data-slot="landing-hero"]')
+    await expect(hero).toHaveAttribute('data-layout', 'compact')
+    await expect(hero.locator('source')).toHaveCount(0)
     expect(heroImageRequests).toEqual([])
 
     await page.setViewportSize({ width: 641, height: 980 })
-    await expect.poll(() => heroImageRequests.length).toBeGreaterThanOrEqual(1)
+    await expect(hero).toHaveAttribute('data-layout', 'wide')
+    await expect(hero.locator('source')).toHaveCount(1)
+    await expect(hero.locator('source')).toHaveAttribute(
+      'srcset',
+      /document-horizon-1120\.webp.*document-horizon-2200\.webp/
+    )
+    await expect.poll(() => heroImageRequests.some(path =>
+      /document-horizon-(?:1120|2200)\.webp/.test(path)
+    )).toBe(true)
     await page.setViewportSize({ width: 560, height: 980 })
 
     const widthGroup = page.getByRole('group', { name: 'Measurement width' })
