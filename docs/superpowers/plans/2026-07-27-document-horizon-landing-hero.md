@@ -14,7 +14,10 @@
 - Preserve the current centered hero composition, content, calls to open/continue editing, saved-resume wording, route behavior, and `720px` desktop height.
 - Light mode uses True White through the existing `--surface-raised: #ffffff` token.
 - Dark mode uses Dark Surround through the existing dark background/surface token family.
-- The pictured resume remains `--paper: #fffefb` in every theme and contains no real personal information.
+- The functional editor/PDF resume remains `--paper: #fffefb` in every theme.
+  The decorative landing raster contains no real personal information and
+  follows the approved True White or Dark Surround grade with the complete
+  photograph; it is not covered by the functional paper-independence invariant.
 - The printed resume must match the photographed sheet's perspective, lighting, focus, texture, and cropping; a floating UI overlay is not acceptable.
 - Preserve the current `641px` image boundary. Through `640px`, the image, overlay, and any asset credit remain hidden and the image must not download.
 - Use one neutral responsive asset set unless browser evidence proves that it cannot produce both approved theme treatments.
@@ -551,7 +554,17 @@ git status --short --branch
 
 Expected: all commands exit `0`; only intended landing, asset, test, and documentation changes appear.
 
-- [x] **Step 2: Run direct cmux WKWebView visual QA**
+Execution correction (July 27, 2026): in one command subshell, the isolated
+backend environment was activated with
+`source /private/tmp/presume-review-backend-venv-20260727/bin/activate`, then
+the exact prescribed
+`NODE_OPTIONS=--no-experimental-webstorage npm run verify` command exited `0`.
+It passed review-contract generation, both TypeScript checks, `23/23` Vitest
+files with `227/227` tests, and `50/50` backend tests (`0.54s`). This replaces
+the earlier record that reconstructed the gate from separately successful
+component runs.
+
+- [ ] **Step 2: Run direct cmux WKWebView visual QA — LIMITED / PENDING**
 
 Use the user-approved cmux browser surface, not an automated geometry report,
 to inspect `/presume/` at exact logical viewports:
@@ -590,6 +603,16 @@ Also verify:
 - browser-back navigation;
 - System follows the current OS appearance without a wrong-theme hero flash;
 - aborting the hero image request leaves the headline and action complete.
+
+Recorded disposition (July 27, 2026): the direct visual matrix, keyboard,
+theme, navigation, and failure-fallback checks above are complete. A fresh
+structured run retained all `36` width/theme/state cells at
+`.superpowers/sdd/cmux-final-qa/structured-matrix-20260727.json`. Direct
+reduced-motion CSS-engine QA remains `LIMITED / PENDING`: the available
+JavaScript `matchMedia` shim does not change WKWebView CSS media evaluation,
+and no macOS accessibility preference was changed. Parsed-rule and automated
+evidence pass and no product defect was found, but they do not complete this
+direct gate.
 
 - [x] **Step 3: Record exact implementation evidence**
 

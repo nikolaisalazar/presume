@@ -185,6 +185,11 @@ Selected:
 
 ## Implementation Evidence
 
+Release disposition: **LIMITED / PENDING** solely for direct reduced-motion
+CSS-engine QA. The retained visual matrix, structured browser evidence,
+automated release gate, and parsed reduced-motion rule show no product defect,
+but automated/parsing evidence does not replace the outstanding direct check.
+
 ### Verified implementation
 
 - Branch: `feat/document-horizon-landing-hero`.
@@ -202,6 +207,13 @@ Selected:
 
 Fresh commands were run from the isolated worktree on July 27, 2026:
 
+- In one command subshell,
+  `source /private/tmp/presume-review-backend-venv-20260727/bin/activate` followed
+  by the exact prescribed
+  `NODE_OPTIONS=--no-experimental-webstorage npm run verify` command passed and
+  exited `0`. Its composite result was successful review-contract generation,
+  successful TypeScript checks, `23/23` Vitest files with `227/227` tests, and
+  `50/50` backend tests in `0.54s`.
 - `PATH="/private/tmp/presume-review-backend-venv-20260727/bin:$PATH" npm run check:review-contract`
   — passed.
 - `npm run typecheck` — passed.
@@ -217,22 +229,25 @@ Fresh commands were run from the isolated worktree on July 27, 2026:
   `cmp dist/index.html dist/404.html` — passed.
 - `git diff --check` — passed.
 
-The unmodified system-Python contract command reproduced the expected
-`ModuleNotFoundError: fastapi`. Re-running that same contract component with
-the approved isolated backend environment first on `PATH` passed. The isolated
-interpreter was also used directly for backend pytest.
+An earlier system-Python-only attempt reproduced
+`ModuleNotFoundError: fastapi`; that environment failure is historical and is
+not the final composite-gate result. The final exact composite command above
+activated the approved isolated backend environment before `npm run verify`
+and passed as one command.
 
 The only build concern is the pre-existing, non-blocking Vite advisory for the
 minified `renderResumePdf` chunk exceeding `500 kB`.
 
 ### Direct cmux WKWebView QA
 
-The user-approved cmux `0.64.20` native WKWebView surface inspected
-`http://127.0.0.1:4191/presume/` on a fresh loopback origin. The origin was
-chosen so no existing profile resume data had to be read, deleted, or replaced.
+The user-approved cmux `0.64.20` native WKWebView retained the existing visual
+screenshots from `http://127.0.0.1:4191/presume/`. A fresh structured run used
+`surface:42` and `http://127.0.0.1:4192/presume/`; the new loopback origin began
+with no Presume storage keys, so no existing profile resume data was read,
+overwritten, or deleted.
 
-Direct fresh-load screenshots and structured DOM/computed-style/resource
-evidence cover all `36` combinations:
+Together, the retained direct screenshots and the fresh structured
+DOM/computed-style/resource run cover all `36` combinations:
 
 - logical widths `1120`, `921`, `920`, `641`, `640`, and `358`;
 - Light, Dark, and System preferences;
@@ -241,7 +256,20 @@ evidence cover all `36` combinations:
 Screenshots are retained in the ignored evidence directory
 `.superpowers/sdd/cmux-final-qa/`. All six theme/state contact sheets and the
 original-resolution `1120`, `641`, `640`, and `358` captures were visually
-inspected; geometry assertions alone were not used as the visual verdict.
+inspected; geometry assertions alone were not used as the visual verdict. The
+fresh per-cell record is
+`.superpowers/sdd/cmux-final-qa/structured-matrix-20260727.json`. It records
+the requested width, actual `window.innerWidth`,
+`document.documentElement.clientWidth`, `data-layout`, source count and
+`srcset`, Document Horizon resource count, computed hero height, media and
+overlay display, page overflow, preference and resolved theme, storage state,
+and all three editor-action labels for every cell.
+
+Retained screenshot pixel dimensions can be one pixel smaller than their
+logical viewport filename because cmux aspect-fits the emulated page inside its
+pane. Screenshot dimensions are visual evidence, not proof of logical viewport
+width; the direct `window.innerWidth` values in the structured record provide
+that proof.
 
 Direct observations:
 
@@ -279,15 +307,16 @@ Direct observations:
   a complete semantic Dark hero fallback with zero page overflow.
 - A final clean reload reported no browser errors and no console entries.
 
-The dedicated reduced-motion experiment used a separate fresh cmux surface and
-a pre-navigation `matchMedia` shim. JavaScript reported reduced motion as
-enabled, but WKWebView's CSS engine does not consume a JavaScript shim for media
-evaluation: computed hero animation remained `220ms` and control transition
-remained `180ms`. No OS setting was changed. The browser did parse the shipped
-reduced-motion rule that forces transition and animation duration to `0.01ms`,
-one iteration, and automatic scrolling; the fresh automated CSS contract and
-full test suite also passed. This is an honest direct-emulation limitation, not
-evidence of a product defect.
+Direct reduced-motion CSS-engine QA is **LIMITED / PENDING**. The dedicated
+experiment used a separate fresh cmux surface and a pre-navigation
+`matchMedia` shim. JavaScript reported reduced motion as enabled, but
+WKWebView's CSS engine does not consume a JavaScript shim for media evaluation:
+computed hero animation remained `220ms` and control transition remained
+`180ms`. No macOS accessibility preference was changed. The browser parsed the
+shipped reduced-motion rule that forces transition and animation duration to
+`0.01ms`, one iteration, and automatic scrolling; the fresh automated CSS
+contract and full test suite also passed. This supporting evidence found no
+product defect, but it does not satisfy the required direct CSS-engine gate.
 
 ### Reviews and protected boundaries
 
@@ -295,7 +324,12 @@ evidence of a product defect.
 - Task 2 independent review: approved; no Critical or Important finding.
 - Task 3 independent review: approved with no Critical, Important, or Minor
   finding.
-- Task 4 review: pending.
+- Task 4 review of documentation commit
+  `48e5c4a4b028de93d51e943dd82beee39b3f22d8`: changes required; the review
+  found an inconsistent paper invariant, an overstated reduced-motion/pass
+  disposition, missing retained structured matrix data, and no successful
+  prescribed composite verification run. This correction addresses those
+  findings; scoped re-review remains pending.
 - Whole-branch review: pending.
 
 The protected comparison against `origin/main...HEAD` produced no diff for:
