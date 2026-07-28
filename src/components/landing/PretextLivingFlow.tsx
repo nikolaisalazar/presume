@@ -12,7 +12,7 @@ import {
 } from './pretextLivingFlowLayout'
 
 const INITIAL_PASSAGE =
-  'Text usually has to appear on a page before the browser can tell an application how much space it occupies. Pretext calculates multiline text layout in JavaScript, using the browser font engine without repeatedly measuring the rendered paragraph. It can predict line breaks and text height, then route a continuous passage through changing geometry. Move the title through the passage to see each line find the available space again. In Presume, the same foundation helps make changing content measurable.'
+  'Changing a sentence changes where every line ends, but browsers usually reveal those measurements only after the text appears. Pretext calculates multiline layout in JavaScript using the browser’s own font engine. It predicts line breaks and text height, then routes one continuous passage through changing geometry. Move the title through this passage to see each line find the available space again.'
 
 const FONT = '18px Geist'
 const LINE_HEIGHT = 30
@@ -48,6 +48,17 @@ function clampPoint(point: Point, stage: Size, object: Size): Point {
   }
 }
 
+function getDefaultPoint(stage: Size, object: Size): Point {
+  return clampPoint(
+    {
+      x: stage.width >= 560 ? stage.width * 0.52 : stage.width * 0.16,
+      y: stage.width >= 560 ? 64 : Math.max(160, stage.height * 0.46),
+    },
+    stage,
+    object
+  )
+}
+
 export function PretextLivingFlow() {
   const stageRef = useRef<HTMLDivElement>(null)
   const titleRef = useRef<HTMLButtonElement>(null)
@@ -55,11 +66,14 @@ export function PretextLivingFlow() {
   const pendingPointRef = useRef<Point | null>(null)
   const dragOffsetRef = useRef<Point>({ x: 0, y: 0 })
   const placedRef = useRef(false)
+  const movedRef = useRef(false)
+  const defaultPointRef = useRef<Point>({ x: 360, y: 64 })
   const [stageSize, setStageSize] = useState<Size>({ width: 0, height: 0 })
   const [titleSize, setTitleSize] = useState<Size>({ width: 280, height: 74 })
   const [titlePoint, setTitlePoint] = useState<Point>({ x: 360, y: 64 })
   const [passage, setPassage] = useState(INITIAL_PASSAGE)
   const [editing, setEditing] = useState(false)
+  const [hasMoved, setHasMoved] = useState(false)
   const [fontsReady, setFontsReady] = useState(false)
 
   useEffect(() => {
@@ -89,16 +103,15 @@ export function PretextLivingFlow() {
         width: title.getBoundingClientRect().width,
         height: title.getBoundingClientRect().height,
       }
+      const nextDefault = getDefaultPoint(nextStage, nextTitle)
+
+      defaultPointRef.current = nextDefault
       setStageSize(nextStage)
       setTitleSize(nextTitle)
       setTitlePoint(current => {
-        if (!placedRef.current && nextStage.width > 0) {
+        if (!placedRef.current || !movedRef.current) {
           placedRef.current = true
-          return clampPoint(
-            { x: nextStage.width * 0.52, y: 64 },
-            nextStage,
-            nextTitle
-          )
+          return nextDefault
         }
         return clampPoint(current, nextStage, nextTitle)
       })
@@ -111,7 +124,7 @@ export function PretextLivingFlow() {
     observer.observe(stage)
     observer.observe(title)
     return () => observer.disconnect()
-  }, [])
+  }, [fontsReady])
 
   useEffect(
     () => () => {
@@ -138,13 +151,21 @@ export function PretextLivingFlow() {
     })
   }, [fontsReady, passage, stageSize, titlePoint, titleSize])
 
+  const markMoved = () => {
+    movedRef.current = true
+    setHasMoved(true)
+  }
+
   const schedulePoint = (point: Point) => {
     pendingPointRef.current = clampPoint(point, stageSize, titleSize)
     if (frameRef.current !== null) return
 
     frameRef.current = requestAnimationFrame(() => {
       frameRef.current = null
-      if (pendingPointRef.current) setTitlePoint(pendingPointRef.current)
+      if (pendingPointRef.current) {
+        markMoved()
+        setTitlePoint(pendingPointRef.current)
+      }
     })
   }
 
@@ -160,6 +181,7 @@ export function PretextLivingFlow() {
     if (!delta) return
 
     event.preventDefault()
+    markMoved()
     setTitlePoint(current =>
       clampPoint(
         { x: current.x + delta.x, y: current.y + delta.y },
@@ -169,20 +191,18 @@ export function PretextLivingFlow() {
     )
   }
 
+  const resetPosition = () => {
+    movedRef.current = false
+    setHasMoved(false)
+    setTitlePoint(defaultPointRef.current)
+  }
+
   const layoutAvailable = projectedLines !== null
+  const interactionUnavailable =
+    fontsReady && stageSize.width > 0 && projectedLines === null
 
   return (
-    <section
-      className="pretext-living-flow"
-      aria-labelledby="pretext-living-flow-title"
-    >
-      <header className="pretext-living-flow__header">
-        <p className="landing-kicker">A working example</p>
-        <a href="https://github.com/chenglou/pretext">
-          Explore Pretext<span aria-hidden="true"> ↗</span>
-        </a>
-      </header>
-
+    <div className="pretext-living-flow">
       <div ref={stageRef} className="pretext-living-flow__stage">
         {editing ? (
           <textarea
@@ -220,15 +240,12 @@ export function PretextLivingFlow() {
           </>
         )}
 
-        <h2
-          aria-label="Text responds to its surroundings."
-          id="pretext-living-flow-title"
-        >
+        {!interactionUnavailable && !editing ? (
           <button
             ref={titleRef}
             className="pretext-living-flow__title"
             type="button"
-            aria-label="Movable headline. Drag it or use the arrow keys."
+            aria-label='Move “Text responds to its surroundings” by dragging or using the arrow keys.'
             data-position={`${Math.round(titlePoint.x)},${Math.round(titlePoint.y)}`}
             style={{
               transform: `translate3d(${titlePoint.x}px, ${titlePoint.y}px, 0)`,
@@ -266,8 +283,10 @@ export function PretextLivingFlow() {
               </span>
             </span>
           </button>
-        </h2>
+        ) : null}
+      </div>
 
+      <div className="pretext-living-flow__actions">
         <button
           className="pretext-living-flow__edit"
           type="button"
@@ -275,7 +294,16 @@ export function PretextLivingFlow() {
         >
           {editing ? 'View flow' : 'Edit passage'}
         </button>
+        {hasMoved ? (
+          <button
+            className="pretext-living-flow__reset"
+            type="button"
+            onClick={resetPosition}
+          >
+            Reset position
+          </button>
+        ) : null}
       </div>
-    </section>
+    </div>
   )
 }
