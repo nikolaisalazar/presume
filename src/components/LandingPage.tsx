@@ -141,7 +141,7 @@ export function LandingPage({ hasSavedResume, onOpenEditor }: LandingPageProps) 
                 <span>02 / Advisory review</span>
                 <h3>Hiring Agent made the review boundary tangible.</h3>
               </header>
-              <p>
+              <p className="landing-origins__passage">
                 HackerRank&apos;s open-source Hiring Agent helped make an
                 evidence-oriented Review workflow concrete. Presume adapts that
                 idea behind an optional service boundary, presents the result as

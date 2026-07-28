@@ -136,6 +136,9 @@ describe('Pretext living-flow exhibit', () => {
     expect(
       await screen.findByText(/Changing a sentence changes where every line ends/)
     ).toBeVisible()
+    expect(
+      screen.getByText(/Changing a sentence changes where every line ends/)
+    ).toHaveClass('landing-origins__passage')
     expect(screen.getByRole('button', { name: 'Edit passage' })).toBeEnabled()
     expect(
       screen.queryByRole('button', {

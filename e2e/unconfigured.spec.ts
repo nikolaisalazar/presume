@@ -134,6 +134,9 @@ test.describe('unconfigured browser contracts', () => {
           document.querySelectorAll<HTMLElement>('[data-slot="capability-row"]')
         ).map(row => row.getBoundingClientRect())
         const origins = document.querySelector<HTMLElement>('.landing-origins')!
+        const originsHeading = origins.querySelector<HTMLElement>(
+          '.landing-origins__heading'
+        )!
         const heroRect = hero.getBoundingClientRect()
         const heroCopyRect = heroCopy.getBoundingClientRect()
         const heroHeadingRect = heroHeading.getBoundingClientRect()
@@ -161,6 +164,7 @@ test.describe('unconfigured browser contracts', () => {
             .split(' ')
             .filter(Boolean)
             .length,
+          originsHeadingPosition: getComputedStyle(originsHeading).position,
           heroCopyWithinHero: (
             heroCopyRect.left >= heroRect.left
             && heroCopyRect.right <= heroRect.right
@@ -201,6 +205,7 @@ test.describe('unconfigured browser contracts', () => {
     expect.soft(new Set(at920.featureLefts).size, 'feature columns at 920px').toBe(2)
     expect.soft(new Set(at920.featureTops).size, 'feature rows at 920px').toBe(2)
     expect.soft(at920.originsGridColumns, 'origins columns at 920px').toBe(1)
+    expect.soft(at920.originsHeadingPosition, 'origins heading at 920px').toBe('static')
     expect.soft(at920.documentScrollWidth, 'document overflow at 920px').toBeLessThanOrEqual(
       at920.bodyClientWidth
     )
@@ -209,11 +214,64 @@ test.describe('unconfigured browser contracts', () => {
     expect.soft(new Set(at921.featureLefts).size, 'feature columns at 921px').toBe(4)
     expect.soft(new Set(at921.featureTops).size, 'feature rows at 921px').toBe(1)
     expect.soft(at921.originsGridColumns, 'origins columns at 921px').toBe(2)
+    expect.soft(at921.originsHeadingPosition, 'origins heading at 921px').toBe('sticky')
     expect.soft(at921.imageVisible, 'decorative image visibility at 921px').toBe(true)
     expect.soft(at921.heroCopyWithinHero, 'hero copy containment at 921px').toBe(true)
     await expect.poll(async () => (
       await page.locator('.pretext-living-flow__line').allTextContents()
     ).join(' ')).toContain('available space again.')
+    const passageParity = await page.evaluate(() => {
+      const projected = document.querySelector<HTMLElement>(
+        '.pretext-living-flow__line'
+      )!
+      const advisory = document.querySelector<HTMLElement>(
+        '.landing-origins__chapter:not(.landing-origins__chapter--measurement) .landing-origins__passage'
+      )!
+      const projectedStyle = getComputedStyle(projected)
+      const advisoryStyle = getComputedStyle(advisory)
+
+      return {
+        projected: {
+          color: projectedStyle.color,
+          fontSize: projectedStyle.fontSize,
+          lineHeight: projectedStyle.lineHeight,
+          left: Math.round(projected.getBoundingClientRect().left),
+        },
+        advisory: {
+          color: advisoryStyle.color,
+          fontSize: advisoryStyle.fontSize,
+          lineHeight: advisoryStyle.lineHeight,
+          left: Math.round(advisory.getBoundingClientRect().left),
+        },
+      }
+    })
+    expect(passageParity.projected.color).toBe(passageParity.advisory.color)
+    expect(passageParity.projected.fontSize).toBe(
+      passageParity.advisory.fontSize
+    )
+    expect(
+      Math.abs(
+        Number.parseFloat(passageParity.projected.lineHeight) -
+          Number.parseFloat(passageParity.advisory.lineHeight)
+      )
+    ).toBeLessThan(0.01)
+    expect(passageParity.projected.left).toBe(passageParity.advisory.left)
+
+    await page.evaluate(() => {
+      const origins = document.querySelector<HTMLElement>('.landing-origins')!
+      window.scrollTo({ top: origins.offsetTop + 240 })
+    })
+    await expect.poll(() => page.locator('.landing-origins__heading').evaluate(
+      element => Math.round(element.getBoundingClientRect().top)
+    )).toBe(92)
+
+    await page.setViewportSize({ width: 921, height: 680 })
+    await expect(page.locator('.landing-origins__heading')).toHaveCSS(
+      'position',
+      'static'
+    )
+    await page.setViewportSize({ width: 921, height: 980 })
+    await page.evaluate(() => window.scrollTo({ top: 0 }))
 
     const brand = page.getByRole('link', { name: 'Presume home' })
     await brand.focus()

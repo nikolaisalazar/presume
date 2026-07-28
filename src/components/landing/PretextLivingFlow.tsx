@@ -212,7 +212,11 @@ export function PretextLivingFlow({ actionsEnd }: PretextLivingFlowProps = {}) {
 
   return (
     <div className="pretext-living-flow">
-      <div ref={stageRef} className="pretext-living-flow__stage">
+      <div
+        ref={stageRef}
+        className="pretext-living-flow__stage"
+        style={{ minHeight: editing ? projectedHeight : undefined }}
+      >
         {editing ? (
           <textarea
             aria-label="Pretext demonstration passage"
@@ -226,8 +230,8 @@ export function PretextLivingFlow({ actionsEnd }: PretextLivingFlowProps = {}) {
             <p
               className={
                 layoutAvailable
-                  ? 'sr-only'
-                  : 'pretext-living-flow__fallback'
+                  ? 'landing-origins__passage sr-only'
+                  : 'landing-origins__passage pretext-living-flow__fallback'
               }
             >
               {passage}

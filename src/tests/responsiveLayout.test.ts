@@ -166,10 +166,25 @@ describe('custom editor CSS invariants', () => {
       /@media \(max-width: 920px\) \{[\s\S]*?\.landing-origins \{[^}]*grid-template-columns: 1fr;/
     )
     expect(appCss).toMatch(
-      /@media \(max-width: 640px\) \{[\s\S]*?\.pretext-living-flow__title \{[^}]*min-height: 44px;/
+      /@media \(min-width: 921px\) and \(min-height: 720px\) \{[\s\S]*?\.landing-origins__heading \{[^}]*position: sticky;[^}]*top: 92px;[^}]*align-self: start;/
     )
     expect(appCss).toMatch(
-      /@media \(max-width: 640px\) \{[\s\S]*?\.pretext-living-flow__stage \{[^}]*min-height: clamp\(360px, calc\(1178px - 128vw\), 720px\);/
+      /\.landing-origins__chapter-heading h3 \{[^}]*font-size: clamp\(1\.65rem, 2\.45vw, 2\.15rem\);[^}]*line-height: 1\.06;/
+    )
+    expect(appCss).toMatch(
+      /\.landing-origins__passage,[\s\S]*?\.pretext-living-flow__line,[\s\S]*?\.pretext-living-flow__fallback \{[^}]*color: var\(--muted-foreground\);[^}]*font-size: 1\.125rem;[^}]*line-height: 1\.6667;/
+    )
+    expect(appCss).toMatch(
+      /\.pretext-living-flow__fallback \{[^}]*margin: 0 8px;[^}]*padding: 0;/
+    )
+    expect(appCss).toMatch(
+      /\.pretext-living-flow__stage \{[^}]*min-height: 0;/
+    )
+    expect(appCss).toMatch(
+      /\.pretext-living-flow__title \{[^}]*width: 258px;[^}]*height: 68px;/
+    )
+    expect(appCss).toMatch(
+      /@media \(max-width: 640px\) \{[\s\S]*?\.pretext-living-flow__title \{[^}]*width: min\(258px, calc\(100vw - 64px\)\);[^}]*min-height: 44px;[^}]*aspect-ratio: 258 \/ 68;/
     )
     expect(appCss).not.toContain('.landing-fit-study')
     expect(appCss).not.toContain('.landing-workflow')
@@ -181,6 +196,9 @@ describe('custom editor CSS invariants', () => {
     )
     expect(appCss).toMatch(
       /@media \(max-width: 640px\) \{[\s\S]*?\.pretext-living-flow \{[^}]*width: 100%;[^}]*margin-left: 0;/
+    )
+    expect(appCss).toMatch(
+      /@media \(max-width: 640px\) \{[\s\S]*?\.landing-origins__passage \{[^}]*margin-inline: 8px;/
     )
   })
 

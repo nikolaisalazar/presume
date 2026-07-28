@@ -119,6 +119,9 @@ describe('theme contrast contracts', () => {
     expect(titleRule).toBeDefined()
     expect(titleRule).not.toMatch(/transition|animation/)
     expect(appCss).not.toContain('@keyframes pretext')
+    expect(appCss).toMatch(
+      /\.landing-origins__passage,[\s\S]*?\.pretext-living-flow__fallback \{[^}]*color: var\(--muted-foreground\);/
+    )
   })
 
 })

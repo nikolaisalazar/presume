@@ -1208,19 +1208,24 @@ body {
 }
 
 .landing-origins__chapter-heading h3 {
-  max-width: 19ch;
-  font-size: clamp(1.75rem, 3.2vw, 2.55rem);
+  max-width: 22ch;
+  font-size: clamp(1.65rem, 2.45vw, 2.15rem);
   font-weight: 680;
-  letter-spacing: -0.045em;
-  line-height: 1.02;
+  letter-spacing: -0.038em;
+  line-height: 1.06;
 }
 
-.landing-origins__chapter > p {
-  max-width: 58ch;
-  margin-left: 146px;
+.landing-origins__passage,
+.pretext-living-flow__line,
+.pretext-living-flow__fallback {
   color: var(--muted-foreground);
   font-size: 1.125rem;
   line-height: 1.6667;
+}
+
+.landing-origins__passage {
+  max-width: 58ch;
+  margin-left: 146px;
 }
 
 .landing-origins__chapter a {
@@ -1245,15 +1250,13 @@ body {
 
 .pretext-living-flow__stage {
   position: relative;
-  min-height: 292px;
+  min-height: 0;
   overflow: hidden;
 }
 
 .pretext-living-flow__fallback {
-  margin: 0;
-  padding: 28px;
-  font-size: 1.125rem;
-  line-height: 1.6667;
+  margin: 0 8px;
+  padding: 0;
 }
 
 .pretext-living-flow__line {
@@ -1261,8 +1264,6 @@ body {
   top: 0;
   left: 0;
   white-space: pre;
-  font-size: 1.125rem;
-  line-height: 30px;
 }
 
 .pretext-living-flow__title {
@@ -1270,8 +1271,8 @@ body {
   z-index: 1;
   top: 0;
   left: 0;
-  width: 280px;
-  height: 74px;
+  width: 258px;
+  height: 68px;
   border: 0;
   border-radius: 0;
   padding: 0;
@@ -1320,7 +1321,7 @@ body {
   justify-content: center;
   width: 90%;
   height: 47.3%;
-  font-size: 1.55rem;
+  font-size: 1.42rem;
   font-weight: 650;
   letter-spacing: -0.045em;
   line-height: 0.99;
@@ -1374,8 +1375,8 @@ body {
 
 .pretext-living-flow textarea {
   position: absolute;
-  inset: 28px;
-  width: calc(100% - 56px);
+  inset: 8px;
+  width: calc(100% - 16px);
   resize: none;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-control);
@@ -1390,6 +1391,14 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .pretext-living-flow__title {
     will-change: auto;
+  }
+}
+
+@media (min-width: 921px) and (min-height: 720px) {
+  .landing-origins__heading {
+    position: sticky;
+    top: 92px;
+    align-self: start;
   }
 }
 
@@ -1549,9 +1558,8 @@ body {
     font-size: clamp(1.7rem, 8vw, 2.15rem);
   }
 
-  .landing-origins__chapter > p {
-    margin-left: 0;
-    font-size: 1rem;
+  .landing-origins__passage {
+    margin-inline: 8px;
   }
 
   .pretext-living-flow {
@@ -1559,23 +1567,15 @@ body {
     margin-left: 0;
   }
 
-  .pretext-living-flow__stage {
-    min-height: clamp(360px, calc(1178px - 128vw), 720px);
-  }
-
   .pretext-living-flow__title {
-    width: min(280px, calc(100vw - 64px));
+    width: min(258px, calc(100vw - 64px));
     min-height: 44px;
     height: auto;
-    aspect-ratio: 280 / 74;
+    aspect-ratio: 258 / 68;
   }
 
   .pretext-living-flow__title-line {
-    font-size: clamp(1rem, 5.4vw, 1.55rem);
-  }
-
-  .pretext-living-flow__fallback {
-    padding: 22px 18px;
+    font-size: clamp(1rem, 5.1vw, 1.42rem);
   }
 
   .pretext-living-flow__edit,
@@ -1584,8 +1584,8 @@ body {
   }
 
   .pretext-living-flow textarea {
-    inset: 22px 18px;
-    width: calc(100% - 36px);
+    inset: 8px;
+    width: calc(100% - 16px);
   }
 
   .landing-capabilities__register {
