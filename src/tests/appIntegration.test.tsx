@@ -88,16 +88,35 @@ describe('App review availability boundaries', () => {
     expect(screen.getByRole('heading', { name: 'Measure while it changes' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Review as evidence' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Leave with a stable artifact' })).toBeInTheDocument()
-    expect(
-      screen.getByRole('heading', {
-        name: 'Text responds to its surroundings.',
+    const origins = screen
+      .getByRole('heading', { name: 'The document came first.' })
+      .closest('section')
+    expect(origins).not.toBeNull()
+    expect(origins).toContainElement(
+      screen.getByRole('heading', { name: 'Pretext made fit observable.' })
+    )
+    expect(origins).toContainElement(
+      screen.getByRole('button', {
+        name: /Move “Text responds to its surroundings”/i,
       })
-    ).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'The document came first.' })).toBeInTheDocument()
+    )
+    expect(origins).toContainElement(
+      screen.getByRole('heading', {
+        name: 'Hiring Agent made the review boundary tangible.',
+      })
+    )
+    expect(screen.getByRole('link', { name: 'Explore Pretext' })).toBeInTheDocument()
     expect(
-      screen.getAllByRole('link', { name: 'Explore Pretext' })
-    ).toHaveLength(2)
+      screen.getByRole('link', { name: 'Explore Pretext' }).closest(
+        '.pretext-living-flow__actions'
+      )
+    ).not.toBeNull()
     expect(screen.getByRole('link', { name: 'Explore Hiring Agent' })).toBeInTheDocument()
+    expect(screen.queryByText('A working example')).not.toBeInTheDocument()
+    expect(screen.queryByText('Operating sequence')).not.toBeInTheDocument()
+    expect(
+      screen.queryByText('Write → Measure → Review → Export')
+    ).not.toBeInTheDocument()
     expect(screen.queryByLabelText('Presume editor preview')).not.toBeInTheDocument()
     expect(document.querySelector('.resume-page')).not.toBeInTheDocument()
     expect(screen.queryByRole('toolbar', { name: 'Document actions' })).not.toBeInTheDocument()
@@ -119,9 +138,7 @@ describe('App review availability boundaries', () => {
     expect(container.querySelectorAll('[data-slot="toggle-group-item"]')).toHaveLength(3)
     expect(container.querySelectorAll('[data-slot="card"]')).toHaveLength(0)
     expect(container.querySelectorAll('[data-slot="capability-row"]')).toHaveLength(4)
-    expect(container.querySelector('[data-slot="badge"]')).toHaveTextContent(
-      'Optional'
-    )
+    expect(container.querySelector('[data-slot="badge"]')).not.toBeInTheDocument()
     expect(container.querySelector('[data-slot="separator"]')).not.toBeInTheDocument()
     const brandMark = container.querySelector('.app-header__brand-mark')
     expect(brandMark?.querySelector('svg')).toBeInTheDocument()

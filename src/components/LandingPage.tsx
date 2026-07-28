@@ -1,5 +1,4 @@
 import { useSyncExternalStore } from 'react'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { BrandMark } from '@/components/BrandMark'
 import { PretextLivingFlow } from '@/components/landing/PretextLivingFlow'
@@ -31,13 +30,6 @@ const CAPABILITIES = [
     description:
       'Export a Letter-size PDF or a portable JSON backup from the same source used by the editor.',
   },
-] as const
-
-const WORKFLOW = [
-  ['Write', 'Work directly on the live document.'],
-  ['Measure', 'Expose wrapping and page pressure.'],
-  ['Review', 'Optionally inspect advisory evidence.'],
-  ['Export', 'Create the PDF or carry the data forward.'],
 ] as const
 
 function editorActionLabel(hasSavedResume: boolean, freshLabel: string) {
@@ -131,37 +123,37 @@ export function LandingPage({ hasSavedResume, onOpenEditor }: LandingPageProps) 
             </p>
           </div>
           <div className="landing-origins__chapters">
-            <section>
-              <span>01 / Measurement</span>
-              <h3>Pretext made fit observable.</h3>
-              <p>
-                Cheng Lou&apos;s Pretext made the measurement layer both possible
-                and legible. Presume uses its text-layout primitives to reason
-                about multiline wrapping and makes that relationship tangible
-                instead of hiding it behind marketing language.
-              </p>
-              <a href="https://github.com/chenglou/pretext">
-                Explore Pretext<span aria-hidden="true"> ↗</span>
-              </a>
+            <section className="landing-origins__chapter landing-origins__chapter--measurement">
+              <header className="landing-origins__chapter-heading">
+                <span>01 / Measurement</span>
+                <h3>Pretext made fit observable.</h3>
+              </header>
+              <PretextLivingFlow
+                actionsEnd={
+                  <a href="https://github.com/chenglou/pretext">
+                    Explore Pretext<span aria-hidden="true"> ↗</span>
+                  </a>
+                }
+              />
             </section>
-            <section>
-              <span>02 / Advisory review</span>
-              <h3>Hiring Agent made the review boundary tangible.</h3>
+            <section className="landing-origins__chapter">
+              <header className="landing-origins__chapter-heading">
+                <span>02 / Advisory review</span>
+                <h3>Hiring Agent made the review boundary tangible.</h3>
+              </header>
               <p>
                 HackerRank&apos;s open-source Hiring Agent helped make an
                 evidence-oriented Review workflow concrete. Presume adapts that
                 idea behind an optional service boundary, presents the result as
                 advisory evidence, and never lets it rewrite the resume.
               </p>
-              <a href="https://github.com/interviewstreet/hiring-agent">
-                Explore Hiring Agent<span aria-hidden="true"> ↗</span>
-              </a>
+              <footer className="landing-origins__chapter-footer">
+                <a href="https://github.com/interviewstreet/hiring-agent">
+                  Explore Hiring Agent<span aria-hidden="true"> ↗</span>
+                </a>
+              </footer>
             </section>
           </div>
-        </section>
-
-        <section className="landing-fit-study">
-          <PretextLivingFlow />
         </section>
 
         <section className="landing-capabilities" aria-labelledby="capabilities-title">
@@ -181,29 +173,6 @@ export function LandingPage({ hasSavedResume, onOpenEditor }: LandingPageProps) 
                 <span>0{index + 1}</span>
                 <h3>{item.title}</h3>
                 <p>{item.description}</p>
-              </li>
-            ))}
-          </ol>
-        </section>
-
-        <section className="landing-workflow" aria-labelledby="workflow-title">
-          <div className="landing-section-heading">
-            <p className="landing-kicker">Operating sequence</p>
-            <h2 id="workflow-title">Write → Measure → Review → Export</h2>
-            <p>
-              Review is optional. Every other stage remains available without a
-              configured service.
-            </p>
-          </div>
-          <ol>
-            {WORKFLOW.map(([title, description], index) => (
-              <li key={title} data-slot="workflow-step">
-                <span>0{index + 1}</span>
-                <div>
-                  <h3>{title}</h3>
-                  {title === 'Review' ? <Badge variant="outline">Optional</Badge> : null}
-                  <p>{description}</p>
-                </div>
               </li>
             ))}
           </ol>

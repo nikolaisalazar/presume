@@ -5,6 +5,7 @@ import {
   useRef,
   useState,
   type KeyboardEvent,
+  type ReactNode,
 } from 'react'
 import {
   layoutLivingFlow,
@@ -59,7 +60,11 @@ function getDefaultPoint(stage: Size, object: Size): Point {
   )
 }
 
-export function PretextLivingFlow() {
+export interface PretextLivingFlowProps {
+  actionsEnd?: ReactNode
+}
+
+export function PretextLivingFlow({ actionsEnd }: PretextLivingFlowProps = {}) {
   const stageRef = useRef<HTMLDivElement>(null)
   const titleRef = useRef<HTMLButtonElement>(null)
   const frameRef = useRef<number | null>(null)
@@ -287,22 +292,25 @@ export function PretextLivingFlow() {
       </div>
 
       <div className="pretext-living-flow__actions">
-        <button
-          className="pretext-living-flow__edit"
-          type="button"
-          onClick={() => setEditing(current => !current)}
-        >
-          {editing ? 'View flow' : 'Edit passage'}
-        </button>
-        {hasMoved ? (
+        <span className="pretext-living-flow__local-actions">
           <button
-            className="pretext-living-flow__reset"
+            className="pretext-living-flow__edit"
             type="button"
-            onClick={resetPosition}
+            onClick={() => setEditing(current => !current)}
           >
-            Reset position
+            {editing ? 'View flow' : 'Edit passage'}
           </button>
-        ) : null}
+          {hasMoved ? (
+            <button
+              className="pretext-living-flow__reset"
+              type="button"
+              onClick={resetPosition}
+            >
+              Reset position
+            </button>
+          ) : null}
+        </span>
+        {actionsEnd}
       </div>
     </div>
   )
