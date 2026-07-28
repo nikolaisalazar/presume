@@ -19,7 +19,6 @@ const FONT = '18px Geist'
 const LINE_HEIGHT = 30
 const STAGE_PADDING = 8
 const OBJECT_GAP = 4
-const MAX_PASSAGE_LENGTH = 800
 
 const STAIR_HULL: readonly LivingFlowPoint[] = [
   { x: 0, y: 0 },
@@ -34,6 +33,7 @@ const STAIR_HULL: readonly LivingFlowPoint[] = [
 
 type Size = Readonly<{ width: number; height: number }>
 type Point = Readonly<{ x: number; y: number }>
+type ReservedStage = Readonly<{ key: string; height: number }>
 
 function clampPoint(point: Point, stage: Size, object: Size): Point {
   if (stage.width === 0 || stage.height === 0) return point
@@ -68,19 +68,44 @@ export interface PretextLivingFlowProps {
 export function PretextLivingFlow({ actionsEnd }: PretextLivingFlowProps = {}) {
   const stageRef = useRef<HTMLDivElement>(null)
   const titleRef = useRef<HTMLButtonElement>(null)
+  const lineLayerRef = useRef<HTMLDivElement>(null)
   const frameRef = useRef<number | null>(null)
   const pendingPointRef = useRef<Point | null>(null)
-  const dragOffsetRef = useRef<Point>({ x: 0, y: 0 })
+  const visualPointRef = useRef<Point>({ x: 360, y: 64 })
+  const lastAcceptedPointerRef = useRef<
+    | Readonly<{
+        point: Point
+        lines: Exclude<ReturnType<typeof layoutLivingFlow>, null>
+      }>
+    | undefined
+  >()
+  const dragRef = useRef<
+    | Readonly<{
+        pointerId: number
+        stageLeft: number
+        stageTop: number
+        offsetX: number
+        offsetY: number
+      }>
+    | undefined
+  >()
   const placedRef = useRef(false)
   const movedRef = useRef(false)
-  const defaultPointRef = useRef<Point>({ x: 360, y: 64 })
+  const acceptedLayoutRef = useRef<
+    | Readonly<{
+        point: Point
+        stage: Size
+        object: Size
+        lines: ReturnType<typeof layoutLivingFlow>
+      }>
+    | undefined
+  >()
   const [stageSize, setStageSize] = useState<Size>({ width: 0, height: 0 })
-  const [titleSize, setTitleSize] = useState<Size>({ width: 280, height: 74 })
+  const [titleSize, setTitleSize] = useState<Size>({ width: 208, height: 68 })
   const [titlePoint, setTitlePoint] = useState<Point>({ x: 360, y: 64 })
-  const [passage, setPassage] = useState(INITIAL_PASSAGE)
-  const [editing, setEditing] = useState(false)
-  const [hasMoved, setHasMoved] = useState(false)
   const [fontsReady, setFontsReady] = useState(false)
+  const [reservedStage, setReservedStage] =
+    useState<ReservedStage | null>(null)
 
   useEffect(() => {
     let active = true
@@ -111,16 +136,36 @@ export function PretextLivingFlow({ actionsEnd }: PretextLivingFlowProps = {}) {
       }
       const nextDefault = getDefaultPoint(nextStage, nextTitle)
 
-      defaultPointRef.current = nextDefault
+      const activeDrag = dragRef.current
+      if (activeDrag) {
+        dragRef.current = undefined
+        pendingPointRef.current = null
+        lastAcceptedPointerRef.current = undefined
+        if (frameRef.current !== null) {
+          cancelAnimationFrame(frameRef.current)
+          frameRef.current = null
+        }
+        if (
+          typeof title.hasPointerCapture === 'function' &&
+          title.hasPointerCapture(activeDrag.pointerId) &&
+          typeof title.releasePointerCapture === 'function'
+        ) {
+          title.releasePointerCapture(activeDrag.pointerId)
+        }
+      }
+
       setStageSize(nextStage)
       setTitleSize(nextTitle)
-      setTitlePoint(current => {
-        if (!placedRef.current || !movedRef.current) {
-          placedRef.current = true
-          return nextDefault
-        }
-        return clampPoint(current, nextStage, nextTitle)
-      })
+      acceptedLayoutRef.current = undefined
+      const nextPoint =
+        !placedRef.current || !movedRef.current
+          ? nextDefault
+          : clampPoint(visualPointRef.current, nextStage, nextTitle)
+
+      placedRef.current = true
+      visualPointRef.current = nextPoint
+      title.style.transform = `translate3d(${nextPoint.x}px, ${nextPoint.y}px, 0)`
+      setTitlePoint(nextPoint)
     }
 
     sync()
@@ -130,7 +175,7 @@ export function PretextLivingFlow({ actionsEnd }: PretextLivingFlowProps = {}) {
     observer.observe(stage)
     observer.observe(title)
     return () => observer.disconnect()
-  }, [editing, fontsReady])
+  }, [fontsReady])
 
   useEffect(
     () => () => {
@@ -139,27 +184,143 @@ export function PretextLivingFlow({ actionsEnd }: PretextLivingFlowProps = {}) {
     []
   )
 
-  const projectedLines = useMemo(() => {
+  useLayoutEffect(() => {
+    const title = titleRef.current
+    if (!title) return
+
+    const point = visualPointRef.current
+    title.style.transform = `translate3d(${point.x}px, ${point.y}px, 0)`
+  }, [titlePoint])
+
+  const paintProjectedLines = (
+    lines: Exclude<ReturnType<typeof layoutLivingFlow>, null>
+  ) => {
+    const layer = lineLayerRef.current
+    if (!layer) return
+
+    lines.forEach((line, index) => {
+      const existing = layer.children.item(index)
+      const node =
+        existing instanceof HTMLSpanElement
+          ? existing
+          : document.createElement('span')
+      if (!existing) {
+        node.className = 'pretext-living-flow__line'
+        layer.append(node)
+      }
+      if (node.textContent !== line.text) node.textContent = line.text
+      node.style.transform = `translate(${line.x}px, ${line.y}px)`
+    })
+
+    while (layer.children.length > lines.length) {
+      layer.lastElementChild?.remove()
+    }
+
+    const lastLine = lines[lines.length - 1]
+    layer.style.height = lastLine
+      ? `${lastLine.y + LINE_HEIGHT + STAGE_PADDING}px`
+      : '0px'
+  }
+
+  const layoutAtPoint = (point: Point) => {
     if (!fontsReady || stageSize.width === 0) return null
 
     return layoutLivingFlow({
-      text: passage,
+      text: INITIAL_PASSAGE,
       font: FONT,
       lineHeight: LINE_HEIGHT,
       stage: stageSize,
       padding: STAGE_PADDING,
       gap: OBJECT_GAP,
       obstacle: {
-        ...titlePoint,
+        ...point,
         ...titleSize,
         hull: STAIR_HULL,
       },
     })
-  }, [fontsReady, passage, stageSize, titlePoint, titleSize])
+  }
+
+  const projectedLines = useMemo(() => {
+    const accepted = acceptedLayoutRef.current
+    if (
+      accepted &&
+      accepted.point.x === titlePoint.x &&
+      accepted.point.y === titlePoint.y &&
+      accepted.stage.width === stageSize.width &&
+      accepted.stage.height === stageSize.height &&
+      accepted.object.width === titleSize.width &&
+      accepted.object.height === titleSize.height
+    ) {
+      return accepted.lines
+    }
+
+    return layoutAtPoint(titlePoint)
+    // layoutAtPoint is intentionally scoped to the current measured render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fontsReady, stageSize, titlePoint, titleSize])
+
+  const reservationKey = `${stageSize.width}:${titleSize.width}:${titleSize.height}`
+
+  useLayoutEffect(() => {
+    if (!projectedLines) return
+
+    const lastLine = projectedLines[projectedLines.length - 1]
+    const projectedHeight = lastLine
+      ? lastLine.y + LINE_HEIGHT + STAGE_PADDING
+      : 0
+    const height = projectedHeight + LINE_HEIGHT
+
+    setReservedStage(current =>
+      current?.key === reservationKey ? current : { key: reservationKey, height }
+    )
+  }, [projectedLines, reservationKey])
+
+  useLayoutEffect(() => {
+    if (projectedLines) {
+      paintProjectedLines(projectedLines)
+      return
+    }
+
+    const layer = lineLayerRef.current
+    if (!layer) return
+    layer.replaceChildren()
+    layer.style.height = '0px'
+  }, [projectedLines])
+
+  const validatedLayout = (point: Point) => {
+    return layoutAtPoint(point)
+  }
+
+  const cacheAcceptedLayout = (
+    point: Point,
+    lines: ReturnType<typeof layoutLivingFlow>
+  ) => {
+    acceptedLayoutRef.current = {
+      point,
+      stage: stageSize,
+      object: titleSize,
+      lines,
+    }
+  }
 
   const markMoved = () => {
     movedRef.current = true
-    setHasMoved(true)
+  }
+
+  const paintPoint = (point: Point) => {
+    visualPointRef.current = point
+    if (titleRef.current) {
+      titleRef.current.style.transform = `translate3d(${point.x}px, ${point.y}px, 0)`
+    }
+  }
+
+  const commitPoint = (
+    point: Point,
+    candidateLines: Exclude<ReturnType<typeof layoutLivingFlow>, null>
+  ) => {
+    cacheAcceptedLayout(point, candidateLines)
+    markMoved()
+    setTitlePoint(point)
   }
 
   const schedulePoint = (point: Point) => {
@@ -168,12 +329,113 @@ export function PretextLivingFlow({ actionsEnd }: PretextLivingFlowProps = {}) {
 
     frameRef.current = requestAnimationFrame(() => {
       frameRef.current = null
-      if (pendingPointRef.current) {
-        markMoved()
-        setTitlePoint(pendingPointRef.current)
+      const candidate = pendingPointRef.current
+      pendingPointRef.current = null
+      if (!candidate) return
+
+      const candidateLines = validatedLayout(candidate)
+      if (!candidateLines) return
+
+      markMoved()
+      paintPoint(candidate)
+      paintProjectedLines(candidateLines)
+      lastAcceptedPointerRef.current = {
+        point: candidate,
+        lines: candidateLines,
       }
     })
   }
+
+  const finishPointerMovement = () => {
+    const candidate = pendingPointRef.current ?? visualPointRef.current
+    pendingPointRef.current = null
+    if (frameRef.current !== null) {
+      cancelAnimationFrame(frameRef.current)
+      frameRef.current = null
+    }
+    const candidateLines = validatedLayout(candidate)
+    const accepted = candidateLines
+      ? { point: candidate, lines: candidateLines }
+      : lastAcceptedPointerRef.current
+
+    if (accepted) {
+      paintPoint(accepted.point)
+      paintProjectedLines(accepted.lines)
+      commitPoint(accepted.point, accepted.lines)
+    } else {
+      paintPoint(titlePoint)
+      if (projectedLines) paintProjectedLines(projectedLines)
+    }
+    lastAcceptedPointerRef.current = undefined
+  }
+
+  useEffect(() => {
+    const stage = stageRef.current
+    const title = titleRef.current
+    if (!stage || !title) return
+
+    const beginDrag = (event: PointerEvent) => {
+      if (
+        event.isPrimary === false ||
+        event.button !== 0 ||
+        dragRef.current
+      ) {
+        return
+      }
+
+      event.preventDefault()
+      const stageRect = stage.getBoundingClientRect()
+      const titleRect = title.getBoundingClientRect()
+      dragRef.current = {
+        pointerId: event.pointerId,
+        stageLeft: stageRect.left,
+        stageTop: stageRect.top,
+        offsetX: event.clientX - titleRect.left,
+        offsetY: event.clientY - titleRect.top,
+      }
+      lastAcceptedPointerRef.current = undefined
+      title.setPointerCapture(event.pointerId)
+    }
+
+    const continueDrag = (event: PointerEvent) => {
+      const drag = dragRef.current
+      if (!drag || event.pointerId !== drag.pointerId) return
+
+      event.preventDefault()
+      schedulePoint({
+        x: event.clientX - drag.stageLeft - drag.offsetX,
+        y: event.clientY - drag.stageTop - drag.offsetY,
+      })
+    }
+
+    const endDrag = (event: PointerEvent) => {
+      const drag = dragRef.current
+      if (!drag || event.pointerId !== drag.pointerId) return
+
+      event.preventDefault()
+      dragRef.current = undefined
+      finishPointerMovement()
+      if (
+        typeof title.hasPointerCapture === 'function' &&
+        title.hasPointerCapture(event.pointerId) &&
+        typeof title.releasePointerCapture === 'function'
+      ) {
+        title.releasePointerCapture(event.pointerId)
+      }
+    }
+
+    title.addEventListener('pointerdown', beginDrag)
+    window.addEventListener('pointermove', continueDrag, { passive: false })
+    window.addEventListener('pointerup', endDrag, { passive: false })
+    window.addEventListener('pointercancel', endDrag, { passive: false })
+
+    return () => {
+      title.removeEventListener('pointerdown', beginDrag)
+      window.removeEventListener('pointermove', continueDrag)
+      window.removeEventListener('pointerup', endDrag)
+      window.removeEventListener('pointercancel', endDrag)
+    }
+  })
 
   const moveByKeyboard = (event: KeyboardEvent<HTMLButtonElement>) => {
     const step = event.shiftKey ? 24 : 8
@@ -187,74 +449,49 @@ export function PretextLivingFlow({ actionsEnd }: PretextLivingFlowProps = {}) {
     if (!delta) return
 
     event.preventDefault()
-    markMoved()
-    setTitlePoint(current =>
-      clampPoint(
-        { x: current.x + delta.x, y: current.y + delta.y },
-        stageSize,
-        titleSize
-      )
+    const current = visualPointRef.current
+    const candidate = clampPoint(
+      { x: current.x + delta.x, y: current.y + delta.y },
+      stageSize,
+      titleSize
     )
-  }
+    const candidateLines = validatedLayout(candidate)
+    if (!candidateLines) return
 
-  const resetPosition = () => {
-    movedRef.current = false
-    setHasMoved(false)
-    setTitlePoint(defaultPointRef.current)
+    cacheAcceptedLayout(candidate, candidateLines)
+    paintPoint(candidate)
+    paintProjectedLines(candidateLines)
+    markMoved()
+    setTitlePoint(candidate)
   }
 
   const layoutAvailable = projectedLines !== null
   const interactionUnavailable =
     fontsReady && stageSize.width > 0 && projectedLines === null
-  const projectedHeight = projectedLines?.length
-    ? projectedLines[projectedLines.length - 1].y + LINE_HEIGHT + STAGE_PADDING
-    : 0
 
   return (
     <div className="pretext-living-flow">
       <div
         ref={stageRef}
         className="pretext-living-flow__stage"
-        style={{ minHeight: editing ? projectedHeight : undefined }}
+        style={
+          reservedStage?.key === reservationKey
+            ? { height: reservedStage.height }
+            : undefined
+        }
       >
-        {editing ? (
-          <textarea
-            aria-label="Pretext demonstration passage"
-            autoFocus
-            maxLength={MAX_PASSAGE_LENGTH}
-            value={passage}
-            onChange={event => setPassage(event.target.value)}
-          />
-        ) : (
-          <>
-            <p
-              className={
-                layoutAvailable
-                  ? 'landing-origins__passage sr-only'
-                  : 'landing-origins__passage pretext-living-flow__fallback'
-              }
-            >
-              {passage}
-            </p>
-            {projectedLines ? (
-              <div aria-hidden="true" style={{ height: projectedHeight }}>
-                {projectedLines.map((line, index) => (
-                  <span
-                    className="pretext-living-flow__line"
-                    key={`${index}-${line.text}`}
-                    style={{
-                      transform: `translate(${line.x}px, ${line.y}px)`,
-                    }}
-                  >
-                    {line.text}
-                  </span>
-                ))}
-              </div>
-            ) : null}
-          </>
-        )}
+        <p
+          className={
+            layoutAvailable
+              ? 'landing-origins__passage sr-only'
+              : 'landing-origins__passage pretext-living-flow__fallback'
+          }
+        >
+          {INITIAL_PASSAGE}
+        </p>
+        <div ref={lineLayerRef} aria-hidden="true" />
 
-        {!interactionUnavailable && !editing ? (
+        {!interactionUnavailable ? (
           <button
             ref={titleRef}
             className="pretext-living-flow__title"
@@ -264,30 +501,11 @@ export function PretextLivingFlow({ actionsEnd }: PretextLivingFlowProps = {}) {
             style={{
               transform: `translate3d(${titlePoint.x}px, ${titlePoint.y}px, 0)`,
             }}
-            onPointerDown={event => {
-              const rect = event.currentTarget.getBoundingClientRect()
-              dragOffsetRef.current = {
-                x: event.clientX - rect.left,
-                y: event.clientY - rect.top,
-              }
-              event.currentTarget.setPointerCapture(event.pointerId)
-            }}
-            onPointerMove={event => {
-              if (!event.currentTarget.hasPointerCapture(event.pointerId)) {
-                return
-              }
-              const stageRect = stageRef.current?.getBoundingClientRect()
-              if (!stageRect) return
-              schedulePoint({
-                x: event.clientX - stageRect.left - dragOffsetRef.current.x,
-                y: event.clientY - stageRect.top - dragOffsetRef.current.y,
-              })
-            }}
             onKeyDown={moveByKeyboard}
           >
             <span className="pretext-living-flow__title-shape" aria-hidden="true">
-              <svg viewBox="0 0 280 74">
-                <polygon points="2,2 254,2 254,37 278,37 278,72 26,72 26,37 2,37" />
+              <svg viewBox="0 0 226 74">
+                <polygon points="2,2 202,2 202,37 224,37 224,72 26,72 26,37 2,37" />
               </svg>
               <span className="pretext-living-flow__title-line pretext-living-flow__title-line--top">
                 Text responds to
@@ -300,27 +518,9 @@ export function PretextLivingFlow({ actionsEnd }: PretextLivingFlowProps = {}) {
         ) : null}
       </div>
 
-      <div className="pretext-living-flow__actions">
-        <span className="pretext-living-flow__local-actions">
-          <button
-            className="pretext-living-flow__edit"
-            type="button"
-            onClick={() => setEditing(current => !current)}
-          >
-            {editing ? 'View flow' : 'Edit passage'}
-          </button>
-          {hasMoved ? (
-            <button
-              className="pretext-living-flow__reset"
-              type="button"
-              onClick={resetPosition}
-            >
-              Reset position
-            </button>
-          ) : null}
-        </span>
-        {actionsEnd}
-      </div>
+      {actionsEnd ? (
+        <div className="pretext-living-flow__actions">{actionsEnd}</div>
+      ) : null}
     </div>
   )
 }

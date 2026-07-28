@@ -16,9 +16,10 @@
 - Preserve routing, saved-resume behavior and wording, theme persistence, editor/Review/Fit behavior, API/storage/export/PDF/resize contracts, and GitHub Pages SPA fallback.
 - Do not modify `src/styles/resume.css`.
 - Do not add diagnostics, width controls, a meter, shader, Canvas overlay, logo object, glow, badge, card, or ornamental motion.
-- Use one continuous editable Pretext passage and the approved uniform two-band stair containing `Text responds to` / `its surroundings.`
+- Use one continuous fixed Pretext passage and the approved uniform two-band stair containing `Text responds to` / `its surroundings.`
 - Keep pointer/touch drag, arrow-key movement, and `Shift` plus arrow-key movement.
-- Add `Reset position` only after movement; reset is immediate and returns to the current responsive default.
+- Do not include passage-editing or reset controls; direct stair manipulation is
+  the exhibit’s only local interaction.
 - The draggable title is a native button, not a semantic heading.
 - Preserve a normal semantic paragraph and show it when Pretext layout is unavailable.
 - Desktop uses the two-column Nested Proof at `921px` and above; tablet and compact layouts stack in one reading order.
@@ -30,7 +31,12 @@
 - Measurement and Advisory Review must share prose metrics, color, measure,
   inset, vertical rhythm, and destination-link baseline.
 - Tighten the uniform two-band stair horizontally around its two text lines;
-  preserve equal bands and the approved headline typography.
+  target roughly `8–10px` of lateral optical inset per band and keep the
+  visible geometry aligned with its exclusion geometry. Preserve equal bands
+  and the approved headline typography.
+- Accept every clamped pointer position, including positions that change the
+  passage row count. Reserve one responsive line of stage height so the action
+  row, divider, and Advisory Review chapter do not shift while dragging.
 
 ---
 
@@ -51,12 +57,13 @@
   padding or a different class contract.
 - [ ] Add browser assertions that Measurement and Advisory Review prose share
   computed font size, line height, color, and effective inline start at desktop;
-  verify stickiness at a tall desktop viewport and normal flow at `920px`.
+  verify stickiness at a tall desktop viewport, normal flow at `920px`, and a
+  stable outer chapter composition while the Pretext passage changes row count.
 - [ ] Implement the shared passage tokens, native sticky parent, quiet
   subsection scale, aligned action rows, content-derived stage, and tighter
   uniform stair.
 - [ ] Verify Light, Dark, and System; `921/920`, `641/640`, compact width, 200%
-  zoom, keyboard/pointer interaction, edit/reset, and reduced-motion emulation.
+  zoom, keyboard/pointer interaction, and reduced-motion emulation.
 - [ ] Request an independent read-only review before pushing the existing PR.
 
 ---
@@ -69,7 +76,7 @@
 
 **Interfaces:**
 - Consumes: `layoutLivingFlow(input: LivingFlowLayoutInput): LivingFlowLine[]` from `src/components/landing/pretextLivingFlowLayout.ts`.
-- Produces: `PretextLivingFlow`, an unlabeled subsection-owned passage with projected visual lines, semantic fallback, a native draggable title button, passage edit/view toggle, contextual reset action, and `onMovedChange`-free internal state.
+- Produces: `PretextLivingFlow`, an unlabeled subsection-owned fixed passage with projected visual lines, semantic fallback, a native draggable title button, and `onMovedChange`-free internal state.
 
 - [ ] **Step 1: Replace standalone-section expectations with failing subsection-owned semantics tests**
 
@@ -100,11 +107,12 @@ expect(
 ).toBeInTheDocument()
 ```
 
-- [ ] **Step 2: Add failing reset and keyboard-parity tests**
+- [ ] **Step 2: Add failing keyboard-parity and visual-synchronization tests**
 
-Exercise one arrow movement, assert that `Reset position` appears, activate it,
-and assert that the original `data-position` is restored. Preserve the existing
-fine and accelerated keyboard steps:
+Exercise one arrow movement and assert that both the committed
+`data-position` and the visible transform move together. Assert that no reset
+control is introduced. Preserve the existing fine and accelerated keyboard
+steps:
 
 ```tsx
 const title = screen.getByRole('button', {
@@ -115,18 +123,13 @@ const initialPosition = title.getAttribute('data-position')
 fireEvent.keyDown(title, { key: 'ArrowRight' })
 expect(title).not.toHaveAttribute('data-position', initialPosition)
 expect(
-  screen.getByRole('button', { name: 'Reset position' })
-).toBeInTheDocument()
-
-fireEvent.click(screen.getByRole('button', { name: 'Reset position' }))
-expect(title).toHaveAttribute('data-position', initialPosition)
-expect(
   screen.queryByRole('button', { name: 'Reset position' })
 ).not.toBeInTheDocument()
 ```
 
 Add a second assertion that `Shift + ArrowRight` moves farther than
-`ArrowRight`.
+`ArrowRight`, and a responsive assertion that state and the visible transform
+remain synchronized after the stage resizes.
 
 - [ ] **Step 3: Run the focused component tests and confirm the new expectations fail**
 
@@ -140,21 +143,17 @@ Expected: FAIL because the component still owns the standalone header/section,
 uses a semantic heading around the title, has the old passage copy, and has no
 reset action.
 
-- [ ] **Step 4: Implement subsection-owned markup, approved copy, and contextual reset**
+- [ ] **Step 4: Implement subsection-owned markup and approved fixed copy**
 
 Use an outer `div` instead of `section`, remove the standalone header and link,
-remove the wrapping heading, and store the responsive default point separately
+remove the wrapping heading, and keep the responsive default point separate
 from the current point:
 
 ```tsx
 const INITIAL_PASSAGE =
   'Changing a sentence changes where every line ends, but browsers usually reveal those measurements only after the text appears. Pretext calculates multiline layout in JavaScript using the browser’s own font engine. It predicts line breaks and text height, then routes one continuous passage through changing geometry. Move the title through this passage to see each line find the available space again.'
 
-const defaultPointRef = useRef<Point>({ x: 360, y: 64 })
-const [hasMoved, setHasMoved] = useState(false)
-
 const applyPoint = (point: Point) => {
-  setHasMoved(true)
   setTitlePoint(clampPoint(point, stageSize, titleSize))
 }
 ```
@@ -171,33 +170,12 @@ const defaultPoint = clampPoint(
   nextStage,
   nextTitle
 )
-defaultPointRef.current = defaultPoint
 ```
 
-Render the controls in a subsection action group:
-
-```tsx
-<div className="pretext-living-flow__actions">
-  <button type="button" onClick={() => setEditing(current => !current)}>
-    {editing ? 'View flow' : 'Edit passage'}
-  </button>
-  {hasMoved ? (
-    <button
-      type="button"
-      onClick={() => {
-        setTitlePoint(defaultPointRef.current)
-        setHasMoved(false)
-      }}
-    >
-      Reset position
-    </button>
-  ) : null}
-</div>
-```
-
-Keep pointer updates batched with `requestAnimationFrame`. Set `hasMoved` for
-pointer and keyboard movement, but not during responsive clamping. Use this
-accessible name on the stair button:
+Keep pointer updates batched with `requestAnimationFrame`. Cache the stage and
+title rectangles when the drag starts, cancel the default pointer action, and
+perform no DOM geometry reads during pointer-move frames. Use this accessible
+name on the stair button:
 
 ```tsx
 aria-label='Move “Text responds to its surroundings” by dragging or using the arrow keys.'
@@ -429,12 +407,12 @@ Implement:
   `landing-origins__chapter-footer`, heading scale, prose measure, and link
   treatment;
 - `pretext-living-flow` as a transparent subsection-owned block;
-- a content-sized stage using a responsive `min-height` derived from the
-  approved passage and stair geometry, without the former oversized blank
-  field;
+- a content-sized stage reserving one responsive line beyond its initial
+  projected passage, enough to absorb internal row-count changes without
+  recreating the former oversized blank field;
 - a balanced title around `280 × 74` design units on desktop, scaled down at
   compact widths while retaining equal stair bands;
-- unobtrusive edit/reset actions with a 44px compact hit area;
+- no edit/reset controls or permanent instruction strip;
 - two-column layout from `921px`, one-column layout through `920px`;
 - compact one-column reading order at `640px` and below.
 
@@ -540,7 +518,7 @@ Inspect the real production build in the available browser:
 - at least one 200% zoomed desktop state;
 - pointer drag, arrow keys, and `Shift` plus arrow keys;
 - visible focus order and contrast;
-- edit passage, View flow, contextual Reset position, and retained edited text;
+- absence of edit/reset controls and permanent instructional clutter;
 - reduced-motion browser emulation only;
 - practical Pretext failure/fallback behavior;
 - no page-level horizontal overflow;

@@ -104,9 +104,6 @@ describe('theme contrast contracts', () => {
     expect(appCss).toMatch(
       /\.pretext-living-flow__title:focus-visible \{[^}]*outline: 2px solid var\(--ring\);[^}]*box-shadow: 0 0 0 2px var\(--focus-contrast\);/
     )
-    expect(appCss).toMatch(
-      /\.pretext-living-flow__edit:focus-visible,[\s\S]*?\.pretext-living-flow__reset:focus-visible \{[^}]*outline: 2px solid var\(--ring\);[^}]*box-shadow: 0 0 0 2px var\(--focus-contrast\);/
-    )
   })
 
   it('keeps the nested Pretext proof token-driven and free of ornamental motion', () => {

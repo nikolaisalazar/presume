@@ -364,6 +364,31 @@ test.describe('unconfigured browser contracts', () => {
     })
     await expect(movableHeadline).toBeVisible()
     const initialPosition = await movableHeadline.getAttribute('data-position')
+    const lateralInsets = await movableHeadline.evaluate(element => {
+      const bounds = element.getBoundingClientRect()
+      const lines = Array.from(
+        element.querySelectorAll<HTMLElement>(
+          '.pretext-living-flow__title-line'
+        )
+      )
+      const glyphBounds = lines.map(line => {
+        const range = document.createRange()
+        range.selectNodeContents(line)
+        return range.getBoundingClientRect()
+      })
+      const scale = bounds.width / 226
+
+      return [
+        glyphBounds[0].left - (bounds.left + 2 * scale),
+        bounds.left + 202 * scale - glyphBounds[0].right,
+        glyphBounds[1].left - (bounds.left + 26 * scale),
+        bounds.left + 224 * scale - glyphBounds[1].right,
+      ]
+    })
+    expect(lateralInsets.every(inset => inset >= 5 && inset <= 13)).toBe(true)
+    expect(Math.max(...lateralInsets) - Math.min(...lateralInsets)).toBeLessThan(
+      5
+    )
     await movableHeadline.focus()
     await page.keyboard.press('ArrowLeft')
     await expect(movableHeadline).not.toHaveAttribute(
@@ -371,42 +396,121 @@ test.describe('unconfigured browser contracts', () => {
       initialPosition ?? ''
     )
     const keyboardPosition = await movableHeadline.getAttribute('data-position')
+    const stage = page.locator('.pretext-living-flow__stage')
+    const advisoryChapter = page
+      .locator('.landing-origins__chapter')
+      .filter({ hasText: '02 / Advisory review' })
+    const stableComposition = {
+      stageHeight: await stage.evaluate(element =>
+        Math.round(element.getBoundingClientRect().height)
+      ),
+      advisoryTop: await advisoryChapter.evaluate(element =>
+        Math.round(element.getBoundingClientRect().top)
+      ),
+    }
     const headlineBox = await movableHeadline.boundingBox()
     expect(headlineBox).not.toBeNull()
     if (headlineBox) {
+      await page.evaluate(() => {
+        const stage = document.querySelector<HTMLElement>(
+          '.pretext-living-flow__stage'
+        )!
+        const title = document.querySelector<HTMLElement>(
+          '.pretext-living-flow__title'
+        )!
+        const reads = { stage: 0, title: 0 }
+        const stageRect = stage.getBoundingClientRect.bind(stage)
+        const titleRect = title.getBoundingClientRect.bind(title)
+
+        stage.getBoundingClientRect = () => {
+          reads.stage += 1
+          return stageRect()
+        }
+        title.getBoundingClientRect = () => {
+          reads.title += 1
+          return titleRect()
+        }
+        Reflect.set(window, '__pretextGeometryReads', reads)
+      })
       await page.mouse.move(
         headlineBox.x + headlineBox.width / 2,
         headlineBox.y + headlineBox.height / 2
       )
       await page.mouse.down()
+      const readsAtDragStart = await page.evaluate(() =>
+        Reflect.get(window, '__pretextGeometryReads')
+      )
+      await page.mouse.move(
+        headlineBox.x + headlineBox.width / 2 - 5,
+        headlineBox.y + headlineBox.height / 2 + 3
+      )
+      await page.evaluate(
+        () =>
+          new Promise<void>(resolve => {
+            requestAnimationFrame(() => resolve())
+          })
+      )
+      const firstDragBox = await movableHeadline.boundingBox()
+      expect(firstDragBox?.x).toBeCloseTo(headlineBox.x - 5, 0)
+      expect(firstDragBox?.y).toBeCloseTo(headlineBox.y + 3, 0)
+
+      for (const [deltaX, deltaY] of [
+        [-28, 18],
+        [-40, 0],
+        [-28, -18],
+        [0, -24],
+        [28, -18],
+        [40, 0],
+        [28, 18],
+        [0, 24],
+        [-40, 24],
+      ] as const) {
+        await page.mouse.move(
+          headlineBox.x + headlineBox.width / 2 + deltaX,
+          headlineBox.y + headlineBox.height / 2 + deltaY
+        )
+      }
       await page.mouse.move(
         headlineBox.x + headlineBox.width / 2 - 40,
-        headlineBox.y + headlineBox.height / 2 + 24
+        headlineBox.y + headlineBox.height / 2 + 24,
+        { steps: 12 }
       )
+      await page.evaluate(
+        () =>
+          new Promise<void>(resolve => {
+            requestAnimationFrame(() => resolve())
+          })
+      )
+      const readsAfterPointerFrames = await page.evaluate(() =>
+        Reflect.get(window, '__pretextGeometryReads')
+      )
+      expect(readsAfterPointerFrames).toEqual(readsAtDragStart)
+      const projectedHeight = await page
+        .locator('.pretext-living-flow__stage > div[aria-hidden="true"]')
+        .evaluate(element => Math.round(element.getBoundingClientRect().height))
+      expect(projectedHeight).toBeLessThanOrEqual(stableComposition.stageHeight)
       await page.mouse.up()
     }
     await expect(movableHeadline).not.toHaveAttribute(
       'data-position',
       keyboardPosition ?? ''
     )
-    await expect(
-      page.getByRole('button', { name: 'Reset position' })
-    ).toBeVisible()
-    await page.getByRole('button', { name: 'Reset position' }).click()
+    expect(
+      await stage.evaluate(element =>
+        Math.round(element.getBoundingClientRect().height)
+      )
+    ).toBe(stableComposition.stageHeight)
+    expect(
+      await advisoryChapter.evaluate(element =>
+        Math.round(element.getBoundingClientRect().top)
+      )
+    ).toBe(stableComposition.advisoryTop)
     await expect(
       page.getByRole('button', { name: 'Reset position' })
     ).not.toBeAttached()
-
-    await page.getByRole('button', { name: 'Edit passage' }).click()
-    const passageEditor = page.getByRole('textbox', {
-      name: 'Pretext demonstration passage',
-    })
-    await expect(passageEditor).toBeVisible()
-    await passageEditor.fill('A revised passage.')
-    await page.getByRole('button', { name: 'View flow' }).click()
     await expect(
-      page.getByRole('paragraph').filter({ hasText: 'A revised passage.' })
-    ).toBeAttached()
+      page.getByRole('button', { name: 'Edit passage' })
+    ).not.toBeAttached()
 
     await page.setViewportSize({ width: 358, height: 980 })
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(358)

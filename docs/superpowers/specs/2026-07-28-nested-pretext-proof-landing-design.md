@@ -144,6 +144,10 @@ The demonstration uses direct manipulation only.
 - Do not move, float, pulse, or tour the title automatically.
 - Do not animate the passage or title into place.
 - Batch pointer-driven layout updates with `requestAnimationFrame`.
+- Measure the stage and title once when dragging begins. Pointer-move frames
+  must consume the cached geometry without reading layout from the DOM.
+- Cancel the drag-start default action so text selection and native dragging do
+  not compete with the exhibit.
 - Clamp the title to the measured passage bounds.
 - Preserve immediate response during direct manipulation; do not interpolate or
   spring between pointer positions.
@@ -153,23 +157,20 @@ button with a descriptive accessible name. The visible two-line title remains
 available as part of that name, and the accessible instruction communicates
 drag and arrow-key operation without adding visible instructional clutter.
 
-## Passage Editing and Recovery
+## Focused Interaction
 
-Preserve passage editing as a quiet secondary capability.
+Keep the demonstration limited to direct manipulation of the stair.
 
-- Keep `Edit passage` as an understated text action within the Measurement
-  subsection’s closing action row.
-- In edit mode, use the existing visible labeled textarea behavior and the
-  action `View flow`.
-- Preserve entered text while toggling between edit and flow views.
-- Add `Reset position` as a contextual action only after the stair has moved
-  from its default placement.
-- Reset returns the stair to the current responsive default without animation.
-- Do not add a permanent instruction bar, control card, toolbar, or status
-  display.
+- Do not include passage editing, a reset action, a permanent instruction bar,
+  control card, toolbar, or status display.
+- Fit each stair band closely around its headline line, targeting roughly
+  `8–10px` of lateral optical inset while retaining the equal two-band height.
+- Moving the stair may split a visual row into separate spans around the
+  obstacle or change the passage by one visible row. Every clamped pointer
+  position remains valid; line-count changes must never create drag dead zones.
 
-`Explore Pretext ↗` remains the destination link at the opposite side of the
-Measurement subsection’s closing action row. `Explore Hiring Agent ↗` remains
+`Explore Pretext ↗` remains the only closing action in the Measurement
+subsection. `Explore Hiring Agent ↗` remains
 the corresponding closing link for Advisory Review.
 
 ## Section Height and Rhythm
@@ -193,14 +194,16 @@ Both technology chapters use the same passage contract:
 - The same muted-foreground role in Light, Dark, and System.
 - The same effective `146px` desktop inset, readable maximum measure, top
   spacing after the subsection heading, and action-row spacing.
-- The same destination-link baseline. Measurement may add `Edit passage` and
-  contextual `Reset position` in the opposite action slot without moving the
-  destination link.
+- The same destination-link baseline. Measurement does not add editing, reset,
+  or permanent instruction controls around the passage.
 - The visible Pretext fallback uses the same geometry with no private padding.
 
-The Pretext stage is content-derived. It may grow when the stair or edited copy
-requires more projected lines, but it must not retain a fixed blank field after
-the passage ends.
+The Pretext stage is content-derived and reserves one additional line of height
+at the current responsive width. The projected passage may gain or lose a line
+as the stair moves, but the Measurement action row, chapter divider, and
+Advisory Review chapter must remain fixed during direct manipulation. This
+small line-height reserve is intentional stability, not the former oversized
+blank demonstration field.
 
 ## Responsive Behavior
 
@@ -218,8 +221,7 @@ the passage ends.
 
 - Stack the parent thesis above the two technology subsections.
 - Preserve Measurement before Advisory Review.
-- Retain the complete passage, editing behavior, pointer dragging, and keyboard
-  movement.
+- Retain the complete fixed passage, pointer dragging, and keyboard movement.
 - Recompute the stair’s default position from the measured passage width.
 - Do not compress the original desktop columns into a narrow side-by-side
   imitation.
@@ -231,8 +233,8 @@ the passage ends.
 - Scale the stair and its title down while preserving the uniform two-band
   geometry and a minimum 44px interactive target.
 - Keep the title inside the measured passage bounds.
-- Keep `Edit passage`, the contextual reset action, and destination links
-  usable at touch size without turning them into large cards or buttons.
+- Keep the draggable title and destination links usable at touch size without
+  turning them into large cards or buttons.
 - Preserve the established `641/640` hero-image loading and hiding boundary.
   This section must not modify that behavior.
 
@@ -270,7 +272,7 @@ component state or new persistence behavior.
   - parent section heading;
   - Measurement and Advisory Review subsection headings;
   - no semantic heading role for the draggable title.
-- Use a native button for the stair and native buttons for edit/reset actions.
+- Use a native button for the stair; do not add edit/reset controls.
 - Use real links with descriptive names for external destinations.
 - Preserve a two-pixel visible focus indicator with adequate contrast in Light
   and Dark.
@@ -362,7 +364,10 @@ Direct visual QA must cover:
 - pointer dragging, touch-equivalent pointer behavior, arrow keys, and
   `Shift` plus arrow keys;
 - visible focus order and focus contrast;
-- passage editing, `View flow`, contextual reset, and preserved edited text;
+- immediate dragging across straight, circular, and rapid reversal paths,
+  including positions that change the visible passage-row count;
+- stable Measurement stage height, action row, chapter divider, and Advisory
+  Review position while the internal passage reflows;
 - reduced-motion emulation without changing macOS settings;
 - Pretext-unavailable fallback;
 - no page-level horizontal overflow;
@@ -397,11 +402,11 @@ Selected:
 - one “Why Presume Exists” parent section;
 - Measurement and Advisory Review as two nested technology subsections;
 - the Pretext passage integrated directly into Measurement;
-- one continuous editable passage;
+- one continuous fixed passage;
 - the uniform two-band stair containing
   `Text responds to / its surroundings.`;
 - the balanced stair scale and default placement;
 - pointer/touch dragging plus quiet arrow-key parity;
-- contextual reset after movement;
+- no edit or reset controls;
 - no automatic or ornamental motion;
 - removal of the redundant Operating Sequence section.

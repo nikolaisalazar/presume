@@ -181,10 +181,10 @@ describe('custom editor CSS invariants', () => {
       /\.pretext-living-flow__stage \{[^}]*min-height: 0;/
     )
     expect(appCss).toMatch(
-      /\.pretext-living-flow__title \{[^}]*width: 258px;[^}]*height: 68px;/
+      /\.pretext-living-flow__title \{[^}]*width: 208px;[^}]*height: 68px;/
     )
     expect(appCss).toMatch(
-      /@media \(max-width: 640px\) \{[\s\S]*?\.pretext-living-flow__title \{[^}]*width: min\(258px, calc\(100vw - 64px\)\);[^}]*min-height: 44px;[^}]*aspect-ratio: 258 \/ 68;/
+      /@media \(max-width: 640px\) \{[\s\S]*?\.pretext-living-flow__title \{[^}]*width: min\(208px, calc\(100vw - 64px\)\);[^}]*min-height: 44px;[^}]*aspect-ratio: 208 \/ 68;/
     )
     expect(appCss).not.toContain('.landing-fit-study')
     expect(appCss).not.toContain('.landing-workflow')
