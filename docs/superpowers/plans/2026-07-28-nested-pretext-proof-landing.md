@@ -24,6 +24,40 @@
 - Desktop uses the two-column Nested Proof at `921px` and above; tablet and compact layouts stack in one reading order.
 - Responsive variants preserve the same case-study content.
 - No merge, deployment, branch deletion, worktree deletion, or other integration action without explicit approval for that exact action.
+- Keep the parent thesis sticky only on sufficiently tall desktop viewports at
+  `921px` and above; use native CSS positioning with no scroll listener or
+  animation.
+- Measurement and Advisory Review must share prose metrics, color, measure,
+  inset, vertical rhythm, and destination-link baseline.
+- Tighten the uniform two-band stair horizontally around its two text lines;
+  preserve equal bands and the approved headline typography.
+
+---
+
+### Task 5: Refine the approved Nested Proof hierarchy and passage parity
+
+**Files:**
+- Modify: `src/styles/app.css`
+- Modify: `src/components/landing/PretextLivingFlow.tsx`
+- Modify: `src/tests/responsiveLayout.test.ts`
+- Modify: `src/tests/pretextLivingFlow.test.tsx`
+- Modify: `src/tests/themeContrast.test.ts`
+- Modify: `e2e/unconfigured.spec.ts`
+
+- [ ] Add failing CSS-contract tests for the desktop sticky parent, short
+  viewport opt-out, reduced subsection scale, shared muted prose treatment,
+  content-derived stage, and tighter stair dimensions.
+- [ ] Add a component assertion that fallback prose does not acquire private
+  padding or a different class contract.
+- [ ] Add browser assertions that Measurement and Advisory Review prose share
+  computed font size, line height, color, and effective inline start at desktop;
+  verify stickiness at a tall desktop viewport and normal flow at `920px`.
+- [ ] Implement the shared passage tokens, native sticky parent, quiet
+  subsection scale, aligned action rows, content-derived stage, and tighter
+  uniform stair.
+- [ ] Verify Light, Dark, and System; `921/920`, `641/640`, compact width, 200%
+  zoom, keyboard/pointer interaction, edit/reset, and reduced-motion emulation.
+- [ ] Request an independent read-only review before pushing the existing PR.
 
 ---
 

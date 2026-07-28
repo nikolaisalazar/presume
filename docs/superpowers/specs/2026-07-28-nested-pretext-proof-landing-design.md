@@ -35,7 +35,8 @@ Use the approved **Nested Proof** composition.
 
 - Preserve the parent kicker `Why Presume exists`.
 - Preserve the dominant parent thesis `The document came first.`
-- Preserve the parent’s left-hand position at desktop widths.
+- Preserve the parent’s left-hand position at desktop widths and keep that
+  thesis block sticky while the two supporting chapters pass beside it.
 - Place `01 / Measurement` and `02 / Advisory review` as consecutive,
   structurally related subsections in the right column.
 - Integrate the Pretext living-flow passage directly into the Measurement
@@ -58,6 +59,24 @@ The approved hierarchy is:
    heading.
 4. Explanatory prose — one consistent body treatment across Measurement and
    Advisory Review.
+
+### Approved hierarchy refinement
+
+The July 28 full-page review approved a quieter, persistent parent hierarchy.
+
+- At `921px` and above, the parent heading block is sticky within the bounds of
+  `Why Presume Exists`; it stops naturally with that section.
+- Use a restrained top offset below the landing navigation.
+- Disable stickiness below `921px`, at short desktop viewport heights, and
+  anywhere the sticky block cannot fit comfortably at 200% zoom.
+- Stickiness is native positioning, not scroll animation. Do not add fading,
+  parallax, pinning scripts, scroll listeners, or ornamental motion.
+- Reduce both technology subsection headings by approximately 10–15% from the
+  first Nested Proof implementation. They remain bold landing headlines, but
+  they may not compete with the parent thesis.
+- Measurement and Advisory Review use one shared passage template. Pretext
+  changes line flow only; it does not authorize different prose typography,
+  color, measure, inset, section spacing, or footer alignment.
 
 ## Pretext Passage
 
@@ -91,6 +110,13 @@ Retain the approved uniform two-band staircase.
   construction.
 - The outline hugs the two text lines with balanced horizontal and vertical
   inset.
+- The outline width is content-led rather than fixed to the earlier 280px
+  prototype. Tighten the two stair bands laterally until `Text` and `to` on the
+  upper line, and `its` and `surroundings.` on the lower line, have equal,
+  minimal optical inset.
+- Preserve the uniform two-band construction while tightening it: do not
+  squeeze one band independently, offset the text inside a wider box, or
+  reduce the approved headline character merely to make the old box viable.
 - The title is exactly two lines:
   - `Text responds to`
   - `its surroundings.`
@@ -161,13 +187,30 @@ contains interactive evidence, but empty height may not create that emphasis.
   measure, rule treatment, and link placement.
 - Do not pad Advisory Review merely to match Measurement’s total height.
 
+Both technology chapters use the same passage contract:
+
+- Geist at the same `1.125rem` size and `1.6667` unitless line-height.
+- The same muted-foreground role in Light, Dark, and System.
+- The same effective `146px` desktop inset, readable maximum measure, top
+  spacing after the subsection heading, and action-row spacing.
+- The same destination-link baseline. Measurement may add `Edit passage` and
+  contextual `Reset position` in the opposite action slot without moving the
+  destination link.
+- The visible Pretext fallback uses the same geometry with no private padding.
+
+The Pretext stage is content-derived. It may grow when the stair or edited copy
+requires more projected lines, but it must not retain a fixed blank field after
+the passage ends.
+
 ## Responsive Behavior
 
 ### Desktop: `921px` and above
 
 - Use the approved two-column Nested Proof.
-- Keep the parent thesis in the left column and both technology subsections in
-  the right column.
+- Keep the sticky parent thesis in the left column and both technology
+  subsections in the right column.
+- Keep stickiness only when the available viewport height can contain the
+  complete parent heading block plus the navigation offset.
 - Use the balanced stair scale and slightly right-of-center initial position.
 - Cap prose at a readable measure consistent with the landing system.
 
