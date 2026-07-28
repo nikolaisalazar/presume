@@ -88,9 +88,15 @@ describe('App review availability boundaries', () => {
     expect(screen.getByRole('heading', { name: 'Measure while it changes' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Review as evidence' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Leave with a stable artifact' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Pretext Fit Lab' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', {
+        name: 'Text responds to its surroundings.',
+      })
+    ).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'The document came first.' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Explore Pretext' })).toBeInTheDocument()
+    expect(
+      screen.getAllByRole('link', { name: 'Explore Pretext' })
+    ).toHaveLength(2)
     expect(screen.getByRole('link', { name: 'Explore Hiring Agent' })).toBeInTheDocument()
     expect(screen.queryByLabelText('Presume editor preview')).not.toBeInTheDocument()
     expect(document.querySelector('.resume-page')).not.toBeInTheDocument()
@@ -110,7 +116,7 @@ describe('App review availability boundaries', () => {
     const { container } = render(<App />)
 
     expect(container.querySelectorAll('[data-slot="button"]')).toHaveLength(3)
-    expect(container.querySelectorAll('[data-slot="toggle-group-item"]')).toHaveLength(6)
+    expect(container.querySelectorAll('[data-slot="toggle-group-item"]')).toHaveLength(3)
     expect(container.querySelectorAll('[data-slot="card"]')).toHaveLength(0)
     expect(container.querySelectorAll('[data-slot="capability-row"]')).toHaveLength(4)
     expect(container.querySelector('[data-slot="badge"]')).toHaveTextContent(

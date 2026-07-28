@@ -522,157 +522,12 @@ body {
   height: 20px;
 }
 
-/* Landing measurement exhibit */
-.landing-fit-lab {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-structural);
-  background: var(--surface);
-  padding: 24px;
-  box-shadow: var(--shadow-structural);
-}
-
-.landing-fit-lab__header {
-  max-width: 62ch;
-}
-
-.landing-fit-lab__header h2,
-.landing-fit-lab__header p {
-  margin: 0;
-}
-
-.landing-fit-lab__header h2 {
-  margin-top: 6px;
-  font-size: clamp(1.5rem, 3vw, 2.15rem);
-  line-height: 1.08;
-  letter-spacing: -0.03em;
-}
-
-.landing-fit-lab__header > p:last-child {
-  margin-top: 10px;
-  color: var(--muted-foreground);
-  line-height: 1.55;
-}
-
 .landing-kicker {
   color: var(--accent-foreground);
   font-size: 0.75rem;
   font-weight: 650;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-}
-
-.landing-fit-lab__workspace {
-  display: grid;
-  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
-  gap: 16px;
-}
-
-.landing-fit-lab__input,
-.landing-fit-lab__measurement {
-  min-width: 0;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-structural);
-  padding: 16px;
-}
-
-.landing-fit-lab__input {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  background: var(--surface-pressed);
-}
-
-.landing-fit-lab__input label,
-.landing-fit-lab__width-control > span {
-  font-size: 0.75rem;
-  font-weight: 650;
-}
-
-.landing-fit-lab__width-control {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.landing-fit-lab__width-options [data-slot='toggle-group-item'] {
-  min-height: 36px;
-}
-
-.landing-fit-lab__measurement {
-  background: var(--paper);
-  color: var(--paper-ink);
-}
-
-.landing-fit-lab__constraint {
-  width: 100%;
-  min-height: 94px;
-  border-right: 1px solid var(--primary);
-  border-left: 1px solid var(--border);
-  padding: 10px 12px;
-  font-size: 14px;
-  line-height: 1.45;
-}
-
-.landing-fit-lab__constraint > [data-slot='fit-lab-constrained-text'] {
-  display: block;
-  width: min(100%, var(--fit-lab-width));
-}
-
-@media (max-width: 560px) {
-  .landing-fit-lab__width-options [data-slot='toggle-group-item'] {
-    min-height: 44px;
-  }
-}
-
-.landing-fit-lab__status {
-  margin: 14px 0 0;
-  font-size: 0.8125rem;
-  font-weight: 650;
-  transition: opacity 160ms var(--ease-standard);
-}
-
-.landing-fit-lab__metrics {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  margin: 16px 0 0;
-  border-top: 1px solid color-mix(in srgb, var(--paper-ink), transparent 78%);
-}
-
-.landing-fit-lab__metrics div {
-  min-width: 0;
-  padding: 10px 8px 0 0;
-}
-
-.landing-fit-lab__metrics dt {
-  color: color-mix(in srgb, var(--paper-ink), transparent 38%);
-  font-size: 0.6875rem;
-}
-
-.landing-fit-lab__metrics dd {
-  margin: 4px 0 0;
-  font-size: 0.8125rem;
-  font-variant-numeric: tabular-nums;
-  font-weight: 650;
-}
-
-@media (max-width: 640px) {
-  .landing-fit-lab {
-    gap: 18px;
-    padding: 16px;
-  }
-
-  .landing-fit-lab__workspace {
-    grid-template-columns: 1fr;
-  }
-
-  .landing-fit-lab__metrics {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 
 .app-header__brand h1 {
@@ -1322,8 +1177,7 @@ body {
   gap: clamp(54px, 9vw, 110px);
 }
 
-.landing-origins__heading h2,
-.landing-fit-study__introduction h2 {
+.landing-origins__heading h2 {
   max-width: 12ch;
   margin-top: 12px;
   font-size: clamp(2.4rem, 5vw, 4.25rem);
@@ -1332,8 +1186,7 @@ body {
   line-height: 0.98;
 }
 
-.landing-origins__heading > p:last-child,
-.landing-fit-study__introduction > p:last-child {
+.landing-origins__heading > p:last-child {
   max-width: 56ch;
   margin-top: 22px;
   color: var(--muted-foreground);
@@ -1374,26 +1227,172 @@ body {
 }
 
 .landing-fit-study {
-  display: grid;
-  grid-template-columns: minmax(0, 0.52fr) minmax(0, 1.48fr);
-  gap: clamp(52px, 9vw, 116px);
+  padding-block: clamp(54px, 7vw, 84px);
 }
 
-.landing-fit-study__introduction h2 {
-  font-size: clamp(2.15rem, 4.4vw, 3.65rem);
+.pretext-living-flow {
+  width: 100%;
 }
 
-.landing-fit-study .landing-fit-lab {
-  align-self: start;
+.pretext-living-flow__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 26px;
+}
+
+.pretext-living-flow__header p {
+  margin: 0;
+}
+
+.pretext-living-flow__header a,
+.pretext-living-flow__edit {
+  border-radius: var(--radius-control);
+  color: var(--accent-foreground);
+  font-size: 0.8125rem;
+  font-weight: 680;
+  text-underline-offset: 3px;
+}
+
+.pretext-living-flow__stage {
+  position: relative;
+  height: 390px;
+  overflow: hidden;
+  border-top: 1px solid var(--border-strong);
+  border-bottom: 1px solid var(--border-strong);
+}
+
+.pretext-living-flow__fallback {
+  margin: 0;
+  padding: 28px;
+  font-size: 1.125rem;
+  line-height: 1.6667;
+}
+
+.pretext-living-flow__line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  white-space: pre;
+  font-size: 1.125rem;
+  line-height: 30px;
+}
+
+.pretext-living-flow h2 {
+  margin: 0;
+}
+
+.pretext-living-flow__title {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  width: 280px;
+  height: 74px;
   border: 0;
   border-radius: 0;
-  background: transparent;
   padding: 0;
-  box-shadow: none;
+  background: transparent;
+  color: var(--foreground);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  will-change: transform;
 }
 
-.landing-fit-study .landing-fit-lab__header h2 {
-  font-size: clamp(1.65rem, 3vw, 2.3rem);
+.pretext-living-flow__title:active {
+  cursor: grabbing;
+}
+
+.pretext-living-flow__title:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--focus-contrast);
+}
+
+.pretext-living-flow__title-shape,
+.pretext-living-flow__title-shape svg {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.pretext-living-flow__title-shape svg {
+  overflow: visible;
+}
+
+.pretext-living-flow__title-shape polygon {
+  fill: var(--background);
+  stroke: var(--primary);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.pretext-living-flow__title-line {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 90%;
+  height: 47.3%;
+  font-size: 2rem;
+  font-weight: 650;
+  letter-spacing: -0.045em;
+  line-height: 0.99;
+  white-space: nowrap;
+}
+
+.pretext-living-flow__title-line--top {
+  top: 2.7%;
+  left: 0.7%;
+}
+
+.pretext-living-flow__title-line--bottom {
+  top: 50%;
+  left: 9.3%;
+}
+
+.pretext-living-flow__edit {
+  position: absolute;
+  z-index: 2;
+  right: 28px;
+  bottom: 24px;
+  border: 0;
+  border-bottom: 1px solid currentcolor;
+  padding: 0 0 2px;
+  background: var(--background);
+  cursor: pointer;
+}
+
+.pretext-living-flow__edit:focus-visible,
+.pretext-living-flow__header a:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 2px var(--focus-contrast);
+}
+
+.pretext-living-flow textarea {
+  position: absolute;
+  inset: 28px 28px 76px;
+  width: calc(100% - 56px);
+  resize: none;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-control);
+  background: var(--background);
+  color: var(--foreground);
+  padding: 14px;
+  font: inherit;
+  font-size: 1.125rem;
+  line-height: 1.6667;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pretext-living-flow__title {
+    will-change: auto;
+  }
 }
 
 .landing-section-heading {
@@ -1513,8 +1512,7 @@ body {
 }
 
 @media (max-width: 920px) {
-  .landing-origins,
-  .landing-fit-study {
+  .landing-origins {
     grid-template-columns: 1fr;
   }
 
@@ -1578,10 +1576,42 @@ body {
   }
 
   .landing-origins__heading h2,
-  .landing-fit-study__introduction h2,
   .landing-section-heading h2,
   .landing-final h2 {
     font-size: clamp(2.15rem, 11vw, 3.1rem);
+  }
+
+  .pretext-living-flow__header {
+    padding-bottom: 20px;
+  }
+
+  .pretext-living-flow__stage {
+    height: clamp(404px, calc(1300px - 140vw), 852px);
+  }
+
+  .pretext-living-flow__title {
+    width: min(280px, calc(100vw - 64px));
+    height: auto;
+    aspect-ratio: 280 / 74;
+  }
+
+  .pretext-living-flow__title-line {
+    font-size: clamp(1.55rem, 8vw, 2rem);
+  }
+
+  .pretext-living-flow__fallback {
+    padding: 22px 18px;
+  }
+
+  .pretext-living-flow__edit {
+    right: 18px;
+    bottom: 18px;
+    min-height: 44px;
+  }
+
+  .pretext-living-flow textarea {
+    inset: 22px 18px 76px;
+    width: calc(100% - 36px);
   }
 
   .landing-capabilities__register {

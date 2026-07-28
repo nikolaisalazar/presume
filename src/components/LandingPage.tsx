@@ -2,7 +2,7 @@ import { useSyncExternalStore } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { BrandMark } from '@/components/BrandMark'
-import { FitLab } from '@/components/landing/FitLab'
+import { PretextLivingFlow } from '@/components/landing/PretextLivingFlow'
 import { ThemeControl } from '@/components/ThemeControl'
 
 export interface LandingPageProps {
@@ -137,8 +137,8 @@ export function LandingPage({ hasSavedResume, onOpenEditor }: LandingPageProps) 
               <p>
                 Cheng Lou&apos;s Pretext made the measurement layer both possible
                 and legible. Presume uses its text-layout primitives to reason
-                about multiline wrapping and exposes that relationship in the Fit
-                Lab instead of hiding it behind marketing language.
+                about multiline wrapping and makes that relationship tangible
+                instead of hiding it behind marketing language.
               </p>
               <a href="https://github.com/chenglou/pretext">
                 Explore Pretext<span aria-hidden="true"> ↗</span>
@@ -160,13 +160,8 @@ export function LandingPage({ hasSavedResume, onOpenEditor }: LandingPageProps) 
           </div>
         </section>
 
-        <section className="landing-fit-study" aria-label="Working product example">
-          <div className="landing-fit-study__introduction">
-            <p className="landing-kicker">A working example</p>
-            <h2>Pretext, exposed as a small experiment.</h2>
-            <p>Change either input and inspect the line geometry Presume receives.</p>
-          </div>
-          <FitLab />
+        <section className="landing-fit-study">
+          <PretextLivingFlow />
         </section>
 
         <section className="landing-capabilities" aria-labelledby="capabilities-title">

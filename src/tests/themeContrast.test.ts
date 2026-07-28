@@ -101,6 +101,12 @@ describe('theme contrast contracts', () => {
     expect(appCss).toMatch(
       /\.landing-hero \[data-slot='button'\]:focus-visible \{[^}]*box-shadow:[^}]*var\(--focus-contrast\)/
     )
+    expect(appCss).toMatch(
+      /\.pretext-living-flow__title:focus-visible \{[^}]*outline: 2px solid var\(--ring\);[^}]*box-shadow: 0 0 0 2px var\(--focus-contrast\);/
+    )
+    expect(appCss).toMatch(
+      /\.pretext-living-flow__edit:focus-visible,[\s\S]*?\.pretext-living-flow__header a:focus-visible \{[^}]*outline: 2px solid var\(--ring\);[^}]*box-shadow: 0 0 0 2px var\(--focus-contrast\);/
+    )
   })
 
 })

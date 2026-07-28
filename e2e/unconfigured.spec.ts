@@ -278,7 +278,7 @@ test.describe('unconfigured browser contracts', () => {
     await expect(heroAction).toHaveCSS('outline-style', 'solid')
   })
 
-  test('measures the rendered Fit Lab width and avoids hidden hero image transfer', async ({ page }) => {
+  test('keeps the Pretext exhibit interactive and avoids hidden hero image transfer', async ({ page }) => {
     await page.setViewportSize({ width: 640, height: 980 })
     const heroImageRequests: string[] = []
     page.on('request', request => {
@@ -288,7 +288,9 @@ test.describe('unconfigured browser contracts', () => {
     })
 
     await page.goto('./')
-    await expect(page.getByRole('region', { name: 'Pretext Fit Lab' })).toBeVisible()
+    await expect(page.getByRole('heading', {
+      name: 'Text responds to its surroundings.',
+    })).toBeAttached()
     const hero = page.locator('[data-slot="landing-hero"]')
     await expect(hero).toHaveAttribute('data-layout', 'compact')
     await expect(hero.locator('source')).toHaveCount(0)
@@ -306,46 +308,55 @@ test.describe('unconfigured browser contracts', () => {
     )).toBe(true)
     await page.setViewportSize({ width: 560, height: 980 })
 
-    const widthGroup = page.getByRole('group', { name: 'Measurement width' })
-    const widthButtons = widthGroup.getByRole('button')
-    await expect(widthButtons).toHaveCount(3)
-    expect(await widthButtons.evaluateAll(buttons =>
-      buttons.map(button => Math.round(button.getBoundingClientRect().height))
-    )).toEqual([44, 44, 44])
-
-    await widthGroup.getByRole('button', { name: '300px' }).click()
-    const constrainedText = page.locator('[data-slot="fit-lab-constrained-text"]')
-    const renderedWidthMetric = page
-      .locator('.landing-fit-lab__metrics > div')
-      .filter({ hasText: 'Rendered width' })
-      .locator('dd')
-    await expect(page.locator('.landing-fit-lab__status')).not.toHaveText(
-      /Preparing measurement|Measurement unavailable/
+    const movableHeadline = page.getByRole('button', {
+      name: /Movable headline/,
+    })
+    await expect(movableHeadline).toBeVisible()
+    const initialPosition = await movableHeadline.getAttribute('data-position')
+    await movableHeadline.focus()
+    await page.keyboard.press('ArrowLeft')
+    await expect(movableHeadline).not.toHaveAttribute(
+      'data-position',
+      initialPosition ?? ''
     )
-    await expect.poll(async () => ({
-      metric: Number.parseInt((await renderedWidthMetric.textContent()) ?? '', 10),
-      rendered: await constrainedText.evaluate(element =>
-        Math.round(element.getBoundingClientRect().width)
-      ),
-    })).toEqual({ metric: 300, rendered: 300 })
+    const keyboardPosition = await movableHeadline.getAttribute('data-position')
+    const headlineBox = await movableHeadline.boundingBox()
+    expect(headlineBox).not.toBeNull()
+    if (headlineBox) {
+      await page.mouse.move(
+        headlineBox.x + headlineBox.width / 2,
+        headlineBox.y + headlineBox.height / 2
+      )
+      await page.mouse.down()
+      await page.mouse.move(
+        headlineBox.x + headlineBox.width / 2 - 40,
+        headlineBox.y + headlineBox.height / 2 + 24
+      )
+      await page.mouse.up()
+    }
+    await expect(movableHeadline).not.toHaveAttribute(
+      'data-position',
+      keyboardPosition ?? ''
+    )
+
+    await page.getByRole('button', { name: 'Edit passage' }).click()
+    const passageEditor = page.getByRole('textbox', {
+      name: 'Pretext demonstration passage',
+    })
+    await expect(passageEditor).toBeVisible()
+    await passageEditor.fill('A revised passage.')
+    await page.getByRole('button', { name: 'View flow' }).click()
+    await expect(
+      page.getByRole('paragraph').filter({ hasText: 'A revised passage.' })
+    ).toBeAttached()
 
     await page.setViewportSize({ width: 358, height: 980 })
-    await expect.poll(async () => {
-      const metric = Number.parseInt((await renderedWidthMetric.textContent()) ?? '', 10)
-      const rendered = await constrainedText.evaluate(element =>
-        Math.round(element.getBoundingClientRect().width)
-      )
-      return metric - rendered
-    }).toBe(0)
-    expect(await constrainedText.evaluate(element =>
-      Math.round(element.getBoundingClientRect().width)
-    )).toBeLessThan(300)
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(358)
-
-    await page.setViewportSize({ width: 561, height: 980 })
-    expect(await widthButtons.evaluateAll(buttons =>
-      buttons.map(button => Math.round(button.getBoundingClientRect().height))
-    )).toEqual([36, 36, 36])
+    await expect.poll(() => movableHeadline.evaluate(element => {
+      const stage = element.closest('.pretext-living-flow__stage')!
+      return element.getBoundingClientRect().right <=
+        stage.getBoundingClientRect().right
+    })).toBe(true)
   })
 
   test('keeps live hero content complete when the decorative image fails', async ({ page }) => {
