@@ -17,7 +17,7 @@ const INITIAL_PASSAGE =
 
 const FONT = '18px Geist'
 const LINE_HEIGHT = 30
-const STAGE_PADDING = 28
+const STAGE_PADDING = 8
 const OBJECT_GAP = 4
 
 const STAIR_HULL: readonly LivingFlowPoint[] = [

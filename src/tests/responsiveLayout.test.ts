@@ -158,6 +158,29 @@ describe('custom editor CSS invariants', () => {
     expect(compactMediaQuery).not.toContain('.landing-hero')
   })
 
+  it('uses one nested origins section and stacks it at the established landing boundary', () => {
+    expect(appCss).toMatch(
+      /\.landing-origins \{[^}]*grid-template-columns: minmax\(280px, 0\.78fr\) minmax\(0, 1\.22fr\);/
+    )
+    expect(appCss).toMatch(
+      /@media \(max-width: 920px\) \{[\s\S]*?\.landing-origins \{[^}]*grid-template-columns: 1fr;/
+    )
+    expect(appCss).toMatch(
+      /@media \(max-width: 640px\) \{[\s\S]*?\.pretext-living-flow__title \{[^}]*min-height: 44px;/
+    )
+    expect(appCss).not.toContain('.landing-fit-study')
+    expect(appCss).not.toContain('.landing-workflow')
+    expect(appCss).toContain('.landing-origins__chapter-heading')
+    expect(appCss).toContain('.landing-origins__chapter-footer')
+    expect(appCss).toContain('.pretext-living-flow__actions')
+    expect(appCss).toMatch(
+      /\.pretext-living-flow \{[^}]*width: calc\(100% - 138px\);[^}]*margin-left: 138px;/
+    )
+    expect(appCss).toMatch(
+      /@media \(max-width: 640px\) \{[\s\S]*?\.pretext-living-flow \{[^}]*width: 100%;[^}]*margin-left: 0;/
+    )
+  })
+
   it('keeps keyboard focus visible inside the clipped Border Notch and on review targets', () => {
     expect(appCss).toMatch(
       /\.workspace\[data-review-open='true'\] > \.fit-region:not\(:has\(\[aria-expanded='true'\]\)\)[\s\S]*?\[data-slot='collapsible-trigger'\]:focus-visible \{[^}]*outline: none;[^}]*box-shadow:[^}]*inset/

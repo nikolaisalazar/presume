@@ -105,8 +105,20 @@ describe('theme contrast contracts', () => {
       /\.pretext-living-flow__title:focus-visible \{[^}]*outline: 2px solid var\(--ring\);[^}]*box-shadow: 0 0 0 2px var\(--focus-contrast\);/
     )
     expect(appCss).toMatch(
-      /\.pretext-living-flow__edit:focus-visible,[\s\S]*?\.pretext-living-flow__header a:focus-visible \{[^}]*outline: 2px solid var\(--ring\);[^}]*box-shadow: 0 0 0 2px var\(--focus-contrast\);/
+      /\.pretext-living-flow__edit:focus-visible,[\s\S]*?\.pretext-living-flow__reset:focus-visible \{[^}]*outline: 2px solid var\(--ring\);[^}]*box-shadow: 0 0 0 2px var\(--focus-contrast\);/
     )
+  })
+
+  it('keeps the nested Pretext proof token-driven and free of ornamental motion', () => {
+    expect(appCss).toMatch(
+      /\.pretext-living-flow__title-shape polygon \{[^}]*fill: var\(--background\);[^}]*stroke: var\(--primary\);/
+    )
+    const titleRule = appCss.match(
+      /\.pretext-living-flow__title \{([^}]*)\}/
+    )?.[1]
+    expect(titleRule).toBeDefined()
+    expect(titleRule).not.toMatch(/transition|animation/)
+    expect(appCss).not.toContain('@keyframes pretext')
   })
 
 })
