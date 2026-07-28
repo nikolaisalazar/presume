@@ -133,9 +133,10 @@ test.describe('unconfigured browser contracts', () => {
         const capabilities = Array.from(
           document.querySelectorAll<HTMLElement>('[data-slot="capability-row"]')
         ).map(row => row.getBoundingClientRect())
-        const steps = Array.from(
-          document.querySelectorAll<HTMLElement>('section[aria-labelledby="workflow-title"] ol > li')
-        ).map(step => step.getBoundingClientRect())
+        const origins = document.querySelector<HTMLElement>('.landing-origins')!
+        const originsHeading = origins.querySelector<HTMLElement>(
+          '.landing-origins__heading'
+        )!
         const heroRect = hero.getBoundingClientRect()
         const heroCopyRect = heroCopy.getBoundingClientRect()
         const heroHeadingRect = heroHeading.getBoundingClientRect()
@@ -159,8 +160,11 @@ test.describe('unconfigured browser contracts', () => {
           ),
           featureLefts: capabilities.map(row => Math.round(row.left)),
           featureTops: capabilities.map(row => Math.round(row.top)),
-          workflowLefts: steps.map(step => Math.round(step.left)),
-          workflowTops: steps.map(step => Math.round(step.top)),
+          originsGridColumns: getComputedStyle(origins).gridTemplateColumns
+            .split(' ')
+            .filter(Boolean)
+            .length,
+          originsHeadingPosition: getComputedStyle(originsHeading).position,
           heroCopyWithinHero: (
             heroCopyRect.left >= heroRect.left
             && heroCopyRect.right <= heroRect.right
@@ -200,8 +204,8 @@ test.describe('unconfigured browser contracts', () => {
     const at920 = await collectBoundaryMetrics(920)
     expect.soft(new Set(at920.featureLefts).size, 'feature columns at 920px').toBe(2)
     expect.soft(new Set(at920.featureTops).size, 'feature rows at 920px').toBe(2)
-    expect.soft(new Set(at920.workflowLefts).size, 'workflow columns at 920px').toBe(1)
-    expect.soft(new Set(at920.workflowTops).size, 'workflow rows at 920px').toBe(4)
+    expect.soft(at920.originsGridColumns, 'origins columns at 920px').toBe(1)
+    expect.soft(at920.originsHeadingPosition, 'origins heading at 920px').toBe('static')
     expect.soft(at920.documentScrollWidth, 'document overflow at 920px').toBeLessThanOrEqual(
       at920.bodyClientWidth
     )
@@ -209,18 +213,65 @@ test.describe('unconfigured browser contracts', () => {
     const at921 = await collectBoundaryMetrics(921)
     expect.soft(new Set(at921.featureLefts).size, 'feature columns at 921px').toBe(4)
     expect.soft(new Set(at921.featureTops).size, 'feature rows at 921px').toBe(1)
-    expect.soft(new Set(at921.workflowTops).size, 'workflow rows at 921px').toBe(1)
-    expect.soft(at921.workflowLefts[0], 'first workflow step at 921px').toBeLessThan(
-      at921.workflowLefts[1]
-    )
-    expect.soft(at921.workflowLefts[1], 'second workflow step at 921px').toBeLessThan(
-      at921.workflowLefts[2]
-    )
-    expect.soft(at921.workflowLefts[2], 'third workflow step at 921px').toBeLessThan(
-      at921.workflowLefts[3]
-    )
+    expect.soft(at921.originsGridColumns, 'origins columns at 921px').toBe(2)
+    expect.soft(at921.originsHeadingPosition, 'origins heading at 921px').toBe('sticky')
     expect.soft(at921.imageVisible, 'decorative image visibility at 921px').toBe(true)
     expect.soft(at921.heroCopyWithinHero, 'hero copy containment at 921px').toBe(true)
+    await expect.poll(async () => (
+      await page.locator('.pretext-living-flow__line').allTextContents()
+    ).join(' ')).toContain('available space again.')
+    const passageParity = await page.evaluate(() => {
+      const projected = document.querySelector<HTMLElement>(
+        '.pretext-living-flow__line'
+      )!
+      const advisory = document.querySelector<HTMLElement>(
+        '.landing-origins__chapter:not(.landing-origins__chapter--measurement) .landing-origins__passage'
+      )!
+      const projectedStyle = getComputedStyle(projected)
+      const advisoryStyle = getComputedStyle(advisory)
+
+      return {
+        projected: {
+          color: projectedStyle.color,
+          fontSize: projectedStyle.fontSize,
+          lineHeight: projectedStyle.lineHeight,
+          left: Math.round(projected.getBoundingClientRect().left),
+        },
+        advisory: {
+          color: advisoryStyle.color,
+          fontSize: advisoryStyle.fontSize,
+          lineHeight: advisoryStyle.lineHeight,
+          left: Math.round(advisory.getBoundingClientRect().left),
+        },
+      }
+    })
+    expect(passageParity.projected.color).toBe(passageParity.advisory.color)
+    expect(passageParity.projected.fontSize).toBe(
+      passageParity.advisory.fontSize
+    )
+    expect(
+      Math.abs(
+        Number.parseFloat(passageParity.projected.lineHeight) -
+          Number.parseFloat(passageParity.advisory.lineHeight)
+      )
+    ).toBeLessThan(0.01)
+    expect(passageParity.projected.left).toBe(passageParity.advisory.left)
+
+    await page.evaluate(() => {
+      const origins = document.querySelector<HTMLElement>('.landing-origins')!
+      window.scrollTo({ top: origins.offsetTop + 240 })
+    })
+    await expect.poll(() => page.locator('.landing-origins__heading').evaluate(
+      element => Math.round(element.getBoundingClientRect().top)
+    )).toBe(92)
+
+    await page.setViewportSize({ width: 921, height: 680 })
+    await expect(page.locator('.landing-origins__heading')).toHaveCSS(
+      'position',
+      'static'
+    )
+    await page.setViewportSize({ width: 921, height: 980 })
+    await page.evaluate(() => window.scrollTo({ top: 0 }))
 
     const brand = page.getByRole('link', { name: 'Presume home' })
     await brand.focus()
@@ -278,7 +329,7 @@ test.describe('unconfigured browser contracts', () => {
     await expect(heroAction).toHaveCSS('outline-style', 'solid')
   })
 
-  test('measures the rendered Fit Lab width and avoids hidden hero image transfer', async ({ page }) => {
+  test('keeps the Pretext exhibit interactive and avoids hidden hero image transfer', async ({ page }) => {
     await page.setViewportSize({ width: 640, height: 980 })
     const heroImageRequests: string[] = []
     page.on('request', request => {
@@ -288,7 +339,9 @@ test.describe('unconfigured browser contracts', () => {
     })
 
     await page.goto('./')
-    await expect(page.getByRole('region', { name: 'Pretext Fit Lab' })).toBeVisible()
+    await expect(page.getByRole('button', {
+      name: /Move “Text responds to its surroundings”/,
+    })).toBeAttached()
     const hero = page.locator('[data-slot="landing-hero"]')
     await expect(hero).toHaveAttribute('data-layout', 'compact')
     await expect(hero.locator('source')).toHaveCount(0)
@@ -306,46 +359,168 @@ test.describe('unconfigured browser contracts', () => {
     )).toBe(true)
     await page.setViewportSize({ width: 560, height: 980 })
 
-    const widthGroup = page.getByRole('group', { name: 'Measurement width' })
-    const widthButtons = widthGroup.getByRole('button')
-    await expect(widthButtons).toHaveCount(3)
-    expect(await widthButtons.evaluateAll(buttons =>
-      buttons.map(button => Math.round(button.getBoundingClientRect().height))
-    )).toEqual([44, 44, 44])
+    const movableHeadline = page.getByRole('button', {
+      name: /Move “Text responds to its surroundings”/,
+    })
+    await expect(movableHeadline).toBeVisible()
+    const initialPosition = await movableHeadline.getAttribute('data-position')
+    const lateralInsets = await movableHeadline.evaluate(element => {
+      const bounds = element.getBoundingClientRect()
+      const lines = Array.from(
+        element.querySelectorAll<HTMLElement>(
+          '.pretext-living-flow__title-line'
+        )
+      )
+      const glyphBounds = lines.map(line => {
+        const range = document.createRange()
+        range.selectNodeContents(line)
+        return range.getBoundingClientRect()
+      })
+      const scale = bounds.width / 226
 
-    await widthGroup.getByRole('button', { name: '300px' }).click()
-    const constrainedText = page.locator('[data-slot="fit-lab-constrained-text"]')
-    const renderedWidthMetric = page
-      .locator('.landing-fit-lab__metrics > div')
-      .filter({ hasText: 'Rendered width' })
-      .locator('dd')
-    await expect(page.locator('.landing-fit-lab__status')).not.toHaveText(
-      /Preparing measurement|Measurement unavailable/
+      return [
+        glyphBounds[0].left - (bounds.left + 2 * scale),
+        bounds.left + 202 * scale - glyphBounds[0].right,
+        glyphBounds[1].left - (bounds.left + 26 * scale),
+        bounds.left + 224 * scale - glyphBounds[1].right,
+      ]
+    })
+    expect(lateralInsets.every(inset => inset >= 5 && inset <= 13)).toBe(true)
+    expect(Math.max(...lateralInsets) - Math.min(...lateralInsets)).toBeLessThan(
+      5
     )
-    await expect.poll(async () => ({
-      metric: Number.parseInt((await renderedWidthMetric.textContent()) ?? '', 10),
-      rendered: await constrainedText.evaluate(element =>
-        Math.round(element.getBoundingClientRect().width)
+    await movableHeadline.focus()
+    await page.keyboard.press('ArrowLeft')
+    await expect(movableHeadline).not.toHaveAttribute(
+      'data-position',
+      initialPosition ?? ''
+    )
+    const keyboardPosition = await movableHeadline.getAttribute('data-position')
+    const stage = page.locator('.pretext-living-flow__stage')
+    const advisoryChapter = page
+      .locator('.landing-origins__chapter')
+      .filter({ hasText: '02 / Advisory review' })
+    const stableComposition = {
+      stageHeight: await stage.evaluate(element =>
+        Math.round(element.getBoundingClientRect().height)
       ),
-    })).toEqual({ metric: 300, rendered: 300 })
+      advisoryTop: await advisoryChapter.evaluate(element =>
+        Math.round(element.getBoundingClientRect().top)
+      ),
+    }
+    const headlineBox = await movableHeadline.boundingBox()
+    expect(headlineBox).not.toBeNull()
+    if (headlineBox) {
+      await page.evaluate(() => {
+        const stage = document.querySelector<HTMLElement>(
+          '.pretext-living-flow__stage'
+        )!
+        const title = document.querySelector<HTMLElement>(
+          '.pretext-living-flow__title'
+        )!
+        const reads = { stage: 0, title: 0 }
+        const stageRect = stage.getBoundingClientRect.bind(stage)
+        const titleRect = title.getBoundingClientRect.bind(title)
+
+        stage.getBoundingClientRect = () => {
+          reads.stage += 1
+          return stageRect()
+        }
+        title.getBoundingClientRect = () => {
+          reads.title += 1
+          return titleRect()
+        }
+        Reflect.set(window, '__pretextGeometryReads', reads)
+      })
+      await page.mouse.move(
+        headlineBox.x + headlineBox.width / 2,
+        headlineBox.y + headlineBox.height / 2
+      )
+      await page.mouse.down()
+      const readsAtDragStart = await page.evaluate(() =>
+        Reflect.get(window, '__pretextGeometryReads')
+      )
+      await page.mouse.move(
+        headlineBox.x + headlineBox.width / 2 - 5,
+        headlineBox.y + headlineBox.height / 2 + 3
+      )
+      await page.evaluate(
+        () =>
+          new Promise<void>(resolve => {
+            requestAnimationFrame(() => resolve())
+          })
+      )
+      const firstDragBox = await movableHeadline.boundingBox()
+      expect(firstDragBox?.x).toBeCloseTo(headlineBox.x - 5, 0)
+      expect(firstDragBox?.y).toBeCloseTo(headlineBox.y + 3, 0)
+
+      for (const [deltaX, deltaY] of [
+        [-28, 18],
+        [-40, 0],
+        [-28, -18],
+        [0, -24],
+        [28, -18],
+        [40, 0],
+        [28, 18],
+        [0, 24],
+        [-40, 24],
+      ] as const) {
+        await page.mouse.move(
+          headlineBox.x + headlineBox.width / 2 + deltaX,
+          headlineBox.y + headlineBox.height / 2 + deltaY
+        )
+      }
+      await page.mouse.move(
+        headlineBox.x + headlineBox.width / 2 - 40,
+        headlineBox.y + headlineBox.height / 2 + 24,
+        { steps: 12 }
+      )
+      await page.evaluate(
+        () =>
+          new Promise<void>(resolve => {
+            requestAnimationFrame(() => resolve())
+          })
+      )
+      const readsAfterPointerFrames = await page.evaluate(() =>
+        Reflect.get(window, '__pretextGeometryReads')
+      )
+      expect(readsAfterPointerFrames).toEqual(readsAtDragStart)
+      const projectedHeight = await page
+        .locator('.pretext-living-flow__stage > div[aria-hidden="true"]')
+        .evaluate(element => Math.round(element.getBoundingClientRect().height))
+      expect(projectedHeight).toBeLessThanOrEqual(stableComposition.stageHeight)
+      await page.mouse.up()
+    }
+    await expect(movableHeadline).not.toHaveAttribute(
+      'data-position',
+      keyboardPosition ?? ''
+    )
+    expect(
+      await stage.evaluate(element =>
+        Math.round(element.getBoundingClientRect().height)
+      )
+    ).toBe(stableComposition.stageHeight)
+    expect(
+      await advisoryChapter.evaluate(element =>
+        Math.round(element.getBoundingClientRect().top)
+      )
+    ).toBe(stableComposition.advisoryTop)
+    await expect(
+      page.getByRole('button', { name: 'Reset position' })
+    ).not.toBeAttached()
+    await expect(
+      page.getByRole('button', { name: 'Edit passage' })
+    ).not.toBeAttached()
 
     await page.setViewportSize({ width: 358, height: 980 })
-    await expect.poll(async () => {
-      const metric = Number.parseInt((await renderedWidthMetric.textContent()) ?? '', 10)
-      const rendered = await constrainedText.evaluate(element =>
-        Math.round(element.getBoundingClientRect().width)
-      )
-      return metric - rendered
-    }).toBe(0)
-    expect(await constrainedText.evaluate(element =>
-      Math.round(element.getBoundingClientRect().width)
-    )).toBeLessThan(300)
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(358)
-
-    await page.setViewportSize({ width: 561, height: 980 })
-    expect(await widthButtons.evaluateAll(buttons =>
-      buttons.map(button => Math.round(button.getBoundingClientRect().height))
-    )).toEqual([36, 36, 36])
+    await expect.poll(() => movableHeadline.evaluate(element => {
+      const stage = element.closest('.pretext-living-flow__stage')!
+      return (
+        Math.round(element.getBoundingClientRect().right) <=
+        Math.round(stage.getBoundingClientRect().right)
+      )
+    })).toBe(true)
   })
 
   test('keeps live hero content complete when the decorative image fails', async ({ page }) => {

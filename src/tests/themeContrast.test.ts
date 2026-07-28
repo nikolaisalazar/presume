@@ -101,6 +101,24 @@ describe('theme contrast contracts', () => {
     expect(appCss).toMatch(
       /\.landing-hero \[data-slot='button'\]:focus-visible \{[^}]*box-shadow:[^}]*var\(--focus-contrast\)/
     )
+    expect(appCss).toMatch(
+      /\.pretext-living-flow__title:focus-visible \{[^}]*outline: 2px solid var\(--ring\);[^}]*box-shadow: 0 0 0 2px var\(--focus-contrast\);/
+    )
+  })
+
+  it('keeps the nested Pretext proof token-driven and free of ornamental motion', () => {
+    expect(appCss).toMatch(
+      /\.pretext-living-flow__title-shape polygon \{[^}]*fill: var\(--background\);[^}]*stroke: var\(--primary\);/
+    )
+    const titleRule = appCss.match(
+      /\.pretext-living-flow__title \{([^}]*)\}/
+    )?.[1]
+    expect(titleRule).toBeDefined()
+    expect(titleRule).not.toMatch(/transition|animation/)
+    expect(appCss).not.toContain('@keyframes pretext')
+    expect(appCss).toMatch(
+      /\.landing-origins__passage,[\s\S]*?\.pretext-living-flow__fallback \{[^}]*color: var\(--muted-foreground\);/
+    )
   })
 
 })
