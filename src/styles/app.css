@@ -1560,7 +1560,7 @@ body {
   }
 
   .pretext-living-flow__stage {
-    min-height: clamp(430px, calc(1160px - 115vw), 720px);
+    min-height: clamp(360px, calc(1178px - 128vw), 720px);
   }
 
   .pretext-living-flow__title {

@@ -134,12 +134,12 @@ export function layoutLivingFlow(
     const prepared = preparePassage(input.text, input.font)
     const lines: LivingFlowLine[] = []
     let cursor: LayoutCursor = { segmentIndex: 0, graphemeIndex: 0 }
+    const blockedRowAllowance =
+      Math.ceil((input.obstacle.height + input.gap * 2) / input.lineHeight) + 2
+    const maxRows = Math.max(1, input.text.length + blockedRowAllowance)
 
-    for (
-      let y = input.padding;
-      y + input.lineHeight <= input.stage.height - input.padding;
-      y += input.lineHeight
-    ) {
+    for (let row = 0; row < maxRows; row += 1) {
+      const y = input.padding + row * input.lineHeight
       const intervals = availableIntervals(input, y)
 
       for (const interval of intervals) {
@@ -150,7 +150,7 @@ export function layoutLivingFlow(
       }
     }
 
-    return lines
+    return null
   } catch {
     return null
   }

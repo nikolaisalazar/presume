@@ -121,6 +121,7 @@ describe('Pretext living-flow exhibit', () => {
     const textbox = screen.getByRole('textbox', {
       name: 'Pretext demonstration passage',
     })
+    expect(textbox).toHaveAttribute('maxlength', '800')
     fireEvent.change(textbox, { target: { value: 'A revised passage.' } })
     fireEvent.click(screen.getByRole('button', { name: 'View flow' }))
 

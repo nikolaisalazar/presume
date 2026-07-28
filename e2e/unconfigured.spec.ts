@@ -133,9 +133,7 @@ test.describe('unconfigured browser contracts', () => {
         const capabilities = Array.from(
           document.querySelectorAll<HTMLElement>('[data-slot="capability-row"]')
         ).map(row => row.getBoundingClientRect())
-        const steps = Array.from(
-          document.querySelectorAll<HTMLElement>('section[aria-labelledby="workflow-title"] ol > li')
-        ).map(step => step.getBoundingClientRect())
+        const origins = document.querySelector<HTMLElement>('.landing-origins')!
         const heroRect = hero.getBoundingClientRect()
         const heroCopyRect = heroCopy.getBoundingClientRect()
         const heroHeadingRect = heroHeading.getBoundingClientRect()
@@ -159,8 +157,10 @@ test.describe('unconfigured browser contracts', () => {
           ),
           featureLefts: capabilities.map(row => Math.round(row.left)),
           featureTops: capabilities.map(row => Math.round(row.top)),
-          workflowLefts: steps.map(step => Math.round(step.left)),
-          workflowTops: steps.map(step => Math.round(step.top)),
+          originsGridColumns: getComputedStyle(origins).gridTemplateColumns
+            .split(' ')
+            .filter(Boolean)
+            .length,
           heroCopyWithinHero: (
             heroCopyRect.left >= heroRect.left
             && heroCopyRect.right <= heroRect.right
@@ -200,8 +200,7 @@ test.describe('unconfigured browser contracts', () => {
     const at920 = await collectBoundaryMetrics(920)
     expect.soft(new Set(at920.featureLefts).size, 'feature columns at 920px').toBe(2)
     expect.soft(new Set(at920.featureTops).size, 'feature rows at 920px').toBe(2)
-    expect.soft(new Set(at920.workflowLefts).size, 'workflow columns at 920px').toBe(1)
-    expect.soft(new Set(at920.workflowTops).size, 'workflow rows at 920px').toBe(4)
+    expect.soft(at920.originsGridColumns, 'origins columns at 920px').toBe(1)
     expect.soft(at920.documentScrollWidth, 'document overflow at 920px').toBeLessThanOrEqual(
       at920.bodyClientWidth
     )
@@ -209,18 +208,12 @@ test.describe('unconfigured browser contracts', () => {
     const at921 = await collectBoundaryMetrics(921)
     expect.soft(new Set(at921.featureLefts).size, 'feature columns at 921px').toBe(4)
     expect.soft(new Set(at921.featureTops).size, 'feature rows at 921px').toBe(1)
-    expect.soft(new Set(at921.workflowTops).size, 'workflow rows at 921px').toBe(1)
-    expect.soft(at921.workflowLefts[0], 'first workflow step at 921px').toBeLessThan(
-      at921.workflowLefts[1]
-    )
-    expect.soft(at921.workflowLefts[1], 'second workflow step at 921px').toBeLessThan(
-      at921.workflowLefts[2]
-    )
-    expect.soft(at921.workflowLefts[2], 'third workflow step at 921px').toBeLessThan(
-      at921.workflowLefts[3]
-    )
+    expect.soft(at921.originsGridColumns, 'origins columns at 921px').toBe(2)
     expect.soft(at921.imageVisible, 'decorative image visibility at 921px').toBe(true)
     expect.soft(at921.heroCopyWithinHero, 'hero copy containment at 921px').toBe(true)
+    await expect.poll(async () => (
+      await page.locator('.pretext-living-flow__line').allTextContents()
+    ).join(' ')).toContain('available space again.')
 
     const brand = page.getByRole('link', { name: 'Presume home' })
     await brand.focus()
@@ -288,8 +281,8 @@ test.describe('unconfigured browser contracts', () => {
     })
 
     await page.goto('./')
-    await expect(page.getByRole('heading', {
-      name: 'Text responds to its surroundings.',
+    await expect(page.getByRole('button', {
+      name: /Move “Text responds to its surroundings”/,
     })).toBeAttached()
     const hero = page.locator('[data-slot="landing-hero"]')
     await expect(hero).toHaveAttribute('data-layout', 'compact')
@@ -309,7 +302,7 @@ test.describe('unconfigured browser contracts', () => {
     await page.setViewportSize({ width: 560, height: 980 })
 
     const movableHeadline = page.getByRole('button', {
-      name: /Movable headline/,
+      name: /Move “Text responds to its surroundings”/,
     })
     await expect(movableHeadline).toBeVisible()
     const initialPosition = await movableHeadline.getAttribute('data-position')
@@ -338,6 +331,13 @@ test.describe('unconfigured browser contracts', () => {
       'data-position',
       keyboardPosition ?? ''
     )
+    await expect(
+      page.getByRole('button', { name: 'Reset position' })
+    ).toBeVisible()
+    await page.getByRole('button', { name: 'Reset position' }).click()
+    await expect(
+      page.getByRole('button', { name: 'Reset position' })
+    ).not.toBeAttached()
 
     await page.getByRole('button', { name: 'Edit passage' }).click()
     const passageEditor = page.getByRole('textbox', {
@@ -354,8 +354,10 @@ test.describe('unconfigured browser contracts', () => {
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(358)
     await expect.poll(() => movableHeadline.evaluate(element => {
       const stage = element.closest('.pretext-living-flow__stage')!
-      return element.getBoundingClientRect().right <=
-        stage.getBoundingClientRect().right
+      return (
+        Math.round(element.getBoundingClientRect().right) <=
+        Math.round(stage.getBoundingClientRect().right)
+      )
     })).toBe(true)
   })
 

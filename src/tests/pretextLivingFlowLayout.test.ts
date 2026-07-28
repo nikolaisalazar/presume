@@ -65,6 +65,18 @@ describe('Pretext living-flow layout', () => {
     expect(lines?.slice(1)).toEqual([])
   })
 
+  it('projects the complete passage even when the initial stage is too short', () => {
+    const text = 'a'.repeat(160)
+    const lines = layoutLivingFlow({
+      ...baseInput,
+      text,
+      stage: { ...baseInput.stage, height: 60 },
+    })
+
+    expect(lines?.map(line => line.text).join('')).toBe(text)
+    expect(lines?.at(-1)?.y).toBeGreaterThan(baseInput.stage.height)
+  })
+
   it('routes text into left and right slots when a baseline crosses the obstacle', () => {
     const lines = layoutLivingFlow({
       ...baseInput,

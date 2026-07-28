@@ -19,6 +19,7 @@ const FONT = '18px Geist'
 const LINE_HEIGHT = 30
 const STAGE_PADDING = 8
 const OBJECT_GAP = 4
+const MAX_PASSAGE_LENGTH = 800
 
 const STAIR_HULL: readonly LivingFlowPoint[] = [
   { x: 0, y: 0 },
@@ -129,7 +130,7 @@ export function PretextLivingFlow({ actionsEnd }: PretextLivingFlowProps = {}) {
     observer.observe(stage)
     observer.observe(title)
     return () => observer.disconnect()
-  }, [fontsReady])
+  }, [editing, fontsReady])
 
   useEffect(
     () => () => {
@@ -205,6 +206,9 @@ export function PretextLivingFlow({ actionsEnd }: PretextLivingFlowProps = {}) {
   const layoutAvailable = projectedLines !== null
   const interactionUnavailable =
     fontsReady && stageSize.width > 0 && projectedLines === null
+  const projectedHeight = projectedLines?.length
+    ? projectedLines[projectedLines.length - 1].y + LINE_HEIGHT + STAGE_PADDING
+    : 0
 
   return (
     <div className="pretext-living-flow">
@@ -213,6 +217,7 @@ export function PretextLivingFlow({ actionsEnd }: PretextLivingFlowProps = {}) {
           <textarea
             aria-label="Pretext demonstration passage"
             autoFocus
+            maxLength={MAX_PASSAGE_LENGTH}
             value={passage}
             onChange={event => setPassage(event.target.value)}
           />
@@ -228,7 +233,7 @@ export function PretextLivingFlow({ actionsEnd }: PretextLivingFlowProps = {}) {
               {passage}
             </p>
             {projectedLines ? (
-              <div aria-hidden="true">
+              <div aria-hidden="true" style={{ height: projectedHeight }}>
                 {projectedLines.map((line, index) => (
                   <span
                     className="pretext-living-flow__line"

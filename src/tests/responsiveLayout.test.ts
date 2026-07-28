@@ -168,6 +168,9 @@ describe('custom editor CSS invariants', () => {
     expect(appCss).toMatch(
       /@media \(max-width: 640px\) \{[\s\S]*?\.pretext-living-flow__title \{[^}]*min-height: 44px;/
     )
+    expect(appCss).toMatch(
+      /@media \(max-width: 640px\) \{[\s\S]*?\.pretext-living-flow__stage \{[^}]*min-height: clamp\(360px, calc\(1178px - 128vw\), 720px\);/
+    )
     expect(appCss).not.toContain('.landing-fit-study')
     expect(appCss).not.toContain('.landing-workflow')
     expect(appCss).toContain('.landing-origins__chapter-heading')
