@@ -61,10 +61,6 @@ describe('App review availability boundaries', () => {
     })
   })
 
-  function setViewportWidth(width: number) {
-    vi.stubGlobal('innerWidth', width)
-  }
-
   afterEach(() => {
     vi.unstubAllEnvs()
     vi.unstubAllGlobals()
@@ -76,100 +72,74 @@ describe('App review availability boundaries', () => {
     window.history.pushState({}, '', '/')
   })
 
-  it('renders a minimal product landing page at the root and opens the editor', () => {
+  it('renders the approved landing narrative with semantic landmarks and opens the editor', () => {
     vi.stubEnv('VITE_REVIEW_API_URL', '')
     window.history.pushState({}, '', '/presume/')
 
-    render(<App />)
+    const { container } = render(<App />)
 
-    expect(screen.getByRole('group', { name: 'Appearance' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Presume is a local-first resume workbench.' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Write on the document' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Measure while it changes' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Review as evidence' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Leave with a stable artifact' })).toBeInTheDocument()
-    const origins = screen
-      .getByRole('heading', { name: 'The document came first.' })
-      .closest('section')
-    expect(origins).not.toBeNull()
-    expect(origins).toContainElement(
-      screen.getByRole('heading', { name: 'Pretext made fit observable.' })
-    )
-    expect(origins).toContainElement(
-      screen.getByRole('button', {
-        name: /Move “Text responds to its surroundings”/i,
-      })
-    )
-    expect(origins).toContainElement(
-      screen.getByRole('heading', {
-        name: 'Hiring Agent made the review boundary tangible.',
-      })
-    )
-    expect(screen.getByRole('link', { name: 'Explore Pretext' })).toBeInTheDocument()
-    expect(
-      screen.getByRole('link', { name: 'Explore Pretext' }).closest(
-        '.pretext-living-flow__actions'
-      )
-    ).not.toBeNull()
-    expect(screen.getByRole('link', { name: 'Explore Hiring Agent' })).toBeInTheDocument()
-    expect(screen.queryByText('A working example')).not.toBeInTheDocument()
-    expect(screen.queryByText('Operating sequence')).not.toBeInTheDocument()
-    expect(
-      screen.queryByText('Write → Measure → Review → Export')
-    ).not.toBeInTheDocument()
-    expect(screen.queryByLabelText('Presume editor preview')).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Skip to content' })).toHaveAttribute('href', '#main')
+    expect(screen.getByRole('banner')).toBeInTheDocument()
+    expect(screen.getByRole('navigation', { name: 'Primary navigation' })).toBeInTheDocument()
+    expect(screen.getByRole('main')).toHaveAttribute('id', 'main')
+    expect(screen.getByRole('contentinfo')).toBeInTheDocument()
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
+    expect(screen.getByRole('heading', { name: 'Your resume should stay yours.' })).toBeInTheDocument()
+
+    const chapters = Array.from(container.querySelectorAll('[data-landing-chapter]'))
+      .map(chapter => chapter.getAttribute('data-landing-chapter'))
+    expect(chapters).toEqual(['hero', 'thesis', 'fit', 'continuity', 'review', 'boundaries', 'ending'])
+    expect(screen.getByRole('heading', { name: 'The document is not the output. It is the interface.' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'See the page before export.' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'The document keeps its shape.' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Review advises. It does not edit.' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Two systems stay explicit.' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Make the page yours.' })).toBeInTheDocument()
+    expect(screen.getByText('Illustrative test fixture · sample resume shown')).toBeInTheDocument()
+    expect(screen.getByText(/an available service is configured/)).toBeInTheDocument()
+    expect(screen.getByText('Deterministic repository response')).toBeInTheDocument()
+    expect(screen.queryByRole('group', { name: 'Appearance' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('region', { name: 'Pretext Fit Lab' })).not.toBeInTheDocument()
     expect(document.querySelector('.resume-page')).not.toBeInTheDocument()
-    expect(screen.queryByRole('toolbar', { name: 'Document actions' })).not.toBeInTheDocument()
 
-    fireEvent.click(screen.getAllByRole('button', { name: 'Open the editor' })[0])
+    fireEvent.click(screen.getByRole('button', { name: 'Open the editor' }))
 
     expect(window.location.pathname).toBe('/presume/editor/')
     expect(screen.getByRole('toolbar', { name: 'Document actions' })).toBeInTheDocument()
   })
 
-  it('renders the hero source only above the inclusive viewport boundary', () => {
+  it('uses approved primitives, static authentic evidence, loading strategy, and accessible fallbacks', () => {
     vi.stubEnv('VITE_REVIEW_API_URL', '')
     window.history.pushState({}, '', '/presume/')
-    setViewportWidth(640)
 
     const { container } = render(<App />)
 
-    expect(container.querySelectorAll('[data-slot="button"]')).toHaveLength(3)
-    expect(container.querySelectorAll('[data-slot="toggle-group-item"]')).toHaveLength(3)
+    expect(container.querySelectorAll('[data-slot="button"]')).toHaveLength(2)
+    expect(container.querySelectorAll('[data-slot="toggle-group-item"]')).toHaveLength(0)
     expect(container.querySelectorAll('[data-slot="card"]')).toHaveLength(0)
-    expect(container.querySelectorAll('[data-slot="capability-row"]')).toHaveLength(4)
-    expect(container.querySelector('[data-slot="badge"]')).not.toBeInTheDocument()
-    expect(container.querySelector('[data-slot="separator"]')).not.toBeInTheDocument()
     const brandMark = container.querySelector('.app-header__brand-mark')
     expect(brandMark?.querySelector('svg')).toBeInTheDocument()
-    expect(brandMark).not.toHaveTextContent('P')
-    const heroMedia = container.querySelector<HTMLPictureElement>(
-      '[data-slot="landing-hero-media"]'
-    )
-    const heroImage = heroMedia?.querySelector('img')
-    const hero = container.querySelector('[data-slot="landing-hero"]')
 
-    expect(heroMedia).toHaveAttribute('aria-hidden', 'true')
-    expect(hero).toHaveAttribute('data-layout', 'compact')
-    expect(heroMedia?.querySelectorAll('source')).toHaveLength(0)
-    expect(heroImage).toHaveAttribute('alt', '')
+    const images = screen.getAllByRole('img') as HTMLImageElement[]
+    expect(images).toHaveLength(3)
+    expect(images[0]).toHaveAttribute('fetchpriority', 'high')
+    expect(images[0]).toHaveAttribute('loading', 'eager')
+    expect(images[0]).toHaveAttribute('decoding', 'async')
+    for (const image of images.slice(1)) {
+      expect(image).toHaveAttribute('loading', 'lazy')
+      expect(image).toHaveAttribute('decoding', 'async')
+    }
+    for (const image of images) {
+      expect(image.getAttribute('src')).toMatch(/^\/presume\/landing\//)
+      expect(image).toHaveAttribute('width')
+      expect(image).toHaveAttribute('height')
+    }
+    expect(container.querySelectorAll('source[srcset*="@2x"]')).toHaveLength(6)
 
-    setViewportWidth(641)
-    fireEvent(window, new Event('resize'))
-
-    expect(hero).toHaveAttribute('data-layout', 'wide')
-    expect(heroMedia?.querySelectorAll('source')).toHaveLength(1)
-    expect(heroMedia?.querySelector('source')).toHaveAttribute(
-      'srcset',
-      '/presume/landing/document-horizon-1120.webp 1120w, /presume/landing/document-horizon-2200.webp 2200w'
-    )
-    expect(heroMedia?.querySelector('source')).not.toHaveAttribute('media')
-    expect(screen.queryByRole('link', { name: /Photograph:/ })).not.toBeInTheDocument()
-    expect(
-      screen.getByRole('heading', {
-        name: 'Presume is a local-first resume workbench.',
-      })
-    ).toBeInTheDocument()
+    fireEvent.error(images[1])
+    expect(screen.getByRole('status', { name: 'Fit product capture unavailable' }))
+      .toHaveTextContent('Product capture unavailable')
+    expect(screen.getByText('Measurement fixture using Presume’s working fit logic')).toBeInTheDocument()
   })
 
   it('returns to the landing page when the editor brand is clicked', () => {
@@ -185,18 +155,22 @@ describe('App review availability boundaries', () => {
     fireEvent.click(screen.getByRole('link', { name: 'Presume home' }))
 
     expect(window.location.pathname).toBe('/presume/')
-    expect(screen.getByRole('heading', { name: 'Presume is a local-first resume workbench.' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Your resume should stay yours.' })).toBeInTheDocument()
     expect(screen.queryByRole('toolbar', { name: 'Document actions' })).not.toBeInTheDocument()
   })
 
-  it('shows continue editing on the landing page when a saved resume exists', () => {
+  it('shows continue editing on both landing actions when a saved resume exists', () => {
     vi.stubEnv('VITE_REVIEW_API_URL', '')
     localStorage.setItem('presume:resume', JSON.stringify(importedResume))
     window.history.pushState({}, '', '/presume/')
 
     render(<App />)
 
-    expect(screen.getAllByRole('button', { name: 'Continue editing' })).toHaveLength(3)
+    const continueActions = screen.getAllByRole('button', { name: 'Continue editing' })
+    expect(continueActions).toHaveLength(2)
+    expect(continueActions[1].querySelector('[aria-hidden="true"]')).toHaveTextContent('→')
+    expect(screen.queryByRole('button', { name: 'Open the editor' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Edit your resume' })).not.toBeInTheDocument()
   })
 
   it('keeps editing, persistence, export, and import available', async () => {
