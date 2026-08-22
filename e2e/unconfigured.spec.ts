@@ -193,6 +193,31 @@ test.describe('unconfigured browser contracts', () => {
     await expect(page.getByRole('main')).toBeFocused()
   })
 
+  test('preloads Geist and keeps cold-load layout shift within budget', async ({ page }) => {
+    await page.setViewportSize({ width: 1000, height: 900 })
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    await page.addInitScript(() => {
+      Reflect.set(window, '__landingCls', 0)
+      new PerformanceObserver(list => {
+        for (const entry of list.getEntries()) {
+          const shift = entry as PerformanceEntry & { hadRecentInput: boolean; value: number }
+          if (!shift.hadRecentInput) {
+            Reflect.set(window, '__landingCls', Reflect.get(window, '__landingCls') + shift.value)
+          }
+        }
+      }).observe({ type: 'layout-shift', buffered: true })
+    })
+
+    await page.goto('./', { waitUntil: 'networkidle' })
+    await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))))
+
+    await expect(page.locator('link[rel="preload"][as="font"]')).toHaveAttribute(
+      'href',
+      /\/presume\/assets\/Geist-Variable-.*\.woff2$/
+    )
+    expect(await page.evaluate(() => Reflect.get(window, '__landingCls'))).toBeLessThanOrEqual(0.01)
+  })
+
   test('loads only prioritized hero evidence eagerly and preserves an accessible image failure state', async ({ page }) => {
     const requests: string[] = []
     page.on('request', request => {

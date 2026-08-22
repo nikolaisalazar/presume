@@ -45,6 +45,7 @@ describe('approved landing production contracts', () => {
     expect(indexHtml).toContain(`<title>${title}</title>`)
     expect(indexHtml).toContain(`<meta name="description" content="${description}" />`)
     expect(indexHtml).toContain('<link rel="canonical" href="https://nikolaisalazar.github.io/presume/" />')
+    expect(indexHtml).toContain('<link rel="preload" href="/src/assets/fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin />')
     expect(indexHtml).toContain('<meta property="og:type" content="website" />')
     expect(indexHtml).toContain(`<meta property="og:title" content="${title}" />`)
     expect(indexHtml).toContain(`<meta property="og:description" content="${description}" />`)
