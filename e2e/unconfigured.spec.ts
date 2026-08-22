@@ -178,10 +178,6 @@ test.describe('unconfigured browser contracts', () => {
     }
 
     await page.setViewportSize({ width: 400, height: 980 })
-    await page.locator('.landing-evidence-plate').scrollIntoViewIfNeeded()
-    await expect(page.locator('.landing-capture--fit img')).toHaveAttribute('src', /working-fit-lab-capture-hardened/)
-    expect(await page.locator('.landing-capture--fit img').evaluate(image => (image as HTMLImageElement).currentSrc))
-      .toContain('working-fit-lab-narrow-hardened')
     await page.locator('.landing-review-plate').scrollIntoViewIfNeeded()
     expect(await page.locator('.landing-capture--review img').evaluate(image => (image as HTMLImageElement).currentSrc))
       .toContain('working-review-narrow-essential-hardened')
@@ -191,6 +187,91 @@ test.describe('unconfigured browser contracts', () => {
     await expect(page.getByRole('link', { name: 'Skip to content' })).toBeFocused()
     await page.keyboard.press('Enter')
     await expect(page.getByRole('main')).toBeFocused()
+  })
+
+  test('operates the live Pretext boundary with keyboard and pointer at wide and narrow widths', async ({ page }) => {
+    await page.goto('./')
+
+    for (const width of [1200, 390]) {
+      await page.setViewportSize({ width, height: 980 })
+      const instrument = page.locator('.landing-pretext')
+      await instrument.scrollIntoViewIfNeeded()
+      await expect(instrument).toHaveAttribute('aria-busy', 'false')
+      const slider = page.getByRole('slider', { name: 'Available text width' })
+      await expect(instrument.locator('[data-pretext-stage]')).toHaveCSS('touch-action', 'auto')
+      await expect(slider).toHaveCSS('touch-action', 'none')
+      const widthReadout = instrument.locator('[data-pretext-width]')
+      const lineReadout = instrument.locator('[data-pretext-lines]')
+      await expect(widthReadout).toHaveText(/\d+px/)
+      await expect(lineReadout).toHaveText(/\d+/)
+      const lineGeometry = await instrument.evaluate(element => {
+        const available = Number.parseFloat(element.querySelector<HTMLElement>('[data-pretext-width]')!.textContent!)
+        const text = element.querySelector<HTMLElement>('.landing-pretext__text')!
+        const lineWidths = Array.from(text.children).map(line => {
+          const range = document.createRange()
+          range.selectNodeContents(line)
+          return range.getBoundingClientRect().width
+        })
+        const style = getComputedStyle(text)
+        const measuredWidestLine = Number.parseFloat(
+          element.querySelector<HTMLElement>('[data-pretext-widest]')!.textContent!.match(/[\d.]+/)![0]
+        )
+        return {
+          available,
+          measuredWidestLine,
+          widestRenderedLine: Math.max(...lineWidths),
+          fontFamily: style.fontFamily,
+          fontSize: style.fontSize,
+          fontWeight: style.fontWeight,
+          letterSpacing: style.letterSpacing,
+        }
+      })
+      expect(lineGeometry.widestRenderedLine).toBeLessThanOrEqual(lineGeometry.available + 1)
+      expect(Math.abs(lineGeometry.widestRenderedLine - lineGeometry.measuredWidestLine)).toBeLessThanOrEqual(2)
+      expect(lineGeometry.fontFamily).toContain('Geist')
+      expect(lineGeometry.fontSize).toBe('28px')
+      expect(lineGeometry.fontWeight).toBe('540')
+      expect(['0px', 'normal']).toContain(lineGeometry.letterSpacing)
+      if (width === 1200) {
+        await expect(widthReadout).toHaveText('340px')
+        await expect(lineReadout).toHaveText('3')
+      }
+
+      await slider.focus()
+      await page.keyboard.press('Home')
+      await expect(slider).toHaveAttribute('aria-valuenow', '116')
+      const homeLines = Number(await lineReadout.textContent())
+      await page.keyboard.press('Shift+ArrowRight')
+      await expect(slider).toHaveAttribute('aria-valuenow', '132')
+      await page.keyboard.press('End')
+      const endWidth = Number(await slider.getAttribute('aria-valuenow'))
+      const endLines = Number(await lineReadout.textContent())
+      expect(endWidth).toBeGreaterThan(132)
+      expect(endLines).toBeLessThanOrEqual(homeLines)
+
+      const grip = instrument.locator('.landing-pretext__grip')
+      const box = await grip.boundingBox()
+      if (!box) throw new Error('Pretext grip has no layout box')
+      await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+      await page.mouse.down()
+      await expect(slider).toHaveClass(/is-dragging/)
+      await page.mouse.move(box.x + box.width / 2 - 48, box.y + box.height / 2)
+      await page.mouse.up()
+      await expect(slider).not.toHaveClass(/is-dragging/)
+      expect(Number(await slider.getAttribute('aria-valuenow'))).toBe(endWidth - 48)
+      await expect(slider).toHaveAttribute('aria-valuetext', /pixels available width, \d+ lines/)
+
+      const overflow = await page.evaluate(() => ({
+        client: document.documentElement.clientWidth,
+        scroll: document.documentElement.scrollWidth,
+      }))
+      expect(overflow.scroll).toBeLessThanOrEqual(overflow.client)
+    }
+
+    const link = page.getByRole('link', { name: 'Explore Pretext’s live demos ↗' })
+    await expect(link).toHaveAttribute('href', 'https://chenglou.me/pretext/')
+    await expect(page.getByText('Text changes shape as the space around it changes.')).toBeVisible()
+    expect(await page.locator('.landing-pretext').textContent()).not.toMatch(/\b(resume|document|paper|date|warning|target)\b/i)
   })
 
   test('preloads Geist and keeps cold-load layout shift within budget', async ({ page }) => {
@@ -223,10 +304,10 @@ test.describe('unconfigured browser contracts', () => {
     page.on('request', request => {
       if (request.url().includes('/landing/') && request.resourceType() === 'image') requests.push(request.url())
     })
-    let rejectFitCapture!: () => void
-    const fitCaptureGate = new Promise<void>(resolve => { rejectFitCapture = resolve })
-    await page.route('**/landing/working-fit-lab-*.png', async route => {
-      await fitCaptureGate
+    let rejectReviewCapture!: () => void
+    const reviewCaptureGate = new Promise<void>(resolve => { rejectReviewCapture = resolve })
+    await page.route('**/landing/working-review-*.png', async route => {
+      await reviewCaptureGate
       await route.abort()
     })
     await page.setViewportSize({ width: 700, height: 800 })
@@ -239,17 +320,17 @@ test.describe('unconfigured browser contracts', () => {
     await expect(page.locator('.landing-capture--review img')).toHaveAttribute('loading', 'lazy')
     expect(requests.some(url => url.includes('editor-hero-narrow-hardened'))).toBe(true)
 
-    await page.locator('.landing-evidence-plate').scrollIntoViewIfNeeded()
-    await expect.poll(() => requests.some(url => url.includes('working-fit-lab'))).toBe(true)
-    const reservedGeometry = await page.locator('.landing-capture--fit').evaluate(element => ({
+    await page.locator('.landing-review-plate').scrollIntoViewIfNeeded()
+    await expect.poll(() => requests.some(url => url.includes('working-review'))).toBe(true)
+    const reservedGeometry = await page.locator('.landing-capture--review').evaluate(element => ({
       width: element.getBoundingClientRect().width,
       height: element.getBoundingClientRect().height,
     }))
-    rejectFitCapture()
-    await expect(page.getByRole('status', { name: 'Fit product capture unavailable' }))
+    rejectReviewCapture()
+    await expect(page.getByRole('status', { name: 'Review product capture unavailable' }))
       .toHaveText('Product capture unavailable')
-    await expect(page.getByText('Measurement fixture using Presume’s working fit logic')).toBeVisible()
-    const fallbackGeometry = await page.locator('.landing-capture--fit').evaluate(element => ({
+    await expect(page.getByText('Deterministic repository response')).toBeVisible()
+    const fallbackGeometry = await page.locator('.landing-capture--review').evaluate(element => ({
       width: element.getBoundingClientRect().width,
       height: element.getBoundingClientRect().height,
     }))

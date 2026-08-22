@@ -100,6 +100,8 @@ describe('App review availability boundaries', () => {
     expect(screen.getByText('Deterministic repository response')).toBeInTheDocument()
     expect(screen.queryByRole('group', { name: 'Appearance' })).not.toBeInTheDocument()
     expect(screen.queryByRole('region', { name: 'Pretext Fit Lab' })).not.toBeInTheDocument()
+    expect(screen.getByRole('slider', { name: 'Available text width' })).toHaveAttribute('aria-valuenow', '340')
+    expect(screen.getByText('Pretext measures')).toBeInTheDocument()
     expect(document.querySelector('.resume-page')).not.toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Open the editor' }))
@@ -108,7 +110,7 @@ describe('App review availability boundaries', () => {
     expect(screen.getByRole('toolbar', { name: 'Document actions' })).toBeInTheDocument()
   })
 
-  it('uses approved primitives, static authentic evidence, loading strategy, and accessible fallbacks', () => {
+  it('uses live Fit evidence plus authentic editor and Review captures with accessible fallbacks', () => {
     vi.stubEnv('VITE_REVIEW_API_URL', '')
     window.history.pushState({}, '', '/presume/')
 
@@ -121,7 +123,7 @@ describe('App review availability boundaries', () => {
     expect(brandMark?.querySelector('svg')).toBeInTheDocument()
 
     const images = screen.getAllByRole('img') as HTMLImageElement[]
-    expect(images).toHaveLength(3)
+    expect(images).toHaveLength(2)
     expect(images[0]).toHaveAttribute('fetchpriority', 'high')
     expect(images[0]).toHaveAttribute('loading', 'eager')
     expect(images[0]).toHaveAttribute('decoding', 'async')
@@ -134,12 +136,21 @@ describe('App review availability boundaries', () => {
       expect(image).toHaveAttribute('width')
       expect(image).toHaveAttribute('height')
     }
-    expect(container.querySelectorAll('source[srcset*="@2x"]')).toHaveLength(6)
+    expect(container.querySelectorAll('source[srcset*="@2x"]')).toHaveLength(4)
+
+    const slider = screen.getByRole('slider', { name: 'Available text width' })
+    expect(slider).toHaveAttribute('aria-valuetext', '340 pixels available width, measurement loading')
+    expect(screen.getByText('Available width')).toHaveTextContent('340px')
+    expect(screen.getByText('Line count')).toHaveTextContent('—')
+    expect(screen.getByRole('link', { name: 'Explore Pretext’s live demos ↗' })).toHaveAttribute(
+      'href',
+      'https://chenglou.me/pretext/'
+    )
 
     fireEvent.error(images[1])
-    expect(screen.getByRole('status', { name: 'Fit product capture unavailable' }))
+    expect(screen.getByRole('status', { name: 'Review product capture unavailable' }))
       .toHaveTextContent('Product capture unavailable')
-    expect(screen.getByText('Measurement fixture using Presume’s working fit logic')).toBeInTheDocument()
+    expect(screen.getByText('Deterministic repository response')).toBeInTheDocument()
   })
 
   it('returns to the landing page when the editor brand is clicked', () => {

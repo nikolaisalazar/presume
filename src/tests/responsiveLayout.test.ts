@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 const appCss = readFileSync(`${process.cwd()}/src/styles/app.css`, 'utf8')
 const resumeCss = readFileSync(`${process.cwd()}/src/styles/resume.css`, 'utf8')
 const landingSource = readFileSync(`${process.cwd()}/src/components/LandingPage.tsx`, 'utf8')
+const pretextDemoSource = readFileSync(`${process.cwd()}/src/components/landing/PretextMeasureDemo.tsx`, 'utf8')
 const indexHtml = readFileSync(`${process.cwd()}/index.html`, 'utf8')
 
 describe('approved landing production contracts', () => {
@@ -26,7 +27,7 @@ describe('approved landing production contracts', () => {
     expect(appCss).toContain('@media (forced-colors: active)')
   })
 
-  it('uses only base-safe static evidence with art direction and fallback hooks', () => {
+  it('keeps editor and Review captures base-safe while Fit evidence is live Pretext', () => {
     expect(landingSource).not.toContain('FitLab')
     expect(landingSource).not.toContain('ThemeControl')
     expect(landingSource).not.toContain('localhost')
@@ -34,9 +35,14 @@ describe('approved landing production contracts', () => {
     expect(landingSource).toContain('import.meta.env.BASE_URL')
     expect(landingSource).toContain('`${import.meta.env.BASE_URL}landing`')
     expect(landingSource).toContain('desktopBase="editor-hero-desktop-hardened"')
-    expect(landingSource).toContain('narrowBase="working-fit-lab-narrow-hardened"')
     expect(landingSource).toContain('narrowBase="working-review-narrow-essential-hardened"')
+    expect(landingSource).not.toContain('working-fit-lab')
     expect(landingSource).toContain('Product capture unavailable')
+    expect(pretextDemoSource).toContain('prepareWithSegments')
+    expect(pretextDemoSource).toContain('layoutWithLines')
+    expect(pretextDemoSource).toContain('measureLineStats')
+    expect(pretextDemoSource).toContain('ResizeObserver')
+    expect(pretextDemoSource).toContain('role="slider"')
   })
 
   it('publishes the exact approved GitHub Pages metadata', () => {

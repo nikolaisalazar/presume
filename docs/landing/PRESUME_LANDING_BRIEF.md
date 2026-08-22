@@ -14,7 +14,9 @@
 
 The hardened comp is the visual and narrative authority. The distilled study is retained only as exploration history. Do not carry its centered thesis, PDF continuity chapter, tighter mobile crops, added evidence motion, Review-label rewrite, or unified CTA wording into production.
 
-Two post-approval factual corrections are incorporated into the archived hardened authority: Review must be configured **and available** before it can return evidence, and the deterministic repository response is displayed with the sample resume rather than validated as content-derived from it. These corrections do not reopen the visual direction.
+Two post-approval factual corrections are incorporated into the archived hardened authority: Review must be configured **and available** before it can return evidence, and the deterministic repository response is displayed with the sample resume rather than validated as content-derived from it.
+
+A later user-approved production reopening supersedes **only** the static Fit evidence contract. The production Fit chapter now uses the live, text-only Pretext instrument specified below. The archived hardened comp and `docs/landing/reference/**` remain historical visual authorities; their Fit raster is no longer a production requirement. All other Quiet Instrument narrative, geometry, capture, and protected-product decisions remain locked.
 
 ## Resolved profile
 
@@ -47,7 +49,7 @@ Conversion remains secondary to product understanding, truthful evidence, and pr
 ## Locked principles
 
 1. **The finished document is the product surface.** The landing should bridge naturally into the protected editor rather than promise a different product.
-2. **Evidence before assertion.** Use working editor, Fit, and Review captures to support claims.
+2. **Evidence before assertion.** Use the working editor and Review captures plus the live Pretext Fit instrument to support claims.
 3. **Direct control is the differentiator.** Do not position Presume as an automated writer or conventional template SaaS.
 4. **Review remains optional and non-mutating.** It advises; it never takes ownership of the document.
 5. **Premium means restraint.** Composition, typography, spacing, product-capture art direction, and material hierarchy do the work.
@@ -98,7 +100,11 @@ This order is locked. Do not insert generic benefits, testimonials, pricing, FAQ
 - Eyebrow: **Visible constraints**
 - Heading: **See the page before export.**
 - Body: **Fit keeps page and line constraints visible while you edit, so you can see wrapping pressure and overflow before export.**
-- Caption: **Measurement fixture using Presume’s working fit logic** / **Example measured state**
+- Instrument label: **Pretext measures**
+- Fixed sentence: **Text changes shape as the space around it changes.**
+- Primary live readouts: **Available width** and **Line count** only
+- Dynamic caption: **Widest line Npx.** followed by **Presume uses those measured lines to keep each bullet within its limit.**
+- Adjacent external link: **Explore Pretext’s live demos ↗** to `https://chenglou.me/pretext/`
 
 ### Document continuity
 
@@ -224,10 +230,15 @@ No gradients, glass, glow, beige app backgrounds, decorative semantic colors, or
 ### Fit
 
 - Desktop: copy left and evidence right, approximately `0.58fr / 1.42fr`.
-- At 860px and below: stack copy above evidence.
-- Use the approved static authentic Fit capture for this handoff.
-- Do not embed an interactive `FitLab`; doing so would add controls, focus behavior, and states absent from the locked composition.
-- Do not reconstruct or redesign Fit for the landing.
+- At 860px and below: stack copy above evidence. Preserve the existing `.landing-evidence-plate` responsive role and outer section geometry where practical.
+- The evidence is one live, pure, text-only Pretext instrument. It has no options, tabs, video, Fit handoff, resume/document/paper facsimile, date or bullet UI, target, warning, line guide, bracket, row, card grid, gradient, or glass treatment.
+- Prepare the fixed sentence with the installed `@chenglou/pretext` `prepareWithSegments` only after named Geist is ready. Use Pretext layout and statistics for the rendered lines/readouts; width changes must reuse the prepared text rather than preparing again.
+- Start desktop available width around 340px, producing roughly three lines, and clamp the range to the available stage on narrow canvases.
+- Available and unavailable regions are flat Mineral Quiet fields divided by one direct vertical boundary. The boundary has a 44px `↔` grip.
+- Pointer and touch input track 1:1 using pointer capture, with immediate active feedback and no autoplay, inertia, or automatic animation. Keyboard input supports Arrow keys, Home, and End; Shift accelerates Arrow steps.
+- Expose accurate `aria-valuemin`, `aria-valuemax`, `aria-valuenow`, and `aria-valuetext`. The focus ring belongs to the grip, not the full-height boundary. Reduced motion adds no unnecessary transition.
+- Reserve stable stage geometry while font preparation and measurement initialize. Missing `ResizeObserver` in unit environments must not crash initialization.
+- Truth boundary: Pretext measures and lays out the sentence’s lines. Presume interprets those measured lines to keep each resume bullet within its configured limit; the demo does not claim to reproduce the editor or Fit UI.
 
 ### Continuity
 
@@ -271,7 +282,7 @@ No gradients, glass, glow, beige app backgrounds, decorative semantic colors, or
 | 860px and below | Fit stacks |
 | 780px and below | Continuity and Design Boundaries stack |
 | 700px and below | Narrow gutters, simplified nav, full-width hero CTA, compact evidence padding |
-| 400px and below | Use phone-art-directed Fit and Review sources |
+| 400px and below | Use the phone-art-directed Review source; keep the live Fit instrument clamped to its stage |
 | 360px and below | Remove `Presume ·` prefix from the hero eyebrow |
 
 Requirements:
@@ -289,8 +300,6 @@ Requirements:
 - `Geist-Variable.woff2`
 - `editor-hero-desktop-hardened.png` and `@2x`
 - `editor-hero-narrow-hardened.png` and `@2x`
-- `working-fit-lab-capture-hardened.png` and `@2x`
-- `working-fit-lab-narrow-hardened.png` and `@2x`
 - `working-review-capture-hardened.png` and `@2x`
 - `working-review-narrow-essential-hardened.png` and `@2x`
 
@@ -298,14 +307,14 @@ These files are study references, not automatically production-ready assets.
 
 ### Production requirements
 
-- Record accepted native production captures in `docs/landing/PRODUCTION_CAPTURE_MANIFEST.md` with source state, geometry, and checksums. The production hero truthfully includes the current default sample’s stable Fit warning; this product-state delta supersedes the transient warning-free study raster without reopening the landing composition.
+- Record accepted native editor and Review production captures in `docs/landing/PRODUCTION_CAPTURE_MANIFEST.md` with source state, geometry, and checksums. The production hero truthfully includes the current default sample’s stable Fit warning.
 - Replace `/files/` references with bundler/base-safe asset imports or public paths under the deployed `/presume/` base.
 - Replace `127.0.0.1` links with existing router/callback navigation.
-- Create native-density final captures from a stable reproducible editor state. The study hero’s density-aware derivative must not be mistaken for a native high-density capture.
+- Create native-density editor and Review captures from stable reproducible states. The study hero’s density-aware derivative must not be mistaken for a native high-density capture.
 - Preserve protected product pixels; cropping and lossless optimization are allowed, reconstruction is not.
 - Declare intrinsic width and height for every image and source.
 - Use responsive `picture`/`srcset` art direction where the approved desktop and narrow crops differ.
-- Prioritize only the hero capture. Fit and Review load lazily with asynchronous decoding.
+- Prioritize only the hero capture. Review loads lazily with asynchronous decoding; live Fit contains no raster request.
 - Keep text-bearing UI captures in a lossless or visually lossless format.
 - Preload Geist only if measurement shows a meaningful LCP benefit; retain `font-display: swap`.
 - Verify that image reservation prevents cumulative layout shift before decode.
@@ -315,7 +324,7 @@ These files are study references, not automatically production-ready assets.
 | Claim | Evidence | Implementation requirement |
 | --- | --- | --- |
 | Direct editing | Working editor capture and editor route | Capture the real editor; do not reconstruct it. |
-| Visible page and line constraints | Fit summary and Fit evidence | Use working Fit behavior or an authentic capture. |
+| Visible page and line constraints | Protected Fit summary and live Pretext evidence | Keep protected Fit behavior unchanged; use the live instrument to demonstrate the measurement primitive and Presume’s interpretation boundary. |
 | Saved in this browser | Existing LocalStorage persistence | Do not imply cloud sync, accounts, or cross-device storage. |
 | Stable Letter PDF | Existing canonical PDF export behavior and E2E coverage | Use “stable” and “Letter-sized”; do not claim pixel identity across unsupported environments. |
 | JSON backup | Existing JSON export/import | Call it an importable or portable backup, not cloud storage. |
@@ -342,7 +351,7 @@ These files are study references, not automatically production-ready assets.
 - Primary buttons: darker Verdigris hover fill, 1px active translation, and the global focus-visible ring.
 - Provenance and footer links: remain visibly underlined, preserve external-link text where applicable, and use the global focus-visible ring.
 - Unsupported view timelines: render the continuity path fully visible with no partial state.
-- Evidence-image failure: preserve the declared image geometry, keep the surrounding label/caption, and replace the failed raster with visible **Product capture unavailable** fallback text. Do not collapse the chapter or expose a broken-image icon as the only feedback.
+- Editor/Review evidence-image failure: preserve the declared image geometry, keep the surrounding label/caption, and replace the failed raster with visible **Product capture unavailable** fallback text. Do not collapse the chapter or expose a broken-image icon as the only feedback. Fit is live and has no image-failure state.
 
 ## Accessibility
 
@@ -398,9 +407,9 @@ These files are study references, not automatically production-ready assets.
 | Handmade-paper photographic hero | Remove | Replace with authentic editor evidence. |
 | Current “local-first resume workbench” hero message | Reframe | Use the approved ownership thesis and product-specific body copy. |
 | Origins section | Recompose | Reduce to the final Design Boundaries chapter. |
-| Pretext explanation | Keep/reframe | Pair with working Fit evidence and concise provenance. |
+| Pretext explanation | Keep/reframe | Pair the live measurement instrument with concise provenance and the Presume interpretation bridge. |
 | Hiring Agent explanation | Keep/reframe | Clarify separate optional local/self-hosted service boundary. |
-| Working FitLab | Keep/protect | Represent it with the approved authentic static capture; do not embed the interactive component in this handoff. |
+| Working Fit behavior | Keep/protect | Do not import or alter protected Fit UI. The focused landing-only Pretext instrument replaces only its obsolete raster evidence. |
 | Capability register | Recompose | Its useful truths become hero and continuity copy. |
 | Workflow section | Remove | It repeats the narrative and is not part of the approved direction. |
 | Existing final action | Replace composition | Use the centered green-black ending. |
@@ -470,10 +479,10 @@ Do not copy the disposable HTML wholesale into production. Translate the approve
 
 - [ ] Mineral Quiet palette and territorial hierarchy match the approved comp.
 - [ ] Review uses exactly `#dcece8`; the terminal ending uses exactly `#101513`; no other full-width chapter uses a saturated Verdigris or green-black fill.
-- [ ] Saturated `#14796f` is limited to primary actions, the brand mark, path markers, and the Review evidence frame.
+- [ ] Saturated `#14796f` is limited to primary actions, the brand mark, path markers, the live Pretext boundary/grip, and the Review evidence frame.
 - [ ] Hero remains an editorial split above 1000px and stacks below it.
 - [ ] Hero H1 remains within three lines at every width in the required verification matrix.
-- [ ] Product captures remain authentic and proportional, with aspect-ratio error below `0.015` and selected source width providing at least 1.8 physical source pixels per rendered CSS pixel on DPR 2 displays.
+- [ ] Editor and Review product captures remain authentic and proportional, with aspect-ratio error below `0.015` and selected source width providing at least 1.8 physical source pixels per rendered CSS pixel on DPR 2 displays.
 - [ ] At the five archived baseline widths, section order, territorial background colors, and major shell/evidence edges match the reference screenshots within 8 CSS px on desktop/tablet and 4 CSS px at 390/320px, excluding raster content and font-antialiasing differences.
 - [ ] No gradients, glass, decorative spectacle, excessive rounding, or card proliferation is introduced.
 
@@ -482,7 +491,7 @@ Do not copy the disposable HTML wholesale into production. Translate the approve
 - [ ] No horizontal page overflow from 320px upward.
 - [ ] Breakpoints transform at the specified staggered boundaries.
 - [ ] Reading order remains logical after every stack.
-- [ ] Fit and Review use appropriate art-directed sources at narrow widths.
+- [ ] Review uses its appropriate art-directed source at narrow widths; live Fit clamps without overflow.
 - [ ] No accidental overlap, overflow, or broken composition appears across the 1px breakpoint pairs around 1000, 920, 860, 780, 700, or 400px; expected stacking-height changes remain coherent.
 - [ ] Layout remains usable at 200% browser zoom.
 
@@ -498,12 +507,16 @@ Do not copy the disposable HTML wholesale into production. Translate the approve
 
 ### Interaction and motion
 
+- [ ] Named Geist finishes loading before the sentence is prepared once with Pretext; width changes update real layout/statistics without re-preparing.
+- [ ] Pointer/touch dragging tracks the boundary 1:1 with capture and immediate active feedback; keyboard Arrow/Home/End behavior, Shift acceleration, bounds, and ARIA value text remain accurate at wide and narrow widths.
+- [ ] The live evidence shows only the fixed sentence, `Pretext measures`, Available width, Line count, the dynamic widest-line caption/bridge, and the safe external demo link; it contains no faux Fit/resume UI.
+- [ ] The stage reserves stable loading geometry, clamps at narrow widths, survives absent `ResizeObserver`, and causes no page overflow.
 - [ ] Hero settle is 250ms and uses only opacity/transform when reduced motion is not requested.
 - [ ] Navigation underline reveal is approximately 180ms, uses transform, and does not change link bounding-box width.
 - [ ] Button active state translates down exactly 1px; the final CTA arrow hover shift is approximately 3px when motion is allowed.
 - [ ] Continuity path draws only when CSS view timelines are supported and reduced motion is not requested; fallback is a complete static line.
 - [ ] Under reduced motion, automatic/view-driven animation names resolve to `none` and root scroll behavior resolves to `auto`.
-- [ ] A forced evidence-image failure preserves reserved geometry and displays **Product capture unavailable** with the original label/caption still present.
+- [ ] A forced lazy Review-image failure preserves reserved geometry and displays **Product capture unavailable** with the original label/caption still present.
 
 ### Performance and stability
 
@@ -561,7 +574,7 @@ At minimum, verify:
 - Quiet Instrument narrative
 - Mineral Quiet palette
 - Editorial split hero
-- Authentic editor, Fit, and Review evidence
+- Authentic editor and Review evidence plus live Pretext Fit evidence
 - Pale Review territory
 - Saturated Review evidence plate
 - Bright Design Boundaries interval
@@ -572,7 +585,7 @@ At minimum, verify:
 ### Change during production translation
 
 - Replace disposable localhost and `/files/` URLs.
-- Produce native-density final captures.
+- Preserve the accepted native-density editor and Review captures; Fit no longer has a production capture.
 - Preserve saved-resume dynamic CTA behavior.
 - Add production metadata and base-safe loading strategy.
 - Translate disposable markup into existing React architecture and tests.

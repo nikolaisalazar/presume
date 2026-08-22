@@ -1,5 +1,6 @@
 import { useState, type MouseEvent, type ReactNode } from 'react'
 import { BrandMark } from '@/components/BrandMark'
+import { PretextMeasureDemo } from '@/components/landing/PretextMeasureDemo'
 import { Button } from '@/components/ui/button'
 
 export interface LandingPageProps {
@@ -8,7 +9,7 @@ export interface LandingPageProps {
 }
 
 interface ProductCaptureProps {
-  kind: 'editor' | 'fit' | 'review'
+  kind: 'editor' | 'review'
   alt: string
   desktopBase: string
   desktopWidth: number
@@ -35,7 +36,7 @@ function ProductCapture({
   priority = false,
 }: ProductCaptureProps) {
   const [failed, setFailed] = useState(false)
-  const label = `${kind === 'editor' ? 'Editor' : kind === 'fit' ? 'Fit' : 'Review'} product capture unavailable`
+  const label = `${kind === 'editor' ? 'Editor' : 'Review'} product capture unavailable`
 
   return (
     <div className={`landing-capture landing-capture--${kind}`} data-capture-state={failed ? 'unavailable' : 'ready'}>
@@ -164,20 +165,7 @@ export function LandingPage({ hasSavedResume, onOpenEditor }: LandingPageProps) 
               <h2 id="fit-title">See the page before export.</h2>
               <p>Fit keeps page and line constraints visible while you edit, so you can see wrapping pressure and overflow before export.</p>
             </div>
-            <figure className="landing-evidence-plate">
-              <ProductCapture
-                kind="fit"
-                desktopBase="working-fit-lab-capture-hardened"
-                desktopWidth={742}
-                desktopHeight={355}
-                narrowBase="working-fit-lab-narrow-hardened"
-                narrowWidth={358}
-                narrowHeight={623}
-                breakpoint={400}
-                alt="Presume measurement fixture showing a text sample over its two-line target at a 240 pixel width"
-              />
-              <figcaption><span>Measurement fixture using Presume’s working fit logic</span><span>Example measured state</span></figcaption>
-            </figure>
+            <PretextMeasureDemo />
           </div>
         </section>
 

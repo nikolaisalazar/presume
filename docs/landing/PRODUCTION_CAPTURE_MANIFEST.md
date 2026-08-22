@@ -2,7 +2,9 @@
 
 ## Status
 
-These assets are the production replacements for the archived exploration captures. They were captured independently at native 1× and 2× device scale; no 2× file is an upscale of its 1× counterpart.
+The editor and Review assets are the production replacements for the archived exploration captures. They were captured independently at native 1× and 2× device scale; no 2× file is an upscale of its 1× counterpart.
+
+Fit evidence is now a live, text-only Pretext instrument rendered by the landing. It has no production raster and is therefore outside capture provenance. The former Fit PNGs remain only in the historical `docs/landing/reference/**` archive.
 
 - Protected-surface source commit: `6366b8d194375e01ea7b9bcdf960509e5d290f9d`
 - Browser: Playwright Chromium `149.0.7827.55`
@@ -14,7 +16,7 @@ These assets are the production replacements for the archived exploration captur
 - Theme: Light
 - Reduced motion: Reduce
 
-The working tree’s protected editor, Fit, and Review implementation matched the source commit. Landing-only implementation changes do not participate in the captured product interfaces.
+The working tree’s protected editor, Fit, and Review implementation matched the source commit. Landing-only implementation changes do not participate in the captured editor or Review interfaces, and the live landing instrument does not modify protected Fit behavior.
 
 ## Editor hero
 
@@ -40,32 +42,6 @@ Coordinates are CSS pixels; DPR 2 multiplies every coordinate by two.
 - Narrow art direction: `(265, 100)` to `(1165, 735)` → 900 × 635 / 1800 × 1270
 
 The crops are losslessly optimized RGB PNGs. No resize, reconstruction, warning removal, or content retouching was applied.
-
-## Fit evidence
-
-### Source state
-
-- Source checkout: clean `git archive` of `6366b8d194375e01ea7b9bcdf960509e5d290f9d`
-- Route: `/presume/`
-- Component: working `FitLab` from the prior landing, used only as the authentic capture source
-- Storage: `localStorage.clear()` before navigation
-- State: default 240px measurement, `Over constraint`
-- Readiness: Fit status no longer contains `Preparing` or `unavailable`
-- DPR captures: 1 and 2, captured independently
-
-### Desktop
-
-- Viewport: 1440 × 900
-- Element box: 742.96875 × 355.171875 CSS px
-- Lossless edge crop: right/bottom fractional raster edge only
-- Output: 742 × 355 / 1484 × 710
-
-### Narrow
-
-- Viewport: 390 × 844
-- Element box: 358 × 623.25 CSS px
-- Lossless edge crop: bottom fractional raster edge only
-- Output: 358 × 623 / 716 × 1246
 
 ## Review evidence
 
@@ -111,10 +87,6 @@ The narrow file is a crop of the working Review panel, not a reconstruction.
 1db6cd3a1bbffb93ad9ef10ee6135f95cba56324e62bc46e3dd38e73f0dea1ad  public/landing/editor-hero-desktop-hardened@2x.png
 e7a1a58a551bbbf583de10a54ade6980b73077acc4cb43475dfce3593ee1b6dd  public/landing/editor-hero-narrow-hardened.png
 98eb845bfa0cc24784bd929b2c4aebb99bb36141d7054d4b9704a3fd8ca09973  public/landing/editor-hero-narrow-hardened@2x.png
-9b9dbe35e9dbe947fd4dc110ab8a07635f13184de5033859104c476282843fbe  public/landing/working-fit-lab-capture-hardened.png
-237e1200ce5f364aeada01f85e422313b47e08949e8c2fb3a337445cd18cc90f  public/landing/working-fit-lab-capture-hardened@2x.png
-7a8fb269238796d9537741bc8e72a400634bfc681efd8c29897d01f0742c9399  public/landing/working-fit-lab-narrow-hardened.png
-436e88d07d8b8ccd941b9c3f40729810da08f99dee398bf332e4cb80ee5ad70e  public/landing/working-fit-lab-narrow-hardened@2x.png
 fcb7b0ff927bbfb652789326e49748cf044a89a0b49b167699f4951382ed02de  public/landing/working-review-capture-hardened.png
 2ba17df580352d81a37c2ae59c73acaf1563d1312cd31316d23c337b5ddb1378  public/landing/working-review-capture-hardened@2x.png
 84d2c61ba6673ca8c291d835a12e45d71c20187000b4ff6527c1d666f1f99c2a  public/landing/working-review-narrow-essential-hardened.png
@@ -124,4 +96,4 @@ b897f799bba72e3d3cfc7f9c00e941a62e420d1d4a6d86f0a1b0c7d31fb87e3c  public/landing
 b212d6d13d37f5303b383f3c4fbba8534761d9aee484b7b57ef59551ab2dfa4e  scripts/generate-landing-social.mjs
 ```
 
-Re-run the checksum comparison whenever a production capture or social generator changes. A changed source state requires a new manifest entry rather than silently replacing these files.
+Re-run the checksum comparison whenever an editor/Review production capture or social generator changes. A changed source state requires a new manifest entry rather than silently replacing these files. Changes to the live Fit instrument are verified as code, interaction, accessibility, and responsive behavior rather than image provenance.

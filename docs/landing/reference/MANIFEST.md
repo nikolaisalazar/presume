@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This directory is the durable visual authority for the approved **Direction D — Current hardened** landing handoff.
+This directory preserves the approved **Direction D — Current hardened** visual handoff. A later user-approved reopening replaced only its static Fit raster with a live text-only Pretext instrument; `docs/landing/PRESUME_LANDING_BRIEF.md` is authoritative for that production exception. The archived comp, assets, and baselines remain unchanged historical references.
 
 Serve it from this directory so the comp’s absolute `/files/` references resolve:
 
@@ -53,8 +53,8 @@ The E2E route verifies that a PDF multipart upload occurs, then returns the same
 
 - Desktop reference: `files/working-fit-lab-capture-hardened.png`, 742 × 355
 - Narrow reference: `files/working-fit-lab-narrow-hardened.png`, 358 × 623
-- These are static captures of the working Fit fixture.
-- The final production landing is specified to use an authentic static Fit capture, not an interactive landing reconstruction.
+- These are static captures of the working Fit fixture retained as exploration history.
+- They describe the originally approved raster treatment, which the later user-approved live Pretext instrument supersedes for production. They must not be restored as interactive-looking screenshots.
 
 ### Review
 
@@ -95,7 +95,7 @@ The implementation brief defines additional 1px breakpoint-pair checks. These fi
 
 ## Required production capture manifest
 
-Before final production acceptance, record for each replacement product capture:
+Before final production acceptance, record each replacement editor or Review product capture:
 
 1. Repository commit.
 2. Route and configuration.
