@@ -85,6 +85,10 @@ describe('App review availability boundaries', () => {
     expect(screen.getByRole('contentinfo')).toBeInTheDocument()
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
     expect(screen.getByRole('heading', { name: 'Your resume should stay yours.' })).toBeInTheDocument()
+    expect(container.querySelector('.landing-eyebrow')).not.toBeInTheDocument()
+    expect(screen.queryByText('Local-first resume workbench')).not.toBeInTheDocument()
+    expect(screen.queryByText('Visible constraints')).not.toBeInTheDocument()
+    expect(screen.queryByText('Advisory Review')).not.toBeInTheDocument()
 
     const chapters = Array.from(container.querySelectorAll('[data-landing-chapter]'))
       .map(chapter => chapter.getAttribute('data-landing-chapter'))

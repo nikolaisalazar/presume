@@ -162,7 +162,6 @@ export function LandingPage({ hasSavedResume, onOpenEditor }: LandingPageProps) 
       <main id="main" className="landing-main" tabIndex={-1}>
         <section className="landing-hero landing-shell" data-landing-chapter="hero" aria-labelledby="landing-title">
           <div className="landing-hero__copy">
-            <p className="landing-eyebrow"><span className="landing-hero__brand-prefix">Presume · </span>Local-first resume workbench</p>
             <h1 id="landing-title">Your resume should stay yours.</h1>
             <p className="landing-hero__lede">Edit the finished Letter page directly. Presume keeps page and line constraints visible, saves the resume in this browser, and exports a stable PDF. Review remains advisory and never changes the document.</p>
             <div className="landing-hero__action">
@@ -185,7 +184,6 @@ export function LandingPage({ hasSavedResume, onOpenEditor }: LandingPageProps) 
         <section className="landing-fit landing-shell" id="fit" data-landing-chapter="fit" aria-labelledby="fit-title">
           <div className="landing-fit__grid">
             <div className="landing-fit__copy">
-              <p className="landing-eyebrow">Visible constraints</p>
               <h2 id="fit-title">See the page before export.</h2>
               <p>Fit keeps page and line constraints visible while you edit, so you can see wrapping pressure and overflow before export.</p>
             </div>
@@ -210,7 +208,6 @@ export function LandingPage({ hasSavedResume, onOpenEditor }: LandingPageProps) 
         <section className="landing-review" data-landing-chapter="review" aria-labelledby="review-title">
           <div className="landing-review__inner landing-shell">
             <div className="landing-review__copy">
-              <p className="landing-eyebrow">Advisory Review</p>
               <h2 id="review-title">Review advises. It does not edit.</h2>
               <p>When you choose Review and an available service is configured, it can return category scores and supporting evidence beside the resume. It never rewrites or mutates the document.</p>
               <p className="landing-review__signature">It cannot <span>take the pen.</span></p>
@@ -236,7 +233,6 @@ export function LandingPage({ hasSavedResume, onOpenEditor }: LandingPageProps) 
         <section className="landing-boundaries" id="boundaries" data-landing-chapter="boundaries" aria-labelledby="boundaries-title">
           <div className="landing-boundaries__inner landing-shell">
             <div>
-              <p className="landing-eyebrow">Design boundaries</p>
               <h2 id="boundaries-title">Two systems stay explicit.</h2>
             </div>
             <div className="landing-boundaries__list">

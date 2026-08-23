@@ -84,10 +84,10 @@ fcb7b0ff927bbfb652789326e49748cf044a89a0b49b167699f4951382ed02de  public/landing
 2ba17df580352d81a37c2ae59c73acaf1563d1312cd31316d23c337b5ddb1378  public/landing/working-review-capture-hardened@2x.png
 84d2c61ba6673ca8c291d835a12e45d71c20187000b4ff6527c1d666f1f99c2a  public/landing/working-review-narrow-essential-hardened.png
 b897f799bba72e3d3cfc7f9c00e941a62e420d1d4a6d86f0a1b0c7d31fb87e3c  public/landing/working-review-narrow-essential-hardened@2x.png
-305b5813427bb10dbea763fd7336098ab2600b0d1a278198445c1719dac29371  public/landing/social-preview.png
+07e26550b6da014fb2756bc7c549a47866bb7baeefc82a99063afd27fa9eee12  public/landing/social-preview.png
 16174f165f6e5a5a019a0f256f8dff4a17755e90f5395efe7ea3ea9899380ec4  public/favicon.svg
 910646fabfec799ef9703b823949c75d4b6d8117ed5907af4de297767b0073ed  scripts/generate-landing-letter.mjs
-55fe09fdd8202640c026a8473d932703166e51a19fc4397a447de41e3256bafa  scripts/generate-landing-social.mjs
+71f77021cba016af2daa430409f1ec78e8ad7b1120fad733632ac10680c24b21  scripts/generate-landing-social.mjs
 ```
 
 Re-run the checksum comparison whenever the Letter generator, Letter outputs, Review production capture, or social generator changes. A changed source state requires a new manifest entry rather than silently replacing these files. Changes to the live Fit instrument are verified as code, interaction, accessibility, and responsive behavior rather than image provenance.

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This directory preserves the approved **Direction D — Current hardened** visual handoff. Later user-approved reopenings replaced its static Fit raster with a live text-only Pretext instrument and its framed editor hero with an authentic exported Letter surface above 700px plus a purely typographic mobile hero. `docs/landing/PRESUME_LANDING_BRIEF.md` is authoritative for those production exceptions. The archived comp, assets, and baselines remain unchanged historical references.
+This directory preserves the approved **Direction D — Current hardened** visual handoff. Later user-approved reopenings replaced its static Fit raster with a live text-only Pretext instrument, its framed editor hero with an authentic exported Letter surface above 700px plus a purely typographic mobile hero, its decorative heading eyebrows with direct headings, and its bottom-aligned thesis interpretation with vertical centering. `docs/landing/PRESUME_LANDING_BRIEF.md` is authoritative for those production exceptions. The archived comp, assets, and baselines remain unchanged historical references.
 
 Serve it from this directory so the comp’s absolute `/files/` references resolve:
 

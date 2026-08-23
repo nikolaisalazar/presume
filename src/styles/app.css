@@ -1070,15 +1070,6 @@ html:has(.landing-page) {
   transform: scaleX(1);
 }
 
-.landing-eyebrow {
-  color: #117168;
-  font-size: 11px;
-  font-weight: 720;
-  letter-spacing: 0.075em;
-  line-height: 1.35;
-  text-transform: uppercase;
-}
-
 .landing-page [data-slot='button'] {
   min-height: 44px;
   border: 1px solid #14796f;
@@ -1115,7 +1106,7 @@ html:has(.landing-page) {
 
 .landing-hero h1 {
   max-width: 10.5ch;
-  margin-block-start: 18px;
+  margin: 0;
   font-size: clamp(64px, 5.8vw, 84px);
   font-weight: 650;
   letter-spacing: -0.057em;
@@ -1161,12 +1152,12 @@ html:has(.landing-page) {
   inset-block-start: 52px;
   inset-inline-end: 0;
   width: 560px;
+  height: calc(560px * 11 / 8.5);
   aspect-ratio: 8.5 / 11;
 }
 
 .landing-letter-stage__image {
   display: block;
-  height: auto;
   background: #fffefb;
   object-fit: cover;
 }
@@ -1233,7 +1224,7 @@ html:has(.landing-page) {
 .landing-thesis__inner {
   display: grid;
   grid-template-columns: 1.25fr 0.75fr;
-  align-items: end;
+  align-items: center;
   gap: 64px;
   padding-block: 110px;
 }
@@ -1271,13 +1262,19 @@ html:has(.landing-page) {
 .landing-review h2,
 .landing-boundaries h2,
 .landing-ending h2 {
-  margin-block-start: 14px;
   font-size: clamp(44px, 4.6vw, 66px);
   font-weight: 640;
   letter-spacing: -0.05em;
   line-height: 0.98;
   text-wrap: balance;
 }
+
+.landing-fit h2,
+.landing-review h2,
+.landing-boundaries h2 { margin: 0; }
+
+.landing-continuity h2,
+.landing-ending h2 { margin-block-start: 14px; }
 
 .landing-fit h2 { max-width: 10ch; }
 
@@ -1555,7 +1552,7 @@ html:has(.landing-page) {
 
 .landing-review h2 { max-width: 10ch; }
 
-.landing-review__copy > p:not(.landing-eyebrow, .landing-review__signature) {
+.landing-review__copy > p:not(.landing-review__signature) {
   max-width: 43ch;
   margin-block-start: 24px;
   color: #56635e;
@@ -1749,6 +1746,7 @@ html:has(.landing-page) {
     inset-inline-end: auto;
     inset-inline-start: 50%;
     width: 500px;
+    height: calc(500px * 11 / 8.5);
     transform: translateX(-50%);
   }
 }
@@ -1820,10 +1818,6 @@ html:has(.landing-page) {
 
 @media (max-width: 400px) {
   .landing-capture--review { aspect-ratio: 366 / 603; }
-}
-
-@media (max-width: 360px) {
-  .landing-hero__brand-prefix { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

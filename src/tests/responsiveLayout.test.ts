@@ -9,7 +9,7 @@ const indexHtml = readFileSync(`${process.cwd()}/index.html`, 'utf8')
 
 describe('approved landing production contracts', () => {
   it('keeps every approved inclusive responsive boundary and overflow guard', () => {
-    for (const boundary of [1000, 920, 860, 780, 700, 400, 360]) {
+    for (const boundary of [1000, 920, 860, 780, 700, 400]) {
       expect(appCss).toContain(`@media (max-width: ${boundary}px)`)
     }
     expect(appCss).toMatch(/\.landing-page \{[^}]*overflow-x: clip;/)
@@ -42,6 +42,9 @@ describe('approved landing production contracts', () => {
     expect(landingSource).toContain('Resume preview unavailable')
     expect(landingSource).toContain('Product capture unavailable')
     expect(appCss).toMatch(/@media \(max-width: 700px\)[\s\S]*?\.landing-product-stage \{ display: none; \}/)
+    expect(landingSource).not.toContain('landing-eyebrow')
+    expect(appCss).not.toContain('.landing-eyebrow')
+    expect(appCss).toMatch(/\.landing-thesis__inner \{[^}]*align-items: center;/)
     expect(pretextDemoSource).toContain('prepareWithSegments')
     expect(pretextDemoSource).toContain('layoutWithLines')
     expect(pretextDemoSource).toContain('measureLineStats')

@@ -16,7 +16,7 @@ The hardened comp is the visual and narrative authority. The distilled study is 
 
 Two post-approval factual corrections are incorporated into the archived hardened authority: Review must be configured **and available** before it can return evidence, and the deterministic repository response is displayed with the sample resume rather than validated as content-derived from it.
 
-Later user-approved production reopenings supersede two evidence contracts. The Fit chapter uses the live, text-only Pretext instrument specified below. The hero replaces its framed editor screenshot with an authentic exported Letter surface above 700px and becomes purely typographic at 700px and below. The archived hardened comp and `docs/landing/reference/**` remain historical visual authorities; their Fit and editor-hero rasters are no longer production requirements. All other Quiet Instrument narrative, geometry, capture, and protected-product decisions remain locked.
+Later user-approved production reopenings supersede selected evidence and hierarchy contracts. The Fit chapter uses the live, text-only Pretext instrument specified below. The hero replaces its framed editor screenshot with an authentic exported Letter surface above 700px and becomes purely typographic at 700px and below. Decorative all-caps Verdigris eyebrows are removed from the hero, Fit, Review, and Design Boundaries headings, and the thesis interpretation is vertically centered beside its heading. The archived hardened comp and `docs/landing/reference/**` remain historical visual authorities; their Fit and editor-hero rasters and eyebrow treatment are no longer production requirements. All other Quiet Instrument narrative, geometry, capture, and protected-product decisions remain locked.
 
 ## Resolved profile
 
@@ -79,8 +79,6 @@ This order is locked. Do not insert generic benefits, testimonials, pricing, FAQ
 
 ### Hero
 
-- Eyebrow: **Presume · Local-first resume workbench**
-- Narrowest-screen eyebrow: **Local-first resume workbench**
 - H1: **Your resume should stay yours.**
 - Body: **Edit the finished Letter page directly. Presume keeps page and line constraints visible, saves the resume in this browser, and exports a stable PDF. Review remains advisory and never changes the document.**
 - Default primary action: **Open the editor**
@@ -97,7 +95,6 @@ This order is locked. Do not insert generic benefits, testimonials, pricing, FAQ
 
 ### Fit
 
-- Eyebrow: **Visible constraints**
 - Heading: **See the page before export.**
 - Body: **Fit keeps page and line constraints visible while you edit, so you can see wrapping pressure and overflow before export.**
 - Instrument label: **Pretext measures**
@@ -116,7 +113,6 @@ This order is locked. Do not insert generic benefits, testimonials, pricing, FAQ
 
 ### Review
 
-- Eyebrow: **Advisory Review**
 - Heading: **Review advises. It does not edit.**
 - Body: **When you choose Review and an available service is configured, it can return category scores and supporting evidence beside the resume. It never rewrites or mutates the document.**
 - Signature: **It cannot take the pen.**
@@ -127,7 +123,6 @@ The `81 / 100` result is the repository’s deterministic configured-review E2E 
 
 ### Design Boundaries
 
-- Eyebrow: **Design boundaries**
 - Heading: **Two systems stay explicit.**
 - Measurement: **Pretext ↗ supplies text-layout primitives. Presume exposes their effect through Fit instead of hiding page pressure.**
 - Advisory review: **Optional Review runs through a separate local or self-hosted service using a Hiring Agent adapter ↗. Returned evidence stays separate from the editable resume.**
@@ -185,10 +180,10 @@ No gradients, glass, glow, beige app backgrounds, decorative semantic colors, or
 - Large landing display sizes are a landing-only extension of the product typography system.
 - Headings use controlled negative tracking and compact line height.
 - Primary body measures use `39ch`–`48ch`; provenance copy may extend to `56ch`; no landing prose block exceeds `56ch`. Body line height remains between 1.62 and 1.7.
-- Eyebrows are 11px, uppercase, approximately `0.075em` tracked.
+- Decorative heading eyebrows are not used. Uppercase functional labels remain limited to instruments and evidence provenance where they identify real state or data.
 - Meaningful captions are at least 13px.
 - Review signature is 20px desktop and 18px narrow.
-- Do not allow body selectors to override eyebrow, caption, or signature roles.
+- Do not allow body selectors to override caption, functional-label, or signature roles.
 - The hero H1 must remain within three lines at every supported width.
 
 ### Geometry
@@ -223,7 +218,7 @@ No gradients, glass, glow, beige app backgrounds, decorative semantic colors, or
 ### Thesis
 
 - Bright neutral full-width chapter.
-- Desktop: large statement left, concise interpretation right, aligned toward the chapter baseline.
+- Desktop: large statement left, concise interpretation right, vertically centered against the full heading block rather than bottom-aligned.
 - At 700px and below: stack in reading order.
 - Preserve the approved asymmetric composition; do not center it or replace the approved wording.
 
@@ -283,7 +278,6 @@ No gradients, glass, glow, beige app backgrounds, decorative semantic colors, or
 | 780px and below | Continuity and Design Boundaries stack |
 | 700px and below | Purely typographic hero with no media space, narrow gutters, simplified nav, full-width hero CTA, compact evidence padding |
 | 400px and below | Use the phone-art-directed Review source; keep the live Fit instrument clamped to its stage |
-| 360px and below | Remove `Presume ·` prefix from the hero eyebrow |
 
 Requirements:
 
@@ -456,7 +450,7 @@ Do not copy the disposable HTML wholesale into production. Translate the approve
 1. Add final, base-safe Geist and product-evidence assets.
 2. Rebuild `LandingPage` semantic structure and preserve saved-resume CTA state.
 3. Implement the Mineral Quiet landing tokens and desktop composition.
-4. Implement staggered responsive transformations at 1000, 920, 860, 780, 700, 400, and 360px.
+4. Implement staggered responsive transformations at 1000, 920, 860, 780, 700, and 400px.
 5. Add only the approved motion and reduced-motion behavior.
 6. Add metadata, canonical/social preview, and favicon behavior.
 7. Update landing integration and responsive contracts.
