@@ -11,6 +11,7 @@
     "typecheck": "tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.node.json --noEmit",
     "test:backend": "python3 -m pytest review-service/tests -q",
     "generate:review-contract": "python3 scripts/export-review-openapi.py --output contracts/review.openapi.json && openapi-typescript contracts/review.openapi.json -o src/generated/reviewContract.ts",
+    "generate:landing-letter": "node scripts/generate-landing-letter.mjs",
     "check:review-contract": "node scripts/check-review-contract.mjs",
     "verify": "npm run check:review-contract && npm run typecheck && npm test -- --run && npm run test:backend",
     "verify:full": "npm run verify && npm run test:e2e",

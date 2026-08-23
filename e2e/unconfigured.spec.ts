@@ -151,6 +151,7 @@ test.describe('unconfigured browser contracts', () => {
           scrollWidth: document.documentElement.scrollWidth,
           h1Lines: Math.round(headingRect.height / lineHeight),
           heroStacked: heroEvidence.top >= heroCopy.bottom,
+          heroMediaVisible: getComputedStyle(document.querySelector<HTMLElement>('.landing-product-stage')!).display !== 'none',
           fitStacked: fitEvidence.top >= fitCopy.bottom,
           reviewStacked: reviewEvidence.top >= reviewCopy.bottom,
           continuityStacked: continuityPath.top >= continuityCopy.bottom,
@@ -166,7 +167,7 @@ test.describe('unconfigured browser contracts', () => {
       [861, { fitStacked: false }], [860, { fitStacked: true }],
       [781, { continuityStacked: false, boundariesStacked: false }],
       [780, { continuityStacked: true, boundariesStacked: true }],
-      [701, { fitLinkVisible: true }], [700, { fitLinkVisible: false }],
+      [701, { fitLinkVisible: true, heroMediaVisible: true }], [700, { fitLinkVisible: false, heroMediaVisible: false }],
       [401, {}], [400, {}], [390, {}], [320, {}],
     ] as const) {
       const result = await metrics(width)
@@ -299,7 +300,7 @@ test.describe('unconfigured browser contracts', () => {
     expect(await page.evaluate(() => Reflect.get(window, '__landingCls'))).toBeLessThanOrEqual(0.01)
   })
 
-  test('loads only prioritized hero evidence eagerly and preserves an accessible image failure state', async ({ page }) => {
+  test('loads the Letter hero only above mobile and preserves accessible image failure geometry', async ({ page, browser }) => {
     const requests: string[] = []
     page.on('request', request => {
       if (request.url().includes('/landing/') && request.resourceType() === 'image') requests.push(request.url())
@@ -314,11 +315,17 @@ test.describe('unconfigured browser contracts', () => {
     await page.goto('./')
 
     const heroImage = page.locator('.landing-product-stage img')
+    await expect(heroImage).toBeHidden()
+    expect(await heroImage.evaluate(image => (image as HTMLImageElement).currentSrc)).toMatch(/^data:image\/gif;base64,/)
+    expect(requests.some(url => url.includes('resume-letter'))).toBe(false)
+
+    await page.setViewportSize({ width: 701, height: 800 })
+    await page.reload()
     await expect(heroImage).toBeVisible()
     await expect(heroImage).toHaveAttribute('loading', 'eager')
     await expect(heroImage).toHaveAttribute('fetchpriority', 'high')
     await expect(page.locator('.landing-capture--review img')).toHaveAttribute('loading', 'lazy')
-    expect(requests.some(url => url.includes('editor-hero-narrow-hardened'))).toBe(true)
+    expect(requests.some(url => url.includes('resume-letter'))).toBe(true)
 
     await page.locator('.landing-review-plate').scrollIntoViewIfNeeded()
     await expect.poll(() => requests.some(url => url.includes('working-review'))).toBe(true)
@@ -336,6 +343,44 @@ test.describe('unconfigured browser contracts', () => {
     }))
     expect(Math.abs(fallbackGeometry.width - reservedGeometry.width)).toBeLessThanOrEqual(1)
     expect(Math.abs(fallbackGeometry.height - reservedGeometry.height)).toBeLessThanOrEqual(1)
+
+    const failureContext = await browser.newContext({ viewport: { width: 701, height: 800 } })
+    const failurePage = await failureContext.newPage()
+    await failurePage.addInitScript(() => {
+      Reflect.set(window, '__landingCls', 0)
+      new PerformanceObserver(list => {
+        for (const entry of list.getEntries()) {
+          const shift = entry as PerformanceEntry & { hadRecentInput: boolean; value: number }
+          if (!shift.hadRecentInput) {
+            Reflect.set(window, '__landingCls', Reflect.get(window, '__landingCls') + shift.value)
+          }
+        }
+      }).observe({ type: 'layout-shift', buffered: true })
+    })
+    let rejectLetter!: () => void
+    const letterGate = new Promise<void>(resolve => { rejectLetter = resolve })
+    await failurePage.route('**/landing/resume-letter*.png', async route => {
+      await letterGate
+      await route.abort()
+    })
+    await failurePage.goto('./', { waitUntil: 'domcontentloaded' })
+    const reservedLetterGeometry = await failurePage.locator('.landing-letter-stage__image').evaluate(element => ({
+      width: element.getBoundingClientRect().width,
+      height: element.getBoundingClientRect().height,
+    }))
+    rejectLetter()
+    const letterFallback = failurePage.getByRole('status', { name: 'Letter resume preview unavailable' })
+    await expect(letterFallback).toHaveText('Resume preview unavailable')
+    const failedLetterGeometry = await letterFallback.evaluate(element => ({
+      width: element.getBoundingClientRect().width,
+      height: element.getBoundingClientRect().height,
+    }))
+    expect(Math.abs(failedLetterGeometry.width - reservedLetterGeometry.width)).toBeLessThanOrEqual(1)
+    expect(Math.abs(failedLetterGeometry.height - reservedLetterGeometry.height)).toBeLessThanOrEqual(1)
+    expect(Math.abs(failedLetterGeometry.height - (failedLetterGeometry.width * 11 / 8.5))).toBeLessThanOrEqual(1)
+    await failurePage.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))))
+    expect(await failurePage.evaluate(() => Reflect.get(window, '__landingCls'))).toBeLessThanOrEqual(0.01)
+    await failureContext.close()
   })
 
   test('keeps the Fit constraints header stable and its expanded controls usable', async ({ page }) => {

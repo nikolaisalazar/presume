@@ -22,6 +22,45 @@ interface ProductCaptureProps {
 }
 
 const LANDING_ASSET_ROOT = `${import.meta.env.BASE_URL}landing`
+const TRANSPARENT_PIXEL = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=='
+
+function HeroLetterSurface() {
+  const [failed, setFailed] = useState(false)
+
+  return (
+    <figure
+      className="landing-product-stage landing-letter-stage"
+      data-capture-state={failed ? 'unavailable' : 'ready'}
+    >
+      {failed ? (
+        <div
+          className="landing-letter-stage__fallback"
+          role="status"
+          aria-label="Letter resume preview unavailable"
+        >
+          Resume preview unavailable
+        </div>
+      ) : (
+        <picture>
+          <source media="(max-width: 700px)" srcSet={TRANSPARENT_PIXEL} />
+          <img
+            className="landing-letter-stage__image"
+            src={`${LANDING_ASSET_ROOT}/resume-letter.png`}
+            srcSet={`${LANDING_ASSET_ROOT}/resume-letter.png 1x, ${LANDING_ASSET_ROOT}/resume-letter@2x.png 2x`}
+            sizes="(max-width: 700px) 1px, (max-width: 1000px) 500px, 560px"
+            width={695}
+            height={899}
+            alt="Sample resume exported from Presume on a Letter page"
+            loading="eager"
+            {...{ fetchpriority: 'high' }}
+            decoding="async"
+            onError={() => setFailed(true)}
+          />
+        </picture>
+      )}
+    </figure>
+  )
+}
 
 function ProductCapture({
   kind,
@@ -133,22 +172,7 @@ export function LandingPage({ hasSavedResume, onOpenEditor }: LandingPageProps) 
               <span>Saved in this browser</span>
             </div>
           </div>
-          <figure className="landing-product-stage">
-            <div className="landing-product-meta"><span>Working editor crop</span><span>Sample resume</span></div>
-            <ProductCapture
-              kind="editor"
-              desktopBase="editor-hero-desktop-hardened"
-              desktopWidth={980}
-              desktopHeight={855}
-              narrowBase="editor-hero-narrow-hardened"
-              narrowWidth={900}
-              narrowHeight={635}
-              breakpoint={1000}
-              priority
-              alt="Presume editor showing Fit constraints, export controls, and a directly editable sample resume on a Letter page"
-            />
-            <figcaption>Unmodified capture from the working editor. Sample resume shown.</figcaption>
-          </figure>
+          <HeroLetterSurface />
         </section>
 
         <section className="landing-thesis" data-landing-chapter="thesis" aria-labelledby="thesis-title">

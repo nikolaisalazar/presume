@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This directory preserves the approved **Direction D — Current hardened** visual handoff. A later user-approved reopening replaced only its static Fit raster with a live text-only Pretext instrument; `docs/landing/PRESUME_LANDING_BRIEF.md` is authoritative for that production exception. The archived comp, assets, and baselines remain unchanged historical references.
+This directory preserves the approved **Direction D — Current hardened** visual handoff. Later user-approved reopenings replaced its static Fit raster with a live text-only Pretext instrument and its framed editor hero with an authentic exported Letter surface above 700px plus a purely typographic mobile hero. `docs/landing/PRESUME_LANDING_BRIEF.md` is authoritative for those production exceptions. The archived comp, assets, and baselines remain unchanged historical references.
 
 Serve it from this directory so the comp’s absolute `/files/` references resolve:
 
@@ -47,7 +47,7 @@ The E2E route verifies that a PDF multipart upload occurs, then returns the same
 - Narrow reference: `files/editor-hero-narrow-hardened.png`, 900 × 635
 - The 1× images preserve the approved editor study state and crop.
 - The study `@2x` images are density-aware derivatives of the approved 1× state, not native high-density captures.
-- Production must make a new native-density capture from a stable editor state; do not treat the study `@2x` files as native evidence.
+- The later exported-Letter hero supersedes these files for production. Do not treat the study `@2x` files as native evidence or restore them to the hero.
 
 ### Fit
 

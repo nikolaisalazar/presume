@@ -16,7 +16,7 @@ The hardened comp is the visual and narrative authority. The distilled study is 
 
 Two post-approval factual corrections are incorporated into the archived hardened authority: Review must be configured **and available** before it can return evidence, and the deterministic repository response is displayed with the sample resume rather than validated as content-derived from it.
 
-A later user-approved production reopening supersedes **only** the static Fit evidence contract. The production Fit chapter now uses the live, text-only Pretext instrument specified below. The archived hardened comp and `docs/landing/reference/**` remain historical visual authorities; their Fit raster is no longer a production requirement. All other Quiet Instrument narrative, geometry, capture, and protected-product decisions remain locked.
+Later user-approved production reopenings supersede two evidence contracts. The Fit chapter uses the live, text-only Pretext instrument specified below. The hero replaces its framed editor screenshot with an authentic exported Letter surface above 700px and becomes purely typographic at 700px and below. The archived hardened comp and `docs/landing/reference/**` remain historical visual authorities; their Fit and editor-hero rasters are no longer production requirements. All other Quiet Instrument narrative, geometry, capture, and protected-product decisions remain locked.
 
 ## Resolved profile
 
@@ -49,7 +49,7 @@ Conversion remains secondary to product understanding, truthful evidence, and pr
 ## Locked principles
 
 1. **The finished document is the product surface.** The landing should bridge naturally into the protected editor rather than promise a different product.
-2. **Evidence before assertion.** Use the working editor and Review captures plus the live Pretext Fit instrument to support claims.
+2. **Evidence before assertion.** Use the authentic exported Letter artifact, Review capture, and live Pretext Fit instrument to support claims; the editor route remains the direct working proof.
 3. **Direct control is the differentiator.** Do not position Presume as an automated writer or conventional template SaaS.
 4. **Review remains optional and non-mutating.** It advises; it never takes ownership of the document.
 5. **Premium means restraint.** Composition, typography, spacing, product-capture art direction, and material hierarchy do the work.
@@ -58,7 +58,7 @@ Conversion remains secondary to product understanding, truthful evidence, and pr
 ## Narrative and section order
 
 1. Minimal navigation
-2. Editorial split hero with authentic editor evidence
+2. Editorial split hero with an authentic exported Letter surface; purely typographic on mobile
 3. Thesis interlude
 4. Fit evidence chapter
 5. Document continuity chapter
@@ -86,8 +86,8 @@ This order is locked. Do not insert generic benefits, testimonials, pricing, FAQ
 - Default primary action: **Open the editor**
 - Saved-resume primary action: **Continue editing**
 - Reassurance: **Saved in this browser**
-- Capture metadata: **Working editor crop** / **Sample resume**
-- Capture caption: **Unmodified capture from the working editor. Sample resume shown.**
+- Desktop/tablet artifact alt: **Sample resume exported from Presume on a Letter page**
+- Mobile: no hero media; the hero is purely typographic
 
 ### Thesis interlude
 
@@ -213,12 +213,12 @@ No gradients, glass, glow, beige app backgrounds, decorative semantic colors, or
 
 ### Hero
 
-- Desktop: two columns, approximately `0.82fr / 1.18fr`, with 48–72px gap and large negative space.
-- Copy left, authentic editor capture right.
-- At 1000px and below: stack copy above capture; do not wait until phone width.
-- At 700px and below: primary action becomes full width and reassurance moves beneath it.
-- The editor capture remains a framed product surface, never a decorative background.
-- The hero image alone receives high fetch priority.
+- Desktop: two columns, approximately `0.98fr / 1.02fr`, with 64–132px gap and large negative space.
+- Copy left, authentic exported Letter surface right. Show the page at its exact `8.5 / 11` ratio with its full width and top edge visible; the bottom may continue beyond the hero crop.
+- The page has no surrounding plate, border, caption, metadata, editor chrome, decorative ruler, or shadow. Its natural paper edge is the only rectangle.
+- At 1000px and below: stack copy above the Letter surface.
+- At 700px and below: remove the Letter surface and all reserved media space; use a vertically composed, purely typographic hero. The primary action becomes full width and reassurance moves beneath it.
+- The desktop/tablet Letter image alone receives high fetch priority. Mobile selects a local transparent source so it does not request the hidden raster.
 
 ### Thesis
 
@@ -281,7 +281,7 @@ No gradients, glass, glow, beige app backgrounds, decorative semantic colors, or
 | 920px and below | Review stacks |
 | 860px and below | Fit stacks |
 | 780px and below | Continuity and Design Boundaries stack |
-| 700px and below | Narrow gutters, simplified nav, full-width hero CTA, compact evidence padding |
+| 700px and below | Purely typographic hero with no media space, narrow gutters, simplified nav, full-width hero CTA, compact evidence padding |
 | 400px and below | Use the phone-art-directed Review source; keep the live Fit instrument clamped to its stage |
 | 360px and below | Remove `Presume ·` prefix from the hero eyebrow |
 
@@ -298,8 +298,7 @@ Requirements:
 ### Approved study assets
 
 - `Geist-Variable.woff2`
-- `editor-hero-desktop-hardened.png` and `@2x`
-- `editor-hero-narrow-hardened.png` and `@2x`
+- Historical editor-hero captures remain only in `docs/landing/reference/**`; production uses generated `resume-letter.png` and `resume-letter@2x.png`
 - `working-review-capture-hardened.png` and `@2x`
 - `working-review-narrow-essential-hardened.png` and `@2x`
 
@@ -307,10 +306,10 @@ These files are study references, not automatically production-ready assets.
 
 ### Production requirements
 
-- Record accepted native editor and Review production captures in `docs/landing/PRODUCTION_CAPTURE_MANIFEST.md` with source state, geometry, and checksums. The production hero truthfully includes the current default sample’s stable Fit warning.
+- Record the generated Letter artifact and accepted native Review production captures in `docs/landing/PRODUCTION_CAPTURE_MANIFEST.md` with source state, geometry, generation commands, and checksums.
 - Replace `/files/` references with bundler/base-safe asset imports or public paths under the deployed `/presume/` base.
 - Replace `127.0.0.1` links with existing router/callback navigation.
-- Create native-density editor and Review captures from stable reproducible states. The study hero’s density-aware derivative must not be mistaken for a native high-density capture.
+- Generate both Letter rasters independently from the canonical exported PDF with `npm run generate:landing-letter`; do not upscale one density from the other. Create native-density Review captures from its stable reproducible state.
 - Preserve protected product pixels; cropping and lossless optimization are allowed, reconstruction is not.
 - Declare intrinsic width and height for every image and source.
 - Use responsive `picture`/`srcset` art direction where the approved desktop and narrow crops differ.
@@ -323,7 +322,7 @@ These files are study references, not automatically production-ready assets.
 
 | Claim | Evidence | Implementation requirement |
 | --- | --- | --- |
-| Direct editing | Working editor capture and editor route | Capture the real editor; do not reconstruct it. |
+| Direct editing | Editor route, hero copy, and live Pretext interpretation boundary | Keep the route as working proof; do not reconstruct editor chrome in the hero. |
 | Visible page and line constraints | Protected Fit summary and live Pretext evidence | Keep protected Fit behavior unchanged; use the live instrument to demonstrate the measurement primitive and Presume’s interpretation boundary. |
 | Saved in this browser | Existing LocalStorage persistence | Do not imply cloud sync, accounts, or cross-device storage. |
 | Stable Letter PDF | Existing canonical PDF export behavior and E2E coverage | Use “stable” and “Letter-sized”; do not claim pixel identity across unsupported environments. |
@@ -351,7 +350,7 @@ These files are study references, not automatically production-ready assets.
 - Primary buttons: darker Verdigris hover fill, 1px active translation, and the global focus-visible ring.
 - Provenance and footer links: remain visibly underlined, preserve external-link text where applicable, and use the global focus-visible ring.
 - Unsupported view timelines: render the continuity path fully visible with no partial state.
-- Editor/Review evidence-image failure: preserve the declared image geometry, keep the surrounding label/caption, and replace the failed raster with visible **Product capture unavailable** fallback text. Do not collapse the chapter or expose a broken-image icon as the only feedback. Fit is live and has no image-failure state.
+- Desktop/tablet Letter-image failure: preserve the declared Letter geometry and replace the failed raster with visible **Resume preview unavailable** fallback text. Review failure preserves its geometry and surrounding label/caption with **Product capture unavailable**. The hero image/fallback is absent at 700px and below. Fit is live and has no image-failure state.
 
 ## Accessibility
 
@@ -404,7 +403,7 @@ These files are study references, not automatically production-ready assets.
 | Brand mark and Presume wordmark | Keep/recompose | Retain in the minimal navigation. |
 | Landing ThemeControl | Remove from landing | Preserve editor ThemeControl and theme persistence. |
 | Header editor action | Recompose | Use the minimal text link at right; main CTA remains in hero. |
-| Handmade-paper photographic hero | Remove | Replace with authentic editor evidence. |
+| Handmade-paper photographic hero | Recompose | Use one authentic exported Letter surface above 700px; no photographic texture or frame. |
 | Current “local-first resume workbench” hero message | Reframe | Use the approved ownership thesis and product-specific body copy. |
 | Origins section | Recompose | Reduce to the final Design Boundaries chapter. |
 | Pretext explanation | Keep/reframe | Pair the live measurement instrument with concise provenance and the Presume interpretation bridge. |
@@ -444,7 +443,7 @@ Do not copy the disposable HTML wholesale into production. Translate the approve
 - Title: **Presume — Local-first resume editor with stable PDF export**
 - Description: **Edit a fixed Letter resume directly, keep page and line constraints visible, save work locally, export a stable PDF, and use optional advisory Review without surrendering control.**
 - Canonical URL: deployed `/presume/` URL.
-- Social preview: a dedicated 1200 × 630 composition using the approved hero thesis and authentic editor capture.
+- Social preview: a dedicated 1200 × 630 composition using the approved hero thesis and authentic exported Letter surface.
 - Favicon/app icon: existing Presume brand mark.
 - Editor navigation: use the existing `onOpenEditor`/router behavior; never hardcode localhost.
 - In-page links: Fit and Design Boundaries.
@@ -480,9 +479,9 @@ Do not copy the disposable HTML wholesale into production. Translate the approve
 - [ ] Mineral Quiet palette and territorial hierarchy match the approved comp.
 - [ ] Review uses exactly `#dcece8`; the terminal ending uses exactly `#101513`; no other full-width chapter uses a saturated Verdigris or green-black fill.
 - [ ] Saturated `#14796f` is limited to primary actions, the brand mark, path markers, the live Pretext boundary/grip, and the Review evidence frame.
-- [ ] Hero remains an editorial split above 1000px and stacks below it.
+- [ ] Hero remains an editorial split above 1000px, stacks through tablet widths, and removes all media/reserved media space at 700px and below.
 - [ ] Hero H1 remains within three lines at every width in the required verification matrix.
-- [ ] Editor and Review product captures remain authentic and proportional, with aspect-ratio error below `0.015` and selected source width providing at least 1.8 physical source pixels per rendered CSS pixel on DPR 2 displays.
+- [ ] The exported Letter surface and Review capture remain authentic and proportional, with aspect-ratio error below `0.015`; the Letter source is independently rendered from the canonical PDF at each density.
 - [ ] At the five archived baseline widths, section order, territorial background colors, and major shell/evidence edges match the reference screenshots within 8 CSS px on desktop/tablet and 4 CSS px at 390/320px, excluding raster content and font-antialiasing differences.
 - [ ] No gradients, glass, decorative spectacle, excessive rounding, or card proliferation is introduced.
 
@@ -502,7 +501,7 @@ Do not copy the disposable HTML wholesale into production. Translate the approve
 - [ ] All links and buttons have visible focus indicators.
 - [ ] Touch targets meet 44px minimum; final CTA is 56px.
 - [ ] Text and interactive-boundary contrast meet WCAG 2.2 AA.
-- [ ] Screenshots have useful alt text and adjacent captions.
+- [ ] Evidence screenshots have useful alt text and adjacent captions. The uncaptained hero Letter artifact has descriptive alt text; it is removed from the mobile accessibility tree with its hidden figure.
 - [ ] Forced colors and reduced motion retain usable states.
 
 ### Interaction and motion
@@ -534,7 +533,7 @@ Do not copy the disposable HTML wholesale into production. Translate the approve
 - [ ] Meta description exactly matches the approved description in this brief.
 - [ ] Exactly one absolute production canonical URL targets `/presume/`.
 - [ ] Open Graph includes `og:title`, `og:description`, `og:url`, `og:type`, and an absolute `og:image` URL.
-- [ ] Social-preview image is exactly 1200 × 630px and uses only the approved thesis and authentic editor evidence.
+- [ ] Social-preview image is exactly 1200 × 630px and uses only the approved thesis and authentic exported Letter surface.
 - [ ] Favicon and social image return HTTP 200 under the deployed base path.
 - [ ] Direct loads and refreshes succeed for `/presume/` and `/presume/editor/`.
 - [ ] Generated `404.html` preserves the application’s SPA fallback contract.
@@ -574,7 +573,7 @@ At minimum, verify:
 - Quiet Instrument narrative
 - Mineral Quiet palette
 - Editorial split hero
-- Authentic editor and Review evidence plus live Pretext Fit evidence
+- Authentic exported Letter and Review evidence plus live Pretext Fit evidence
 - Pale Review territory
 - Saturated Review evidence plate
 - Bright Design Boundaries interval
@@ -585,7 +584,7 @@ At minimum, verify:
 ### Change during production translation
 
 - Replace disposable localhost and `/files/` URLs.
-- Preserve the accepted native-density editor and Review captures; Fit no longer has a production capture.
+- Preserve the generated native-density Letter pair and accepted Review captures; editor and Fit no longer have production captures.
 - Preserve saved-resume dynamic CTA behavior.
 - Add production metadata and base-safe loading strategy.
 - Translate disposable markup into existing React architecture and tests.

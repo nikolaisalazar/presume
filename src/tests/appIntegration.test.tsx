@@ -110,7 +110,7 @@ describe('App review availability boundaries', () => {
     expect(screen.getByRole('toolbar', { name: 'Document actions' })).toBeInTheDocument()
   })
 
-  it('uses live Fit evidence plus authentic editor and Review captures with accessible fallbacks', () => {
+  it('uses live Fit evidence plus authentic Letter and Review artifacts with accessible fallbacks', () => {
     vi.stubEnv('VITE_REVIEW_API_URL', '')
     window.history.pushState({}, '', '/presume/')
 
@@ -124,6 +124,7 @@ describe('App review availability boundaries', () => {
 
     const images = screen.getAllByRole('img') as HTMLImageElement[]
     expect(images).toHaveLength(2)
+    expect(images[0]).toHaveAccessibleName('Sample resume exported from Presume on a Letter page')
     expect(images[0]).toHaveAttribute('fetchpriority', 'high')
     expect(images[0]).toHaveAttribute('loading', 'eager')
     expect(images[0]).toHaveAttribute('decoding', 'async')
@@ -136,7 +137,9 @@ describe('App review availability boundaries', () => {
       expect(image).toHaveAttribute('width')
       expect(image).toHaveAttribute('height')
     }
-    expect(container.querySelectorAll('source[srcset*="@2x"]')).toHaveLength(4)
+    expect(container.querySelectorAll('source[srcset*="@2x"]')).toHaveLength(2)
+    expect(container.querySelector('source[media="(max-width: 700px)"]'))
+      .toHaveAttribute('srcset', expect.stringMatching(/^data:image\/gif;base64,/))
 
     const slider = screen.getByRole('slider', { name: 'Available text width' })
     expect(slider).toHaveAttribute('aria-valuetext', '340 pixels available width, measurement loading')
@@ -146,6 +149,10 @@ describe('App review availability boundaries', () => {
       'href',
       'https://chenglou.me/pretext/'
     )
+
+    fireEvent.error(images[0])
+    expect(screen.getByRole('status', { name: 'Letter resume preview unavailable' }))
+      .toHaveTextContent('Resume preview unavailable')
 
     fireEvent.error(images[1])
     expect(screen.getByRole('status', { name: 'Review product capture unavailable' }))

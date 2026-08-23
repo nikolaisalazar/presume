@@ -27,17 +27,21 @@ describe('approved landing production contracts', () => {
     expect(appCss).toContain('@media (forced-colors: active)')
   })
 
-  it('keeps editor and Review captures base-safe while Fit evidence is live Pretext', () => {
+  it('keeps the exported Letter and Review evidence base-safe while Fit evidence is live Pretext', () => {
     expect(landingSource).not.toContain('FitLab')
     expect(landingSource).not.toContain('ThemeControl')
     expect(landingSource).not.toContain('localhost')
     expect(landingSource).not.toContain('/files/')
     expect(landingSource).toContain('import.meta.env.BASE_URL')
     expect(landingSource).toContain('`${import.meta.env.BASE_URL}landing`')
-    expect(landingSource).toContain('desktopBase="editor-hero-desktop-hardened"')
+    expect(landingSource).toContain('resume-letter.png')
+    expect(landingSource).toContain('resume-letter@2x.png')
+    expect(landingSource).not.toContain('editor-hero-desktop-hardened')
     expect(landingSource).toContain('narrowBase="working-review-narrow-essential-hardened"')
     expect(landingSource).not.toContain('working-fit-lab')
+    expect(landingSource).toContain('Resume preview unavailable')
     expect(landingSource).toContain('Product capture unavailable')
+    expect(appCss).toMatch(/@media \(max-width: 700px\)[\s\S]*?\.landing-product-stage \{ display: none; \}/)
     expect(pretextDemoSource).toContain('prepareWithSegments')
     expect(pretextDemoSource).toContain('layoutWithLines')
     expect(pretextDemoSource).toContain('measureLineStats')
