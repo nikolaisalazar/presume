@@ -103,7 +103,7 @@ describe('theme contrast contracts', () => {
       /\.landing-page :focus-visible \{[^}]*outline: 3px solid #14796f;[^}]*box-shadow: 0 0 0 2px #f8fbfa;/
     )
     expect(appCss).toMatch(
-      /\.landing-ending :focus-visible \{[^}]*outline-color: #f0f3f1;[^}]*box-shadow: 0 0 0 2px #101513;/
+      /\.landing-ending :focus-visible,\s*\.landing-footer :focus-visible \{[^}]*outline-color: #f0f3f1;[^}]*box-shadow: 0 0 0 2px #101513;/
     )
   })
 

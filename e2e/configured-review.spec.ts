@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { landingReviewSpecimen } from '../src/landingReviewSpecimen'
 
 test.describe('configured review browser contracts', () => {
   test('renders disabled service state from safe config', async ({ page }) => {
@@ -237,6 +238,7 @@ test.describe('configured review browser contracts', () => {
       page.getByRole('button', { name: 'Collapse review' }),
     ]) {
       await expect(action).toHaveCSS('height', '44px')
+      await expect(action).toHaveCSS('column-gap', '6px')
     }
 
     await page.setViewportSize({ width: 561, height: 900 })
@@ -245,6 +247,7 @@ test.describe('configured review browser contracts', () => {
       page.getByRole('button', { name: 'Collapse review' }),
     ]) {
       await expect(action).toHaveCSS('height', '36px')
+      await expect(action).toHaveCSS('column-gap', '6px')
     }
   })
 })
@@ -252,8 +255,8 @@ test.describe('configured review browser contracts', () => {
 const reviewFixture = {
   id: 'review_e2e',
   reviewedAt: '2026-07-06T12:00:00Z',
-  totalScore: 81,
-  maxScore: 100,
+  totalScore: landingReviewSpecimen.score,
+  maxScore: landingReviewSpecimen.maxScore,
   tier: 'competitive',
   categories: [
     {
@@ -269,12 +272,12 @@ const reviewFixture = {
       label: 'Production Experience',
       score: 22,
       maxScore: 25,
-      evidence: ['Internship work shows production exposure.'],
-      suggestions: ['Add one production metric.'],
+      evidence: [landingReviewSpecimen.evidence],
+      suggestions: [landingReviewSpecimen.suggestion],
     },
   ],
   strengths: ['Clear project ownership.'],
-  improvements: ['Add one production metric.'],
+  improvements: [landingReviewSpecimen.suggestion],
   bonuses: [
     {
       label: 'Open source signal',

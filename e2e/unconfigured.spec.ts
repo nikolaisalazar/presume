@@ -11,6 +11,14 @@ test.describe('unconfigured browser contracts', () => {
     await expect(page.getByRole('button', { name: 'Edit your resume' })).toBeVisible()
     await expect(page.getByRole('group', { name: 'Appearance' })).toHaveCount(0)
     await expect(page.getByRole('region', { name: 'Pretext Fit Lab' })).toHaveCount(0)
+    const elsewhere = page.getByRole('navigation', { name: 'Elsewhere' })
+    await expect(elsewhere.getByRole('link', { name: 'GitHub' })).toHaveAttribute('href', 'https://github.com/nikolaisalazar')
+    await expect(elsewhere.getByRole('link', { name: 'LinkedIn' })).toHaveAttribute('href', 'https://www.linkedin.com/in/nikolaisalazar/')
+    await expect(elsewhere.locator('a')).toHaveCount(2)
+    for (const link of await elsewhere.locator('a').all()) {
+      await expect(link).toHaveAttribute('target', '_blank')
+      await expect(link).toHaveAttribute('rel', 'noreferrer')
+    }
 
     const modifier: 'Meta' | 'Control' = process.platform === 'darwin' ? 'Meta' : 'Control'
     const modifiedEditorPagePromise = context.waitForEvent('page')
@@ -180,8 +188,13 @@ test.describe('unconfigured browser contracts', () => {
 
     await page.setViewportSize({ width: 400, height: 980 })
     await page.locator('.landing-review-plate').scrollIntoViewIfNeeded()
-    expect(await page.locator('.landing-capture--review img').evaluate(image => (image as HTMLImageElement).currentSrc))
-      .toContain('working-review-narrow-essential-hardened')
+    await expect(page.locator('.landing-review-specimen__score')).toContainText('Advisory score: 81 out of 100.')
+    await expect(page.getByText('Internship work shows production exposure.')).toBeVisible()
+    await expect(page.getByText('Add one production metric.')).toBeVisible()
+    const reviewColumns = await page.locator('.landing-review-specimen__output').evaluate(element =>
+      getComputedStyle(element).gridTemplateColumns.split(' ').length
+    )
+    expect(reviewColumns).toBe(2)
 
     await page.goto('./')
     await page.keyboard.press('Tab')
@@ -300,16 +313,10 @@ test.describe('unconfigured browser contracts', () => {
     expect(await page.evaluate(() => Reflect.get(window, '__landingCls'))).toBeLessThanOrEqual(0.01)
   })
 
-  test('loads the Letter hero only above mobile and preserves accessible image failure geometry', async ({ page, browser }) => {
+  test('loads the Letter hero only above mobile, keeps Review asset-free, and preserves accessible image failure geometry', async ({ page, browser }) => {
     const requests: string[] = []
     page.on('request', request => {
       if (request.url().includes('/landing/') && request.resourceType() === 'image') requests.push(request.url())
-    })
-    let rejectReviewCapture!: () => void
-    const reviewCaptureGate = new Promise<void>(resolve => { rejectReviewCapture = resolve })
-    await page.route('**/landing/working-review-*.png', async route => {
-      await reviewCaptureGate
-      await route.abort()
     })
     await page.setViewportSize({ width: 700, height: 800 })
     await page.goto('./')
@@ -324,25 +331,9 @@ test.describe('unconfigured browser contracts', () => {
     await expect(heroImage).toBeVisible()
     await expect(heroImage).toHaveAttribute('loading', 'eager')
     await expect(heroImage).toHaveAttribute('fetchpriority', 'high')
-    await expect(page.locator('.landing-capture--review img')).toHaveAttribute('loading', 'lazy')
     expect(requests.some(url => url.includes('resume-letter'))).toBe(true)
-
-    await page.locator('.landing-review-plate').scrollIntoViewIfNeeded()
-    await expect.poll(() => requests.some(url => url.includes('working-review'))).toBe(true)
-    const reservedGeometry = await page.locator('.landing-capture--review').evaluate(element => ({
-      width: element.getBoundingClientRect().width,
-      height: element.getBoundingClientRect().height,
-    }))
-    rejectReviewCapture()
-    await expect(page.getByRole('status', { name: 'Review product capture unavailable' }))
-      .toHaveText('Product capture unavailable')
-    await expect(page.getByText('Deterministic repository response')).toBeVisible()
-    const fallbackGeometry = await page.locator('.landing-capture--review').evaluate(element => ({
-      width: element.getBoundingClientRect().width,
-      height: element.getBoundingClientRect().height,
-    }))
-    expect(Math.abs(fallbackGeometry.width - reservedGeometry.width)).toBeLessThanOrEqual(1)
-    expect(Math.abs(fallbackGeometry.height - reservedGeometry.height)).toBeLessThanOrEqual(1)
+    expect(requests.some(url => url.includes('working-review'))).toBe(false)
+    await expect(page.getByText('Example fixture · not content-derived')).toBeVisible()
 
     const failureContext = await browser.newContext({ viewport: { width: 701, height: 800 } })
     const failurePage = await failureContext.newPage()

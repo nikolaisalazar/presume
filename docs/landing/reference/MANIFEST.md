@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This directory preserves the approved **Direction D — Current hardened** visual handoff. Later user-approved reopenings replaced its static Fit raster with a live text-only Pretext instrument, its framed editor hero with an authentic exported Letter surface above 700px plus a purely typographic mobile hero, its decorative heading eyebrows with direct headings, and its bottom-aligned thesis interpretation with vertical centering. `docs/landing/PRESUME_LANDING_BRIEF.md` is authoritative for those production exceptions. The archived comp, assets, and baselines remain unchanged historical references.
+This directory preserves the approved **Direction D — Current hardened** visual handoff. Later user-approved reopenings replaced its static Fit raster with a live text-only Pretext instrument, its framed editor hero with an authentic exported Letter surface above 700px plus a purely typographic mobile hero, its full Review dashboard capture with a concise semantic advisory specimen, its decorative heading eyebrows with direct headings, and its bottom-aligned thesis interpretation with vertical centering. Production also adds verified GitHub and LinkedIn links under a restrained footer Elsewhere label. `docs/landing/PRESUME_LANDING_BRIEF.md` is authoritative for those production exceptions. The archived comp, assets, and baselines remain unchanged historical references.
 
 Serve it from this directory so the comp’s absolute `/files/` references resolve:
 
@@ -24,10 +24,12 @@ The editor links inside the archived comp remain disposable localhost links and 
 - Repository snapshot used for final audit: `6366b8d194375e01ea7b9bcdf960509e5d290f9d`
 - Default resume source: `src/defaultResume.ts`
 - Default resume source SHA-256: `6b2095964adef25a3bfbe374ae1bd0a7225b0eaf0940579f2beb3965b0427ecf`
+- Landing Review specimen source: `src/landingReviewSpecimen.ts`
+- Landing Review specimen SHA-256: `be258ea1c491d360d598591d8168708cf4fe43f86ec38d8ef4795f97ff21b54e`
 - Configured Review E2E source: `e2e/configured-review.spec.ts`
-- Configured Review E2E source SHA-256: `bcbb0b53195290da261a929ba3e73176bf6d4a553545b9204204bcd6bae34427`
+- Configured Review E2E source SHA-256: `5f7589ee1127ef9eca3b3d859884bf8cb42297020630be938e1525bd6dd5b35d`
 
-The E2E route verifies that a PDF multipart upload occurs, then returns the same deterministic fixture for any submitted PDF. The `81 / 100` response is displayed in the working Review interface while the default Alex Johnson sample is shown; it is **not** proven to be content-derived from that sample.
+The E2E route verifies that a PDF multipart upload occurs, then returns the deterministic fixture for any submitted PDF. The production landing and configured fixture import the same `81 / 100`, evidence, and suggestion values. The visible landing disclosure states **Example fixture · not content-derived**.
 
 ## Locked comp
 
@@ -60,13 +62,13 @@ The E2E route verifies that a PDF multipart upload occurs, then returns the same
 
 - Desktop reference: `files/working-review-capture-hardened.png`, 662 × 743
 - Narrow reference: `files/working-review-narrow-essential-hardened.png`, 366 × 603
-- These are static captures of the working Review interface displaying the repository E2E response.
+- These are static captures of the working Review interface displaying the historical repository E2E response.
 - Narrow art direction is a crop of the interface, not a reconstruction.
-- The response must retain visible HTML disclosure outside the raster.
+- The later semantic advisory specimen supersedes both files for production. They must not be restored to the landing without a new design decision.
 
 ### Archived-capture reproducibility limit
 
-The approved exploration assets predate this durable manifest. Their final dimensions, roles, and hashes are preserved, but complete historical route state, crop commands, wait conditions, and optimization commands were not recorded consistently enough to claim independent reproduction. They are visual authorities only. The implementation brief therefore requires new production captures with the complete manifest below before release.
+The approved exploration assets predate this durable manifest. Their final dimensions, roles, and hashes are preserved, but complete historical route state, crop commands, wait conditions, and optimization commands were not recorded consistently enough to claim independent reproduction. They are historical visual authorities only. Current production capture and semantic-evidence provenance is recorded in `../PRODUCTION_CAPTURE_MANIFEST.md`.
 
 ## Baseline screenshot procedure
 
@@ -93,24 +95,8 @@ Baselines:
 
 The implementation brief defines additional 1px breakpoint-pair checks. These five images are visual references, not a license to omit those geometry checks.
 
-## Required production capture manifest
+## Production evidence rule
 
-Before final production acceptance, record each replacement editor or Review product capture:
+`../PRODUCTION_CAPTURE_MANIFEST.md` records the current Letter raster provenance and the shared Review specimen/fixture hashes. Any future product capture must record repository commit, route/configuration, storage state, source hashes, browser, viewport/DPR, font readiness, wait condition, source dimensions, crop, independent density outputs, generation/optimization command, and SHA-256 checksums.
 
-1. Repository commit.
-2. Route and configuration.
-3. Clean-storage or seeded-storage state.
-4. Default resume source hash.
-5. Review fixture source hash, when applicable.
-6. Theme.
-7. Browser and version.
-8. Viewport and device scale factor.
-9. Font-ready assertion.
-10. Capture wait condition.
-11. Source screenshot dimensions.
-12. Crop rectangle.
-13. Output 1× and 2× dimensions.
-14. Optimization command and format.
-15. SHA-256 checksums.
-
-A capture is not accepted if its visual state cannot be reproduced or if cropping removes context required to support the adjacent claim.
+A capture is not accepted if its visual state cannot be reproduced or if cropping removes context required to support the adjacent claim. Review currently ships no product capture.

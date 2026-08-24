@@ -1,24 +1,13 @@
+import { GithubLogo, LinkedinLogo } from '@phosphor-icons/react'
 import { useState, type MouseEvent, type ReactNode } from 'react'
 import { BrandMark } from '@/components/BrandMark'
 import { PretextMeasureDemo } from '@/components/landing/PretextMeasureDemo'
 import { Button } from '@/components/ui/button'
+import { landingReviewSpecimen } from '@/landingReviewSpecimen'
 
 export interface LandingPageProps {
   hasSavedResume: boolean
   onOpenEditor: () => void
-}
-
-interface ProductCaptureProps {
-  kind: 'editor' | 'review'
-  alt: string
-  desktopBase: string
-  desktopWidth: number
-  desktopHeight: number
-  narrowBase: string
-  narrowWidth: number
-  narrowHeight: number
-  breakpoint: number
-  priority?: boolean
 }
 
 const LANDING_ASSET_ROOT = `${import.meta.env.BASE_URL}landing`
@@ -59,58 +48,6 @@ function HeroLetterSurface() {
         </picture>
       )}
     </figure>
-  )
-}
-
-function ProductCapture({
-  kind,
-  alt,
-  desktopBase,
-  desktopWidth,
-  desktopHeight,
-  narrowBase,
-  narrowWidth,
-  narrowHeight,
-  breakpoint,
-  priority = false,
-}: ProductCaptureProps) {
-  const [failed, setFailed] = useState(false)
-  const label = `${kind === 'editor' ? 'Editor' : 'Review'} product capture unavailable`
-
-  return (
-    <div className={`landing-capture landing-capture--${kind}`} data-capture-state={failed ? 'unavailable' : 'ready'}>
-      {failed ? (
-        <div className="landing-capture__fallback" role="status" aria-label={label}>
-          Product capture unavailable
-        </div>
-      ) : (
-        <picture>
-          <source
-            media={`(max-width: ${breakpoint}px)`}
-            srcSet={`${LANDING_ASSET_ROOT}/${narrowBase}.png 1x, ${LANDING_ASSET_ROOT}/${narrowBase}@2x.png 2x`}
-            width={narrowWidth}
-            height={narrowHeight}
-          />
-          <source
-            media={`(min-width: ${breakpoint + 1}px)`}
-            srcSet={`${LANDING_ASSET_ROOT}/${desktopBase}.png 1x, ${LANDING_ASSET_ROOT}/${desktopBase}@2x.png 2x`}
-            width={desktopWidth}
-            height={desktopHeight}
-          />
-          <img
-            src={`${LANDING_ASSET_ROOT}/${desktopBase}.png`}
-            srcSet={`${LANDING_ASSET_ROOT}/${desktopBase}.png 1x, ${LANDING_ASSET_ROOT}/${desktopBase}@2x.png 2x`}
-            width={desktopWidth}
-            height={desktopHeight}
-            alt={alt}
-            loading={priority ? 'eager' : 'lazy'}
-            {...(priority ? { fetchpriority: 'high' } : {})}
-            decoding="async"
-            onError={() => setFailed(true)}
-          />
-        </picture>
-      )}
-    </div>
   )
 }
 
@@ -213,19 +150,26 @@ export function LandingPage({ hasSavedResume, onOpenEditor }: LandingPageProps) 
               <p className="landing-review__signature">It cannot <span>take the pen.</span></p>
             </div>
             <figure className="landing-review-plate">
-              <p className="landing-fixture-label">Illustrative test fixture · sample resume shown</p>
-              <ProductCapture
-                kind="review"
-                desktopBase="working-review-capture-hardened"
-                desktopWidth={662}
-                desktopHeight={743}
-                narrowBase="working-review-narrow-essential-hardened"
-                narrowWidth={366}
-                narrowHeight={603}
-                breakpoint={400}
-                alt="Presume Review interface displaying the illustrative deterministic repository response; the score is not content-derived from the sample resume"
-              />
-              <figcaption><span>Deterministic repository response</span><span>Rendered in the working Review interface</span></figcaption>
+              <div className="landing-review-specimen__score">
+                <span className="landing-sr-only">
+                  Advisory score: {landingReviewSpecimen.score} out of {landingReviewSpecimen.maxScore}.
+                </span>
+                <strong aria-hidden="true">
+                  {landingReviewSpecimen.score} / {landingReviewSpecimen.maxScore}
+                </strong>
+                <span aria-hidden="true">Advisory score</span>
+              </div>
+              <dl className="landing-review-specimen__output">
+                <div>
+                  <dt>Evidence</dt>
+                  <dd>{landingReviewSpecimen.evidence}</dd>
+                </div>
+                <div>
+                  <dt>Suggestion</dt>
+                  <dd>{landingReviewSpecimen.suggestion}</dd>
+                </div>
+              </dl>
+              <figcaption>Example fixture · not content-derived</figcaption>
             </figure>
           </div>
         </section>
@@ -255,7 +199,21 @@ export function LandingPage({ hasSavedResume, onOpenEditor }: LandingPageProps) 
       </main>
 
       <footer className="landing-footer">
-        <div className="landing-footer__inner landing-shell"><span>Presume</span><a href="#top">Back to top</a></div>
+        <div className="landing-footer__inner landing-shell">
+          <span className="landing-footer__brand">Presume</span>
+          <nav className="landing-footer__elsewhere" aria-label="Elsewhere">
+            <span>Elsewhere</span>
+            <div className="landing-footer__links">
+              <a href="https://github.com/nikolaisalazar" target="_blank" rel="noreferrer">
+                <GithubLogo aria-hidden="true" /> GitHub
+              </a>
+              <a href="https://www.linkedin.com/in/nikolaisalazar/" target="_blank" rel="noreferrer">
+                <LinkedinLogo aria-hidden="true" /> LinkedIn
+              </a>
+            </div>
+          </nav>
+          <a className="landing-footer__back" href="#top">Back to top</a>
+        </div>
       </footer>
     </div>
   )

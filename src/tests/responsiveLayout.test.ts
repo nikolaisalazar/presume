@@ -5,11 +5,12 @@ const appCss = readFileSync(`${process.cwd()}/src/styles/app.css`, 'utf8')
 const resumeCss = readFileSync(`${process.cwd()}/src/styles/resume.css`, 'utf8')
 const landingSource = readFileSync(`${process.cwd()}/src/components/LandingPage.tsx`, 'utf8')
 const pretextDemoSource = readFileSync(`${process.cwd()}/src/components/landing/PretextMeasureDemo.tsx`, 'utf8')
+const reviewSpecimenSource = readFileSync(`${process.cwd()}/src/landingReviewSpecimen.ts`, 'utf8')
 const indexHtml = readFileSync(`${process.cwd()}/index.html`, 'utf8')
 
 describe('approved landing production contracts', () => {
   it('keeps every approved inclusive responsive boundary and overflow guard', () => {
-    for (const boundary of [1000, 920, 860, 780, 700, 400]) {
+    for (const boundary of [1000, 920, 860, 780, 700]) {
       expect(appCss).toContain(`@media (max-width: ${boundary}px)`)
     }
     expect(appCss).toMatch(/\.landing-page \{[^}]*overflow-x: clip;/)
@@ -27,7 +28,7 @@ describe('approved landing production contracts', () => {
     expect(appCss).toContain('@media (forced-colors: active)')
   })
 
-  it('keeps the exported Letter and Review evidence base-safe while Fit evidence is live Pretext', () => {
+  it('keeps the exported Letter base-safe while Fit and Review evidence remain semantic HTML', () => {
     expect(landingSource).not.toContain('FitLab')
     expect(landingSource).not.toContain('ThemeControl')
     expect(landingSource).not.toContain('localhost')
@@ -37,10 +38,14 @@ describe('approved landing production contracts', () => {
     expect(landingSource).toContain('resume-letter.png')
     expect(landingSource).toContain('resume-letter@2x.png')
     expect(landingSource).not.toContain('editor-hero-desktop-hardened')
-    expect(landingSource).toContain('narrowBase="working-review-narrow-essential-hardened"')
+    expect(landingSource).not.toContain('working-review')
     expect(landingSource).not.toContain('working-fit-lab')
     expect(landingSource).toContain('Resume preview unavailable')
-    expect(landingSource).toContain('Product capture unavailable')
+    expect(landingSource).not.toContain('Product capture unavailable')
+    expect(landingSource).toContain("import { landingReviewSpecimen } from '@/landingReviewSpecimen'")
+    expect(landingSource).toContain('<dl className="landing-review-specimen__output">')
+    expect(reviewSpecimenSource).toContain("evidence: 'Internship work shows production exposure.'")
+    expect(reviewSpecimenSource).toContain("suggestion: 'Add one production metric.'")
     expect(appCss).toMatch(/@media \(max-width: 700px\)[\s\S]*?\.landing-product-stage \{ display: none; \}/)
     expect(landingSource).not.toContain('landing-eyebrow')
     expect(appCss).not.toContain('.landing-eyebrow')

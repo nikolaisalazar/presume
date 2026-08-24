@@ -6,7 +6,7 @@
 - **Direction name:** The Quiet Instrument
 - **Visual system:** Mineral Quiet
 - **Quality target:** Production handoff
-- **Production implementation:** Not included in this brief
+- **Production implementation:** `src/components/LandingPage.tsx`, `src/components/landing/PretextMeasureDemo.tsx`, and landing-scoped `src/styles/app.css`
 - **Authoritative browser comp:** `docs/landing/reference/quiet-instrument-mineral-hardened.html`
 - **Reference manifest and hashes:** `docs/landing/reference/MANIFEST.md` and `SHA256SUMS`
 - **Baseline screenshots:** `docs/landing/reference/baselines/`
@@ -16,7 +16,7 @@ The hardened comp is the visual and narrative authority. The distilled study is 
 
 Two post-approval factual corrections are incorporated into the archived hardened authority: Review must be configured **and available** before it can return evidence, and the deterministic repository response is displayed with the sample resume rather than validated as content-derived from it.
 
-Later user-approved production reopenings supersede selected evidence and hierarchy contracts. The Fit chapter uses the live, text-only Pretext instrument specified below. The hero replaces its framed editor screenshot with an authentic exported Letter surface above 700px and becomes purely typographic at 700px and below. Decorative all-caps Verdigris eyebrows are removed from the hero, Fit, Review, and Design Boundaries headings, and the thesis interpretation is vertically centered beside its heading. The archived hardened comp and `docs/landing/reference/**` remain historical visual authorities; their Fit and editor-hero rasters and eyebrow treatment are no longer production requirements. All other Quiet Instrument narrative, geometry, capture, and protected-product decisions remain locked.
+Later user-approved production reopenings supersede selected evidence and hierarchy contracts. The Fit chapter uses the live, text-only Pretext instrument specified below. The hero replaces its framed editor screenshot with an authentic exported Letter surface above 700px and becomes purely typographic at 700px and below. Review replaces its full dashboard capture with a concise semantic advisory specimen bound to the deterministic configured-review fixture. Decorative all-caps Verdigris eyebrows are removed from the hero, Fit, Review, and Design Boundaries headings, the thesis interpretation is vertically centered beside its heading, and the footer adds verified GitHub and LinkedIn destinations in a restrained Elsewhere group. The archived hardened comp and `docs/landing/reference/**` remain historical visual authorities; their Fit, editor-hero, and Review rasters and eyebrow treatment are no longer production requirements. All other Quiet Instrument narrative, geometry, and protected-product decisions remain locked.
 
 ## Resolved profile
 
@@ -49,7 +49,7 @@ Conversion remains secondary to product understanding, truthful evidence, and pr
 ## Locked principles
 
 1. **The finished document is the product surface.** The landing should bridge naturally into the protected editor rather than promise a different product.
-2. **Evidence before assertion.** Use the authentic exported Letter artifact, Review capture, and live Pretext Fit instrument to support claims; the editor route remains the direct working proof.
+2. **Evidence before assertion.** Use the authentic exported Letter artifact, semantic Review specimen, and live Pretext Fit instrument to support claims; the editor route remains the direct working proof.
 3. **Direct control is the differentiator.** Do not position Presume as an automated writer or conventional template SaaS.
 4. **Review remains optional and non-mutating.** It advises; it never takes ownership of the document.
 5. **Premium means restraint.** Composition, typography, spacing, product-capture art direction, and material hierarchy do the work.
@@ -62,7 +62,7 @@ Conversion remains secondary to product understanding, truthful evidence, and pr
 3. Thesis interlude
 4. Fit evidence chapter
 5. Document continuity chapter
-6. Pale Review chapter with saturated evidence plate
+6. Pale Review chapter with a concise advisory output specimen
 7. Design Boundaries chapter
 8. Green-black final action and minimal footer
 
@@ -116,10 +116,12 @@ This order is locked. Do not insert generic benefits, testimonials, pricing, FAQ
 - Heading: **Review advises. It does not edit.**
 - Body: **When you choose Review and an available service is configured, it can return category scores and supporting evidence beside the resume. It never rewrites or mutates the document.**
 - Signature: **It cannot take the pen.**
-- Evidence label: **Illustrative test fixture · sample resume shown**
-- Caption: **Deterministic repository response** / **Rendered in the working Review interface**
+- Score: **81 / 100** — **Advisory score**
+- Evidence: **Internship work shows production exposure.**
+- Suggestion: **Add one production metric.**
+- Caption: **Example fixture · not content-derived**
 
-The `81 / 100` result is the repository’s deterministic configured-review E2E response displayed in the working Review interface while the default Alex Johnson sample resume is shown. The E2E route validates that a PDF is submitted but currently returns the fixture for any submitted PDF; it does not prove that the score was derived from the sample’s content. Preserve this distinction. If the sample, fixture, or test binding changes, regenerate the capture and update the disclosure.
+The specimen is semantic HTML, not a dashboard reconstruction or screenshot. Its score, evidence, and suggestion import from `src/landingReviewSpecimen.ts`; the configured Review E2E fixture imports the same values. The route validates that a PDF is submitted but returns the deterministic fixture for any submitted PDF, so the landing must not imply that the result was computed from the sample resume. Preserve the visible caption and shared source binding.
 
 ### Design Boundaries
 
@@ -134,7 +136,7 @@ The `81 / 100` result is the repository’s deterministic configured-review E2E 
 - Default action: **Edit your resume →**
 - Saved-resume action: **Continue editing →**
 - Reassurance: **Direct editing · Saved in this browser · Stable Letter export**
-- Footer: **Presume** / **Back to top**
+- Footer: **Presume** / **Elsewhere** — GitHub icon + **GitHub**, LinkedIn icon + **LinkedIn** / **Back to top**
 
 ## Visual direction
 
@@ -143,7 +145,7 @@ The `81 / 100` result is the repository’s deterministic configured-review E2E 
 1. **Mineral canvas** (`#edf2f0`) owns the hero and Fit chapters.
 2. **Bright neutral surface** (`#f8fbfa`) owns the thesis, continuity, and Design Boundaries chapters.
 3. **Pale Review field** (`#dcece8`) gives Review a distinct territory without competing with the ending.
-4. **Saturated Verdigris evidence plate** (`#14796f`) is concentrated around the Review fixture.
+4. **Verdigris evidence accent** (`#117a70`) is concentrated in the Review specimen score while restrained rules preserve the pale field.
 5. **Green-black ending** (`#101513`) exclusively owns the terminal page boundary.
 6. **Warm-white paper** remains reserved for document surfaces.
 
@@ -244,13 +246,12 @@ No gradients, glass, glow, beige app backgrounds, decorative semantic colors, or
 
 ### Review
 
-- Pale full-width field with copy left and evidence right.
+- Pale full-width field with copy left and a semantic advisory specimen right.
 - At 920px and below: stack copy above evidence.
-- Reduce Review plate padding at the stack boundary to avoid an abrupt oversized stage.
-- The evidence plate remains saturated Verdigris; the entire Review section does not.
-- The screenshot is illustrative evidence, not an interactive simulation.
-- Review image alt text must state that the deterministic repository response is not content-derived from the sample resume; it must not describe the fixture as being “for” that resume.
-- Do not expose decorative controls as though they operate on the landing.
+- The specimen contains only the advisory score, one evidence statement, one suggestion, and a concise fixture disclosure.
+- Preserve the evidence/suggestion relationship as two side-by-side columns through narrow widths; shorten copy rather than creating a tall dashboard stack.
+- Use semantic `dl`/`dt`/`dd` markup and an accessible score label. The specimen is evidence, not an interactive simulation.
+- Do not expose dashboard tabs, disclosures, buttons, or decorative controls on the landing.
 
 ### Design Boundaries
 
@@ -265,7 +266,8 @@ No gradients, glass, glow, beige app backgrounds, decorative semantic colors, or
 - Center one decisive action.
 - CTA is at least 56px high and no more than approximately 280px wide on narrow screens.
 - Keep the ending and footer in one dark territory separated only by a restrained line.
-- No competing secondary CTA.
+- Add only the verified GitHub and LinkedIn links under a functional **Elsewhere** label; open them in a new tab with safe external-link semantics.
+- Keep Back to top available and do not add a competing product CTA.
 
 ## Responsive contract
 
@@ -276,14 +278,13 @@ No gradients, glass, glow, beige app backgrounds, decorative semantic colors, or
 | 920px and below | Review stacks |
 | 860px and below | Fit stacks |
 | 780px and below | Continuity and Design Boundaries stack |
-| 700px and below | Purely typographic hero with no media space, narrow gutters, simplified nav, full-width hero CTA, compact evidence padding |
-| 400px and below | Use the phone-art-directed Review source; keep the live Fit instrument clamped to its stage |
+| 700px and below | Purely typographic hero with no media space, narrow gutters, simplified nav, full-width hero CTA, compact Review specimen, and a stacked footer |
 
 Requirements:
 
 - No page-level horizontal overflow at 320px or above.
 - Preserve logical reading order when each section stacks.
-- Keep product images proportional; never force both width and height against a mismatched source ratio.
+- Keep the Letter image proportional; Review and Fit evidence remain responsive semantic HTML rather than image assets.
 - Use an intermediate composition across tablet/laptop widths; do not collapse every section at one breakpoint.
 - Browser zoom must reflow the landing without affecting editor or PDF geometry.
 
@@ -292,25 +293,22 @@ Requirements:
 ### Approved study assets
 
 - `Geist-Variable.woff2`
-- Historical editor-hero captures remain only in `docs/landing/reference/**`; production uses generated `resume-letter.png` and `resume-letter@2x.png`
-- `working-review-capture-hardened.png` and `@2x`
-- `working-review-narrow-essential-hardened.png` and `@2x`
+- Historical editor-hero and Review captures remain only in `docs/landing/reference/**`; production uses generated `resume-letter.png` and `resume-letter@2x.png`
+- Review production evidence is sourced from `src/landingReviewSpecimen.ts` and rendered as semantic HTML
 
 These files are study references, not automatically production-ready assets.
 
 ### Production requirements
 
-- Record the generated Letter artifact and accepted native Review production captures in `docs/landing/PRODUCTION_CAPTURE_MANIFEST.md` with source state, geometry, generation commands, and checksums.
+- Record the generated Letter artifact in `docs/landing/PRODUCTION_CAPTURE_MANIFEST.md` with source state, geometry, generation command, and checksums.
 - Replace `/files/` references with bundler/base-safe asset imports or public paths under the deployed `/presume/` base.
 - Replace `127.0.0.1` links with existing router/callback navigation.
-- Generate both Letter rasters independently from the canonical exported PDF with `npm run generate:landing-letter`; do not upscale one density from the other. Create native-density Review captures from its stable reproducible state.
-- Preserve protected product pixels; cropping and lossless optimization are allowed, reconstruction is not.
-- Declare intrinsic width and height for every image and source.
-- Use responsive `picture`/`srcset` art direction where the approved desktop and narrow crops differ.
-- Prioritize only the hero capture. Review loads lazily with asynchronous decoding; live Fit contains no raster request.
-- Keep text-bearing UI captures in a lossless or visually lossless format.
+- Generate both Letter rasters independently from the canonical exported PDF with `npm run generate:landing-letter`; do not upscale one density from the other.
+- Keep Review evidence bound to `src/landingReviewSpecimen.ts` and the configured E2E fixture; do not ship or request Review dashboard rasters.
+- Declare intrinsic width and height for the Letter image.
+- Prioritize only the Letter hero. Review and Fit contain no raster requests.
 - Preload Geist only if measurement shows a meaningful LCP benefit; retain `font-display: swap`.
-- Verify that image reservation prevents cumulative layout shift before decode.
+- Verify that Letter image reservation prevents cumulative layout shift before decode.
 
 ## Evidence and claim matrix
 
@@ -323,7 +321,7 @@ These files are study references, not automatically production-ready assets.
 | JSON backup | Existing JSON export/import | Call it an importable or portable backup, not cloud storage. |
 | Review is optional | Disabled/unconfigured product state and service configuration | Say configured **and available**; do not guarantee a result from configuration alone. |
 | Review does not mutate the resume | Review submission/state flow | Do not imply automated rewriting or document changes. |
-| `81 / 100` result | Generic deterministic E2E response displayed with the default Alex Johnson sample | Label it outside the image as an illustrative test fixture; do not claim content-derived scoring unless a binding test is added. |
+| `81 / 100` result | Shared landing/configured-E2E fixture source | Render **Example fixture · not content-derived** and keep the landing values imported by the configured E2E fixture; do not claim content-derived scoring. |
 | Pretext supplies measurement primitives | Repository dependency and linked project | Describe technical contribution without implying endorsement. |
 | Hiring Agent adapter is a separate service boundary | Review service architecture | Describe it as local or self-hosted and optional. |
 
@@ -342,9 +340,9 @@ These files are study references, not automatically production-ready assets.
 
 - Navigation links: visible transform-driven underline on hover; no width or position change; standard focus-visible ring on keyboard focus.
 - Primary buttons: darker Verdigris hover fill, 1px active translation, and the global focus-visible ring.
-- Provenance and footer links: remain visibly underlined, preserve external-link text where applicable, and use the global focus-visible ring.
+- Provenance and footer links: remain visibly underlined and use the global focus-visible ring. Footer profile icons are decorative companions to complete visible text labels.
 - Unsupported view timelines: render the continuity path fully visible with no partial state.
-- Desktop/tablet Letter-image failure: preserve the declared Letter geometry and replace the failed raster with visible **Resume preview unavailable** fallback text. Review failure preserves its geometry and surrounding label/caption with **Product capture unavailable**. The hero image/fallback is absent at 700px and below. Fit is live and has no image-failure state.
+- Desktop/tablet Letter-image failure: preserve the declared Letter geometry and replace the failed raster with visible **Resume preview unavailable** fallback text. The hero image/fallback is absent at 700px and below. Fit and Review are live semantic HTML and have no image-failure states.
 
 ## Accessibility
 
@@ -355,7 +353,7 @@ These files are study references, not automatically production-ready assets.
 - Give `main` a programmatic focus target for skip navigation.
 - Maintain clearly visible `:focus-visible` treatment in normal and forced-color modes.
 - Keep all important action targets at least 44px high; final CTA remains 56px.
-- Product screenshots require descriptive alt text and adjacent captions. Do not rely on small text inside captures as the only source of meaning.
+- The Letter artifact requires descriptive alt text. Review evidence must remain semantic text with a visible fixture caption and accessible score label.
 - Decorative brand artwork is hidden from assistive technology when the surrounding link already names Presume.
 - Preserve contrast verified by the study, including Review body/accent text, fixture label/caption, ending copy, CTA text, and CTA boundary.
 - Test keyboard navigation at desktop and 390px.
@@ -384,11 +382,11 @@ These files are study references, not automatically production-ready assets.
 ### Pale Review territory
 
 - **Existing rule:** Verdigris is rare and active-state oriented.
-- **Landing-only deviation:** Review receives a pale Verdigris field while saturated Verdigris is concentrated in its evidence frame.
+- **Landing-only deviation:** Review receives a pale Verdigris field while Verdigris is concentrated in the specimen score.
 - **Narrative reason:** Review must be distinct but subordinate to the terminal action.
 - **Scope boundary:** Landing only; protected Review UI tokens remain unchanged.
-- **Risk:** Expanding saturation beyond the plate would violate territorial hierarchy.
-- **Reversion path:** Return the chapter to a neutral surface while preserving the evidence plate.
+- **Risk:** Expanding saturation beyond the score would violate territorial hierarchy.
+- **Reversion path:** Return the chapter to a neutral surface while preserving the semantic specimen.
 
 ## Existing landing treatment inventory
 
@@ -441,7 +439,8 @@ Do not copy the disposable HTML wholesale into production. Translate the approve
 - Favicon/app icon: existing Presume brand mark.
 - Editor navigation: use the existing `onOpenEditor`/router behavior; never hardcode localhost.
 - In-page links: Fit and Design Boundaries.
-- Footer: Presume and Back to top only.
+- Footer: Presume, verified Elsewhere links to `https://github.com/nikolaisalazar` and `https://www.linkedin.com/in/nikolaisalazar/`, and Back to top.
+- Personal destinations must be verified rather than inferred; external links use `target="_blank"` and `rel="noreferrer"` while modified clicks retain native browser behavior.
 - Legal links are not added by default. Reassess if accounts, telemetry, hosted resume data, or other policy-relevant behavior is introduced.
 - Ensure SPA fallback and direct navigation continue to work at both `/presume/` and `/presume/editor/`.
 
@@ -450,7 +449,7 @@ Do not copy the disposable HTML wholesale into production. Translate the approve
 1. Add final, base-safe Geist and product-evidence assets.
 2. Rebuild `LandingPage` semantic structure and preserve saved-resume CTA state.
 3. Implement the Mineral Quiet landing tokens and desktop composition.
-4. Implement staggered responsive transformations at 1000, 920, 860, 780, 700, and 400px.
+4. Implement staggered responsive transformations at 1000, 920, 860, 780, and 700px.
 5. Add only the approved motion and reduced-motion behavior.
 6. Add metadata, canonical/social preview, and favicon behavior.
 7. Update landing integration and responsive contracts.
@@ -464,18 +463,18 @@ Do not copy the disposable HTML wholesale into production. Translate the approve
 - [ ] Default copy matches the approved copy.
 - [ ] Saved-resume CTAs preserve “Continue editing” behavior.
 - [ ] No unsupported product, traction, endorsement, or outcome claims appear.
-- [ ] The exact text **Illustrative test fixture · sample resume shown** is rendered as visible HTML outside the Review image at every required viewport.
-- [ ] The page does not state or imply that the `81 / 100` score was computed from the sample resume.
+- [ ] The exact text **Example fixture · not content-derived** is visibly rendered with the Review specimen at every required viewport.
+- [ ] The score, evidence, and suggestion share a source with the configured E2E fixture, and the page does not imply that the result was computed from the sample resume.
 - [ ] Pretext and Hiring Agent roles remain precise and non-promotional.
 
 ### Visual fidelity
 
 - [ ] Mineral Quiet palette and territorial hierarchy match the approved comp.
 - [ ] Review uses exactly `#dcece8`; the terminal ending uses exactly `#101513`; no other full-width chapter uses a saturated Verdigris or green-black fill.
-- [ ] Saturated `#14796f` is limited to primary actions, the brand mark, path markers, the live Pretext boundary/grip, and the Review evidence frame.
+- [ ] Saturated Verdigris is limited to primary actions, the brand mark, path markers, the live Pretext boundary/grip, and the Review score.
 - [ ] Hero remains an editorial split above 1000px, stacks through tablet widths, and removes all media/reserved media space at 700px and below.
 - [ ] Hero H1 remains within three lines at every width in the required verification matrix.
-- [ ] The exported Letter surface and Review capture remain authentic and proportional, with aspect-ratio error below `0.015`; the Letter source is independently rendered from the canonical PDF at each density.
+- [ ] The exported Letter surface remains authentic and proportional, with aspect-ratio error below `0.015`; each density is independently rendered from the canonical PDF. Review ships no dashboard raster.
 - [ ] At the five archived baseline widths, section order, territorial background colors, and major shell/evidence edges match the reference screenshots within 8 CSS px on desktop/tablet and 4 CSS px at 390/320px, excluding raster content and font-antialiasing differences.
 - [ ] No gradients, glass, decorative spectacle, excessive rounding, or card proliferation is introduced.
 
@@ -484,8 +483,9 @@ Do not copy the disposable HTML wholesale into production. Translate the approve
 - [ ] No horizontal page overflow from 320px upward.
 - [ ] Breakpoints transform at the specified staggered boundaries.
 - [ ] Reading order remains logical after every stack.
-- [ ] Review uses its appropriate art-directed source at narrow widths; live Fit clamps without overflow.
-- [ ] No accidental overlap, overflow, or broken composition appears across the 1px breakpoint pairs around 1000, 920, 860, 780, 700, or 400px; expected stacking-height changes remain coherent.
+- [ ] Review retains two readable evidence/suggestion columns at narrow widths; live Fit clamps without overflow.
+- [ ] The Elsewhere footer stacks cleanly while retaining 44px link targets.
+- [ ] No accidental overlap, overflow, or broken composition appears across the 1px breakpoint pairs around 1000, 920, 860, 780, or 700px; expected stacking-height changes remain coherent.
 - [ ] Layout remains usable at 200% browser zoom.
 
 ### Accessibility
@@ -495,7 +495,7 @@ Do not copy the disposable HTML wholesale into production. Translate the approve
 - [ ] All links and buttons have visible focus indicators.
 - [ ] Touch targets meet 44px minimum; final CTA is 56px.
 - [ ] Text and interactive-boundary contrast meet WCAG 2.2 AA.
-- [ ] Evidence screenshots have useful alt text and adjacent captions. The uncaptained hero Letter artifact has descriptive alt text; it is removed from the mobile accessibility tree with its hidden figure.
+- [ ] The hero Letter artifact has descriptive alt text and is removed from the mobile accessibility tree with its hidden figure. Review evidence is semantic `dl` content with an accessible score label and visible fixture caption.
 - [ ] Forced colors and reduced motion retain usable states.
 
 ### Interaction and motion
@@ -509,14 +509,14 @@ Do not copy the disposable HTML wholesale into production. Translate the approve
 - [ ] Button active state translates down exactly 1px; the final CTA arrow hover shift is approximately 3px when motion is allowed.
 - [ ] Continuity path draws only when CSS view timelines are supported and reduced motion is not requested; fallback is a complete static line.
 - [ ] Under reduced motion, automatic/view-driven animation names resolve to `none` and root scroll behavior resolves to `auto`.
-- [ ] A forced lazy Review-image failure preserves reserved geometry and displays **Product capture unavailable** with the original label/caption still present.
+- [ ] Review makes no production image request; the semantic specimen remains readable at 320px, 390px, and desktop widths.
 
 ### Performance and stability
 
 - [ ] Only the hero image is eager/high priority.
-- [ ] Below-fold evidence is lazy-loaded and asynchronously decoded.
-- [ ] Every image/source reserves correct intrinsic geometry.
-- [ ] Delayed image loading changes no reserved image height by more than 1px at any required viewport, and whole-page CLS remains at or below `0.05` in the production build.
+- [ ] Review and Fit evidence make no image requests.
+- [ ] The Letter image/source reserves correct intrinsic geometry.
+- [ ] Delayed Letter loading changes no reserved image height by more than 1px at any required viewport, and whole-page CLS remains at or below `0.05` in the production build.
 - [ ] Geist loads with an appropriate fallback strategy.
 - [ ] Asset URLs work under the deployed base path.
 - [ ] No new animation or UI dependency is added without approval.
@@ -534,10 +534,10 @@ Do not copy the disposable HTML wholesale into production. Translate the approve
 
 ### Regression protection
 
-- [ ] Editor, Fit, Review, resume geometry, LocalStorage, JSON, and PDF contracts remain unchanged.
+- [ ] Editor, Fit, Review behavior/service contracts, resume geometry, LocalStorage, JSON, and PDF contracts remain unchanged; the separately approved Review action-icon gap remains 6px.
 - [ ] Existing editor and review E2E coverage passes.
 - [ ] Landing route and editor navigation pass in configured and unconfigured Review environments.
-- [ ] Production implementation diff is limited to the allowed landing scope.
+- [ ] Production implementation diff is limited to the allowed landing scope plus the explicitly approved Review action-icon spacing refinement.
 
 ## Required verification matrix
 
@@ -567,9 +567,9 @@ At minimum, verify:
 - Quiet Instrument narrative
 - Mineral Quiet palette
 - Editorial split hero
-- Authentic exported Letter and Review evidence plus live Pretext Fit evidence
+- Authentic exported Letter evidence, semantic fixture-bound Review evidence, and live Pretext Fit evidence
 - Pale Review territory
-- Saturated Review evidence plate
+- Concise Verdigris Review score
 - Bright Design Boundaries interval
 - Full-bleed green-black ending
 - Centered final action
@@ -578,7 +578,7 @@ At minimum, verify:
 ### Change during production translation
 
 - Replace disposable localhost and `/files/` URLs.
-- Preserve the generated native-density Letter pair and accepted Review captures; editor and Fit no longer have production captures.
+- Preserve the generated native-density Letter pair; editor, Fit, and Review have no production captures.
 - Preserve saved-resume dynamic CTA behavior.
 - Add production metadata and base-safe loading strategy.
 - Translate disposable markup into existing React architecture and tests.
@@ -596,7 +596,6 @@ At minimum, verify:
 
 ### Open only if implementation exposes a real blocker
 
-- Exact production image format after visual-quality and payload comparison
 - Social-preview crop
 
 These open items may not change the approved narrative, protected product surfaces, or territorial visual hierarchy without returning to design review.

@@ -83,6 +83,20 @@ describe('App review availability boundaries', () => {
     expect(screen.getByRole('navigation', { name: 'Primary navigation' })).toBeInTheDocument()
     expect(screen.getByRole('main')).toHaveAttribute('id', 'main')
     expect(screen.getByRole('contentinfo')).toBeInTheDocument()
+    const elsewhere = screen.getByRole('navigation', { name: 'Elsewhere' })
+    expect(elsewhere).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'GitHub' })).toHaveAttribute('href', 'https://github.com/nikolaisalazar')
+    expect(screen.getByRole('link', { name: 'LinkedIn' })).toHaveAttribute('href', 'https://www.linkedin.com/in/nikolaisalazar/')
+    const profileIcons = elsewhere.querySelectorAll('svg')
+    expect(profileIcons).toHaveLength(2)
+    for (const icon of profileIcons) expect(icon).toHaveAttribute('aria-hidden', 'true')
+    for (const link of [
+      screen.getByRole('link', { name: 'GitHub' }),
+      screen.getByRole('link', { name: 'LinkedIn' }),
+    ]) {
+      expect(link).toHaveAttribute('target', '_blank')
+      expect(link).toHaveAttribute('rel', 'noreferrer')
+    }
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
     expect(screen.getByRole('heading', { name: 'Your resume should stay yours.' })).toBeInTheDocument()
     expect(container.querySelector('.landing-eyebrow')).not.toBeInTheDocument()
@@ -99,9 +113,11 @@ describe('App review availability boundaries', () => {
     expect(screen.getByRole('heading', { name: 'Review advises. It does not edit.' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Two systems stay explicit.' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Make the page yours.' })).toBeInTheDocument()
-    expect(screen.getByText('Illustrative test fixture · sample resume shown')).toBeInTheDocument()
+    expect(screen.getByText('Advisory score: 81 out of 100.')).toHaveClass('landing-sr-only')
     expect(screen.getByText(/an available service is configured/)).toBeInTheDocument()
-    expect(screen.getByText('Deterministic repository response')).toBeInTheDocument()
+    expect(screen.getByText('Internship work shows production exposure.')).toBeInTheDocument()
+    expect(screen.getByText('Add one production metric.')).toBeInTheDocument()
+    expect(screen.getByText('Example fixture · not content-derived')).toBeInTheDocument()
     expect(screen.queryByRole('group', { name: 'Appearance' })).not.toBeInTheDocument()
     expect(screen.queryByRole('region', { name: 'Pretext Fit Lab' })).not.toBeInTheDocument()
     expect(screen.getByRole('slider', { name: 'Available text width' })).toHaveAttribute('aria-valuenow', '340')
@@ -114,7 +130,7 @@ describe('App review availability boundaries', () => {
     expect(screen.getByRole('toolbar', { name: 'Document actions' })).toBeInTheDocument()
   })
 
-  it('uses live Fit evidence plus authentic Letter and Review artifacts with accessible fallbacks', () => {
+  it('uses live Fit and Review evidence plus an authentic Letter artifact with an accessible fallback', () => {
     vi.stubEnv('VITE_REVIEW_API_URL', '')
     window.history.pushState({}, '', '/presume/')
 
@@ -127,21 +143,16 @@ describe('App review availability boundaries', () => {
     expect(brandMark?.querySelector('svg')).toBeInTheDocument()
 
     const images = screen.getAllByRole('img') as HTMLImageElement[]
-    expect(images).toHaveLength(2)
+    expect(images).toHaveLength(1)
     expect(images[0]).toHaveAccessibleName('Sample resume exported from Presume on a Letter page')
     expect(images[0]).toHaveAttribute('fetchpriority', 'high')
     expect(images[0]).toHaveAttribute('loading', 'eager')
     expect(images[0]).toHaveAttribute('decoding', 'async')
-    for (const image of images.slice(1)) {
-      expect(image).toHaveAttribute('loading', 'lazy')
-      expect(image).toHaveAttribute('decoding', 'async')
-    }
-    for (const image of images) {
-      expect(image.getAttribute('src')).toMatch(/^\/presume\/landing\//)
-      expect(image).toHaveAttribute('width')
-      expect(image).toHaveAttribute('height')
-    }
-    expect(container.querySelectorAll('source[srcset*="@2x"]')).toHaveLength(2)
+    expect(images[0].getAttribute('src')).toMatch(/^\/presume\/landing\//)
+    expect(images[0]).toHaveAttribute('srcset', expect.stringContaining('resume-letter@2x.png 2x'))
+    expect(images[0]).toHaveAttribute('width')
+    expect(images[0]).toHaveAttribute('height')
+    expect(container.querySelectorAll('source[srcset*="@2x"]')).toHaveLength(0)
     expect(container.querySelector('source[media="(max-width: 700px)"]'))
       .toHaveAttribute('srcset', expect.stringMatching(/^data:image\/gif;base64,/))
 
@@ -158,10 +169,7 @@ describe('App review availability boundaries', () => {
     expect(screen.getByRole('status', { name: 'Letter resume preview unavailable' }))
       .toHaveTextContent('Resume preview unavailable')
 
-    fireEvent.error(images[1])
-    expect(screen.getByRole('status', { name: 'Review product capture unavailable' }))
-      .toHaveTextContent('Product capture unavailable')
-    expect(screen.getByText('Deterministic repository response')).toBeInTheDocument()
+    expect(screen.getByText('Example fixture · not content-derived')).toBeInTheDocument()
   })
 
   it('returns to the landing page when the editor brand is clicked', () => {
