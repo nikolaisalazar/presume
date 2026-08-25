@@ -1,195 +1,220 @@
-import { useSyncExternalStore } from 'react'
-import { Button } from '@/components/ui/button'
+import { GithubLogo, LinkedinLogo } from '@phosphor-icons/react'
+import { useState, type MouseEvent, type ReactNode } from 'react'
 import { BrandMark } from '@/components/BrandMark'
-import { PretextLivingFlow } from '@/components/landing/PretextLivingFlow'
-import { ThemeControl } from '@/components/ThemeControl'
+import { PretextMeasureDemo } from '@/components/landing/PretextMeasureDemo'
+import { Button } from '@/components/ui/button'
+import { landingReviewSpecimen } from '@/landingReviewSpecimen'
 
 export interface LandingPageProps {
   hasSavedResume: boolean
   onOpenEditor: () => void
 }
 
-const CAPABILITIES = [
-  {
-    title: 'Write on the document',
-    description:
-      'Edit names, dates, sections, and bullets where they appear instead of translating them through a separate form.',
-  },
-  {
-    title: 'Measure while it changes',
-    description:
-      'Page count, line wrapping, and minimum type size remain visible while the content is still editable.',
-  },
-  {
-    title: 'Review as evidence',
-    description:
-      'When configured, Review returns category scores and supporting evidence without rewriting your words.',
-  },
-  {
-    title: 'Leave with a stable artifact',
-    description:
-      'Export a Letter-size PDF or a portable JSON backup from the same source used by the editor.',
-  },
-] as const
+const LANDING_ASSET_ROOT = `${import.meta.env.BASE_URL}landing`
+const TRANSPARENT_PIXEL = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=='
+
+function HeroLetterSurface() {
+  const [failed, setFailed] = useState(false)
+
+  return (
+    <figure
+      className="landing-product-stage landing-letter-stage"
+      data-capture-state={failed ? 'unavailable' : 'ready'}
+    >
+      {failed ? (
+        <div
+          className="landing-letter-stage__fallback"
+          role="status"
+          aria-label="Letter resume preview unavailable"
+        >
+          Resume preview unavailable
+        </div>
+      ) : (
+        <picture>
+          <source media="(max-width: 700px)" srcSet={TRANSPARENT_PIXEL} />
+          <img
+            className="landing-letter-stage__image"
+            src={`${LANDING_ASSET_ROOT}/resume-letter.png`}
+            srcSet={`${LANDING_ASSET_ROOT}/resume-letter.png 1x, ${LANDING_ASSET_ROOT}/resume-letter@2x.png 2x`}
+            sizes="(max-width: 700px) 1px, (max-width: 1000px) 500px, 560px"
+            width={695}
+            height={899}
+            alt="Sample resume exported from Presume on a Letter page"
+            loading="eager"
+            {...{ fetchpriority: 'high' }}
+            decoding="async"
+            onError={() => setFailed(true)}
+          />
+        </picture>
+      )}
+    </figure>
+  )
+}
+
+function EditorLink({ children, onOpenEditor }: { children: ReactNode; onOpenEditor: () => void }) {
+  const openEditor = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (
+      event.defaultPrevented
+      || event.button !== 0
+      || event.metaKey
+      || event.ctrlKey
+      || event.shiftKey
+      || event.altKey
+    ) return
+
+    event.preventDefault()
+    onOpenEditor()
+  }
+
+  return (
+    <a href="/presume/editor/" onClick={openEditor}>
+      {children}
+    </a>
+  )
+}
 
 function editorActionLabel(hasSavedResume: boolean, freshLabel: string) {
   return hasSavedResume ? 'Continue editing' : freshLabel
 }
 
-function subscribeToViewport(listener: () => void) {
-  window.addEventListener('resize', listener)
-  return () => window.removeEventListener('resize', listener)
-}
-
-function getWideViewportSnapshot() {
-  return window.innerWidth >= 641
-}
-
 export function LandingPage({ hasSavedResume, onOpenEditor }: LandingPageProps) {
-  const isWide = useSyncExternalStore(
-    subscribeToViewport,
-    getWideViewportSnapshot,
-    () => false
-  )
-
   return (
-    <div className="landing-page">
-      <header
-        className="landing-page__header"
-        aria-label="Presume landing navigation"
-      >
-        <a className="landing-page__brand" href="/presume/" aria-label="Presume home">
-          <BrandMark />
-          <span>Presume</span>
-        </a>
-        <div className="landing-page__header-actions">
-          <ThemeControl />
-          <Button variant="outline" onClick={onOpenEditor}>
-            {editorActionLabel(hasSavedResume, 'Open editor')}
-          </Button>
-        </div>
+    <div className="landing-page" id="top">
+      <a className="landing-skip" href="#main">Skip to content</a>
+
+      <header className="landing-header landing-shell">
+        <nav className="landing-nav" aria-label="Primary navigation">
+          <a className="landing-brand" href="/presume/" aria-label="Presume home">
+            <BrandMark />
+            <span>Presume</span>
+          </a>
+          <div className="landing-nav__links">
+            <a href="#fit">Fit</a>
+            <a href="#boundaries">Design boundaries</a>
+            <EditorLink onOpenEditor={onOpenEditor}>Editor ↗</EditorLink>
+          </div>
+        </nav>
       </header>
 
-      <main className="landing-page__main">
-        <section
-          className="landing-hero"
-          data-slot="landing-hero"
-          data-layout={isWide ? 'wide' : 'compact'}
-          aria-labelledby="landing-title"
-        >
-          <picture
-            className="landing-hero__media"
-            data-slot="landing-hero-media"
-            aria-hidden="true"
-          >
-            {isWide ? (
-              <source
-                type="image/webp"
-                srcSet="/presume/landing/document-horizon-1120.webp 1120w, /presume/landing/document-horizon-2200.webp 2200w"
-                sizes="(max-width: 1120px) calc(100vw - 48px), 1120px"
-              />
-            ) : null}
-            <img
-              src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
-              alt=""
-              width="1120"
-              height="720"
-            />
-          </picture>
-          <div className="landing-hero__content">
-            <p className="landing-kicker">Presume</p>
-            <h1 id="landing-title">Presume is a local-first resume workbench.</h1>
-            <p className="landing-hero__description">
-              A personal resume project developed into a complete tool for direct
-              editing, measurable fit, optional review, and stable export.
-            </p>
-            <div className="landing-hero__actions">
+      <main id="main" className="landing-main" tabIndex={-1}>
+        <section className="landing-hero landing-shell" data-landing-chapter="hero" aria-labelledby="landing-title">
+          <div className="landing-hero__copy">
+            <h1 id="landing-title">Your resume should stay yours.</h1>
+            <p className="landing-hero__lede">Edit the finished Letter page directly. Presume keeps page and line constraints visible, saves the resume in this browser, and exports a stable PDF. Review remains advisory and never changes the document.</p>
+            <div className="landing-hero__action">
               <Button size="lg" onClick={onOpenEditor}>
                 {editorActionLabel(hasSavedResume, 'Open the editor')}
               </Button>
-              <span>Open project · No account required</span>
+              <span>Saved in this browser</span>
+            </div>
+          </div>
+          <HeroLetterSurface />
+        </section>
+
+        <section className="landing-thesis" data-landing-chapter="thesis" aria-labelledby="thesis-title">
+          <div className="landing-thesis__inner landing-shell">
+            <h2 id="thesis-title">The document is not the output. <span>It is the interface.</span></h2>
+            <p>Writing, measurement, local persistence, and export remain attached to the finished page instead of disappearing behind a separate preview.</p>
+          </div>
+        </section>
+
+        <section className="landing-fit landing-shell" id="fit" data-landing-chapter="fit" aria-labelledby="fit-title">
+          <div className="landing-fit__grid">
+            <div className="landing-fit__copy">
+              <h2 id="fit-title">See the page before export.</h2>
+              <p>Fit keeps page and line constraints visible while you edit, so you can see wrapping pressure and overflow before export.</p>
+            </div>
+            <PretextMeasureDemo />
+          </div>
+        </section>
+
+        <section className="landing-continuity" data-landing-chapter="continuity" aria-labelledby="continuity-title">
+          <div className="landing-continuity__inner landing-shell">
+            <div className="landing-continuity__intro">
+              <h2 id="continuity-title">The document keeps its shape.</h2>
+              <p>Presume preserves the current resume and its formatting constraints in this browser. Export produces a fixed Letter artifact independent of browser zoom.</p>
+            </div>
+            <ol className="landing-path">
+              <li><h3>Saved in this browser</h3><p>Current resume data and formatting constraints persist in this browser.</p></li>
+              <li><h3>Measured in place</h3><p>Page limit and bullet wrapping stay visible on the editable document.</p></li>
+              <li><h3>Carried forward</h3><p>Export a stable Letter-sized PDF, or export an importable <strong>JSON backup</strong>.</p></li>
+            </ol>
+          </div>
+        </section>
+
+        <section className="landing-review" data-landing-chapter="review" aria-labelledby="review-title">
+          <div className="landing-review__inner landing-shell">
+            <div className="landing-review__copy">
+              <h2 id="review-title">Review advises. It does not edit.</h2>
+              <p>When you choose Review and an available service is configured, it can return category scores and supporting evidence beside the resume. It never rewrites or mutates the document.</p>
+              <p className="landing-review__signature">It cannot <span>take the pen.</span></p>
+            </div>
+            <figure className="landing-review-plate">
+              <div className="landing-review-specimen__score">
+                <span className="landing-sr-only">
+                  Advisory score: {landingReviewSpecimen.score} out of {landingReviewSpecimen.maxScore}.
+                </span>
+                <strong aria-hidden="true">
+                  {landingReviewSpecimen.score} / {landingReviewSpecimen.maxScore}
+                </strong>
+                <span aria-hidden="true">Advisory score</span>
+              </div>
+              <dl className="landing-review-specimen__output">
+                <div>
+                  <dt>Evidence</dt>
+                  <dd>{landingReviewSpecimen.evidence}</dd>
+                </div>
+                <div>
+                  <dt>Suggestion</dt>
+                  <dd>{landingReviewSpecimen.suggestion}</dd>
+                </div>
+              </dl>
+              <figcaption>Example fixture · not content-derived</figcaption>
+            </figure>
+          </div>
+        </section>
+
+        <section className="landing-boundaries" id="boundaries" data-landing-chapter="boundaries" aria-labelledby="boundaries-title">
+          <div className="landing-boundaries__inner landing-shell">
+            <div>
+              <h2 id="boundaries-title">Two systems stay explicit.</h2>
+            </div>
+            <div className="landing-boundaries__list">
+              <div className="landing-boundaries__item"><strong>Measurement</strong><p><a href="https://github.com/chenglou/pretext" target="_blank" rel="noreferrer">Pretext ↗</a> supplies text-layout primitives. Presume exposes their effect through Fit instead of hiding page pressure.</p></div>
+              <div className="landing-boundaries__item"><strong>Advisory review</strong><p>Optional Review runs through a separate local or self-hosted service using a <a href="https://github.com/interviewstreet/hiring-agent" target="_blank" rel="noreferrer">Hiring Agent adapter ↗</a>. Returned evidence stays separate from the editable resume.</p></div>
             </div>
           </div>
         </section>
 
-        <section className="landing-origins" aria-labelledby="origins-title">
-          <div className="landing-origins__heading">
-            <p className="landing-kicker">Why Presume exists</p>
-            <h2 id="origins-title">The document came first.</h2>
-            <p>
-              Most resume builders begin with a form and reconstruct a document
-              afterward. Presume began with the opposite question: what if the
-              document stayed live while every supporting system formed around it?
-            </p>
+        <section className="landing-ending" data-landing-chapter="ending" aria-labelledby="ending-title">
+          <div className="landing-ending__inner landing-shell">
+            <h2 id="ending-title">Make the page yours.</h2>
+            <p>Edit the finished document directly. Your resume and formatting stay in this browser as you work.</p>
+            <Button size="lg" onClick={onOpenEditor}>
+              {editorActionLabel(hasSavedResume, 'Edit your resume')} <span aria-hidden="true">→</span>
+            </Button>
+            <p className="landing-ending__reassurance">Direct editing · Saved in this browser · Stable Letter export</p>
           </div>
-          <div className="landing-origins__chapters">
-            <section className="landing-origins__chapter landing-origins__chapter--measurement">
-              <header className="landing-origins__chapter-heading">
-                <span>01 / Measurement</span>
-                <h3>Pretext made fit observable.</h3>
-              </header>
-              <PretextLivingFlow
-                actionsEnd={
-                  <a href="https://github.com/chenglou/pretext">
-                    Explore Pretext<span aria-hidden="true"> ↗</span>
-                  </a>
-                }
-              />
-            </section>
-            <section className="landing-origins__chapter">
-              <header className="landing-origins__chapter-heading">
-                <span>02 / Advisory review</span>
-                <h3>Hiring Agent made the review boundary tangible.</h3>
-              </header>
-              <p className="landing-origins__passage">
-                HackerRank&apos;s open-source Hiring Agent helped make an
-                evidence-oriented Review workflow concrete. Presume adapts that
-                idea behind an optional service boundary, presents the result as
-                advisory evidence, and never lets it rewrite the resume.
-              </p>
-              <footer className="landing-origins__chapter-footer">
-                <a href="https://github.com/interviewstreet/hiring-agent">
-                  Explore Hiring Agent<span aria-hidden="true"> ↗</span>
-                </a>
-              </footer>
-            </section>
-          </div>
-        </section>
-
-        <section className="landing-capabilities" aria-labelledby="capabilities-title">
-          <div className="landing-section-heading">
-            <p className="landing-kicker">What the workbench controls</p>
-            <h2 id="capabilities-title">
-              The document stays central from first edit to final export.
-            </h2>
-            <p>
-              The project behaves like a complete product without pretending to
-              be a conventional SaaS business.
-            </p>
-          </div>
-          <ol className="landing-capabilities__register">
-            {CAPABILITIES.map((item, index) => (
-              <li key={item.title} data-slot="capability-row">
-                <span>0{index + 1}</span>
-                <h3>{item.title}</h3>
-                <p>{item.description}</p>
-              </li>
-            ))}
-          </ol>
-        </section>
-
-        <section className="landing-final" aria-labelledby="final-action-title">
-          <div>
-            <p className="landing-kicker">The workbench is ready</p>
-            <h2 id="final-action-title">
-              Open the document and start where the work happens.
-            </h2>
-          </div>
-          <Button size="lg" onClick={onOpenEditor}>
-            {editorActionLabel(hasSavedResume, 'Open the editor')}
-          </Button>
         </section>
       </main>
+
+      <footer className="landing-footer">
+        <div className="landing-footer__inner landing-shell">
+          <span className="landing-footer__brand">Presume</span>
+          <nav className="landing-footer__elsewhere" aria-label="Elsewhere">
+            <span>Elsewhere</span>
+            <div className="landing-footer__links">
+              <a href="https://github.com/nikolaisalazar" target="_blank" rel="noreferrer">
+                <GithubLogo aria-hidden="true" /> GitHub
+              </a>
+              <a href="https://www.linkedin.com/in/nikolaisalazar/" target="_blank" rel="noreferrer">
+                <LinkedinLogo aria-hidden="true" /> LinkedIn
+              </a>
+            </div>
+          </nav>
+          <a className="landing-footer__back" href="#top">Back to top</a>
+        </div>
+      </footer>
     </div>
   )
 }

@@ -3,6 +3,75 @@ import { describe, expect, it } from 'vitest'
 
 const appCss = readFileSync(`${process.cwd()}/src/styles/app.css`, 'utf8')
 const resumeCss = readFileSync(`${process.cwd()}/src/styles/resume.css`, 'utf8')
+const landingSource = readFileSync(`${process.cwd()}/src/components/LandingPage.tsx`, 'utf8')
+const pretextDemoSource = readFileSync(`${process.cwd()}/src/components/landing/PretextMeasureDemo.tsx`, 'utf8')
+const reviewSpecimenSource = readFileSync(`${process.cwd()}/src/landingReviewSpecimen.ts`, 'utf8')
+const indexHtml = readFileSync(`${process.cwd()}/index.html`, 'utf8')
+
+describe('approved landing production contracts', () => {
+  it('keeps every approved inclusive responsive boundary and overflow guard', () => {
+    for (const boundary of [1000, 920, 860, 780, 700]) {
+      expect(appCss).toContain(`@media (max-width: ${boundary}px)`)
+    }
+    expect(appCss).toMatch(/\.landing-page \{[^}]*overflow-x: clip;/)
+    expect(appCss).toContain('width: min(calc(100% - 48px), 1360px);')
+    expect(appCss).toContain('width: min(calc(100% - 32px), 1360px);')
+  })
+
+  it('keeps approved motion, reduced-motion, and forced-color behavior', () => {
+    expect(appCss).toContain('animation: landing-hero-settle 250ms')
+    expect(appCss).toContain('transition: transform 180ms')
+    expect(appCss).toContain('transform: translateY(1px);')
+    expect(appCss).toContain('transform: translateX(3px);')
+    expect(appCss).toContain('@supports (animation-timeline: view())')
+    expect(appCss).toMatch(/@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.landing-product-stage,[\s\S]*?animation: none;/)
+    expect(appCss).toContain('@media (forced-colors: active)')
+  })
+
+  it('keeps the exported Letter base-safe while Fit and Review evidence remain semantic HTML', () => {
+    expect(landingSource).not.toContain('FitLab')
+    expect(landingSource).not.toContain('ThemeControl')
+    expect(landingSource).not.toContain('localhost')
+    expect(landingSource).not.toContain('/files/')
+    expect(landingSource).toContain('import.meta.env.BASE_URL')
+    expect(landingSource).toContain('`${import.meta.env.BASE_URL}landing`')
+    expect(landingSource).toContain('resume-letter.png')
+    expect(landingSource).toContain('resume-letter@2x.png')
+    expect(landingSource).not.toContain('editor-hero-desktop-hardened')
+    expect(landingSource).not.toContain('working-review')
+    expect(landingSource).not.toContain('working-fit-lab')
+    expect(landingSource).toContain('Resume preview unavailable')
+    expect(landingSource).not.toContain('Product capture unavailable')
+    expect(landingSource).toContain("import { landingReviewSpecimen } from '@/landingReviewSpecimen'")
+    expect(landingSource).toContain('<dl className="landing-review-specimen__output">')
+    expect(reviewSpecimenSource).toContain("evidence: 'Internship work shows production exposure.'")
+    expect(reviewSpecimenSource).toContain("suggestion: 'Add one production metric.'")
+    expect(appCss).toMatch(/@media \(max-width: 700px\)[\s\S]*?\.landing-product-stage \{ display: none; \}/)
+    expect(landingSource).not.toContain('landing-eyebrow')
+    expect(appCss).not.toContain('.landing-eyebrow')
+    expect(appCss).toMatch(/\.landing-thesis__inner \{[^}]*align-items: center;/)
+    expect(pretextDemoSource).toContain('prepareWithSegments')
+    expect(pretextDemoSource).toContain('layoutWithLines')
+    expect(pretextDemoSource).toContain('measureLineStats')
+    expect(pretextDemoSource).toContain('ResizeObserver')
+    expect(pretextDemoSource).toContain('role="slider"')
+  })
+
+  it('publishes the exact approved GitHub Pages metadata', () => {
+    const title = 'Presume — Local-first resume editor with stable PDF export'
+    const description = 'Edit a fixed Letter resume directly, keep page and line constraints visible, save work locally, export a stable PDF, and use optional advisory Review without surrendering control.'
+    expect(indexHtml).toContain(`<title>${title}</title>`)
+    expect(indexHtml).toContain(`<meta name="description" content="${description}" />`)
+    expect(indexHtml).toContain('<link rel="canonical" href="https://nikolaisalazar.github.io/presume/" />')
+    expect(indexHtml).toContain('<link rel="preload" href="/src/assets/fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin />')
+    expect(indexHtml).toContain('<meta property="og:type" content="website" />')
+    expect(indexHtml).toContain(`<meta property="og:title" content="${title}" />`)
+    expect(indexHtml).toContain(`<meta property="og:description" content="${description}" />`)
+    expect(indexHtml).toContain('<meta property="og:url" content="https://nikolaisalazar.github.io/presume/" />')
+    expect(indexHtml).toContain('<meta property="og:image" content="https://nikolaisalazar.github.io/presume/landing/social-preview.png" />')
+    expect(indexHtml).toContain('<link rel="icon" href="/presume/favicon.svg" type="image/svg+xml" />')
+  })
+})
 
 describe('custom editor CSS invariants', () => {
   it('keeps named fixed-canvas and derived wide-workspace geometry', () => {
@@ -122,84 +191,6 @@ describe('custom editor CSS invariants', () => {
     )
     expect(appCss).not.toContain('preview')
     expect(appCss).not.toContain('review-report--candidate')
-  })
-
-  it('matches the Light application field and uses Dark Surround in Dark mode', () => {
-    expect(appCss).toMatch(
-      /\.landing-hero \{[^}]*background: var\(--background\);[^}]*color: var\(--foreground\);/
-    )
-    expect(appCss).toMatch(
-      /\.landing-hero::after \{[^}]*background: color-mix\(in srgb, var\(--background\) 76%, transparent\);/
-    )
-    expect(appCss).toMatch(
-      /\.dark \.landing-hero \{[^}]*background: var\(--surface\);[^}]*color: var\(--foreground\);/
-    )
-    expect(appCss).toMatch(
-      /\.dark \.landing-hero::after \{[^}]*background: color-mix\(in srgb, var\(--background\) 72%, transparent\);/
-    )
-    expect(appCss).toMatch(
-      /\.dark \.landing-hero__media > img \{[^}]*filter: grayscale\(0\.78\) saturate\(0\.28\) contrast\(1\.12\) brightness\(0\.43\);/
-    )
-    expect(appCss).not.toMatch(/\.landing-hero__media > img \{[^}]*sepia\(/)
-  })
-
-  it('drives compact hero geometry from the runtime layout attribute', () => {
-    expect(appCss).toMatch(
-      /\[data-slot='landing-hero'\]\[data-layout='compact'\] \{[^}]*display: block;[^}]*min-height: 0;[^}]*padding-block: 66px;/
-    )
-    expect(appCss).toMatch(
-      /\[data-slot='landing-hero'\]\[data-layout='compact'\] \.landing-hero__media,[\s\S]*?\[data-slot='landing-hero'\]\[data-layout='compact'\]::after \{[^}]*display: none;/
-    )
-
-    const compactMediaQuery = appCss.match(
-      /@media \(max-width: 640px\) \{\n  \.landing-page \{([\s\S]*?)\n\}\n\n@media \(prefers-reduced-motion: reduce\)/
-    )?.[1]
-    expect(compactMediaQuery).toBeDefined()
-    expect(compactMediaQuery).not.toContain('.landing-hero')
-  })
-
-  it('uses one nested origins section and stacks it at the established landing boundary', () => {
-    expect(appCss).toMatch(
-      /\.landing-origins \{[^}]*grid-template-columns: minmax\(280px, 0\.78fr\) minmax\(0, 1\.22fr\);/
-    )
-    expect(appCss).toMatch(
-      /@media \(max-width: 920px\) \{[\s\S]*?\.landing-origins \{[^}]*grid-template-columns: 1fr;/
-    )
-    expect(appCss).toMatch(
-      /@media \(min-width: 921px\) and \(min-height: 720px\) \{[\s\S]*?\.landing-origins__heading \{[^}]*position: sticky;[^}]*top: 92px;[^}]*align-self: start;/
-    )
-    expect(appCss).toMatch(
-      /\.landing-origins__chapter-heading h3 \{[^}]*font-size: clamp\(1\.65rem, 2\.45vw, 2\.15rem\);[^}]*line-height: 1\.06;/
-    )
-    expect(appCss).toMatch(
-      /\.landing-origins__passage,[\s\S]*?\.pretext-living-flow__line,[\s\S]*?\.pretext-living-flow__fallback \{[^}]*color: var\(--muted-foreground\);[^}]*font-size: 1\.125rem;[^}]*line-height: 1\.6667;/
-    )
-    expect(appCss).toMatch(
-      /\.pretext-living-flow__fallback \{[^}]*margin: 0 8px;[^}]*padding: 0;/
-    )
-    expect(appCss).toMatch(
-      /\.pretext-living-flow__stage \{[^}]*min-height: 0;/
-    )
-    expect(appCss).toMatch(
-      /\.pretext-living-flow__title \{[^}]*width: 208px;[^}]*height: 68px;/
-    )
-    expect(appCss).toMatch(
-      /@media \(max-width: 640px\) \{[\s\S]*?\.pretext-living-flow__title \{[^}]*width: min\(208px, calc\(100vw - 64px\)\);[^}]*min-height: 44px;[^}]*aspect-ratio: 208 \/ 68;/
-    )
-    expect(appCss).not.toContain('.landing-fit-study')
-    expect(appCss).not.toContain('.landing-workflow')
-    expect(appCss).toContain('.landing-origins__chapter-heading')
-    expect(appCss).toContain('.landing-origins__chapter-footer')
-    expect(appCss).toContain('.pretext-living-flow__actions')
-    expect(appCss).toMatch(
-      /\.pretext-living-flow \{[^}]*width: calc\(100% - 138px\);[^}]*margin-left: 138px;/
-    )
-    expect(appCss).toMatch(
-      /@media \(max-width: 640px\) \{[\s\S]*?\.pretext-living-flow \{[^}]*width: 100%;[^}]*margin-left: 0;/
-    )
-    expect(appCss).toMatch(
-      /@media \(max-width: 640px\) \{[\s\S]*?\.landing-origins__passage \{[^}]*margin-inline: 8px;/
-    )
   })
 
   it('keeps keyboard focus visible inside the clipped Border Notch and on review targets', () => {

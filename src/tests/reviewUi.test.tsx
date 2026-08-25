@@ -335,9 +335,9 @@ describe('ReviewPanel', () => {
       />
     )
 
-    expect(screen.getByRole('button', { name: 'Review again' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Review again' })).toHaveClass('gap-1.5')
     expect(screen.getByRole('button', { name: 'Collapse review' }))
-      .toHaveClass('review-panel__collapse')
+      .toHaveClass('review-panel__collapse', 'gap-1.5')
   })
 
   it('stages Score and Feedback in the Review panel', () => {

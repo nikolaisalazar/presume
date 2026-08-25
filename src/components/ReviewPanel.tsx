@@ -89,6 +89,7 @@ export const ReviewPanel = forwardRef<HTMLElement, ReviewPanelProps>(function Re
           <CardAction className="review-panel__actions flex flex-wrap justify-end gap-2">
             <Button
               size="editor"
+              className="gap-1.5"
               onClick={onRequestReview}
               disabled={actionDisabled}
             >
@@ -103,7 +104,7 @@ export const ReviewPanel = forwardRef<HTMLElement, ReviewPanelProps>(function Re
                 aria-label="Collapse review"
                 aria-controls={id}
                 aria-expanded="true"
-                className="review-panel__collapse"
+                className="review-panel__collapse gap-1.5"
               >
                 <PanelRightClose aria-hidden="true" data-icon="inline-start" />
                 Collapse

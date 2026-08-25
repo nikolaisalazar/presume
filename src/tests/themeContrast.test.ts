@@ -3,6 +3,10 @@ import { describe, expect, it } from 'vitest'
 
 const globalsCss = readFileSync(`${process.cwd()}/src/styles/globals.css`, 'utf8')
 const appCss = readFileSync(`${process.cwd()}/src/styles/app.css`, 'utf8')
+const landingCss = appCss.slice(
+  appCss.indexOf('/* Direction D: Quiet Instrument / Mineral Quiet landing identity. */'),
+  appCss.indexOf('/* Production Review report: direct, progressively disclosed reviewer output. */')
+)
 const accentTextSources = [
   'src/components/LandingPage.tsx',
   'src/components/ReviewPanel.tsx',
@@ -88,7 +92,7 @@ describe('theme contrast contracts', () => {
     expect(appCss).toContain('var(--focus-contrast)')
   })
 
-  it('pairs every custom Verdigris focus outline with its contrasting companion edge', () => {
+  it('pairs every custom Verdigris focus outline with a contrasting companion edge', () => {
     expect(appCss).toMatch(
       /\.review-disclosure__trigger:focus-visible \{[^}]*outline: 2px solid var\(--ring\);[^}]*box-shadow: 0 0 0 2px var\(--focus-contrast\);/
     )
@@ -96,29 +100,25 @@ describe('theme contrast contracts', () => {
       /\.add-btn:focus-visible,[\s\S]*?\.editor-control:focus-visible \{[^}]*outline:[^}]*var\(--ring\);[^}]*box-shadow: 0 0 0 calc\(2px \* var\(--resume-layout-scale\)\) var\(--paper-ink\);/
     )
     expect(appCss).toMatch(
-      /\.landing-page__brand:focus-visible,[\s\S]*?\.landing-page__main a:focus-visible \{[^}]*outline: 2px solid var\(--ring\);[^}]*box-shadow: 0 0 0 2px var\(--focus-contrast\);/
+      /\.landing-page :focus-visible \{[^}]*outline: 3px solid #14796f;[^}]*box-shadow: 0 0 0 2px #f8fbfa;/
     )
     expect(appCss).toMatch(
-      /\.landing-hero \[data-slot='button'\]:focus-visible \{[^}]*box-shadow:[^}]*var\(--focus-contrast\)/
-    )
-    expect(appCss).toMatch(
-      /\.pretext-living-flow__title:focus-visible \{[^}]*outline: 2px solid var\(--ring\);[^}]*box-shadow: 0 0 0 2px var\(--focus-contrast\);/
+      /\.landing-ending :focus-visible,\s*\.landing-footer :focus-visible \{[^}]*outline-color: #f0f3f1;[^}]*box-shadow: 0 0 0 2px #101513;/
     )
   })
 
-  it('keeps the nested Pretext proof token-driven and free of ornamental motion', () => {
-    expect(appCss).toMatch(
-      /\.pretext-living-flow__title-shape polygon \{[^}]*fill: var\(--background\);[^}]*stroke: var\(--primary\);/
-    )
-    const titleRule = appCss.match(
-      /\.pretext-living-flow__title \{([^}]*)\}/
-    )?.[1]
-    expect(titleRule).toBeDefined()
-    expect(titleRule).not.toMatch(/transition|animation/)
-    expect(appCss).not.toContain('@keyframes pretext')
-    expect(appCss).toMatch(
-      /\.landing-origins__passage,[\s\S]*?\.pretext-living-flow__fallback \{[^}]*color: var\(--muted-foreground\);/
-    )
+  it('keeps the fixed Mineral Quiet territories and their text contrast accessible', () => {
+    expect(contrastRatio('#17211e', '#edf2f0')).toBeGreaterThanOrEqual(4.5)
+    expect(contrastRatio('#56635e', '#dcece8')).toBeGreaterThanOrEqual(4.5)
+    expect(contrastRatio('#f7fffd', '#14796f')).toBeGreaterThanOrEqual(4.5)
+    expect(contrastRatio('#b5c0bb', '#101513')).toBeGreaterThanOrEqual(4.5)
+    expect(appCss).toContain('background: #dcece8;')
+    expect(appCss).toContain('background: #101513;')
+    expect(landingCss).toMatch(/\.landing-pretext__stage \{[^}]*background: #bdcbc4;/)
+    expect(landingCss).toMatch(/\.landing-pretext__available \{[^}]*background: #e8efeb;/)
+    expect(landingCss).toMatch(/\.landing-pretext__boundary::before \{[^}]*background: #14796f;/)
+    expect(landingCss).not.toContain('linear-gradient(')
+    expect(landingCss).not.toContain('radial-gradient(')
   })
 
 })

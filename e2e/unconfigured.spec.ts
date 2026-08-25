@@ -1,14 +1,34 @@
 import { expect, test } from '@playwright/test'
 
 test.describe('unconfigured browser contracts', () => {
-  test('loads, renders a nonblank resume, exports PDF, and keeps editing available', async ({ page }) => {
+  test('loads, renders a nonblank resume, exports PDF, and keeps editing available', async ({ page, context }) => {
     await page.goto('./')
 
     await expect(page).toHaveURL(/\/presume\/$/)
-    await expect(page.getByRole('heading', { name: 'Presume is a local-first resume workbench.' })).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Open the editor' }).first()).toBeVisible()
+    await expect(page).toHaveTitle('Presume — Local-first resume editor with stable PDF export')
+    await expect(page.getByRole('heading', { name: 'Your resume should stay yours.' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Open the editor' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Edit your resume' })).toBeVisible()
+    await expect(page.getByRole('group', { name: 'Appearance' })).toHaveCount(0)
+    await expect(page.getByRole('region', { name: 'Pretext Fit Lab' })).toHaveCount(0)
+    const elsewhere = page.getByRole('navigation', { name: 'Elsewhere' })
+    await expect(elsewhere.getByRole('link', { name: 'GitHub' })).toHaveAttribute('href', 'https://github.com/nikolaisalazar')
+    await expect(elsewhere.getByRole('link', { name: 'LinkedIn' })).toHaveAttribute('href', 'https://www.linkedin.com/in/nikolaisalazar/')
+    await expect(elsewhere.locator('a')).toHaveCount(2)
+    for (const link of await elsewhere.locator('a').all()) {
+      await expect(link).toHaveAttribute('target', '_blank')
+      await expect(link).toHaveAttribute('rel', 'noreferrer')
+    }
 
-    await page.getByRole('button', { name: 'Open the editor' }).first().click()
+    const modifier: 'Meta' | 'Control' = process.platform === 'darwin' ? 'Meta' : 'Control'
+    const modifiedEditorPagePromise = context.waitForEvent('page')
+    await page.getByRole('link', { name: 'Editor ↗' }).click({ modifiers: [modifier] })
+    const modifiedEditorPage = await modifiedEditorPagePromise
+    await expect(modifiedEditorPage).toHaveURL(/\/presume\/editor\/$/)
+    await expect(page).toHaveURL(/\/presume\/$/)
+    await modifiedEditorPage.close()
+
+    await page.getByRole('button', { name: 'Open the editor' }).click()
 
     await expect(page).toHaveURL(/\/presume\/editor\/$/)
     await expect(page.getByRole('banner')).toContainText('Presume')
@@ -105,446 +125,253 @@ test.describe('unconfigured browser contracts', () => {
     await page.goBack()
     await expect(page).toHaveURL(/\/presume\/$/)
     await expect(page.getByRole('heading', {
-      name: 'Presume is a local-first resume workbench.',
+      name: 'Your resume should stay yours.',
     })).toBeVisible()
-    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
+    await expect(page.getByRole('button', { name: 'Continue editing' })).toHaveCount(2)
+    await expect(page.locator('.landing-page')).toHaveCSS('background-color', 'rgb(237, 242, 240)')
   })
 
-  test('keeps the landing identity responsive at its inclusive boundaries', async ({ page }) => {
+  test('keeps the approved landing responsive at every inclusive boundary', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' })
-    await page.setViewportSize({ width: 1120, height: 980 })
     await page.goto('./')
 
-    const collectBoundaryMetrics = async (width: number) => {
+    const metrics = async (width: number) => {
       await page.setViewportSize({ width, height: 980 })
-      await page.evaluate(() => new Promise<void>(resolve => {
-        requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
-      }))
-
+      await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))))
       return page.evaluate(() => {
-        const header = document.querySelector<HTMLElement>(
-          'header[aria-label="Presume landing navigation"]'
-        )!
-        const headerAction = header.querySelector<HTMLElement>('[data-slot="button"]')!
-        const hero = document.querySelector<HTMLElement>('[data-slot="landing-hero"]')!
-        const heroImage = hero.querySelector<HTMLElement>('[data-slot="landing-hero-media"]')!
-        const heroCopy = hero.querySelector<HTMLElement>('.landing-hero__content')!
-        const heroHeading = hero.querySelector<HTMLElement>('h1')!
-        const capabilities = Array.from(
-          document.querySelectorAll<HTMLElement>('[data-slot="capability-row"]')
-        ).map(row => row.getBoundingClientRect())
-        const origins = document.querySelector<HTMLElement>('.landing-origins')!
-        const originsHeading = origins.querySelector<HTMLElement>(
-          '.landing-origins__heading'
-        )!
-        const heroRect = hero.getBoundingClientRect()
-        const heroCopyRect = heroCopy.getBoundingClientRect()
-        const heroHeadingRect = heroHeading.getBoundingClientRect()
-        const imageVisible = getComputedStyle(heroImage).display !== 'none'
-        const heroHeadingLineHeight = Number.parseFloat(
-          getComputedStyle(heroHeading).lineHeight
-        )
-
+        const rect = (selector: string) => document.querySelector<HTMLElement>(selector)!.getBoundingClientRect()
+        const heroCopy = rect('.landing-hero__copy')
+        const heroEvidence = rect('.landing-product-stage')
+        const fitCopy = rect('.landing-fit__copy')
+        const fitEvidence = rect('.landing-evidence-plate')
+        const reviewCopy = rect('.landing-review__copy')
+        const reviewEvidence = rect('.landing-review-plate')
+        const continuityCopy = rect('.landing-continuity__intro')
+        const continuityPath = rect('.landing-path')
+        const boundariesCopy = rect('.landing-boundaries__inner > div:first-child')
+        const boundariesList = rect('.landing-boundaries__list')
+        const heading = document.querySelector<HTMLElement>('.landing-hero h1')!
+        const headingRect = heading.getBoundingClientRect()
+        const lineHeight = Number.parseFloat(getComputedStyle(heading).lineHeight)
+        const fitLink = document.querySelector<HTMLElement>('.landing-nav__links a[href="#fit"]')!
         return {
-          bodyClientWidth: document.documentElement.clientWidth,
-          documentScrollWidth: document.documentElement.scrollWidth,
-          headerActionHeight: Math.round(headerAction.getBoundingClientRect().height),
-          headerFlexDirection: getComputedStyle(header).flexDirection,
-          imageVisible,
-          heroHeadingFontSize: Number.parseFloat(
-            getComputedStyle(heroHeading).fontSize
-          ),
-          heroHeadingWidth: Math.round(heroHeadingRect.width),
-          heroHeadingLines: Math.round(
-            heroHeadingRect.height / heroHeadingLineHeight
-          ),
-          featureLefts: capabilities.map(row => Math.round(row.left)),
-          featureTops: capabilities.map(row => Math.round(row.top)),
-          originsGridColumns: getComputedStyle(origins).gridTemplateColumns
-            .split(' ')
-            .filter(Boolean)
-            .length,
-          originsHeadingPosition: getComputedStyle(originsHeading).position,
-          heroCopyWithinHero: (
-            heroCopyRect.left >= heroRect.left
-            && heroCopyRect.right <= heroRect.right
-            && heroCopyRect.top >= heroRect.top
-            && heroCopyRect.bottom <= heroRect.bottom
-          ),
+          clientWidth: document.documentElement.clientWidth,
+          scrollWidth: document.documentElement.scrollWidth,
+          h1Lines: Math.round(headingRect.height / lineHeight),
+          heroStacked: heroEvidence.top >= heroCopy.bottom,
+          heroMediaVisible: getComputedStyle(document.querySelector<HTMLElement>('.landing-product-stage')!).display !== 'none',
+          fitStacked: fitEvidence.top >= fitCopy.bottom,
+          reviewStacked: reviewEvidence.top >= reviewCopy.bottom,
+          continuityStacked: continuityPath.top >= continuityCopy.bottom,
+          boundariesStacked: boundariesList.top >= boundariesCopy.bottom,
+          fitLinkVisible: getComputedStyle(fitLink).display !== 'none',
         }
       })
     }
 
-    const at358 = await collectBoundaryMetrics(358)
-    expect.soft(
-      at358.heroHeadingLines,
-      `hero heading lines at 358px (${at358.heroHeadingWidth}px wide at ${at358.heroHeadingFontSize}px)`
-    ).toBeLessThanOrEqual(3)
-    expect.soft(at358.documentScrollWidth, 'document overflow at 358px').toBeLessThanOrEqual(
-      at358.bodyClientWidth
-    )
-
-    const at640 = await collectBoundaryMetrics(640)
-    expect.soft(at640.headerActionHeight, 'header action height at 640px').toBeGreaterThanOrEqual(44)
-    expect.soft(at640.headerFlexDirection, 'header direction at 640px').toBe('column')
-    expect.soft(at640.imageVisible, 'decorative image visibility at 640px').toBe(false)
-    expect.soft(new Set(at640.featureLefts).size, 'feature columns at 640px').toBe(1)
-    expect.soft(new Set(at640.featureTops).size, 'feature rows at 640px').toBe(4)
-    expect.soft(at640.documentScrollWidth, 'document overflow at 640px').toBeLessThanOrEqual(
-      at640.bodyClientWidth
-    )
-
-    const at641 = await collectBoundaryMetrics(641)
-    expect.soft(at641.headerActionHeight, 'header action height at 641px').toBe(36)
-    expect.soft(at641.headerFlexDirection, 'header direction at 641px').toBe('row')
-    expect.soft(at641.imageVisible, 'decorative image visibility at 641px').toBe(true)
-    expect.soft(new Set(at641.featureLefts).size, 'feature columns at 641px').toBe(2)
-    expect.soft(new Set(at641.featureTops).size, 'feature rows at 641px').toBe(2)
-
-    const at920 = await collectBoundaryMetrics(920)
-    expect.soft(new Set(at920.featureLefts).size, 'feature columns at 920px').toBe(2)
-    expect.soft(new Set(at920.featureTops).size, 'feature rows at 920px').toBe(2)
-    expect.soft(at920.originsGridColumns, 'origins columns at 920px').toBe(1)
-    expect.soft(at920.originsHeadingPosition, 'origins heading at 920px').toBe('static')
-    expect.soft(at920.documentScrollWidth, 'document overflow at 920px').toBeLessThanOrEqual(
-      at920.bodyClientWidth
-    )
-
-    const at921 = await collectBoundaryMetrics(921)
-    expect.soft(new Set(at921.featureLefts).size, 'feature columns at 921px').toBe(4)
-    expect.soft(new Set(at921.featureTops).size, 'feature rows at 921px').toBe(1)
-    expect.soft(at921.originsGridColumns, 'origins columns at 921px').toBe(2)
-    expect.soft(at921.originsHeadingPosition, 'origins heading at 921px').toBe('sticky')
-    expect.soft(at921.imageVisible, 'decorative image visibility at 921px').toBe(true)
-    expect.soft(at921.heroCopyWithinHero, 'hero copy containment at 921px').toBe(true)
-    await expect.poll(async () => (
-      await page.locator('.pretext-living-flow__line').allTextContents()
-    ).join(' ')).toContain('available space again.')
-    const passageParity = await page.evaluate(() => {
-      const projected = document.querySelector<HTMLElement>(
-        '.pretext-living-flow__line'
-      )!
-      const advisory = document.querySelector<HTMLElement>(
-        '.landing-origins__chapter:not(.landing-origins__chapter--measurement) .landing-origins__passage'
-      )!
-      const projectedStyle = getComputedStyle(projected)
-      const advisoryStyle = getComputedStyle(advisory)
-
-      return {
-        projected: {
-          color: projectedStyle.color,
-          fontSize: projectedStyle.fontSize,
-          lineHeight: projectedStyle.lineHeight,
-          left: Math.round(projected.getBoundingClientRect().left),
-        },
-        advisory: {
-          color: advisoryStyle.color,
-          fontSize: advisoryStyle.fontSize,
-          lineHeight: advisoryStyle.lineHeight,
-          left: Math.round(advisory.getBoundingClientRect().left),
-        },
+    for (const [width, expected] of [
+      [1001, { heroStacked: false }], [1000, { heroStacked: true }],
+      [921, { reviewStacked: false }], [920, { reviewStacked: true }],
+      [861, { fitStacked: false }], [860, { fitStacked: true }],
+      [781, { continuityStacked: false, boundariesStacked: false }],
+      [780, { continuityStacked: true, boundariesStacked: true }],
+      [701, { fitLinkVisible: true, heroMediaVisible: true }], [700, { fitLinkVisible: false, heroMediaVisible: false }],
+      [401, {}], [400, {}], [390, {}], [320, {}],
+    ] as const) {
+      const result = await metrics(width)
+      expect.soft(result.scrollWidth, `overflow at ${width}px`).toBeLessThanOrEqual(result.clientWidth)
+      expect.soft(result.h1Lines, `H1 lines at ${width}px`).toBeLessThanOrEqual(3)
+      for (const [key, value] of Object.entries(expected)) {
+        expect.soft(result[key as keyof typeof result], `${key} at ${width}px`).toBe(value)
       }
-    })
-    expect(passageParity.projected.color).toBe(passageParity.advisory.color)
-    expect(passageParity.projected.fontSize).toBe(
-      passageParity.advisory.fontSize
+    }
+
+    await page.setViewportSize({ width: 400, height: 980 })
+    await page.locator('.landing-review-plate').scrollIntoViewIfNeeded()
+    await expect(page.locator('.landing-review-specimen__score')).toContainText('Advisory score: 81 out of 100.')
+    await expect(page.getByText('Internship work shows production exposure.')).toBeVisible()
+    await expect(page.getByText('Add one production metric.')).toBeVisible()
+    const reviewColumns = await page.locator('.landing-review-specimen__output').evaluate(element =>
+      getComputedStyle(element).gridTemplateColumns.split(' ').length
     )
-    expect(
-      Math.abs(
-        Number.parseFloat(passageParity.projected.lineHeight) -
-          Number.parseFloat(passageParity.advisory.lineHeight)
-      )
-    ).toBeLessThan(0.01)
-    expect(passageParity.projected.left).toBe(passageParity.advisory.left)
-
-    await page.evaluate(() => {
-      const origins = document.querySelector<HTMLElement>('.landing-origins')!
-      window.scrollTo({ top: origins.offsetTop + 240 })
-    })
-    await expect.poll(() => page.locator('.landing-origins__heading').evaluate(
-      element => Math.round(element.getBoundingClientRect().top)
-    )).toBe(92)
-
-    await page.setViewportSize({ width: 921, height: 680 })
-    await expect(page.locator('.landing-origins__heading')).toHaveCSS(
-      'position',
-      'static'
-    )
-    await page.setViewportSize({ width: 921, height: 980 })
-    await page.evaluate(() => window.scrollTo({ top: 0 }))
-
-    const brand = page.getByRole('link', { name: 'Presume home' })
-    await brand.focus()
-    await expect(brand).toBeFocused()
-    await expect(brand).toHaveCSS('outline-style', 'solid')
-
-    const headerAction = page.getByRole('banner', {
-      name: 'Presume landing navigation',
-    }).getByRole('button', { name: 'Open editor' })
-    await page.keyboard.press('Tab')
-    await expect(page.getByRole('button', { name: 'System' })).toBeFocused()
-    await page.keyboard.press('Tab')
-    await expect(headerAction).toBeFocused()
-    expect(await headerAction.evaluate(element => {
-      const style = getComputedStyle(element)
-      return {
-        focusVisible: element.matches(':focus-visible'),
-        outlineStyle: style.outlineStyle,
-        boxShadow: style.boxShadow,
-      }
-    })).toEqual({
-      focusVisible: true,
-      outlineStyle: 'solid',
-      boxShadow: expect.stringContaining('rgb(20, 121, 111)'),
-    })
-  })
-
-  test('matches the Light application field and renders Dark Surround in Dark', async ({ page }) => {
-    await page.setViewportSize({ width: 1120, height: 980 })
-    await page.goto('./')
-
-    const appearance = page.getByRole('group', { name: 'Appearance' })
-    const hero = page.locator('[data-slot="landing-hero"]')
-
-    await appearance.getByRole('button', { name: 'Light' }).click()
-    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light')
-    await expect(hero).toHaveCSS('background-color', 'rgb(237, 242, 240)')
-    await expect(hero).toHaveCSS('color', 'rgb(23, 33, 30)')
-    expect(await hero.evaluate(element =>
-      getComputedStyle(element, '::after').backgroundColor
-    )).toBe('color(srgb 0.929412 0.94902 0.941176 / 0.76)')
-
-    await appearance.getByRole('button', { name: 'Dark' }).click()
-    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark')
-    await expect(hero).toHaveCSS('background-color', 'rgb(26, 33, 31)')
-    await expect(hero).toHaveCSS('color', 'rgb(240, 243, 241)')
-    expect(await hero.evaluate(element =>
-      getComputedStyle(element, '::after').backgroundColor
-    )).toBe('color(srgb 0.0627451 0.0823529 0.0745098 / 0.72)')
-
-    const heroAction = hero.getByRole('button', { name: /Open the editor|Continue editing/ })
-    await page.keyboard.press('Tab')
-    await page.keyboard.press('Tab')
-    await expect(heroAction).toBeFocused()
-    await expect(heroAction).toHaveCSS('outline-style', 'solid')
-  })
-
-  test('keeps the Pretext exhibit interactive and avoids hidden hero image transfer', async ({ page }) => {
-    await page.setViewportSize({ width: 640, height: 980 })
-    const heroImageRequests: string[] = []
-    page.on('request', request => {
-      if (request.url().includes('/landing/document-horizon')) {
-        heroImageRequests.push(request.url())
-      }
-    })
+    expect(reviewColumns).toBe(2)
 
     await page.goto('./')
-    await expect(page.getByRole('button', {
-      name: /Move “Text responds to its surroundings”/,
-    })).toBeAttached()
-    const hero = page.locator('[data-slot="landing-hero"]')
-    await expect(hero).toHaveAttribute('data-layout', 'compact')
-    await expect(hero.locator('source')).toHaveCount(0)
-    expect(heroImageRequests).toEqual([])
+    await page.keyboard.press('Tab')
+    await expect(page.getByRole('link', { name: 'Skip to content' })).toBeFocused()
+    await page.keyboard.press('Enter')
+    await expect(page.getByRole('main')).toBeFocused()
+  })
 
-    await page.setViewportSize({ width: 641, height: 980 })
-    await expect(hero).toHaveAttribute('data-layout', 'wide')
-    await expect(hero.locator('source')).toHaveCount(1)
-    await expect(hero.locator('source')).toHaveAttribute(
-      'srcset',
-      /document-horizon-1120\.webp.*document-horizon-2200\.webp/
-    )
-    await expect.poll(() => heroImageRequests.some(path =>
-      /document-horizon-(?:1120|2200)\.webp/.test(path)
-    )).toBe(true)
-    await page.setViewportSize({ width: 560, height: 980 })
+  test('operates the live Pretext boundary with keyboard and pointer at wide and narrow widths', async ({ page }) => {
+    await page.goto('./')
 
-    const movableHeadline = page.getByRole('button', {
-      name: /Move “Text responds to its surroundings”/,
-    })
-    await expect(movableHeadline).toBeVisible()
-    const initialPosition = await movableHeadline.getAttribute('data-position')
-    const lateralInsets = await movableHeadline.evaluate(element => {
-      const bounds = element.getBoundingClientRect()
-      const lines = Array.from(
-        element.querySelectorAll<HTMLElement>(
-          '.pretext-living-flow__title-line'
+    for (const width of [1200, 390]) {
+      await page.setViewportSize({ width, height: 980 })
+      const instrument = page.locator('.landing-pretext')
+      await instrument.scrollIntoViewIfNeeded()
+      await expect(instrument).toHaveAttribute('aria-busy', 'false')
+      const slider = page.getByRole('slider', { name: 'Available text width' })
+      await expect(instrument.locator('[data-pretext-stage]')).toHaveCSS('touch-action', 'auto')
+      await expect(slider).toHaveCSS('touch-action', 'none')
+      const widthReadout = instrument.locator('[data-pretext-width]')
+      const lineReadout = instrument.locator('[data-pretext-lines]')
+      await expect(widthReadout).toHaveText(/\d+px/)
+      await expect(lineReadout).toHaveText(/\d+/)
+      const lineGeometry = await instrument.evaluate(element => {
+        const available = Number.parseFloat(element.querySelector<HTMLElement>('[data-pretext-width]')!.textContent!)
+        const text = element.querySelector<HTMLElement>('.landing-pretext__text')!
+        const lineWidths = Array.from(text.children).map(line => {
+          const range = document.createRange()
+          range.selectNodeContents(line)
+          return range.getBoundingClientRect().width
+        })
+        const style = getComputedStyle(text)
+        const measuredWidestLine = Number.parseFloat(
+          element.querySelector<HTMLElement>('[data-pretext-widest]')!.textContent!.match(/[\d.]+/)![0]
         )
-      )
-      const glyphBounds = lines.map(line => {
-        const range = document.createRange()
-        range.selectNodeContents(line)
-        return range.getBoundingClientRect()
-      })
-      const scale = bounds.width / 226
-
-      return [
-        glyphBounds[0].left - (bounds.left + 2 * scale),
-        bounds.left + 202 * scale - glyphBounds[0].right,
-        glyphBounds[1].left - (bounds.left + 26 * scale),
-        bounds.left + 224 * scale - glyphBounds[1].right,
-      ]
-    })
-    expect(lateralInsets.every(inset => inset >= 5 && inset <= 13)).toBe(true)
-    expect(Math.max(...lateralInsets) - Math.min(...lateralInsets)).toBeLessThan(
-      5
-    )
-    await movableHeadline.focus()
-    await page.keyboard.press('ArrowLeft')
-    await expect(movableHeadline).not.toHaveAttribute(
-      'data-position',
-      initialPosition ?? ''
-    )
-    const keyboardPosition = await movableHeadline.getAttribute('data-position')
-    const stage = page.locator('.pretext-living-flow__stage')
-    const advisoryChapter = page
-      .locator('.landing-origins__chapter')
-      .filter({ hasText: '02 / Advisory review' })
-    const stableComposition = {
-      stageHeight: await stage.evaluate(element =>
-        Math.round(element.getBoundingClientRect().height)
-      ),
-      advisoryTop: await advisoryChapter.evaluate(element =>
-        Math.round(element.getBoundingClientRect().top)
-      ),
-    }
-    const headlineBox = await movableHeadline.boundingBox()
-    expect(headlineBox).not.toBeNull()
-    if (headlineBox) {
-      await page.evaluate(() => {
-        const stage = document.querySelector<HTMLElement>(
-          '.pretext-living-flow__stage'
-        )!
-        const title = document.querySelector<HTMLElement>(
-          '.pretext-living-flow__title'
-        )!
-        const reads = { stage: 0, title: 0 }
-        const stageRect = stage.getBoundingClientRect.bind(stage)
-        const titleRect = title.getBoundingClientRect.bind(title)
-
-        stage.getBoundingClientRect = () => {
-          reads.stage += 1
-          return stageRect()
+        return {
+          available,
+          measuredWidestLine,
+          widestRenderedLine: Math.max(...lineWidths),
+          fontFamily: style.fontFamily,
+          fontSize: style.fontSize,
+          fontWeight: style.fontWeight,
+          letterSpacing: style.letterSpacing,
         }
-        title.getBoundingClientRect = () => {
-          reads.title += 1
-          return titleRect()
-        }
-        Reflect.set(window, '__pretextGeometryReads', reads)
       })
-      await page.mouse.move(
-        headlineBox.x + headlineBox.width / 2,
-        headlineBox.y + headlineBox.height / 2
-      )
+      expect(lineGeometry.widestRenderedLine).toBeLessThanOrEqual(lineGeometry.available + 1)
+      expect(Math.abs(lineGeometry.widestRenderedLine - lineGeometry.measuredWidestLine)).toBeLessThanOrEqual(2)
+      expect(lineGeometry.fontFamily).toContain('Geist')
+      expect(lineGeometry.fontSize).toBe('28px')
+      expect(lineGeometry.fontWeight).toBe('540')
+      expect(['0px', 'normal']).toContain(lineGeometry.letterSpacing)
+      if (width === 1200) {
+        await expect(widthReadout).toHaveText('340px')
+        await expect(lineReadout).toHaveText('3')
+      }
+
+      await slider.focus()
+      await page.keyboard.press('Home')
+      await expect(slider).toHaveAttribute('aria-valuenow', '116')
+      const homeLines = Number(await lineReadout.textContent())
+      await page.keyboard.press('Shift+ArrowRight')
+      await expect(slider).toHaveAttribute('aria-valuenow', '132')
+      await page.keyboard.press('End')
+      const endWidth = Number(await slider.getAttribute('aria-valuenow'))
+      const endLines = Number(await lineReadout.textContent())
+      expect(endWidth).toBeGreaterThan(132)
+      expect(endLines).toBeLessThanOrEqual(homeLines)
+
+      const grip = instrument.locator('.landing-pretext__grip')
+      const box = await grip.boundingBox()
+      if (!box) throw new Error('Pretext grip has no layout box')
+      await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
       await page.mouse.down()
-      const readsAtDragStart = await page.evaluate(() =>
-        Reflect.get(window, '__pretextGeometryReads')
-      )
-      await page.mouse.move(
-        headlineBox.x + headlineBox.width / 2 - 5,
-        headlineBox.y + headlineBox.height / 2 + 3
-      )
-      await page.evaluate(
-        () =>
-          new Promise<void>(resolve => {
-            requestAnimationFrame(() => resolve())
-          })
-      )
-      const firstDragBox = await movableHeadline.boundingBox()
-      expect(firstDragBox?.x).toBeCloseTo(headlineBox.x - 5, 0)
-      expect(firstDragBox?.y).toBeCloseTo(headlineBox.y + 3, 0)
-
-      for (const [deltaX, deltaY] of [
-        [-28, 18],
-        [-40, 0],
-        [-28, -18],
-        [0, -24],
-        [28, -18],
-        [40, 0],
-        [28, 18],
-        [0, 24],
-        [-40, 24],
-      ] as const) {
-        await page.mouse.move(
-          headlineBox.x + headlineBox.width / 2 + deltaX,
-          headlineBox.y + headlineBox.height / 2 + deltaY
-        )
-      }
-      await page.mouse.move(
-        headlineBox.x + headlineBox.width / 2 - 40,
-        headlineBox.y + headlineBox.height / 2 + 24,
-        { steps: 12 }
-      )
-      await page.evaluate(
-        () =>
-          new Promise<void>(resolve => {
-            requestAnimationFrame(() => resolve())
-          })
-      )
-      const readsAfterPointerFrames = await page.evaluate(() =>
-        Reflect.get(window, '__pretextGeometryReads')
-      )
-      expect(readsAfterPointerFrames).toEqual(readsAtDragStart)
-      const projectedHeight = await page
-        .locator('.pretext-living-flow__stage > div[aria-hidden="true"]')
-        .evaluate(element => Math.round(element.getBoundingClientRect().height))
-      expect(projectedHeight).toBeLessThanOrEqual(stableComposition.stageHeight)
+      await expect(slider).toHaveClass(/is-dragging/)
+      await page.mouse.move(box.x + box.width / 2 - 48, box.y + box.height / 2)
       await page.mouse.up()
-    }
-    await expect(movableHeadline).not.toHaveAttribute(
-      'data-position',
-      keyboardPosition ?? ''
-    )
-    expect(
-      await stage.evaluate(element =>
-        Math.round(element.getBoundingClientRect().height)
-      )
-    ).toBe(stableComposition.stageHeight)
-    expect(
-      await advisoryChapter.evaluate(element =>
-        Math.round(element.getBoundingClientRect().top)
-      )
-    ).toBe(stableComposition.advisoryTop)
-    await expect(
-      page.getByRole('button', { name: 'Reset position' })
-    ).not.toBeAttached()
-    await expect(
-      page.getByRole('button', { name: 'Edit passage' })
-    ).not.toBeAttached()
+      await expect(slider).not.toHaveClass(/is-dragging/)
+      expect(Number(await slider.getAttribute('aria-valuenow'))).toBe(endWidth - 48)
+      await expect(slider).toHaveAttribute('aria-valuetext', /pixels available width, \d+ lines/)
 
-    await page.setViewportSize({ width: 358, height: 980 })
-    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(358)
-    await expect.poll(() => movableHeadline.evaluate(element => {
-      const stage = element.closest('.pretext-living-flow__stage')!
-      return (
-        Math.round(element.getBoundingClientRect().right) <=
-        Math.round(stage.getBoundingClientRect().right)
-      )
-    })).toBe(true)
+      const overflow = await page.evaluate(() => ({
+        client: document.documentElement.clientWidth,
+        scroll: document.documentElement.scrollWidth,
+      }))
+      expect(overflow.scroll).toBeLessThanOrEqual(overflow.client)
+    }
+
+    const link = page.getByRole('link', { name: 'Explore Pretext’s live demos ↗' })
+    await expect(link).toHaveAttribute('href', 'https://chenglou.me/pretext/')
+    await expect(page.getByText('Text changes shape as the space around it changes.')).toBeVisible()
+    expect(await page.locator('.landing-pretext').textContent()).not.toMatch(/\b(resume|document|paper|date|warning|target)\b/i)
   })
 
-  test('keeps live hero content complete when the decorative image fails', async ({ page }) => {
-    let requestAborted = false
-    await page.route('**/landing/document-horizon-*.webp', async route => {
-      requestAborted = true
+  test('preloads Geist and keeps cold-load layout shift within budget', async ({ page }) => {
+    await page.setViewportSize({ width: 1000, height: 900 })
+    await page.emulateMedia({ reducedMotion: 'reduce' })
+    await page.addInitScript(() => {
+      Reflect.set(window, '__landingCls', 0)
+      new PerformanceObserver(list => {
+        for (const entry of list.getEntries()) {
+          const shift = entry as PerformanceEntry & { hadRecentInput: boolean; value: number }
+          if (!shift.hadRecentInput) {
+            Reflect.set(window, '__landingCls', Reflect.get(window, '__landingCls') + shift.value)
+          }
+        }
+      }).observe({ type: 'layout-shift', buffered: true })
+    })
+
+    await page.goto('./', { waitUntil: 'networkidle' })
+    await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))))
+
+    await expect(page.locator('link[rel="preload"][as="font"]')).toHaveAttribute(
+      'href',
+      /\/presume\/assets\/Geist-Variable-.*\.woff2$/
+    )
+    expect(await page.evaluate(() => Reflect.get(window, '__landingCls'))).toBeLessThanOrEqual(0.01)
+  })
+
+  test('loads the Letter hero only above mobile, keeps Review asset-free, and preserves accessible image failure geometry', async ({ page, browser }) => {
+    const requests: string[] = []
+    page.on('request', request => {
+      if (request.url().includes('/landing/') && request.resourceType() === 'image') requests.push(request.url())
+    })
+    await page.setViewportSize({ width: 700, height: 800 })
+    await page.goto('./')
+
+    const heroImage = page.locator('.landing-product-stage img')
+    await expect(heroImage).toBeHidden()
+    expect(await heroImage.evaluate(image => (image as HTMLImageElement).currentSrc)).toMatch(/^data:image\/gif;base64,/)
+    expect(requests.some(url => url.includes('resume-letter'))).toBe(false)
+
+    await page.setViewportSize({ width: 701, height: 800 })
+    await page.reload()
+    await expect(heroImage).toBeVisible()
+    await expect(heroImage).toHaveAttribute('loading', 'eager')
+    await expect(heroImage).toHaveAttribute('fetchpriority', 'high')
+    expect(requests.some(url => url.includes('resume-letter'))).toBe(true)
+    expect(requests.some(url => url.includes('working-review'))).toBe(false)
+    await expect(page.getByText('Example fixture · not content-derived')).toBeVisible()
+
+    const failureContext = await browser.newContext({ viewport: { width: 701, height: 800 } })
+    const failurePage = await failureContext.newPage()
+    await failurePage.addInitScript(() => {
+      Reflect.set(window, '__landingCls', 0)
+      new PerformanceObserver(list => {
+        for (const entry of list.getEntries()) {
+          const shift = entry as PerformanceEntry & { hadRecentInput: boolean; value: number }
+          if (!shift.hadRecentInput) {
+            Reflect.set(window, '__landingCls', Reflect.get(window, '__landingCls') + shift.value)
+          }
+        }
+      }).observe({ type: 'layout-shift', buffered: true })
+    })
+    let rejectLetter!: () => void
+    const letterGate = new Promise<void>(resolve => { rejectLetter = resolve })
+    await failurePage.route('**/landing/resume-letter*.png', async route => {
+      await letterGate
       await route.abort()
     })
-    await page.setViewportSize({ width: 1120, height: 980 })
-
-    await page.goto('./')
-
-    expect(requestAborted).toBe(true)
-    const hero = page.getByRole('region', {
-      name: 'Presume is a local-first resume workbench.',
-    })
-    await expect(
-      hero.getByRole('heading', {
-        name: 'Presume is a local-first resume workbench.',
-      })
-    ).toBeVisible()
-    const primaryAction = hero.getByRole('button', { name: 'Open the editor' })
-    await expect(primaryAction).toBeVisible()
-    await expect(primaryAction).toBeEnabled()
+    await failurePage.goto('./', { waitUntil: 'domcontentloaded' })
+    const reservedLetterGeometry = await failurePage.locator('.landing-letter-stage__image').evaluate(element => ({
+      width: element.getBoundingClientRect().width,
+      height: element.getBoundingClientRect().height,
+    }))
+    rejectLetter()
+    const letterFallback = failurePage.getByRole('status', { name: 'Letter resume preview unavailable' })
+    await expect(letterFallback).toHaveText('Resume preview unavailable')
+    const failedLetterGeometry = await letterFallback.evaluate(element => ({
+      width: element.getBoundingClientRect().width,
+      height: element.getBoundingClientRect().height,
+    }))
+    expect(Math.abs(failedLetterGeometry.width - reservedLetterGeometry.width)).toBeLessThanOrEqual(1)
+    expect(Math.abs(failedLetterGeometry.height - reservedLetterGeometry.height)).toBeLessThanOrEqual(1)
+    expect(Math.abs(failedLetterGeometry.height - (failedLetterGeometry.width * 11 / 8.5))).toBeLessThanOrEqual(1)
+    await failurePage.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))))
+    expect(await failurePage.evaluate(() => Reflect.get(window, '__landingCls'))).toBeLessThanOrEqual(0.01)
+    await failureContext.close()
   })
 
   test('keeps the Fit constraints header stable and its expanded controls usable', async ({ page }) => {

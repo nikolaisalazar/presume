@@ -6,6 +6,7 @@ This directory is the source of truth for Presume's product direction, current a
 
 - [Milestone Plan](MILESTONE_PLAN.md): source of truth for deciding the next milestone and tracking milestone status.
 - [Product Spec](PRODUCT_SPEC.md): product vision, target users, goals, non-goals, workflows, and UX principles.
+- [Approved Landing Brief](landing/PRESUME_LANDING_BRIEF.md): locked landing direction, final copy, visual and responsive contracts, evidence policy, and implementation acceptance criteria. The accompanying [production evidence manifest](landing/PRODUCTION_CAPTURE_MANIFEST.md) records Letter raster provenance, shared Review fixture binding, and checksums.
 - [Architecture](ARCHITECTURE.md): current frontend architecture, data flow, formatting behavior, and review-service boundaries.
 - [shadcn Migration](SHADCN_MIGRATION.md): design-system decisions, migration phases, guardrails, and PR status for the incremental shadcn/Base UI adoption.
 - [Review Service](REVIEW_SERVICE.md): backend contract and setup for the FastAPI wrapper around Hiring Agent.
