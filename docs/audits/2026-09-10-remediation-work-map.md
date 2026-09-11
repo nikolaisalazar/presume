@@ -11,12 +11,12 @@ The four milestones are product direction, dependable product behavior, landing 
 
 | Thread | Milestone | Outcome and audit coverage | Dependencies |
 | --- | --- | --- | --- |
-| T1: Product direction | 1 | Revised audience/task statement, claim-to-evidence map, representative copy, landing structure, first-use priorities, and Review's public role | Can start now; distinguish adopted decisions from proposals |
-| T2: Document state and editing | 2 | Plain-text editing, accessible field semantics, reliable persistence and save status, tab conflict handling, structural undo, complete backup/restore. Owns F03, F04, F05, F07, F09; supplies undo for F01 | Establish the document-session and backup contracts before dependent UI work |
-| T3: Layout, controls, and PDF | 2 | Exclusive action targets, controls outside document flow, consistent fitting/export, glyph coverage, pagination, contrast, and motion-independent measurement. Owns F01, F02, F06, F08, F16, F19 | Use T2's editing/undo contract; serialize changes to shared document components |
-| T4: Review and service | 2 | Correct stale state, discovery retry/deadlines, provider disclosure, useful feedback, early upload limits, compatible dependency updates, truthful readiness. Owns F10, F11, F12, F13, F14, F15, F18 | Backend work can begin independently; frontend integration uses T2's revision model and T1's product decisions |
-| T5: Landing and first use | 3 | Implement selected copy/narrative, verified desktop and mobile proof, practical first-use guidance and action labels, project links, route scroll/focus. Owns F17 and selected product recommendations | T1's direction; T2/T3 behavior for production evidence; T4 results for real Review examples |
-| T6: Integrated validation | 4 | Verify the combined product, exercise both user journeys, prepare user-test tasks, record observed results, finish the case study and release evidence | Integrated implementation; real participants for customer evidence |
+| T1: Product direction | 18 | Revised audience/task statement, claim-to-evidence map, representative copy, landing structure, first-use priorities, and Review's public role | Working brief prepared; distinguish adopted decisions from proposals |
+| T2: Document state and editing | 19 | Plain-text editing, accessible field semantics, reliable persistence and save status, tab conflict handling, structural undo, complete backup/restore. Owns F03, F04, F05, F07, F09; supplies undo for F01 | Plan prepared; establish the document-session and backup contracts before dependent UI work |
+| T3: Layout, controls, and PDF | 19 | Exclusive action targets, controls outside document flow, consistent fitting/export, glyph coverage, pagination, contrast, and motion-independent measurement. Owns F01, F02, F06, F08, F16, F19 | Use T2's editing/undo contract; serialize changes to shared document components |
+| T4: Review and service | 19 | Correct stale state, discovery retry/deadlines, provider disclosure, useful feedback, early upload limits, compatible dependency updates, truthful readiness. Owns F10, F11, F12, F13, F14, F15, F18 | Backend work can begin independently; frontend integration uses T2's revision model and T1's product decisions |
+| T5: Landing and first use | 20 | Implement selected copy/narrative, verified desktop and mobile proof, practical first-use guidance and action labels, project links, route scroll/focus. Owns F17 and selected product recommendations | T1's direction; T2/T3 behavior for production evidence; T4 results for real Review examples |
+| T6: Integrated validation | 21 | Verify the combined product, exercise both user journeys, prepare user-test tasks, record observed results, finish the case study and release evidence | Integrated implementation; real participants for customer evidence |
 
 F01 is complete only when T3's correct hit targets and T2's undo work together. F15 has one dependency owner in T4 even when an update affects another package. T6 verifies all findings; it does not inherit unfinished implementation by default.
 
@@ -55,10 +55,13 @@ For runtime consistency, the audit's passing baseline used Node 24 and Python 3.
 Work on T2: Document state and editing from
 docs/audits/2026-09-10-remediation-work-map.md.
 
-Read the two audit reports linked there, PRODUCT.md, DESIGN.md, and the selected
-audit-remediation milestone in docs/MILESTONE_PLAN.md. Check the current Git state
-and relevant local instructions. The standard is both portfolio quality and
-dependable everyday use.
+Read the two audit reports linked there, PRODUCT.md, DESIGN.md, the selected
+audit-remediation milestone in docs/MILESTONE_PLAN.md, and
+docs/remediation/DOCUMENT_STATE_IMPLEMENTATION_PLAN.md. Use
+docs/remediation/PRODUCT_DIRECTION_BRIEF.md for proposed product context; do not
+treat its open choices as approved production changes. Check the current Git
+state and relevant local instructions. The standard is both portfolio quality
+and dependable everyday use.
 
 Reproduce the assigned findings on this checkout. Define any shared interface
 changes before implementation and keep work within this package. Use this thread's
@@ -72,4 +75,24 @@ limitations so the coordinating thread can integrate the result.
 
 Use an equivalent outcome-specific brief for the other threads. For T1, request the product brief and representative desktop/narrow studies before production implementation, following the landing-direction skill. For T6, request independent validation of the integrated commit and distinguish automated/expert inspection from completed sessions with real users.
 
-The next practical step is T1 plus a concrete T2 implementation plan. That establishes the product promise and the document contract before the more coupled frontend work expands.
+The documentation kickoff is complete. The next work is to select the T1 direction
+and begin T2 implementation from its reviewed plan. T2-1 is the first proposed PR;
+later UI packages use the session, revision, and backup contracts recorded there.
+
+**Kickoff record.** The audit/evidence baseline and Milestones 18–21 were committed
+as `1e91742`. Two isolated planning branches were then created from that baseline:
+
+| Thread | Branch | Workspace relative to the main checkout | Completed planning artifact |
+| --- | --- | --- | --- |
+| T1 | `plan/audit-product-direction` | `.worktrees/audit-product-direction` | [Working product brief](../remediation/PRODUCT_DIRECTION_BRIEF.md); source `d28ade2`, integrated `a789af1` |
+| T2 | `plan/audit-document-state` | `.worktrees/audit-document-state-plan` | [Document-state implementation plan](../remediation/DOCUMENT_STATE_IMPLEMENTATION_PLAN.md); source `efb152f`, integrated `6367b87` |
+
+The coordinating thread reviewed and integrated both documents. T2 also received
+an independent review against the product brief and assigned findings, with no
+unresolved blockers. Link, whitespace, and documentation-only scope checks passed;
+application tests were not rerun for this kickoff. No audit finding is marked fixed
+by a plan, and the working product brief does not replace the approved landing brief.
+
+Before later implementation begins, bring its
+worktree up to the selected integrated baseline and read the current milestone;
+the presence of a planning branch is not evidence that application work has begun.

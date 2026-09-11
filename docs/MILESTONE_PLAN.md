@@ -1140,7 +1140,7 @@ Residual risk:
 
 ### Milestone 18: Product Direction After The Audit
 
-Status: In progress — T1 working brief being prepared; production implementation has not started.
+Status: In progress — T1 working brief prepared and reviewed; proposed direction and copy remain for selection. Production implementation has not started.
 
 Goal:
 
@@ -1161,6 +1161,9 @@ Supporting documents:
 - `docs/audits/2026-09-10-product-and-landing-audit.md`
 - `docs/audits/2026-09-10-remediation-work-map.md` — T1 ownership and boundaries.
 - `docs/landing/PRESUME_LANDING_BRIEF.md` — existing shipped direction.
+- [T1 working product brief](remediation/PRODUCT_DIRECTION_BRIEF.md) — mission,
+  representative copy, desktop/narrow composition, prior decisions proposed for
+  reopening, and evidence gates. Integrated in `a789af1`.
 
 Completion criteria:
 
@@ -1170,7 +1173,7 @@ Completion criteria:
 
 ### Milestone 19: Dependable Document And Review Behavior
 
-Status: Planning in progress — T2 implementation plan being prepared; application fixes have not started.
+Status: T2 implementation plan prepared and reviewed; application fixes and T3/T4 implementation have not started.
 
 Goal:
 
@@ -1192,6 +1195,10 @@ Supporting documents:
 
 - `docs/audits/2026-09-10-codebase-product-audit.md`
 - `docs/audits/2026-09-10-remediation-work-map.md` — T2/T3/T4 dependencies.
+- [T2 document-state implementation plan](remediation/DOCUMENT_STATE_IMPLEMENTATION_PLAN.md)
+  — document/session interfaces, editing and history behavior, transactional
+  persistence, migration/recovery, complete backups, five PRs, and acceptance
+  checks. Integrated in `6367b87`; independently reviewed against T1 and the audit.
 
 Completion criteria:
 
