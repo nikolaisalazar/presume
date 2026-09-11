@@ -1,0 +1,24 @@
+
+> presume@0.1.0 build
+> tsc -b && vite build && node scripts/create-spa-fallback.mjs
+
+vite v6.4.2 building for production...
+transforming...
+✓ 6745 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                          1.76 kB │ gzip:   0.66 kB
+dist/assets/Geist-Variable-DPGgOCY9.woff2               69.76 kB
+dist/assets/EBGaramond-BoldItalic-CLmLlCJC.ttf         466.87 kB
+dist/assets/EBGaramond-Bold-9WiUFtXn.ttf               521.55 kB
+dist/assets/EBGaramond-Italic-Variable-C2_346tT.ttf    754.47 kB
+dist/assets/EBGaramond-Variable-BZHnynmT.ttf           851.18 kB
+dist/assets/index-jhwILlGq.css                          98.08 kB │ gzip:  18.25 kB
+dist/assets/index-B1RGvaoY.js                          429.02 kB │ gzip: 138.72 kB
+dist/assets/renderResumePdf-B5A7I4qA.js              1,468.51 kB │ gzip: 492.43 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 3.44s

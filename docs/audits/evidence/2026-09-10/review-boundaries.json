@@ -1,0 +1,43 @@
+[
+  {
+    "kind": "provider-disclosure",
+    "config": {
+      "reviewEnabled": true,
+      "llmProvider": "gemini",
+      "defaultModel": "gemini-2.5-flash",
+      "githubEnrichmentEnabled": true,
+      "maxUploadBytes": 26214400,
+      "reviewReadiness": "ready",
+      "reviewReadinessReason": "ready",
+      "reviewTimeoutSeconds": 60
+    },
+    "mentionsProvider": false,
+    "mentionsEnrichment": false,
+    "visibleReviewText": "Review resume\nAdvisory check\nStart\nReview resume, Advisory check"
+  },
+  {
+    "kind": "feedback-tab",
+    "text": "Review\nAdvisory evaluation\nReview again\nCollapse\nScore\nFeedback\nReview feedback\n\nNo feedback returned."
+  },
+  {
+    "kind": "stale-rerun-error",
+    "text": "Review\nAdvisory evaluation\nReview again\nCollapse\nReview request failed\n\nResume review failed.\n\nPrevious results remain visible below.\n\nScore\nFeedback\nOverall score\n81 / 100\nScore breakdown\nProduction Experience\n22\n/ 25\nSelected category details\nEVIDENCE FOUND\nEvidence from original resume\nOverall recommendations (1)\nShow\nWhat already works (1)\nShow",
+    "hasStaleLabel": false,
+    "currentName": "Changed after rerun started"
+  },
+  {
+    "kind": "config-recovery",
+    "configRequests": 2,
+    "buttons": [
+      {
+        "text": "Review resume",
+        "disabled": true
+      },
+      {
+        "text": "Collapse",
+        "disabled": false
+      }
+    ],
+    "text": "Review\nAdvisory evaluation\nReview resume\nCollapse\nReview service unavailable\n\nCould not reach the review service."
+  }
+]

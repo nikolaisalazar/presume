@@ -1,0 +1,63 @@
+
+> presume@0.1.0 verify
+> npm run check:review-contract && npm run typecheck && npm test -- --run && npm run test:backend
+
+
+> presume@0.1.0 check:review-contract
+> node scripts/check-review-contract.mjs
+
+✨ openapi-typescript 7.13.0
+🚀 /var/folders/96/31r78c9503x9m48vxt6kvzbm0000gn/T/presume-review-contract-s1rh8u/review.openapi.json → /var/folders/96/31r78c9503x9m48vxt6kvzbm0000gn/T/presume-review-contract-s1rh8u/reviewContract.ts [22.5ms]
+
+> presume@0.1.0 typecheck
+> tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.node.json --noEmit
+
+
+> presume@0.1.0 test
+> vitest --run
+
+
+ RUN  v3.2.4 /Users/nikolaisalazar/Projects/Presume
+
+ ✓ src/tests/responsiveLayout.test.ts (17 tests) 7ms
+ ✓ src/tests/constraints.test.ts (21 tests) 4ms
+ ✓ src/tests/spaFallback.test.ts (1 test) 9ms
+ ✓ src/tests/resumeOperations.test.ts (13 tests) 6ms
+ ✓ src/tests/theme.test.ts (4 tests) 9ms
+ ✓ src/tests/storage.test.ts (13 tests) 4ms
+ ✓ src/tests/export.test.ts (2 tests) 9ms
+ ✓ src/tests/reviewApi.test.ts (22 tests) 18ms
+ ✓ src/tests/formatting.test.ts (10 tests) 11ms
+ ✓ src/tests/resizeEngine.test.ts (2 tests) 91ms
+ ✓ src/tests/pretextMeasureDemo.test.tsx (5 tests) 350ms
+ ✓ src/tests/themeControl.test.tsx (2 tests) 291ms
+ ✓ src/tests/uiPrimitives.test.tsx (5 tests) 266ms
+ ✓ src/tests/reviewContract.test.ts (2 tests) 2ms
+ ✓ src/tests/types.test.ts (7 tests) 3ms
+ ✓ src/tests/themeContrast.test.ts (4 tests) 5ms
+ ✓ src/tests/reviewTypes.test.ts (10 tests) 7ms
+ ✓ src/tests/verificationConfig.test.ts (3 tests) 3ms
+ ✓ src/tests/useResumeReview.test.ts (15 tests) 1356ms
+ ✓ src/tests/reviewUi.test.tsx (51 tests) 847ms
+ ✓ src/tests/resumePdf.test.ts (5 tests) 1412ms
+   ✓ canonical resume PDF renderer > produces a non-empty PDF blob from resume data  479ms
+   ✓ canonical resume PDF renderer > keeps an entry heading, subtitle, and first bullet together at a page boundary  658ms
+ ✓ src/tests/appIntegration.test.tsx (18 tests) 859ms
+
+ Test Files  22 passed (22)
+      Tests  232 passed (232)
+   Start at  17:27:12
+   Duration  4.94s (transform 2.25s, setup 2.18s, collect 8.43s, tests 5.57s, environment 14.09s, prepare 3.46s)
+
+
+> presume@0.1.0 test:backend
+> python3 -m pytest review-service/tests -q
+
+..................................................                       [100%]
+=============================== warnings summary ===============================
+../../../../tmp/presume-audit-20260910/python/lib/python3.11/site-packages/starlette/testclient.py:40
+  /tmp/presume-audit-20260910/python/lib/python3.11/site-packages/starlette/testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+50 passed, 1 warning in 0.53s

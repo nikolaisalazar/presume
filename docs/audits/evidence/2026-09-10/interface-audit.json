@@ -1,0 +1,138 @@
+[
+  {
+    "kind": "keyboard-name-edit",
+    "sequence": [
+      {
+        "tag": "A",
+        "role": null,
+        "name": "Presume home",
+        "editable": false,
+        "className": "app-header__brand app-header__brand-link"
+      },
+      {
+        "tag": "BUTTON",
+        "role": null,
+        "name": "System",
+        "editable": false,
+        "className": "shrink-0 group-data-[spacing=0]/toggle-group:rounded-none group-data-[spacing=0]/toggle-group:px-2 focus:z-10 focus-visible:z-10 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-end]:pr-1.5 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-start]:pl-1.5 group-data-horizontal/toggle-group:data-[spacing=0]:first:rounded-l-[var(--radius-control)] group-data-vertical/toggle-group:data-[spacing=0]:first:rounded-t-[var(--radius-control)] group-data-horizontal/toggle-group:data-[spacing=0]:last:rounded-r-[var(--radius-control)] group-data-vertical/toggle-group:data-[spacing=0]:last:rounded-b-[var(--radius-control)] group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:border-l-0 group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:border-t-0 group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:first:border-l group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:first:border-t group/toggle inline-flex items-center justify-center gap-1 rounded-[var(--radius-control)] font-semibold whitespace-nowrap outline-none transition-[color,background-color,border-color,box-shadow] duration-[var(--duration-standard)] ease-[var(--ease-standard)] hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ring focus-visible:ring-2 focus-visible:ring-focus-contrast disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:outline-destructive aria-pressed:bg-surface-raised aria-pressed:text-foreground aria-pressed:shadow-[var(--shadow-control-edge)] data-[state=on]:bg-surface-raised data-[state=on]:text-foreground data-[state=on]:shadow-[var(--shadow-control-edge)] [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 border border-border bg-surface-pressed text-muted-foreground hover:border-border-strong hover:bg-muted h-11 min-w-11 px-2.5 text-xs min-[561px]:h-8 min-[561px]:min-w-8"
+      },
+      {
+        "tag": "BUTTON",
+        "role": null,
+        "name": "Fit constraints1 page · 1 line/bullet · 8px min",
+        "editable": false,
+        "className": "flex min-h-12 w-full items-center justify-between gap-1 px-2.5 py-3 text-left outline-none transition-colors duration-[var(--duration-standard)] ease-[var(--ease-standard)] hover:bg-surface-pressed focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-3 focus-visible:outline-ring focus-visible:ring-2 focus-visible:ring-focus-contrast motion-reduce:transition-none"
+      },
+      {
+        "tag": "BUTTON",
+        "role": null,
+        "name": "Export PDF",
+        "editable": false,
+        "className": "group/button inline-flex shrink-0 items-center justify-center rounded-[var(--radius-control)] border border-transparent bg-clip-padding text-xs font-semibold whitespace-nowrap outline-none select-none shadow-[var(--shadow-control-edge)] transition-[color,background-color,border-color,box-shadow,transform] duration-[var(--duration-standard)] ease-[var(--ease-standard)] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ring focus-visible:ring-2 focus-visible:ring-focus-contrast active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:outline-destructive [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 bg-primary text-primary-foreground hover:bg-primary-hover h-11 px-3.5 min-[561px]:h-9"
+      },
+      {
+        "tag": "BUTTON",
+        "role": null,
+        "name": "Export JSON",
+        "editable": false,
+        "className": "group/button inline-flex shrink-0 items-center justify-center rounded-[var(--radius-control)] border bg-clip-padding text-xs font-semibold whitespace-nowrap outline-none select-none shadow-[var(--shadow-control-edge)] transition-[color,background-color,border-color,box-shadow,transform] duration-[var(--duration-standard)] ease-[var(--ease-standard)] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ring focus-visible:ring-2 focus-visible:ring-focus-contrast active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:outline-destructive [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 border-border bg-surface-raised text-foreground hover:border-border-strong hover:bg-muted aria-expanded:border-border-strong aria-expanded:bg-muted h-11 px-3.5 min-[561px]:h-9"
+      },
+      {
+        "tag": "BUTTON",
+        "role": null,
+        "name": "Import JSON",
+        "editable": false,
+        "className": "group/button inline-flex shrink-0 items-center justify-center rounded-[var(--radius-control)] border bg-clip-padding text-xs font-semibold whitespace-nowrap outline-none select-none shadow-[var(--shadow-control-edge)] transition-[color,background-color,border-color,box-shadow,transform] duration-[var(--duration-standard)] ease-[var(--ease-standard)] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ring focus-visible:ring-2 focus-visible:ring-focus-contrast active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:outline-destructive [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 border-border bg-surface-raised text-foreground hover:border-border-strong hover:bg-muted aria-expanded:border-border-strong aria-expanded:bg-muted h-11 px-3.5 min-[561px]:h-9"
+      },
+      {
+        "tag": "BUTTON",
+        "role": null,
+        "name": "Reset template",
+        "editable": false,
+        "className": "group/button inline-flex shrink-0 items-center justify-center rounded-[var(--radius-control)] border bg-clip-padding text-xs font-semibold whitespace-nowrap outline-none select-none shadow-[var(--shadow-control-edge)] transition-[color,background-color,border-color,box-shadow,transform] duration-[var(--duration-standard)] ease-[var(--ease-standard)] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ring focus-visible:ring-2 focus-visible:ring-focus-contrast active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:outline-destructive [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 border-border bg-surface-raised text-foreground hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive h-11 px-3.5 min-[561px]:h-9"
+      },
+      {
+        "tag": "SPAN",
+        "role": null,
+        "name": "Alex Johnson",
+        "editable": true,
+        "className": "resume-name"
+      }
+    ],
+    "savedName": "Keyboard User"
+  },
+  {
+    "kind": "keyboard-fit",
+    "constraints": {
+      "maxPages": 2,
+      "maxLinesPerBullet": 1,
+      "minFontSize": 8
+    }
+  },
+  {
+    "kind": "resting-controls-contrast",
+    "samples": [
+      {
+        "kind": "editor-control editor-control--add add-btn",
+        "foreground": "rgb(15, 95, 92)",
+        "background": "rgba(255, 255, 255, 0.94)",
+        "opacity": 0.68,
+        "fontSize": "49.5px",
+        "transform": "matrix(0.222222, 0, 0, 0.222222, 0, 0)",
+        "composite": [
+          92,
+          146,
+          144
+        ],
+        "contrast": "3.51"
+      },
+      {
+        "kind": "editor-control editor-control--remove remove-btn",
+        "foreground": "rgb(51, 65, 85)",
+        "background": "rgba(255, 255, 255, 0.94)",
+        "opacity": 0.34,
+        "fontSize": "49.5px",
+        "transform": "matrix(0.222222, 0, 0, 0.222222, 0, 0)",
+        "composite": [
+          186,
+          190,
+          197
+        ],
+        "contrast": "1.86"
+      }
+    ]
+  },
+  {
+    "kind": "json-roundtrip",
+    "before": {
+      "constraints": {
+        "maxPages": 1,
+        "maxLinesPerBullet": 3,
+        "minFontSize": 12
+      },
+      "scale": 1.2
+    },
+    "backupKeys": [
+      "name",
+      "contact",
+      "sections"
+    ],
+    "after": {
+      "constraints": {
+        "maxPages": 1,
+        "maxLinesPerBullet": 1,
+        "minFontSize": 8
+      },
+      "scale": 1.0496093750000002
+    }
+  },
+  {
+    "kind": "long-contact-overflow",
+    "pageRight": 1128,
+    "contactRight": 1477.9583435058594,
+    "overflow": 349.9583435058594,
+    "warnings": [
+      "Cannot fit under current constraintsThe resume exceeds 1 page even at the 12px minimum. Shorten content or loosen constraints."
+    ]
+  }
+]

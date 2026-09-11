@@ -1,0 +1,686 @@
+[
+  {
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "pageHeight": 4576,
+    "pageWidth": 1440,
+    "heroImageVisible": true,
+    "firstAction": {
+      "top": 656.296875,
+      "bottom": 700.296875
+    },
+    "sections": [
+      {
+        "chapter": "hero",
+        "top": 77,
+        "height": 826,
+        "words": 44,
+        "text": "Your resume should stay yours.\n\nEdit the finished Letter page directly. Presume keeps page and line constraints visible, saves the resume in this browser, and exports a stable PDF. Review remains advisory and never changes the document.\n\nOpen the editor\nSaved in this browser"
+      },
+      {
+        "chapter": "thesis",
+        "top": 903,
+        "height": 456.15625,
+        "words": 29,
+        "text": "The document is not the output. It is the interface.\n\nWriting, measurement, local persistence, and export remain attached to the finished page instead of disappearing behind a separate preview."
+      },
+      {
+        "chapter": "fit",
+        "top": 1359.15625,
+        "height": 798.09375,
+        "words": 63,
+        "text": "See the page before export.\n\nFit keeps page and line constraints visible while you edit, so you can see wrapping pressure and overflow before export.\n\nPRETEXT MEASURES\n\nAvailable width 340px\nLine count 3\n\nText changes shape as\nthe space around it\nchanges.\n\n↔\n\nWidest line 300px. Presume uses those measured lines to keep each bullet within its limit.\n\nExplore Pretext’s live demos ↗"
+      },
+      {
+        "chapter": "continuity",
+        "top": 2157.25,
+        "height": 535.9375,
+        "words": 68,
+        "text": "The document keeps its shape.\n\nPresume preserves the current resume and its formatting constraints in this browser. Export produces a fixed Letter artifact independent of browser zoom.\n\nSaved in this browser\n\nCurrent resume data and formatting constraints persist in this browser.\n\nMeasured in place\n\nPage limit and bullet wrapping stay visible on the editable document.\n\nCarried forward\n\nExport a stable Letter-sized PDF, or export an importable JSON backup."
+      },
+      {
+        "chapter": "review",
+        "top": 2693.1875,
+        "height": 614.515625,
+        "words": 66,
+        "text": "Review advises. It does not edit.\n\nWhen you choose Review and an available service is configured, it can return category scores and supporting evidence beside the resume. It never rewrites or mutates the document.\n\nIt cannot take the pen.\n\nAdvisory score: 81 out of 100.\n81 / 100\nAdvisory score\nEVIDENCE\nInternship work shows production exposure.\nSUGGESTION\nAdd one production metric.\nExample fixture · not content-derived"
+      },
+      {
+        "chapter": "boundaries",
+        "top": 3307.703125,
+        "height": 640,
+        "words": 47,
+        "text": "Two systems stay explicit.\nMeasurement\n\nPretext ↗ supplies text-layout primitives. Presume exposes their effect through Fit instead of hiding page pressure.\n\nAdvisory review\n\nOptional Review runs through a separate local or self-hosted service using a Hiring Agent adapter ↗. Returned evidence stays separate from the editable resume."
+      },
+      {
+        "chapter": "ending",
+        "top": 3947.703125,
+        "height": 531.328125,
+        "words": 35,
+        "text": "Make the page yours.\n\nEdit the finished document directly. Your resume and formatting stay in this browser as you work.\n\nEdit your resume\n→\n\nDirect editing · Saved in this browser · Stable Letter export"
+      }
+    ],
+    "links": [
+      {
+        "label": "Skip to content",
+        "url": "#main"
+      },
+      {
+        "label": "Presume",
+        "url": "/presume/"
+      },
+      {
+        "label": "Fit",
+        "url": "#fit"
+      },
+      {
+        "label": "Design boundaries",
+        "url": "#boundaries"
+      },
+      {
+        "label": "Editor ↗",
+        "url": "/presume/editor/"
+      },
+      {
+        "label": "Explore Pretext’s live demos ↗",
+        "url": "https://chenglou.me/pretext/"
+      },
+      {
+        "label": "Pretext ↗",
+        "url": "https://github.com/chenglou/pretext"
+      },
+      {
+        "label": "Hiring Agent adapter ↗",
+        "url": "https://github.com/interviewstreet/hiring-agent"
+      },
+      {
+        "label": "GitHub",
+        "url": "https://github.com/nikolaisalazar"
+      },
+      {
+        "label": "LinkedIn",
+        "url": "https://www.linkedin.com/in/nikolaisalazar/"
+      },
+      {
+        "label": "Back to top",
+        "url": "#top"
+      }
+    ]
+  },
+  {
+    "kind": "editor",
+    "viewport": 1440,
+    "pageHeight": 1567,
+    "pageWidth": 1440,
+    "text": "Presume\nSaved locally\nSystem\nLight\nDark\nFit constraints\n1 page · 1 line/bullet · 8px min\nCannot fit under current constraints\n\nThe resume exceeds 1 page even at the 8px minimum. Shorten content or loosen constraints.\n\nExport PDF\nExport JSON\nImport JSON\nReset template\nAlex Johnson\n(555) 867-5309\n×\nalex.johnson@email.com\n×\nlinkedin.com/in/alexjohnson\n×\ngithub.com/alexjohnson\n×\nAdd contact\nEDUCATION\n×\nBachelor of Science in Computer Science, GPA: 3.7\nAug. 2019 – May 2023\nUniversity of Texas at Austin\nAustin, TX\nAdd bullet\n×\nAdd entry\nEXPERIENCE\n×\nSoftware Engineer\nJul. 2023 – Present\nAcme Technologies\nSan Francisco, CA\nArchitected and deployed microservices infrastructure that reduced average API response latency by 35%\n×\nCollaborated with product and design teams to ship four major features serving over two million active users\n×\nAutomated CI/CD pipeline with GitHub Actions cutting average deployment time from 45 minutes to under 8\n×\nAdd bullet\n×\nSoftware Engineering Intern\nMay 2022 – Aug. 2022\nBright Solutions Inc.\nAustin, TX\nBuilt a real-time dashboard with React and WebSockets enabling operations staff to monitor system metrics\n×\nRefactored legacy authentication module improving test coverage from 22% to 91% across all critical paths\n×\nImplemented a data export feature in TypeScript that processed batch jobs for over 10,000 customer records\n×\nAdd bullet\n×\nAdd entry\nPROJECTS\n×\nCodeCollab\nJan. 2023 – Apr. 2023\nTypeScript, React, Node.js, WebRTC, PostgreSQL\nDesigned a real-time collaborative code editor supporting simultaneous editing for up to 20 concurrent users\n×\nIntegrated WebRTC peer connections with a Node.js signaling server achieving sub-100ms latency for sessions\n×\nDeployed the app on AWS EC2 with auto-scaling policies that handled traffic spikes of up to 500 requests/sec\n×\nAdd bullet\n×\nSmartBudget\nAug. 2022 – Dec. 2022\nPython, FastAPI, React, PostgreSQL, Plaid API\nBuilt a personal finance tracker using the Plaid API to automatically categorize bank transactions each day\n×\nTrained a scikit-learn classifier achieving 88% accuracy predicting overspending trends by expense category\n×\nContainerized all services with Docker Compose streamlining local development and enabling one-command deploys\n×\nAdd bullet\n×\nAdd entry\nTECHNICAL SKILLS\n×\nLanguages: TypeScript, Python, Java, Go, SQL, Bash, HTML/CSS — proficient across all listed technologies\n×\nFrameworks & Tools: React, Node.js, FastAPI, Docker, Kubernetes, PostgreSQL, Redis, AWS, GitHub Actions\n×\nPractices: RESTful API design, microservices architecture, CI/CD, agile development, test-driven development\n×\nAdd bullet\n×\nAdd entry\nAdd section\nReview unavailable\nDetails\nReview unavailable",
+    "editableFields": 48
+  },
+  {
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "pageHeight": 4529,
+    "pageWidth": 1280,
+    "heroImageVisible": true,
+    "firstAction": {
+      "top": 643.75,
+      "bottom": 687.75
+    },
+    "sections": [
+      {
+        "chapter": "hero",
+        "top": 77,
+        "height": 826,
+        "words": 44,
+        "text": "Your resume should stay yours.\n\nEdit the finished Letter page directly. Presume keeps page and line constraints visible, saves the resume in this browser, and exports a stable PDF. Review remains advisory and never changes the document.\n\nOpen the editor\nSaved in this browser"
+      },
+      {
+        "chapter": "thesis",
+        "top": 903,
+        "height": 430.09375,
+        "words": 29,
+        "text": "The document is not the output. It is the interface.\n\nWriting, measurement, local persistence, and export remain attached to the finished page instead of disappearing behind a separate preview."
+      },
+      {
+        "chapter": "fit",
+        "top": 1333.09375,
+        "height": 798.09375,
+        "words": 63,
+        "text": "See the page before export.\n\nFit keeps page and line constraints visible while you edit, so you can see wrapping pressure and overflow before export.\n\nPRETEXT MEASURES\n\nAvailable width 340px\nLine count 3\n\nText changes shape as\nthe space around it\nchanges.\n\n↔\n\nWidest line 300px. Presume uses those measured lines to keep each bullet within its limit.\n\nExplore Pretext’s live demos ↗"
+      },
+      {
+        "chapter": "continuity",
+        "top": 2131.1875,
+        "height": 544.015625,
+        "words": 68,
+        "text": "The document keeps its shape.\n\nPresume preserves the current resume and its formatting constraints in this browser. Export produces a fixed Letter artifact independent of browser zoom.\n\nSaved in this browser\n\nCurrent resume data and formatting constraints persist in this browser.\n\nMeasured in place\n\nPage limit and bullet wrapping stay visible on the editable document.\n\nCarried forward\n\nExport a stable Letter-sized PDF, or export an importable JSON backup."
+      },
+      {
+        "chapter": "review",
+        "top": 2675.203125,
+        "height": 593.5625,
+        "words": 66,
+        "text": "Review advises. It does not edit.\n\nWhen you choose Review and an available service is configured, it can return category scores and supporting evidence beside the resume. It never rewrites or mutates the document.\n\nIt cannot take the pen.\n\nAdvisory score: 81 out of 100.\n81 / 100\nAdvisory score\nEVIDENCE\nInternship work shows production exposure.\nSUGGESTION\nAdd one production metric.\nExample fixture · not content-derived"
+      },
+      {
+        "chapter": "boundaries",
+        "top": 3268.765625,
+        "height": 640,
+        "words": 47,
+        "text": "Two systems stay explicit.\nMeasurement\n\nPretext ↗ supplies text-layout primitives. Presume exposes their effect through Fit instead of hiding page pressure.\n\nAdvisory review\n\nOptional Review runs through a separate local or self-hosted service using a Hiring Agent adapter ↗. Returned evidence stays separate from the editable resume."
+      },
+      {
+        "chapter": "ending",
+        "top": 3908.765625,
+        "height": 523.5,
+        "words": 35,
+        "text": "Make the page yours.\n\nEdit the finished document directly. Your resume and formatting stay in this browser as you work.\n\nEdit your resume\n→\n\nDirect editing · Saved in this browser · Stable Letter export"
+      }
+    ],
+    "links": [
+      {
+        "label": "Skip to content",
+        "url": "#main"
+      },
+      {
+        "label": "Presume",
+        "url": "/presume/"
+      },
+      {
+        "label": "Fit",
+        "url": "#fit"
+      },
+      {
+        "label": "Design boundaries",
+        "url": "#boundaries"
+      },
+      {
+        "label": "Editor ↗",
+        "url": "/presume/editor/"
+      },
+      {
+        "label": "Explore Pretext’s live demos ↗",
+        "url": "https://chenglou.me/pretext/"
+      },
+      {
+        "label": "Pretext ↗",
+        "url": "https://github.com/chenglou/pretext"
+      },
+      {
+        "label": "Hiring Agent adapter ↗",
+        "url": "https://github.com/interviewstreet/hiring-agent"
+      },
+      {
+        "label": "GitHub",
+        "url": "https://github.com/nikolaisalazar"
+      },
+      {
+        "label": "LinkedIn",
+        "url": "https://www.linkedin.com/in/nikolaisalazar/"
+      },
+      {
+        "label": "Back to top",
+        "url": "#top"
+      }
+    ]
+  },
+  {
+    "kind": "editor",
+    "viewport": 1280,
+    "pageHeight": 1567,
+    "pageWidth": 1280,
+    "text": "Presume\nSaved locally\nSystem\nLight\nDark\nFit constraints\n1 page · 1 line/bullet · 8px min\nCannot fit under current constraints\n\nThe resume exceeds 1 page even at the 8px minimum. Shorten content or loosen constraints.\n\nExport PDF\nExport JSON\nImport JSON\nReset template\nAlex Johnson\n(555) 867-5309\n×\nalex.johnson@email.com\n×\nlinkedin.com/in/alexjohnson\n×\ngithub.com/alexjohnson\n×\nAdd contact\nEDUCATION\n×\nBachelor of Science in Computer Science, GPA: 3.7\nAug. 2019 – May 2023\nUniversity of Texas at Austin\nAustin, TX\nAdd bullet\n×\nAdd entry\nEXPERIENCE\n×\nSoftware Engineer\nJul. 2023 – Present\nAcme Technologies\nSan Francisco, CA\nArchitected and deployed microservices infrastructure that reduced average API response latency by 35%\n×\nCollaborated with product and design teams to ship four major features serving over two million active users\n×\nAutomated CI/CD pipeline with GitHub Actions cutting average deployment time from 45 minutes to under 8\n×\nAdd bullet\n×\nSoftware Engineering Intern\nMay 2022 – Aug. 2022\nBright Solutions Inc.\nAustin, TX\nBuilt a real-time dashboard with React and WebSockets enabling operations staff to monitor system metrics\n×\nRefactored legacy authentication module improving test coverage from 22% to 91% across all critical paths\n×\nImplemented a data export feature in TypeScript that processed batch jobs for over 10,000 customer records\n×\nAdd bullet\n×\nAdd entry\nPROJECTS\n×\nCodeCollab\nJan. 2023 – Apr. 2023\nTypeScript, React, Node.js, WebRTC, PostgreSQL\nDesigned a real-time collaborative code editor supporting simultaneous editing for up to 20 concurrent users\n×\nIntegrated WebRTC peer connections with a Node.js signaling server achieving sub-100ms latency for sessions\n×\nDeployed the app on AWS EC2 with auto-scaling policies that handled traffic spikes of up to 500 requests/sec\n×\nAdd bullet\n×\nSmartBudget\nAug. 2022 – Dec. 2022\nPython, FastAPI, React, PostgreSQL, Plaid API\nBuilt a personal finance tracker using the Plaid API to automatically categorize bank transactions each day\n×\nTrained a scikit-learn classifier achieving 88% accuracy predicting overspending trends by expense category\n×\nContainerized all services with Docker Compose streamlining local development and enabling one-command deploys\n×\nAdd bullet\n×\nAdd entry\nTECHNICAL SKILLS\n×\nLanguages: TypeScript, Python, Java, Go, SQL, Bash, HTML/CSS — proficient across all listed technologies\n×\nFrameworks & Tools: React, Node.js, FastAPI, Docker, Kubernetes, PostgreSQL, Redis, AWS, GitHub Actions\n×\nPractices: RESTful API design, microservices architecture, CI/CD, agile development, test-driven development\n×\nAdd bullet\n×\nAdd entry\nAdd section\nReview unavailable\nDetails\nReview unavailable",
+    "editableFields": 48
+  },
+  {
+    "viewport": {
+      "width": 1000,
+      "height": 900
+    },
+    "pageHeight": 4724,
+    "pageWidth": 1000,
+    "heroImageVisible": true,
+    "firstAction": {
+      "top": 454.5,
+      "bottom": 498.5
+    },
+    "sections": [
+      {
+        "chapter": "hero",
+        "top": 77,
+        "height": 1099.5,
+        "words": 44,
+        "text": "Your resume should stay yours.\n\nEdit the finished Letter page directly. Presume keeps page and line constraints visible, saves the resume in this browser, and exports a stable PDF. Review remains advisory and never changes the document.\n\nOpen the editor\nSaved in this browser"
+      },
+      {
+        "chapter": "thesis",
+        "top": 1176.5,
+        "height": 384.15625,
+        "words": 29,
+        "text": "The document is not the output. It is the interface.\n\nWriting, measurement, local persistence, and export remain attached to the finished page instead of disappearing behind a separate preview."
+      },
+      {
+        "chapter": "fit",
+        "top": 1560.65625,
+        "height": 817.59375,
+        "words": 63,
+        "text": "See the page before export.\n\nFit keeps page and line constraints visible while you edit, so you can see wrapping pressure and overflow before export.\n\nPRETEXT MEASURES\n\nAvailable width 340px\nLine count 3\n\nText changes shape as\nthe space around it\nchanges.\n\n↔\n\nWidest line 300px. Presume uses those measured lines to keep each bullet within its limit.\n\nExplore Pretext’s live demos ↗"
+      },
+      {
+        "chapter": "continuity",
+        "top": 2378.25,
+        "height": 515.890625,
+        "words": 68,
+        "text": "The document keeps its shape.\n\nPresume preserves the current resume and its formatting constraints in this browser. Export produces a fixed Letter artifact independent of browser zoom.\n\nSaved in this browser\n\nCurrent resume data and formatting constraints persist in this browser.\n\nMeasured in place\n\nPage limit and bullet wrapping stay visible on the editable document.\n\nCarried forward\n\nExport a stable Letter-sized PDF, or export an importable JSON backup."
+      },
+      {
+        "chapter": "review",
+        "top": 2894.140625,
+        "height": 582.609375,
+        "words": 66,
+        "text": "Review advises. It does not edit.\n\nWhen you choose Review and an available service is configured, it can return category scores and supporting evidence beside the resume. It never rewrites or mutates the document.\n\nIt cannot take the pen.\n\nAdvisory score: 81 out of 100.\n81 / 100\nAdvisory score\nEVIDENCE\nInternship work shows production exposure.\nSUGGESTION\nAdd one production metric.\nExample fixture · not content-derived"
+      },
+      {
+        "chapter": "boundaries",
+        "top": 3476.75,
+        "height": 640,
+        "words": 47,
+        "text": "Two systems stay explicit.\nMeasurement\n\nPretext ↗ supplies text-layout primitives. Presume exposes their effect through Fit instead of hiding page pressure.\n\nAdvisory review\n\nOptional Review runs through a separate local or self-hosted service using a Hiring Agent adapter ↗. Returned evidence stays separate from the editable resume."
+      },
+      {
+        "chapter": "ending",
+        "top": 4116.75,
+        "height": 509.78125,
+        "words": 35,
+        "text": "Make the page yours.\n\nEdit the finished document directly. Your resume and formatting stay in this browser as you work.\n\nEdit your resume\n→\n\nDirect editing · Saved in this browser · Stable Letter export"
+      }
+    ],
+    "links": [
+      {
+        "label": "Skip to content",
+        "url": "#main"
+      },
+      {
+        "label": "Presume",
+        "url": "/presume/"
+      },
+      {
+        "label": "Fit",
+        "url": "#fit"
+      },
+      {
+        "label": "Design boundaries",
+        "url": "#boundaries"
+      },
+      {
+        "label": "Editor ↗",
+        "url": "/presume/editor/"
+      },
+      {
+        "label": "Explore Pretext’s live demos ↗",
+        "url": "https://chenglou.me/pretext/"
+      },
+      {
+        "label": "Pretext ↗",
+        "url": "https://github.com/chenglou/pretext"
+      },
+      {
+        "label": "Hiring Agent adapter ↗",
+        "url": "https://github.com/interviewstreet/hiring-agent"
+      },
+      {
+        "label": "GitHub",
+        "url": "https://github.com/nikolaisalazar"
+      },
+      {
+        "label": "LinkedIn",
+        "url": "https://www.linkedin.com/in/nikolaisalazar/"
+      },
+      {
+        "label": "Back to top",
+        "url": "#top"
+      }
+    ]
+  },
+  {
+    "viewport": {
+      "width": 700,
+      "height": 900
+    },
+    "pageHeight": 4829,
+    "pageWidth": 700,
+    "heroImageVisible": false,
+    "firstAction": {
+      "top": 608.390625,
+      "bottom": 652.390625
+    },
+    "sections": [
+      {
+        "chapter": "hero",
+        "top": 69,
+        "height": 832,
+        "words": 44,
+        "text": "Your resume should stay yours.\n\nEdit the finished Letter page directly. Presume keeps page and line constraints visible, saves the resume in this browser, and exports a stable PDF. Review remains advisory and never changes the document.\n\nOpen the editor\nSaved in this browser"
+      },
+      {
+        "chapter": "thesis",
+        "top": 901,
+        "height": 379.203125,
+        "words": 29,
+        "text": "The document is not the output. It is the interface.\n\nWriting, measurement, local persistence, and export remain attached to the finished page instead of disappearing behind a separate preview."
+      },
+      {
+        "chapter": "fit",
+        "top": 1280.203125,
+        "height": 948.71875,
+        "words": 63,
+        "text": "See the page before export.\n\nFit keeps page and line constraints visible while you edit, so you can see wrapping pressure and overflow before export.\n\nPRETEXT MEASURES\n\nAvailable width 340px\nLine count 3\n\nText changes shape as\nthe space around it\nchanges.\n\n↔\n\nWidest line 300px. Presume uses those measured lines to keep each bullet within its limit.\n\nExplore Pretext’s live demos ↗"
+      },
+      {
+        "chapter": "continuity",
+        "top": 2228.921875,
+        "height": 675.21875,
+        "words": 68,
+        "text": "The document keeps its shape.\n\nPresume preserves the current resume and its formatting constraints in this browser. Export produces a fixed Letter artifact independent of browser zoom.\n\nSaved in this browser\n\nCurrent resume data and formatting constraints persist in this browser.\n\nMeasured in place\n\nPage limit and bullet wrapping stay visible on the editable document.\n\nCarried forward\n\nExport a stable Letter-sized PDF, or export an importable JSON backup."
+      },
+      {
+        "chapter": "review",
+        "top": 2904.140625,
+        "height": 692.359375,
+        "words": 66,
+        "text": "Review advises. It does not edit.\n\nWhen you choose Review and an available service is configured, it can return category scores and supporting evidence beside the resume. It never rewrites or mutates the document.\n\nIt cannot take the pen.\n\nAdvisory score: 81 out of 100.\n81 / 100\nAdvisory score\nEVIDENCE\nInternship work shows production exposure.\nSUGGESTION\nAdd one production metric.\nExample fixture · not content-derived"
+      },
+      {
+        "chapter": "boundaries",
+        "top": 3596.5,
+        "height": 640,
+        "words": 47,
+        "text": "Two systems stay explicit.\nMeasurement\n\nPretext ↗ supplies text-layout primitives. Presume exposes their effect through Fit instead of hiding page pressure.\n\nAdvisory review\n\nOptional Review runs through a separate local or self-hosted service using a Hiring Agent adapter ↗. Returned evidence stays separate from the editable resume."
+      },
+      {
+        "chapter": "ending",
+        "top": 4236.5,
+        "height": 425.625,
+        "words": 35,
+        "text": "Make the page yours.\n\nEdit the finished document directly. Your resume and formatting stay in this browser as you work.\n\nEdit your resume\n→\n\nDirect editing · Saved in this browser · Stable Letter export"
+      }
+    ],
+    "links": [
+      {
+        "label": "Skip to content",
+        "url": "#main"
+      },
+      {
+        "label": "Presume",
+        "url": "/presume/"
+      },
+      {
+        "label": "Fit",
+        "url": "#fit"
+      },
+      {
+        "label": "Design boundaries",
+        "url": "#boundaries"
+      },
+      {
+        "label": "Editor ↗",
+        "url": "/presume/editor/"
+      },
+      {
+        "label": "Explore Pretext’s live demos ↗",
+        "url": "https://chenglou.me/pretext/"
+      },
+      {
+        "label": "Pretext ↗",
+        "url": "https://github.com/chenglou/pretext"
+      },
+      {
+        "label": "Hiring Agent adapter ↗",
+        "url": "https://github.com/interviewstreet/hiring-agent"
+      },
+      {
+        "label": "GitHub",
+        "url": "https://github.com/nikolaisalazar"
+      },
+      {
+        "label": "LinkedIn",
+        "url": "https://www.linkedin.com/in/nikolaisalazar/"
+      },
+      {
+        "label": "Back to top",
+        "url": "#top"
+      }
+    ]
+  },
+  {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "pageHeight": 4963,
+    "pageWidth": 390,
+    "heroImageVisible": false,
+    "firstAction": {
+      "top": 577.953125,
+      "bottom": 621.953125
+    },
+    "sections": [
+      {
+        "chapter": "hero",
+        "top": 69,
+        "height": 776,
+        "words": 44,
+        "text": "Your resume should stay yours.\n\nEdit the finished Letter page directly. Presume keeps page and line constraints visible, saves the resume in this browser, and exports a stable PDF. Review remains advisory and never changes the document.\n\nOpen the editor\nSaved in this browser"
+      },
+      {
+        "chapter": "thesis",
+        "top": 845,
+        "height": 379.203125,
+        "words": 29,
+        "text": "The document is not the output. It is the interface.\n\nWriting, measurement, local persistence, and export remain attached to the finished page instead of disappearing behind a separate preview."
+      },
+      {
+        "chapter": "fit",
+        "top": 1224.203125,
+        "height": 948.71875,
+        "words": 63,
+        "text": "See the page before export.\n\nFit keeps page and line constraints visible while you edit, so you can see wrapping pressure and overflow before export.\n\nPRETEXT MEASURES\n\nAvailable width 286px\nLine count 3\n\nText changes shape\nas the space around\nit changes.\n\n↔\n\nWidest line 267px. Presume uses those measured lines to keep each bullet within its limit.\n\nExplore Pretext’s live demos ↗"
+      },
+      {
+        "chapter": "continuity",
+        "top": 2172.921875,
+        "height": 774.984375,
+        "words": 68,
+        "text": "The document keeps its shape.\n\nPresume preserves the current resume and its formatting constraints in this browser. Export produces a fixed Letter artifact independent of browser zoom.\n\nSaved in this browser\n\nCurrent resume data and formatting constraints persist in this browser.\n\nMeasured in place\n\nPage limit and bullet wrapping stay visible on the editable document.\n\nCarried forward\n\nExport a stable Letter-sized PDF, or export an importable JSON backup."
+      },
+      {
+        "chapter": "review",
+        "top": 2947.90625,
+        "height": 740.234375,
+        "words": 66,
+        "text": "Review advises. It does not edit.\n\nWhen you choose Review and an available service is configured, it can return category scores and supporting evidence beside the resume. It never rewrites or mutates the document.\n\nIt cannot take the pen.\n\nAdvisory score: 81 out of 100.\n81 / 100\nAdvisory score\nEVIDENCE\nInternship work shows production exposure.\nSUGGESTION\nAdd one production metric.\nExample fixture · not content-derived"
+      },
+      {
+        "chapter": "boundaries",
+        "top": 3688.140625,
+        "height": 640,
+        "words": 47,
+        "text": "Two systems stay explicit.\nMeasurement\n\nPretext ↗ supplies text-layout primitives. Presume exposes their effect through Fit instead of hiding page pressure.\n\nAdvisory review\n\nOptional Review runs through a separate local or self-hosted service using a Hiring Agent adapter ↗. Returned evidence stays separate from the editable resume."
+      },
+      {
+        "chapter": "ending",
+        "top": 4328.140625,
+        "height": 467.75,
+        "words": 35,
+        "text": "Make the page yours.\n\nEdit the finished document directly. Your resume and formatting stay in this browser as you work.\n\nEdit your resume\n→\n\nDirect editing · Saved in this browser · Stable Letter export"
+      }
+    ],
+    "links": [
+      {
+        "label": "Skip to content",
+        "url": "#main"
+      },
+      {
+        "label": "Presume",
+        "url": "/presume/"
+      },
+      {
+        "label": "Fit",
+        "url": "#fit"
+      },
+      {
+        "label": "Design boundaries",
+        "url": "#boundaries"
+      },
+      {
+        "label": "Editor ↗",
+        "url": "/presume/editor/"
+      },
+      {
+        "label": "Explore Pretext’s live demos ↗",
+        "url": "https://chenglou.me/pretext/"
+      },
+      {
+        "label": "Pretext ↗",
+        "url": "https://github.com/chenglou/pretext"
+      },
+      {
+        "label": "Hiring Agent adapter ↗",
+        "url": "https://github.com/interviewstreet/hiring-agent"
+      },
+      {
+        "label": "GitHub",
+        "url": "https://github.com/nikolaisalazar"
+      },
+      {
+        "label": "LinkedIn",
+        "url": "https://www.linkedin.com/in/nikolaisalazar/"
+      },
+      {
+        "label": "Back to top",
+        "url": "#top"
+      }
+    ]
+  },
+  {
+    "kind": "editor",
+    "viewport": 390,
+    "pageHeight": 1637,
+    "pageWidth": 390,
+    "text": "Presume\nSaved locally\nSystem\nLight\nDark\nFit constraints\n1 page · 1 line/bullet · 8px min\nCannot fit under current constraints\n\nThe resume exceeds 1 page even at the 8px minimum. Shorten content or loosen constraints.\n\nExport PDF\nExport JSON\nImport JSON\nReset template\nAlex Johnson\n(555) 867-5309\n×\nalex.johnson@email.com\n×\nlinkedin.com/in/alexjohnson\n×\ngithub.com/alexjohnson\n×\nAdd contact\nEDUCATION\n×\nBachelor of Science in Computer Science, GPA: 3.7\nAug. 2019 – May 2023\nUniversity of Texas at Austin\nAustin, TX\nAdd bullet\n×\nAdd entry\nEXPERIENCE\n×\nSoftware Engineer\nJul. 2023 – Present\nAcme Technologies\nSan Francisco, CA\nArchitected and deployed microservices infrastructure that reduced average API response latency by 35%\n×\nCollaborated with product and design teams to ship four major features serving over two million active users\n×\nAutomated CI/CD pipeline with GitHub Actions cutting average deployment time from 45 minutes to under 8\n×\nAdd bullet\n×\nSoftware Engineering Intern\nMay 2022 – Aug. 2022\nBright Solutions Inc.\nAustin, TX\nBuilt a real-time dashboard with React and WebSockets enabling operations staff to monitor system metrics\n×\nRefactored legacy authentication module improving test coverage from 22% to 91% across all critical paths\n×\nImplemented a data export feature in TypeScript that processed batch jobs for over 10,000 customer records\n×\nAdd bullet\n×\nAdd entry\nPROJECTS\n×\nCodeCollab\nJan. 2023 – Apr. 2023\nTypeScript, React, Node.js, WebRTC, PostgreSQL\nDesigned a real-time collaborative code editor supporting simultaneous editing for up to 20 concurrent users\n×\nIntegrated WebRTC peer connections with a Node.js signaling server achieving sub-100ms latency for sessions\n×\nDeployed the app on AWS EC2 with auto-scaling policies that handled traffic spikes of up to 500 requests/sec\n×\nAdd bullet\n×\nSmartBudget\nAug. 2022 – Dec. 2022\nPython, FastAPI, React, PostgreSQL, Plaid API\nBuilt a personal finance tracker using the Plaid API to automatically categorize bank transactions each day\n×\nTrained a scikit-learn classifier achieving 88% accuracy predicting overspending trends by expense category\n×\nContainerized all services with Docker Compose streamlining local development and enabling one-command deploys\n×\nAdd bullet\n×\nAdd entry\nTECHNICAL SKILLS\n×\nLanguages: TypeScript, Python, Java, Go, SQL, Bash, HTML/CSS — proficient across all listed technologies\n×\nFrameworks & Tools: React, Node.js, FastAPI, Docker, Kubernetes, PostgreSQL, Redis, AWS, GitHub Actions\n×\nPractices: RESTful API design, microservices architecture, CI/CD, agile development, test-driven development\n×\nAdd bullet\n×\nAdd entry\nAdd section\nReview unavailable\nDetails\nReview unavailable",
+    "editableFields": 48
+  },
+  {
+    "viewport": {
+      "width": 320,
+      "height": 844
+    },
+    "pageHeight": 5147,
+    "pageWidth": 320,
+    "heroImageVisible": false,
+    "firstAction": {
+      "top": 582,
+      "bottom": 626
+    },
+    "sections": [
+      {
+        "chapter": "hero",
+        "top": 69,
+        "height": 776,
+        "words": 44,
+        "text": "Your resume should stay yours.\n\nEdit the finished Letter page directly. Presume keeps page and line constraints visible, saves the resume in this browser, and exports a stable PDF. Review remains advisory and never changes the document.\n\nOpen the editor\nSaved in this browser"
+      },
+      {
+        "chapter": "thesis",
+        "top": 845,
+        "height": 446.9375,
+        "words": 29,
+        "text": "The document is not the output. It is the interface.\n\nWriting, measurement, local persistence, and export remain attached to the finished page instead of disappearing behind a separate preview."
+      },
+      {
+        "chapter": "fit",
+        "top": 1291.9375,
+        "height": 995.09375,
+        "words": 63,
+        "text": "See the page before export.\n\nFit keeps page and line constraints visible while you edit, so you can see wrapping pressure and overflow before export.\n\nPRETEXT MEASURES\n\nAvailable width 216px\nLine count 4\n\nText changes\nshape as the\nspace around it\nchanges.\n\n↔\n\nWidest line 204px. Presume uses those measured lines to keep each bullet within its limit.\n\nExplore Pretext’s live demos ↗"
+      },
+      {
+        "chapter": "continuity",
+        "top": 2287.03125,
+        "height": 799.28125,
+        "words": 68,
+        "text": "The document keeps its shape.\n\nPresume preserves the current resume and its formatting constraints in this browser. Export produces a fixed Letter artifact independent of browser zoom.\n\nSaved in this browser\n\nCurrent resume data and formatting constraints persist in this browser.\n\nMeasured in place\n\nPage limit and bullet wrapping stay visible on the editable document.\n\nCarried forward\n\nExport a stable Letter-sized PDF, or export an importable JSON backup."
+      },
+      {
+        "chapter": "review",
+        "top": 3086.3125,
+        "height": 761.234375,
+        "words": 66,
+        "text": "Review advises. It does not edit.\n\nWhen you choose Review and an available service is configured, it can return category scores and supporting evidence beside the resume. It never rewrites or mutates the document.\n\nIt cannot take the pen.\n\nAdvisory score: 81 out of 100.\n81 / 100\nAdvisory score\nEVIDENCE\nInternship work shows production exposure.\nSUGGESTION\nAdd one production metric.\nExample fixture · not content-derived"
+      },
+      {
+        "chapter": "boundaries",
+        "top": 3847.546875,
+        "height": 640,
+        "words": 47,
+        "text": "Two systems stay explicit.\nMeasurement\n\nPretext ↗ supplies text-layout primitives. Presume exposes their effect through Fit instead of hiding page pressure.\n\nAdvisory review\n\nOptional Review runs through a separate local or self-hosted service using a Hiring Agent adapter ↗. Returned evidence stays separate from the editable resume."
+      },
+      {
+        "chapter": "ending",
+        "top": 4487.546875,
+        "height": 492.5,
+        "words": 35,
+        "text": "Make the page yours.\n\nEdit the finished document directly. Your resume and formatting stay in this browser as you work.\n\nEdit your resume\n→\n\nDirect editing · Saved in this browser · Stable Letter export"
+      }
+    ],
+    "links": [
+      {
+        "label": "Skip to content",
+        "url": "#main"
+      },
+      {
+        "label": "Presume",
+        "url": "/presume/"
+      },
+      {
+        "label": "Fit",
+        "url": "#fit"
+      },
+      {
+        "label": "Design boundaries",
+        "url": "#boundaries"
+      },
+      {
+        "label": "Editor ↗",
+        "url": "/presume/editor/"
+      },
+      {
+        "label": "Explore Pretext’s live demos ↗",
+        "url": "https://chenglou.me/pretext/"
+      },
+      {
+        "label": "Pretext ↗",
+        "url": "https://github.com/chenglou/pretext"
+      },
+      {
+        "label": "Hiring Agent adapter ↗",
+        "url": "https://github.com/interviewstreet/hiring-agent"
+      },
+      {
+        "label": "GitHub",
+        "url": "https://github.com/nikolaisalazar"
+      },
+      {
+        "label": "LinkedIn",
+        "url": "https://www.linkedin.com/in/nikolaisalazar/"
+      },
+      {
+        "label": "Back to top",
+        "url": "#top"
+      }
+    ]
+  }
+]
