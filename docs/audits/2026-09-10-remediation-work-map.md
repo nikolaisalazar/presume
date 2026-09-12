@@ -1,6 +1,6 @@
 Use four milestones and six focused work threads over time, with this audit conversation available for coordination. Start with at most two concurrent coding threads. Within each thread, keep one lead responsible for the outcome and delegate bounded investigation, implementation, or review only where the work can proceed independently.
 
-The user adopted this execution structure on September 10, 2026 and authorized the documentation kickoff: commit the audits, update the milestone tracker, and begin T1 product direction and the T2 document-state implementation plan. Product changes remain recommendations until selected. Application implementation and the later work packages have not started.
+The user adopted this execution structure on September 10, 2026 and authorized the documentation kickoff: commit the audits, update the milestone tracker, and begin T1 product direction and the T2 document-state implementation plan. Product changes remain recommendations until selected. On September 12, the user authorized T2-1 implementation; its complete backup/restore change is implemented in `ef82fe4`. Other application work packages remain pending.
 
 Source reports:
 
@@ -12,7 +12,7 @@ The four milestones are product direction, dependable product behavior, landing 
 | Thread | Milestone | Outcome and audit coverage | Dependencies |
 | --- | --- | --- | --- |
 | T1: Product direction | 18 | Revised audience/task statement, claim-to-evidence map, representative copy, landing structure, first-use priorities, and Review's public role | Working brief prepared; distinguish adopted decisions from proposals |
-| T2: Document state and editing | 19 | Plain-text editing, accessible field semantics, reliable persistence and save status, tab conflict handling, structural undo, complete backup/restore. Owns F03, F04, F05, F07, F09; supplies undo for F01 | Plan prepared; establish the document-session and backup contracts before dependent UI work |
+| T2: Document state and editing | 19 | Plain-text editing, accessible field semantics, reliable persistence and save status, tab conflict handling, structural undo, complete backup/restore. Owns F03, F04, F05, F07, F09; supplies undo for F01 | T2-1 complete backups implemented; document-session work starts at T2-2 |
 | T3: Layout, controls, and PDF | 19 | Exclusive action targets, controls outside document flow, consistent fitting/export, glyph coverage, pagination, contrast, and motion-independent measurement. Owns F01, F02, F06, F08, F16, F19 | Use T2's editing/undo contract; serialize changes to shared document components |
 | T4: Review and service | 19 | Correct stale state, discovery retry/deadlines, provider disclosure, useful feedback, early upload limits, compatible dependency updates, truthful readiness. Owns F10, F11, F12, F13, F14, F15, F18 | Backend work can begin independently; frontend integration uses T2's revision model and T1's product decisions |
 | T5: Landing and first use | 20 | Implement selected copy/narrative, verified desktop and mobile proof, practical first-use guidance and action labels, project links, route scroll/focus. Owns F17 and selected product recommendations | T1's direction; T2/T3 behavior for production evidence; T4 results for real Review examples |
@@ -76,8 +76,8 @@ limitations so the coordinating thread can integrate the result.
 Use an equivalent outcome-specific brief for the other threads. For T1, request the product brief and representative desktop/narrow studies before production implementation, following the landing-direction skill. For T6, request independent validation of the integrated commit and distinguish automated/expert inspection from completed sessions with real users.
 
 The documentation kickoff is complete. The next work is to select the T1 direction
-and begin T2 implementation from its reviewed plan. T2-1 is the first proposed PR;
-later UI packages use the session, revision, and backup contracts recorded there.
+and continue at T2-2 after [T2-1](../remediation/T2_1_BACKUP_HANDOFF.md).
+Later UI packages use the session, revision, and backup contracts recorded in the T2 plan; T2-1 alone does not publish a session or prepared snapshot.
 
 **Kickoff record.** The audit/evidence baseline and Milestones 18–21 were committed
 as `1e91742`. Two isolated planning branches were then created from that baseline:

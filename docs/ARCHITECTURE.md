@@ -12,7 +12,9 @@ Presume is currently a React application with an optional review service. The fr
 | `src/useResume.ts` | Owns resume and constraint state, loading defaults from LocalStorage and autosaving changes. |
 | `src/formatting/` | Pure in-process module that computes a `ResumeFit` from resume data, constraints, and injected measurements. |
 | `src/useResizeEngine.ts` | React/DOM/Pretext adapter that supplies live measurements to the formatting module and publishes its result. |
-| `src/export.ts` | Exports single-page or multi-page Letter PDFs, exports JSON, imports and validates JSON. |
+| `src/export.ts` | Exports single-page or multi-page Letter PDFs; its renderer API is unchanged by T2-1. |
+| `src/document.ts` | Defines and validates portable `DocumentData` containing resume and constraints. |
+| `src/documentBackup.ts` | Encodes versioned complete JSON backups, reads legacy resume files, validates before restore, and initiates downloads. |
 | `src/constraints.ts` | Owns the constraint interface, inclusive bounds, defaults, parsing, and controlled updates. |
 | `src/types.ts` | Defines resume data and validators, with compatibility re-exports for constraints. |
 | `src/resumeOperations.ts` | Provides pure immutable helpers for contact, section, entry, and bullet editing operations. |
@@ -51,9 +53,17 @@ type Constraints = {
 }
 ```
 
-This model is the editing source of truth, the LocalStorage format, and the JSON export format. Imported JSON is validated and unknown fields are stripped. Milestone 17 preserved this public shape while moving contact, section, entry, and bullet mutations into tested pure helpers so inline editor components no longer own array manipulation directly.
+The public Resume shape remains the editing content model and the resume LocalStorage value. New JSON backups wrap it with formatting constraints in `DocumentData`; bare Resume JSON remains accepted for restore. Imported JSON is validated and unknown fields are stripped. Milestone 17 preserved this public shape while moving contact, section, entry, and bullet mutations into tested pure helpers so inline editor components no longer own array manipulation directly.
 
 Persisted formatting constraints are parsed against the inclusive bounds in `src/constraints.ts`. Invalid values are rejected rather than clamped, allowing `useResume` to fall back to the defaults; unknown fields on otherwise valid constraint data are stripped.
+
+## Complete Backup Format
+
+T2-1 writes `{ format: "presume-backup", version: 1, exportedAt, data: { resume, constraints } }` to `presume-backup.json`. `exportedAt` is a descriptive timestamp, never a conflict or replacement authority. The codec validates content with `validateResume` and settings with `parseConstraints`, strips unknown ordinary fields, and rejects invalid settings without clamping. Envelope `format`/`version` markers are reserved: malformed or unsupported envelopes cannot fall back to bare Resume parsing. Backup data excludes storage revisions, history, raw migration data, Review results, theme, zoom, and layout measurements.
+
+The toolbar reads and validates before confirming replacement. Complete restores replace both halves of the in-memory document with one React state update; legacy imports replace text and retain the constraints current when the update is applied. A newer file selection or editor unmount invalidates an older pending read. Cancellation and errors preserve current data and reset the file input for another selection of the same file.
+
+`useResume` currently stores one `DocumentData` state, but persistence still writes the two legacy LocalStorage keys in separate effects. This is not an atomic durable transaction or a document-session implementation. Prepared snapshots/composition handling, undo, focused replacement reconciliation, save outcomes, and IndexedDB migration remain later T2 steps.
 
 ## Current Formatting Behavior
 
@@ -101,7 +111,8 @@ flowchart TD
   App --> Export[src/export.ts]
   Export --> PDFRenderer[src/pdf canonical renderer]
   PDFRenderer --> PDF[Single or multi-page PDF download]
-  Export --> JSON[JSON download/import]
+  App --> Backup[src/documentBackup.ts]
+  Backup --> JSON[Versioned complete backup / legacy restore]
 ```
 
 ## Review Architecture

@@ -75,8 +75,8 @@ test.describe('unconfigured browser contracts', () => {
     await expect(commandDeck.locator('[data-slot="separator"]')).toHaveCount(0)
     await expect(commandDeck.locator('[data-slot="button"]')).toHaveText([
       'Export PDF',
-      'Export JSON',
-      'Import JSON',
+      'Download backup',
+      'Restore backup',
       'Reset template',
     ])
 
@@ -443,8 +443,8 @@ test.describe('unconfigured browser contracts', () => {
     expect(metrics.buttonBorderWidth).toBe('0px')
     expect(metrics.valueBackground).not.toBe(metrics.stepperBackground)
     expect(metrics.actionGroups).toEqual([
-      ['Export PDF', 'Export JSON'],
-      ['Import JSON', 'Reset template'],
+      ['Export PDF', 'Download backup'],
+      ['Restore backup', 'Reset template'],
     ])
 
     await page.setViewportSize({ width: 560, height: 980 })

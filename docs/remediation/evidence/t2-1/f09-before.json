@@ -1,0 +1,20 @@
+{
+  "baseline": "8bec0e6efc3a18b6b676e6192c11d396e7d7236c",
+  "backupKeys": [
+    "name",
+    "contact",
+    "sections"
+  ],
+  "textPreserved": true,
+  "constraintsPreserved": false,
+  "beforeConstraints": {
+    "maxPages": 1,
+    "maxLinesPerBullet": 3,
+    "minFontSize": 12
+  },
+  "afterConstraints": {
+    "maxPages": 1,
+    "maxLinesPerBullet": 1,
+    "minFontSize": 8
+  }
+}

@@ -15,7 +15,8 @@
     "check:review-contract": "node scripts/check-review-contract.mjs",
     "verify": "npm run check:review-contract && npm run typecheck && npm test -- --run && npm run test:backend",
     "verify:full": "npm run verify && npm run test:e2e",
-    "test:e2e": "npm run test:e2e:unconfigured && npm run test:e2e:configured",
+    "test:e2e": "npm run test:e2e:unconfigured && npm run test:e2e:configured && npm run test:e2e:backup",
+    "test:e2e:backup": "npm run build && playwright test -c playwright.backup.config.ts",
     "test:e2e:unconfigured": "npm run build && playwright test -c playwright.unconfigured.config.ts",
     "test:e2e:configured": "VITE_REVIEW_API_URL=http://127.0.0.1:8124 npm run build && playwright test -c playwright.configured.config.ts"
   },

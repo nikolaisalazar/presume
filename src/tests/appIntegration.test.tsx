@@ -2,7 +2,8 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '../App'
 import { DEFAULT_RESUME } from '../defaultResume'
-import { exportJSON, exportPDF, importJSON } from '../export'
+import { exportPDF } from '../export'
+import { downloadDocumentBackup, readDocumentBackup } from '../documentBackup'
 import type { FormattingWarnings } from '../formatting'
 import type { Resume } from '../types'
 
@@ -25,14 +26,18 @@ vi.mock('../export', async importOriginal => {
   return {
     ...actual,
     exportPDF: vi.fn().mockResolvedValue(undefined),
-    exportJSON: vi.fn(),
-    importJSON: vi.fn(),
   }
 })
 
+vi.mock('../documentBackup', async importOriginal => ({
+  ...await importOriginal<typeof import('../documentBackup')>(),
+  downloadDocumentBackup: vi.fn(),
+  readDocumentBackup: vi.fn(),
+}))
+
 const exportPDFMock = vi.mocked(exportPDF)
-const exportJSONMock = vi.mocked(exportJSON)
-const importJSONMock = vi.mocked(importJSON)
+const downloadDocumentBackupMock = vi.mocked(downloadDocumentBackup)
+const readDocumentBackupMock = vi.mocked(readDocumentBackup)
 
 const importedResume: Resume = {
   name: 'Grace Hopper',
@@ -206,7 +211,7 @@ describe('App review availability boundaries', () => {
   it('keeps editing, persistence, export, and import available', async () => {
     vi.stubEnv('VITE_REVIEW_API_URL', '')
     vi.spyOn(window, 'confirm').mockReturnValue(true)
-    importJSONMock.mockResolvedValue(importedResume)
+    readDocumentBackupMock.mockResolvedValue({ kind: 'legacy', resume: importedResume })
 
     const { container } = render(<App />)
 
@@ -226,10 +231,11 @@ describe('App review availability boundaries', () => {
       ).toMatchObject({ name: 'Ada Lovelace' })
     })
 
-    fireEvent.click(screen.getByRole('button', { name: 'Export JSON' }))
-    expect(exportJSONMock).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'Ada Lovelace' })
-    )
+    fireEvent.click(screen.getByRole('button', { name: 'Download backup' }))
+    expect(downloadDocumentBackupMock).toHaveBeenCalledWith({
+      resume: expect.objectContaining({ name: 'Ada Lovelace' }),
+      constraints: expect.any(Object),
+    })
 
     fireEvent.click(screen.getByRole('button', { name: 'Export PDF' }))
     await waitFor(() =>
@@ -244,7 +250,7 @@ describe('App review availability boundaries', () => {
     const file = new File(['{}'], 'resume.json', { type: 'application/json' })
     fireEvent.change(input!, { target: { files: [file] } })
 
-    await waitFor(() => expect(importJSONMock).toHaveBeenCalledWith(file))
+    await waitFor(() => expect(readDocumentBackupMock).toHaveBeenCalledWith(file))
     expect(await screen.findByText('Grace Hopper')).toBeInTheDocument()
   })
 
@@ -427,10 +433,10 @@ describe('App review availability boundaries', () => {
     expect(screen.queryByText('Direct edit')).not.toBeInTheDocument()
 
     expect(screen.getByRole('button', { name: 'Export PDF' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Export JSON' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Download backup' })).toBeInTheDocument()
     expect(screen.getByRole('group', { name: 'Export actions' })).toBeInTheDocument()
     expect(within(toolbar).queryByText('Export', { exact: true })).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Import JSON' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Restore backup' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Reset template' })).toBeInTheDocument()
     expect(screen.getByRole('group', { name: 'File actions' })).toBeInTheDocument()
   })
@@ -599,7 +605,7 @@ describe('App review availability boundaries', () => {
 
     expect(screen.getByRole('button', { name: 'Export PDF' })).toBeDisabled()
     expect(await screen.findByRole('button', { name: 'Start review' })).toBeDisabled()
-    expect(screen.getByRole('button', { name: 'Export JSON' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Download backup' })).toBeEnabled()
   })
 
   it('keeps editing, persistence, export, and import available when review service is disabled', async () => {
@@ -623,7 +629,7 @@ describe('App review availability boundaries', () => {
         )
       )
     )
-    importJSONMock.mockResolvedValue(importedResume)
+    readDocumentBackupMock.mockResolvedValue({ kind: 'legacy', resume: importedResume })
 
     const { container } = render(<App />)
 
@@ -652,10 +658,11 @@ describe('App review availability boundaries', () => {
       ).toMatchObject({ name: 'Ada Lovelace' })
     })
 
-    fireEvent.click(screen.getByRole('button', { name: 'Export JSON' }))
-    expect(exportJSONMock).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'Ada Lovelace' })
-    )
+    fireEvent.click(screen.getByRole('button', { name: 'Download backup' }))
+    expect(downloadDocumentBackupMock).toHaveBeenCalledWith({
+      resume: expect.objectContaining({ name: 'Ada Lovelace' }),
+      constraints: expect.any(Object),
+    })
 
     fireEvent.click(screen.getByRole('button', { name: 'Export PDF' }))
     await waitFor(() => expect(exportPDFMock).toHaveBeenCalledTimes(1))
@@ -665,7 +672,7 @@ describe('App review availability boundaries', () => {
     const file = new File(['{}'], 'resume.json', { type: 'application/json' })
     fireEvent.change(input!, { target: { files: [file] } })
 
-    await waitFor(() => expect(importJSONMock).toHaveBeenCalledWith(file))
+    await waitFor(() => expect(readDocumentBackupMock).toHaveBeenCalledWith(file))
     expect(await screen.findByText('Grace Hopper')).toBeInTheDocument()
   })
 

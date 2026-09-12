@@ -1,0 +1,22 @@
+{
+  "sourceConstraints": {
+    "maxPages": 1,
+    "maxLinesPerBullet": 3,
+    "minFontSize": 12
+  },
+  "restoredConstraints": {
+    "maxPages": 1,
+    "maxLinesPerBullet": 3,
+    "minFontSize": 12
+  },
+  "backupKeys": [
+    "format",
+    "version",
+    "exportedAt",
+    "data"
+  ],
+  "textPreserved": true,
+  "constraintsPreserved": true,
+  "reloaded": true,
+  "chromiumVersion": "149.0.7827.55"
+}
