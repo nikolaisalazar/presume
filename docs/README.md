@@ -17,6 +17,8 @@ This directory is the source of truth for Presume's product direction, current a
 - [Codebase audit](audits/2026-09-10-codebase-product-audit.md): 19 findings with reproductions, source references, and validation limits.
 - [Product and landing audit](audits/2026-09-10-product-and-landing-audit.md): positioning, copy, visual quality, user journeys, and portfolio presentation.
 - [Remediation work map](audits/2026-09-10-remediation-work-map.md): adopted four-milestone structure, six work threads, dependencies, and handoff guidance.
+- [Working product brief](remediation/PRODUCT_DIRECTION_BRIEF.md): proposed T1 direction, representative copy, desktop/narrow composition, and evidence gates; it does not replace the approved shipping brief.
+- [Document-state implementation plan](remediation/DOCUMENT_STATE_IMPLEMENTATION_PLAN.md): T2 interfaces, editing/history, persistence and migration, complete backups, five PRs, and verification gates; implementation has not started.
 
 Milestones 18–21 in the [Milestone Plan](MILESTONE_PLAN.md#current-audit-remediation)
 track this work. The current kickoff covers product direction and document-state
