@@ -1,6 +1,6 @@
 **T2-2: Document session, history, and transitional persistence safeguards — September 12, 2026.**
 
-Implemented on `feat/t2-2-document-session` in `.worktrees/t2-2-document-session`, pending integration. The handoff and implementation are committed together. Milestone 19 and T2-3 through T2-5 remain incomplete.
+Implementation commit: `afce70e444d0d6069a88d53f23f7f68f319aa0b8`, prepared on `feat/t2-2-document-session` in `.worktrees/t2-2-document-session` and delivered through [PR #46](https://github.com/nikolaisalazar/presume/pull/46). The initial handoff and implementation were committed together. Milestone 19 and T2-3 through T2-5 remain incomplete.
 
 **Base and isolation.**
 
@@ -60,4 +60,4 @@ The reviewer independently passed 48 focused tests, checked all three engines fo
 - T4 owns Review result identity, constraint-aware staleness, and failed-rerun behavior. Prepared text is captured now, but measured scale/readiness is not yet tied to the same document revision. Existing review tests use controlled responses; no real Ollama or hosted-provider run occurred here.
 - No manual Japanese/Chinese IME, screen-reader, Windows/Linux, forced-color/touch-context-menu, or real-user acceptance was performed. Preserve these gates for T2-3/T3/T6. F09's complete backup behavior was regression-validated; the milestone is not complete.
 
-Integrate this branch before beginning T2-3. Keep T2 ownership of shared document components until that editing adapter settles; hand its final interfaces to T3 explicitly. No publication, deployment, or merge to main was performed by this task.
+Before beginning T2-3, fetch current `main` and verify that implementation commit `afce70e` is an ancestor. Keep T2 ownership of shared document components until that editing adapter settles; hand its final interfaces to T3 explicitly. The implementation/review phase did not publish, deploy, or merge to main; PR #46 records subsequent integration.

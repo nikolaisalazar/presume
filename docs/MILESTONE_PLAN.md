@@ -28,7 +28,7 @@ public deployment have not begun under this authorization.
 
 On September 12, the user authorized T2-1 implementation. Complete versioned
 backups and backward-compatible restore are implemented in T2-1; see Milestone 19 and the
-[T2-1 handoff](remediation/T2_1_BACKUP_HANDOFF.md). The user subsequently authorized T2-2 in a dedicated branch/worktree; its [session/history handoff](remediation/T2_2_SESSION_HANDOFF.md) records implementation pending integration. The remaining steps retain
+[T2-1 handoff](remediation/T2_1_BACKUP_HANDOFF.md). The user subsequently authorized T2-2 in a dedicated branch/worktree; its [session/history handoff](remediation/T2_2_SESSION_HANDOFF.md) records implementation in `afce70e` and delivery through [PR #46](https://github.com/nikolaisalazar/presume/pull/46). The remaining steps retain
 their own scope and acceptance gates.
 
 Start with Milestone 18. T2 planning under Milestone 19 may proceed alongside it;
@@ -1178,7 +1178,7 @@ Completion criteria:
 
 ### Milestone 19: Dependable Document And Review Behavior
 
-Status: In progress — T2-1 complete backups and backward-compatible restore are complete (`ef82fe4`). T2-2 session/history and transitional persistence safeguards are implemented on `feat/t2-2-document-session`, pending integration. T2-3 through T2-5 and T3/T4 remain pending. F09 is resolved by T2-1; Milestone 19 is not complete.
+Status: In progress — T2-1 complete backups and backward-compatible restore are complete (`ef82fe4`). T2-2 session/history and transitional persistence safeguards are complete (`afce70e`; [PR #46](https://github.com/nikolaisalazar/presume/pull/46)). T2-3 through T2-5 and T3/T4 remain pending. F09 is resolved by T2-1; Milestone 19 is not complete.
 
 Goal:
 
