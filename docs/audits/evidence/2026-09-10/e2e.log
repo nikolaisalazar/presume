@@ -1,0 +1,90 @@
+
+> presume@0.1.0 test:e2e
+> npm run test:e2e:unconfigured && npm run test:e2e:configured
+
+
+> presume@0.1.0 test:e2e:unconfigured
+> npm run build && playwright test -c playwright.unconfigured.config.ts
+
+
+> presume@0.1.0 build
+> tsc -b && vite build && node scripts/create-spa-fallback.mjs
+
+vite v6.4.2 building for production...
+transforming...
+✓ 6745 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                          1.76 kB │ gzip:   0.66 kB
+dist/assets/Geist-Variable-DPGgOCY9.woff2               69.76 kB
+dist/assets/EBGaramond-BoldItalic-CLmLlCJC.ttf         466.87 kB
+dist/assets/EBGaramond-Bold-9WiUFtXn.ttf               521.55 kB
+dist/assets/EBGaramond-Italic-Variable-C2_346tT.ttf    754.47 kB
+dist/assets/EBGaramond-Variable-BZHnynmT.ttf           851.18 kB
+dist/assets/index-jhwILlGq.css                          98.08 kB │ gzip:  18.25 kB
+dist/assets/index-B1RGvaoY.js                          429.02 kB │ gzip: 138.72 kB
+dist/assets/renderResumePdf-B5A7I4qA.js              1,468.51 kB │ gzip: 492.43 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 3.60s
+[WebServer] (node:91294) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 9 tests using 1 worker
+
+(node:91301) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 e2e/unconfigured.spec.ts:4:3 › unconfigured browser contracts › loads, renders a nonblank resume, exports PDF, and keeps editing available (1.5s)
+  ✓  2 e2e/unconfigured.spec.ts:134:3 › unconfigured browser contracts › keeps the approved landing responsive at every inclusive boundary (555ms)
+  ✓  3 e2e/unconfigured.spec.ts:206:3 › unconfigured browser contracts › operates the live Pretext boundary with keyboard and pointer at wide and narrow widths (506ms)
+  ✓  4 e2e/unconfigured.spec.ts:291:3 › unconfigured browser contracts › preloads Geist and keeps cold-load layout shift within budget (625ms)
+  ✓  5 e2e/unconfigured.spec.ts:316:3 › unconfigured browser contracts › loads the Letter hero only above mobile, keeps Review asset-free, and preserves accessible image failure geometry (320ms)
+  ✓  6 e2e/unconfigured.spec.ts:377:3 › unconfigured browser contracts › keeps the Fit constraints header stable and its expanded controls usable (585ms)
+  ✓  7 e2e/unconfigured.spec.ts:476:3 › unconfigured browser contracts › keeps the wide Fit summary fully readable (209ms)
+  ✓  8 e2e/unconfigured.spec.ts:504:3 › unconfigured browser contracts › keeps the Light-theme Fit keyboard focus visible (285ms)
+  ✓  9 e2e/unconfigured.spec.ts:558:3 › unconfigured browser contracts › keeps viewport overflow inside the fixed resume canvas scroller at narrow widths (1.8s)
+
+  9 passed (7.4s)
+
+> presume@0.1.0 test:e2e:configured
+> VITE_REVIEW_API_URL=http://127.0.0.1:8124 npm run build && playwright test -c playwright.configured.config.ts
+
+
+> presume@0.1.0 build
+> tsc -b && vite build && node scripts/create-spa-fallback.mjs
+
+vite v6.4.2 building for production...
+transforming...
+✓ 6745 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                          1.76 kB │ gzip:   0.66 kB
+dist/assets/Geist-Variable-DPGgOCY9.woff2               69.76 kB
+dist/assets/EBGaramond-BoldItalic-CLmLlCJC.ttf         466.87 kB
+dist/assets/EBGaramond-Bold-9WiUFtXn.ttf               521.55 kB
+dist/assets/EBGaramond-Italic-Variable-C2_346tT.ttf    754.47 kB
+dist/assets/EBGaramond-Variable-BZHnynmT.ttf           851.18 kB
+dist/assets/index-jhwILlGq.css                          98.08 kB │ gzip:  18.25 kB
+dist/assets/index-Cw_yS-3X.js                          429.12 kB │ gzip: 138.78 kB
+dist/assets/renderResumePdf-BziJwzP3.js              1,468.51 kB │ gzip: 492.43 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 3.44s
+[WebServer] (node:91493) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 3 tests using 1 worker
+
+(node:91499) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 e2e/configured-review.spec.ts:5:3 › configured review browser contracts › renders disabled service state from safe config (618ms)
+  ✓  2 e2e/configured-review.spec.ts:77:3 › configured review browser contracts › renders config-error state when backend cannot be reached (255ms)
+  ✓  3 e2e/configured-review.spec.ts:91:3 › configured review browser contracts › submits a PDF review, renders normalized result, and marks it stale after edit (3.2s)
+
+  3 passed (4.9s)

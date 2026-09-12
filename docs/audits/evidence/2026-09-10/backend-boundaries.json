@@ -1,0 +1,36 @@
+[
+  {
+    "kind": "upload_limit",
+    "limit": 1048576,
+    "status": 413,
+    "received_by_parser": 3145737,
+    "uploaded_bytes": 3145737,
+    "adapter_calls": 0
+  },
+  {
+    "kind": "cross_origin_post",
+    "status": 200,
+    "adapter_calls": 1,
+    "allow_origin": null
+  },
+  {
+    "kind": "validation_error_contract",
+    "status": 422,
+    "body": {
+      "detail": [
+        {
+          "type": "value_error",
+          "loc": [
+            "body",
+            "file"
+          ],
+          "msg": "Value error, Expected UploadFile, received: <class 'str'>",
+          "input": "private synthetic candidate input",
+          "ctx": {
+            "error": {}
+          }
+        }
+      ]
+    }
+  }
+]

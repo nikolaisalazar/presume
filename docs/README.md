@@ -12,6 +12,19 @@ This directory is the source of truth for Presume's product direction, current a
 - [Review Service](REVIEW_SERVICE.md): backend contract and setup for the FastAPI wrapper around Hiring Agent.
 - [Implementation Plan](IMPLEMENTATION_PLAN.md): supporting implementation detail for review integration work after a milestone has been selected.
 
+## September 2026 Audit Remediation
+
+- [Codebase audit](audits/2026-09-10-codebase-product-audit.md): 19 findings with reproductions, source references, and validation limits.
+- [Product and landing audit](audits/2026-09-10-product-and-landing-audit.md): positioning, copy, visual quality, user journeys, and portfolio presentation.
+- [Remediation work map](audits/2026-09-10-remediation-work-map.md): adopted four-milestone structure, six work threads, dependencies, and handoff guidance.
+- [Working product brief](remediation/PRODUCT_DIRECTION_BRIEF.md): proposed T1 direction, representative copy, desktop/narrow composition, and evidence gates; it does not replace the approved shipping brief.
+- [Document-state implementation plan](remediation/DOCUMENT_STATE_IMPLEMENTATION_PLAN.md): T2 interfaces, editing/history, persistence and migration, complete backups, five PRs, and verification gates; implementation has not started.
+
+Milestones 18–21 in the [Milestone Plan](MILESTONE_PLAN.md#current-audit-remediation)
+track this work. The current kickoff covers product direction and document-state
+planning. The audits identify gaps in the shipped behavior described below;
+they do not indicate that fixes have already been implemented.
+
 ## Current vs Planned
 
 The current shipped app is a browser resume editor with deterministic formatting, LocalStorage persistence, JSON import/export, zoom-independent canonical PDF generation, and advisory review UI that stays disabled without `VITE_REVIEW_API_URL` or when the configured review service reports review unavailable.

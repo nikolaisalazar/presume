@@ -1,0 +1,46 @@
+[
+  {
+    "reducedMotion": "no-preference",
+    "before": {
+      "scale": "1.0496093750000002",
+      "warning": [],
+      "transition": {
+        "property": "all",
+        "duration": "0s"
+      },
+      "height": 1056
+    },
+    "diagnostic": {
+      "scale": "1.0496093750000002",
+      "warning": [],
+      "transition": {
+        "property": "none",
+        "duration": "0s"
+      },
+      "height": 1056
+    }
+  },
+  {
+    "reducedMotion": "reduce",
+    "before": {
+      "scale": "0.8",
+      "warning": [
+        "Cannot fit under current constraints\n\nThe resume exceeds 1 page even at the 8px minimum. Shorten content or loosen constraints."
+      ],
+      "transition": {
+        "property": "all",
+        "duration": "1e-05s"
+      },
+      "height": 1056
+    },
+    "diagnostic": {
+      "scale": "1.0496093750000002",
+      "warning": [],
+      "transition": {
+        "property": "none",
+        "duration": "0s"
+      },
+      "height": 1056
+    }
+  }
+]

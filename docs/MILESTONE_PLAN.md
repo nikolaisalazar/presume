@@ -2,9 +2,9 @@
 
 This file is the source of truth for deciding what milestone comes next.
 
-Use `docs/IMPLEMENTATION_PLAN.md` only after a milestone has been selected. It
-contains implementation details, file names, and acceptance notes for review
-integration work, but it is not the milestone tracker.
+Read the supporting brief or implementation plan named by the selected milestone.
+`docs/IMPLEMENTATION_PLAN.md` remains historical supporting detail for the earlier
+review integration; it does not define the audit-remediation work below.
 
 ## How To Use This Plan
 
@@ -13,10 +13,27 @@ When an agent is asked to work on the next milestone:
 1. Read this file first.
 2. Compare the repository state against the milestone status below.
 3. Select the first milestone that is not complete.
-4. Use `docs/IMPLEMENTATION_PLAN.md` only as supporting detail for the selected
-   milestone.
+4. Read the supporting documents listed under that milestone. Follow its explicit
+   dependencies and any permitted parallel planning work.
 
 Do not treat implementation-plan phases as replacing this milestone sequence.
+
+## Current Audit Remediation
+
+The user adopted the four-milestone, six-thread work structure on September 10,
+2026 and authorized committing the audits, updating this tracker, and beginning
+T1 product direction and the T2 document-state implementation plan. This kickoff
+is documentation and planning only. Application fixes, production redesign, and
+public deployment have not begun under this authorization.
+
+Start with Milestone 18. T2 planning under Milestone 19 may proceed alongside it;
+the implementation milestones retain their own completion criteria. The earlier
+milestones record historical delivery and are not evidence that the newly
+reported defects have been fixed.
+
+- [Codebase audit: F01–F19](audits/2026-09-10-codebase-product-audit.md)
+- [Product and landing assessment](audits/2026-09-10-product-and-landing-audit.md)
+- [Work map, thread ownership, and handoffs](audits/2026-09-10-remediation-work-map.md)
 
 ## Milestones
 
@@ -1120,3 +1137,129 @@ Residual risk:
 - Review annotations still depend on exact section, entry, and bullet text plus
   positional matching. The helper layer reduces mutation risks, but it does not
   solve identity or reordering ambiguity.
+
+### Milestone 18: Product Direction After The Audit
+
+Status: In progress — T1 working brief prepared and reviewed; proposed direction and copy remain for selection. Production implementation has not started.
+
+Goal:
+
+- Resolve a product direction that serves job seekers and gives portfolio
+  reviewers clear evidence of design and engineering judgment.
+
+Scope:
+
+- Define the primary task, two audiences, and the public role of optional Review.
+- Map landing claims to implemented behavior or explicitly labeled examples.
+- Establish representative copy, section order, desktop/narrow composition, and
+  first-use priorities while retaining the existing visual identity where useful.
+- Record proposed changes to earlier approved landing decisions. Preparing a
+  working brief does not itself approve new final copy or a production redesign.
+
+Supporting documents:
+
+- `docs/audits/2026-09-10-product-and-landing-audit.md`
+- `docs/audits/2026-09-10-remediation-work-map.md` — T1 ownership and boundaries.
+- `docs/landing/PRESUME_LANDING_BRIEF.md` — existing shipped direction.
+- [T1 working product brief](remediation/PRODUCT_DIRECTION_BRIEF.md) — mission,
+  representative copy, desktop/narrow composition, prior decisions proposed for
+  reopening, and evidence gates. Integrated in `a789af1`.
+
+Completion criteria:
+
+- The selected direction and representative copy are resolved with the user.
+- Claims have an evidence source and a named dependency on any required fix.
+- The resulting brief distinguishes decided scope from open product questions.
+
+### Milestone 19: Dependable Document And Review Behavior
+
+Status: T2 implementation plan prepared and reviewed; application fixes and T3/T4 implementation have not started.
+
+Goal:
+
+- Make editing, recovery, persistence, export, and optional Review dependable.
+
+Scope:
+
+- T2 owns F03, F04, F05, F07, F09 and the undo prerequisite for F01: editing
+  semantics, accessible fields, document history, explicit save outcomes,
+  concurrency, and complete backward-compatible backups.
+- T3 owns F01, F02, F06, F08, F16, F19: action targets, content-only layout,
+  glyph support, PDF pagination, contrast, and reduced-motion fitting.
+- T4 owns F10, F11, F12, F13, F14, F15, F18: Review state and recovery,
+  disclosure, useful feedback, request limits, dependencies, and readiness.
+- Preserve the existing application stack and keep shared interfaces under an
+  explicit owner. T2 planning may proceed alongside Milestone 18.
+
+Supporting documents:
+
+- `docs/audits/2026-09-10-codebase-product-audit.md`
+- `docs/audits/2026-09-10-remediation-work-map.md` — T2/T3/T4 dependencies.
+- [T2 document-state implementation plan](remediation/DOCUMENT_STATE_IMPLEMENTATION_PLAN.md)
+  — document/session interfaces, editing and history behavior, transactional
+  persistence, migration/recovery, complete backups, five PRs, and acceptance
+  checks. Integrated in `6367b87`; independently reviewed against T1 and the audit.
+
+Completion criteria:
+
+- Assigned findings have been reproduced and resolved with relevant regression
+  evidence on the integrated source, including the combined F01 delete/undo flow.
+- An ordinary user can edit, undo, reopen, restore in another browser, and export
+  the intended document through the specified failure and preference states.
+- Configured Review preserves document ownership and reports useful, accurate
+  state. A service exposed to untrusted callers has the required upload and
+  dependency hardening before release.
+- Relevant contract, type, unit, backend, browser, and build checks pass under
+  the declared working runtimes. Manual coverage and limitations remain explicit.
+
+### Milestone 20: Landing Evidence And First Use
+
+Status: Not started.
+
+Goal:
+
+- Deliver the selected product direction through the landing and the entry into
+  a trustworthy editor.
+
+Scope:
+
+- T5 implements selected narrative/copy, desktop and narrow product evidence,
+  useful first-edit guidance, purposeful file-action labels, and project links.
+- Resolve F17 through deliberate route scroll and focus behavior.
+- Use verified product states for edit/fit/export evidence and clear example
+  labeling for Review. Final captures depend on Milestone 19 behavior.
+- Disposable studies may follow the selected Milestone 18 direction before
+  final product evidence is available; keep studies separate from production.
+
+Completion criteria:
+
+- Production matches the resolved brief and its responsive/accessibility intent.
+- Both landing entry points lead to a visible and understandable editing start.
+- Every prominent claim is supported by shipped behavior or a clear example label.
+- Backup, browser storage, and optional Review are described in practical terms.
+
+### Milestone 21: Integrated Product Validation And Case Study
+
+Status: Not started.
+
+Goal:
+
+- Validate the combined result for job seekers and portfolio reviewers.
+
+Scope:
+
+- T6 independently verifies the integrated commit across editing, recovery,
+  export, accessibility, responsive presentation, and configured Review.
+- Prepare task-based sessions for job seekers and portfolio reviewers; record
+  actual observations separately from automated or expert inspection.
+- Resolve recurring misunderstandings and publish the selected case-study
+  explanation using real decisions, tradeoffs, and verification evidence.
+
+Completion criteria:
+
+- The accepted finding list has been rechecked on the combined source and the
+  release candidate has passed applicable verification.
+- Intended real-user sessions have actually occurred; unperformed research is
+  reported as outstanding rather than replaced by agent opinions.
+- Final claims, metadata, product evidence, and setup documentation agree with
+  the delivered product. Deployment and publication follow the session's scope.
