@@ -18,11 +18,12 @@ This directory is the source of truth for Presume's product direction, current a
 - [Product and landing audit](audits/2026-09-10-product-and-landing-audit.md): positioning, copy, visual quality, user journeys, and portfolio presentation.
 - [Remediation work map](audits/2026-09-10-remediation-work-map.md): adopted four-milestone structure, six work threads, dependencies, and handoff guidance.
 - [Working product brief](remediation/PRODUCT_DIRECTION_BRIEF.md): proposed T1 direction, representative copy, desktop/narrow composition, and evidence gates; it does not replace the approved shipping brief.
-- [Document-state implementation plan](remediation/DOCUMENT_STATE_IMPLEMENTATION_PLAN.md): T2 interfaces, editing/history, persistence and migration, complete backups, five PRs, and verification gates; T2-1 is complete, with later steps pending.
+- [Document-state implementation plan](remediation/DOCUMENT_STATE_IMPLEMENTATION_PLAN.md): T2 interfaces, editing/history, persistence and migration, complete backups, five PRs, and verification gates; T2-1 and T2-2 are implemented; T2-3 through T2-5 remain pending.
+- [T2-2 handoff](remediation/T2_2_SESSION_HANDOFF.md): session/history contracts, reproduced failures, transitional persistence safeguards, validation, review, and later-step limitations.
 - [T2-1 handoff](remediation/T2_1_BACKUP_HANDOFF.md): F09 reproduction, complete backup/legacy restore behavior, validation, independent review, and remaining limitations.
 
 Milestones 18–21 in the [Milestone Plan](MILESTONE_PLAN.md#current-audit-remediation)
-track this work. The documentation kickoff is complete. T2-1 implements complete backups; the other remediation steps remain tracked separately. The audits remain historical evidence of the original gaps.
+track this work. The documentation kickoff is complete. T2-1 implements complete backups; T2-2 adds document sessions/history and transitional persistence safeguards. Later remediation steps remain tracked separately. The audits remain historical evidence of the original gaps.
 
 ## Current vs Planned
 

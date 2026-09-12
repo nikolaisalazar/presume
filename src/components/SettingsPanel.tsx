@@ -3,7 +3,6 @@ import { cn } from '@/lib/utils'
 import type { Constraints } from '../types'
 import {
   CONSTRAINT_LIMITS,
-  updateConstraint,
   type ConstraintKey,
 } from '../constraints'
 import {
@@ -14,21 +13,25 @@ import {
 
 interface SettingsPanelProps {
   constraints: Constraints
-  onChange: (constraints: Constraints) => void
+  onStep: (key: import('../constraints').ConstraintKey, delta: number) => void
+  onGestureStart: (key: import('../constraints').ConstraintKey) => void
+  onGestureEnd: () => void
   open: boolean
   onOpenChange: (open: boolean) => void
 }
 
 export function SettingsPanel({
   constraints,
-  onChange,
+  onStep,
+  onGestureStart,
+  onGestureEnd,
   open,
   onOpenChange,
 }: SettingsPanelProps) {
   const constraintSummary = `${constraints.maxPages} page · ${constraints.maxLinesPerBullet} line/bullet · ${constraints.minFontSize}px min`
 
   const step = (key: ConstraintKey, delta: number) => {
-    onChange(updateConstraint(constraints, key, constraints[key] + delta))
+    onStep(key, delta)
   }
 
   return (
@@ -74,6 +77,8 @@ export function SettingsPanel({
           <ConstraintStepper
             label="Page limit"
             value={constraints.maxPages}
+            onGestureStart={() => onGestureStart('maxPages')}
+            onGestureEnd={onGestureEnd}
             help="Number of resume pages"
             onDecrease={() => step('maxPages', -1)}
             onIncrease={() => step('maxPages', 1)}
@@ -89,6 +94,8 @@ export function SettingsPanel({
           <ConstraintStepper
             label="Lines per bullet"
             value={constraints.maxLinesPerBullet}
+            onGestureStart={() => onGestureStart('maxLinesPerBullet')}
+            onGestureEnd={onGestureEnd}
             help="Maximum wrapped lines"
             onDecrease={() => step('maxLinesPerBullet', -1)}
             onIncrease={() => step('maxLinesPerBullet', 1)}
@@ -106,6 +113,8 @@ export function SettingsPanel({
           <ConstraintStepper
             label="Minimum font size (px)"
             value={constraints.minFontSize}
+            onGestureStart={() => onGestureStart('minFontSize')}
+            onGestureEnd={onGestureEnd}
             help="Do not shrink below"
             onDecrease={() => step('minFontSize', -1)}
             onIncrease={() => step('minFontSize', 1)}
@@ -128,6 +137,8 @@ interface ConstraintStepperProps {
   label: string
   value: number
   help: string
+  onGestureStart: () => void
+  onGestureEnd: () => void
   onDecrease: () => void
   onIncrease: () => void
   decreaseLabel: string
@@ -140,6 +151,8 @@ function ConstraintStepper({
   label,
   value,
   help,
+  onGestureStart,
+  onGestureEnd,
   onDecrease,
   onIncrease,
   decreaseLabel,
@@ -157,6 +170,10 @@ function ConstraintStepper({
         className="shrink-0 rounded-[var(--radius-control)] border border-border bg-surface-raised outline-none shadow-[var(--shadow-inset-edge)] focus-within:outline-2 focus-within:outline-solid focus-within:outline-offset-3 focus-within:outline-ring focus-within:ring-2 focus-within:ring-focus-contrast"
         aria-label={label}
         data-slot="constraint-stepper"
+        onKeyDown={event => { if (event.key === 'Enter' && !event.repeat) onGestureStart() }}
+        onKeyUp={event => { if (event.key === 'Enter') onGestureEnd() }}
+        onBlur={onGestureEnd}
+        onPointerDown={onGestureEnd}
       >
         <div
           className="flex overflow-hidden rounded-[calc(var(--radius-control)-1px)]"

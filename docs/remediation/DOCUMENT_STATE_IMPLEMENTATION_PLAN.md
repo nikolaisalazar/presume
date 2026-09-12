@@ -1,16 +1,16 @@
 **T2: Document state and editing — implementation plan, September 10, 2026.**
 
-Status: T2-1 implemented on `plan/audit-document-state`; independent review and validation are recorded in the [T2-1 handoff](T2_1_BACKUP_HANDOFF.md). T2-2 through T2-5 remain pending under [Milestone 19](../MILESTONE_PLAN.md#milestone-19-dependable-document-and-review-behavior). The original September 10 kickoff produced this plan only; the September 12 implementation request authorizes T2-1. Broader behavior below remains planned. The baseline is `1e91742`, containing the audits and remediation tracker. Product wording is representative and remains subject to T1/T5 review.
+Status: T2-1 (`ef82fe4`) is integrated in current `main` (`af2231a`). The user authorized T2-2 implementation in a dedicated branch/worktree; session/history and transitional persistence safeguards are implemented on `feat/t2-2-document-session`, pending integration. See the [T2-1 handoff](T2_1_BACKUP_HANDOFF.md) and [T2-2 handoff](T2_2_SESSION_HANDOFF.md). T2-3 through T2-5 remain pending under [Milestone 19](../MILESTONE_PLAN.md#milestone-19-dependable-document-and-review-behavior). The original September 10 kickoff produced this plan only. Broader behavior below remains planned. Product wording is representative and remains subject to T1/T5 review.
 
 The outcome is a document that retains the user's text, supports deliberate recovery, reports whether saving succeeded, and moves between browsers with its formatting choices intact. This serves both the everyday-use standard in [PRODUCT.md](../../PRODUCT.md) and the portfolio standard. Preserve the direct document interaction, existing React stack, and [design system](../../DESIGN.md).
 
 T2 owns F03, F04, F05, F07, F09, and the history prerequisite for F01 in the [codebase audit](../audits/2026-09-10-codebase-product-audit.md). The [product assessment](../audits/2026-09-10-product-and-landing-audit.md) supplies the recovery, save-state, and practical action-label requirements. The [work map](../audits/2026-09-10-remediation-work-map.md) assigns hit targets/layout/PDF to T3, Review/service/dependencies to T4, and landing/first-use presentation to T5. T2 alone cannot close F01: correct target selection and undo must be verified together after T3 integrates.
 
-**Current behavior and the proposed boundary.**
+**Original behavior and the proposed boundary (before T2 implementation).**
 
 | Current source | Consequence | Planned responsibility |
 | --- | --- | --- |
-| [useResume.ts](../../src/useResume.ts) loads two values and writes them in separate effects | No document-wide transaction, history, conflict handling, or save result | One document session with synchronous commands and one persistence coordinator |
+| The former `src/useResume.ts` loads two values and writes them in separate effects | No document-wide transaction, history, conflict handling, or save result | One document session with synchronous commands and one persistence coordinator |
 | [storage.ts](../../src/storage.ts) conflates missing, invalid, and unreadable values; writes throw | Startup can replace unreadable data with defaults; save failures escape into React | Typed load/write outcomes, validated migration, and transactional browser storage |
 | [EditableText.tsx](../../src/components/EditableText.tsx) saves `textContent` and ignores updates while focused | Hard breaks disappear, pasted styles diverge, and replacements can leave old DOM visible | A small plain-text input adapter with explicit field, composition, and reconciliation contracts |
 | [resumeOperations.ts](../../src/resumeOperations.ts) already provides immutable operations | Useful core behavior exists, but components pass nested values captured by old renders | Reuse the helpers through commands applied to the session's latest state |
@@ -196,7 +196,7 @@ Keep the existing PDF helper signature until T3/T4 explicitly integrate the revi
 
 **Ordered PR-sized implementation steps.**
 
-Each step includes the relevant tests in the same change and an independent review. The September 12 implementation request selects T2-1; the other rows remain future deliverables. Keep one lead owner across the T2 changes. Parallel assistance is useful for a bounded browser-input investigation or test review, with explicit file ownership; it should not split canonical state and persistence across competing implementations.
+Each step includes the relevant tests in the same change and an independent review. T2-1 and T2-2 were separately authorized and implemented; T2-3 through T2-5 remain future deliverables. Keep one lead owner across the T2 changes. Parallel assistance is useful for a bounded browser-input investigation or test review, with explicit file ownership; it should not split canonical state and persistence across competing implementations.
 
 | PR | Concrete change | Evidence required before integration |
 | --- | --- | --- |

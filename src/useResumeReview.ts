@@ -1,3 +1,4 @@
+import type { PreparedSnapshot } from './documentSession'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { renderResumeToPDFBlob } from './export'
 import {
@@ -28,6 +29,7 @@ export type UseResumeReviewOptions = {
   resume: Resume
   globalScale: number
   isScaleReady?: boolean
+  prepareSnapshot?: () => PreparedSnapshot
 }
 
 export type UseResumeReviewResult = {
@@ -39,6 +41,7 @@ export function useResumeReview({
   resume,
   globalScale,
   isScaleReady = true,
+  prepareSnapshot,
 }: UseResumeReviewOptions): UseResumeReviewResult {
   const resumeKey = useMemo(() => serializeResume(resume), [resume])
   const currentResumeKeyRef = useRef(resumeKey)
@@ -112,6 +115,9 @@ export function useResumeReview({
 
   const requestReview = useCallback(async () => {
     if (!isScaleReady) return
+    const prepared = prepareSnapshot?.()
+    if (prepared && prepared.status !== 'ready') return
+    const submittedResume = prepared?.data.resume ?? resume
 
     const requestId = activeRequestIdRef.current + 1
     activeRequestIdRef.current = requestId
@@ -136,13 +142,13 @@ export function useResumeReview({
       ...(previousReview.resultIsStale ? { resultIsStale: true } : {}),
     })
 
-    const submittedResumeKey = currentResumeKeyRef.current
+    const submittedResumeKey = serializeResume(submittedResume)
 
     try {
       // Let React commit and paint the loading state before the cached PDF
       // renderer begins its CPU-heavy synchronous layout work on repeat reviews.
       await yieldForBrowserPaint()
-      const pdf = await renderResumeToPDFBlob(resume, globalScale)
+      const pdf = await renderResumeToPDFBlob(submittedResume, globalScale)
       const result = await submitResumeForReview(pdf)
       if (activeRequestIdRef.current !== requestId) {
         return
@@ -167,7 +173,7 @@ export function useResumeReview({
         ...(previousReview.resultIsStale ? { resultIsStale: true } : {}),
       })
     }
-  }, [globalScale, isScaleReady, resume, state])
+  }, [globalScale, isScaleReady, resume, state, prepareSnapshot])
 
   return { state, requestReview }
 }

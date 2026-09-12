@@ -1,6 +1,15 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import { ResumePage } from '../components/ResumePage'
+import { ResumePage as SessionResumePage } from '../components/ResumePage'
+import { DocumentSessionContext } from '../useDocumentSession'
+import { createDocumentSession } from '../documentSession'
+import { DEFAULT_CONSTRAINTS } from '../constraints'
+import type { ComponentProps } from 'react'
+
+function ResumePage(props: ComponentProps<typeof SessionResumePage>) {
+  const session = createDocumentSession({ initial: { data: { resume: props.resume, constraints: DEFAULT_CONSTRAINTS }, status: 'sample' } })
+  return <DocumentSessionContext.Provider value={session}><SessionResumePage {...props} /></DocumentSessionContext.Provider>
+}
 import { ReviewPanel } from '../components/ReviewPanel'
 import {
   ReviewCategorySelector,
@@ -953,7 +962,6 @@ describe('review annotations', () => {
         resume={resume}
         warnings={EMPTY_FORMATTING_WARNINGS}
         reviewAnnotations={reviewResult.annotations}
-        onResumeChange={vi.fn()}
       />
     )
 
@@ -981,7 +989,6 @@ describe('review annotations', () => {
             severity: 'info',
           },
         ]}
-        onResumeChange={vi.fn()}
       />
     )
 
@@ -1007,7 +1014,6 @@ describe('review annotations', () => {
             severity: 'info',
           },
         ]}
-        onResumeChange={vi.fn()}
       />
     )
 
@@ -1030,7 +1036,6 @@ describe('review annotations', () => {
             severity: 'strong',
           },
         ]}
-        onResumeChange={vi.fn()}
       />
     )
 
@@ -1064,7 +1069,6 @@ describe('review annotations', () => {
             severity: 'warning',
           },
         ]}
-        onResumeChange={vi.fn()}
       />
     )
 
@@ -1100,7 +1104,6 @@ describe('review annotations', () => {
             severity: 'warning',
           },
         ]}
-        onResumeChange={vi.fn()}
       />
     )
 
@@ -1126,7 +1129,6 @@ describe('review annotations', () => {
             severity: 'warning',
           },
         ]}
-        onResumeChange={vi.fn()}
       />
     )
 
@@ -1165,7 +1167,6 @@ describe('review annotations', () => {
             severity: 'info',
           },
         ]}
-        onResumeChange={vi.fn()}
       />
     )
 
@@ -1196,7 +1197,6 @@ describe('review annotations', () => {
             severity: 'info',
           },
         ]}
-        onResumeChange={vi.fn()}
       />
     )
 
@@ -1231,7 +1231,6 @@ describe('review annotations', () => {
             severity: 'info',
           },
         ]}
-        onResumeChange={vi.fn()}
       />
     )
 
@@ -1264,7 +1263,6 @@ describe('review annotations', () => {
         resume={duplicateBulletResume}
         warnings={EMPTY_FORMATTING_WARNINGS}
         reviewAnnotations={reviewResult.annotations}
-        onResumeChange={vi.fn()}
       />
     )
 
@@ -1280,7 +1278,6 @@ describe('review annotations', () => {
           bullets: [{ sectionIndex: 0, entryIndex: 0, bulletIndex: 0 }],
         }}
         reviewAnnotations={reviewResult.annotations}
-        onResumeChange={vi.fn()}
       />
     )
 

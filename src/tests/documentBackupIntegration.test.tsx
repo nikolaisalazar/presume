@@ -26,6 +26,8 @@ const renderEditor = () => {
 
 beforeEach(() => {
   localStorage.clear()
+  localStorage.setItem('presume:resume', JSON.stringify(original.resume))
+  localStorage.setItem('presume:constraints', JSON.stringify(original.constraints))
   window.history.pushState({}, '', '/presume/editor/')
   vi.stubEnv('VITE_REVIEW_API_URL', '')
   vi.spyOn(window, 'confirm').mockReturnValue(true)

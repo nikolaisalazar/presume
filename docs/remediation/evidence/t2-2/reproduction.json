@@ -1,0 +1,22 @@
+{
+  "baseCommit": "af2231a2b584d5463eac5f6919cde4bd5dc33a00",
+  "integratedT2_1Commit": "ef82fe4a00c68a5d614414c4ef51b89abbb723e4",
+  "command": "npm test -- --run src/tests/documentSessionIntegration.test.tsx",
+  "runtime": "Node v24.19.0, Vitest jsdom",
+  "before": {
+    "tests": 4,
+    "failed": 4,
+    "observations": [
+      "After section deletion and an internal landing/editor round trip, no Undo action exists.",
+      "A complete restore while the name is focused leaves the old focused name in the DOM.",
+      "Reset leaves maxPages at 2 instead of resetting both document halves to defaults.",
+      "QuotaExceededError escapes saveResume's React effect when Storage.setItem throws."
+    ]
+  },
+  "after": {
+    "originalRegressionCasesPassed": 4,
+    "maintainedRegressionFile": "src/tests/documentSessionIntegration.test.tsx",
+    "additionalCoverage": "src/tests/documentSession.test.ts and e2e/document-session.spec.ts",
+    "scope": "Session/history and transitional failure handling; atomic persistence and full browser input semantics remain deferred."
+  }
+}

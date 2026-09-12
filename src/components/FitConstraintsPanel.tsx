@@ -4,7 +4,9 @@ import { SettingsPanel } from './SettingsPanel'
 
 interface FitConstraintsPanelProps {
   constraints: Constraints
-  onChange: (constraints: Constraints) => void
+  onStep: (key: import('../constraints').ConstraintKey, delta: number) => void
+  onGestureStart: (key: import('../constraints').ConstraintKey) => void
+  onGestureEnd: () => void
   bulletWarningCount: number
   hasGlobalOverflow: boolean
   open: boolean
@@ -13,7 +15,9 @@ interface FitConstraintsPanelProps {
 
 export function FitConstraintsPanel({
   constraints,
-  onChange,
+  onStep,
+  onGestureStart,
+  onGestureEnd,
   bulletWarningCount,
   hasGlobalOverflow,
   open,
@@ -27,7 +31,9 @@ export function FitConstraintsPanel({
     >
       <SettingsPanel
         constraints={constraints}
-        onChange={onChange}
+        onStep={onStep}
+        onGestureStart={onGestureStart}
+        onGestureEnd={onGestureEnd}
         open={open}
         onOpenChange={onOpenChange}
       />

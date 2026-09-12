@@ -1,3 +1,4 @@
+import type { FieldPath } from '../documentCommands'
 import { EditableText } from './EditableText'
 import type { ReviewAnnotation } from '../reviewTypes'
 import {
@@ -9,7 +10,7 @@ interface BulletProps {
   text: string
   warning: boolean
   reviewAnnotations?: ReviewAnnotation[]
-  onChange: (text: string) => void
+  field: FieldPath
   onDelete: () => void
 }
 
@@ -17,7 +18,7 @@ export function Bullet({
   text,
   warning,
   reviewAnnotations = [],
-  onChange,
+  field,
   onDelete,
 }: BulletProps) {
   return (
@@ -34,7 +35,7 @@ export function Bullet({
         fontSize: `calc(var(--font-size-bullet) * var(--global-scale) * var(--resume-layout-scale))`,
       }}
     >
-      <EditableText value={text} onChange={onChange} placeholder="Bullet point" />
+      <EditableText value={text} field={field} placeholder="Bullet point" />
       <ReviewAnnotations annotations={reviewAnnotations} />
       <button
         className="editor-control editor-control--remove remove-btn bullet-remove"

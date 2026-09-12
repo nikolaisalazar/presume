@@ -1,26 +1,41 @@
 import { useEffect, useRef } from 'react'
-import type { DocumentData } from '../document'
-import { downloadDocumentBackup, readDocumentBackup, type ParsedDocumentBackup } from '../documentBackup'
+import { useSessionSnapshot } from '../useDocumentSession'
+import type { DocumentSession, PreparedSnapshot } from '../documentSession'
+import { downloadDocumentBackup, readDocumentBackup } from '../documentBackup'
 import { exportPDF } from '../export'
 import { Button } from './ui/button'
 
 interface ToolbarProps {
-  data: DocumentData
+  session: DocumentSession
   globalScale: number
   pdfReady: boolean
-  onRestore: (backup: ParsedDocumentBackup) => void
-  onReset: () => void
 }
 
-export function Toolbar({ data, globalScale, pdfReady, onRestore, onReset }: ToolbarProps) {
-  const { resume } = data
+export function Toolbar({ session, globalScale, pdfReady }: ToolbarProps) {
+  const state = useSessionSnapshot(session)
+  const prepare = () => {
+    const prepared = session.prepareSnapshot()
+    if (prepared.status !== 'ready') alert('Finish composing text before using this action.')
+    return prepared
+  }
+  const confirmCurrent = (message: string): Extract<PreparedSnapshot, { status: 'ready' }> | undefined => {
+    let prepared = prepare()
+    while (prepared.status === 'ready') {
+      if (!window.confirm(message)) return
+      const latest = prepare()
+      if (latest.status !== 'ready') return
+      if (latest.documentRevision === prepared.documentRevision) return latest
+      prepared = latest
+    }
+  }
   const fileInputRef = useRef<HTMLInputElement>(null)
   const restoreRequest = useRef(0)
   useEffect(() => () => { restoreRequest.current += 1 }, [])
 
   const handleExportPDF = async () => {
     try {
-      await exportPDF(resume, globalScale)
+      const prepared = prepare()
+      if (prepared.status === 'ready') await exportPDF(prepared.data.resume, globalScale)
     } catch (err) {
       alert(`PDF export failed: ${err instanceof Error ? err.message : String(err)}`)
     }
@@ -28,7 +43,8 @@ export function Toolbar({ data, globalScale, pdfReady, onRestore, onReset }: Too
 
   const handleDownloadBackup = () => {
     try {
-      downloadDocumentBackup(data)
+      const prepared = prepare()
+      if (prepared.status === 'ready') downloadDocumentBackup(prepared.data)
     } catch {
       alert('Backup download failed. Please try again.')
     }
@@ -53,7 +69,8 @@ export function Toolbar({ data, globalScale, pdfReady, onRestore, onReset }: Too
       const message = backup.kind === 'legacy'
         ? 'This file contains resume text only. Your current formatting settings will be kept. Restore will replace your current resume text. Continue?'
         : 'Restore will replace your current resume text and formatting settings with this backup. Continue?'
-      if (window.confirm(message)) onRestore(backup)
+      const prepared = confirmCurrent(message)
+      if (prepared && request === restoreRequest.current) session.restore(backup, prepared.documentRevision)
     } catch (err) {
       if (request === restoreRequest.current) {
         alert(`Restore failed: ${err instanceof Error ? err.message : 'Failed to read the file.'}`)
@@ -62,10 +79,8 @@ export function Toolbar({ data, globalScale, pdfReady, onRestore, onReset }: Too
   }
 
   const handleReset = () => {
-    const confirmed = window.confirm(
-      "Reset to the default Jake's Resume template? This will clear your current resume."
-    )
-    if (confirmed) onReset()
+    const prepared = confirmCurrent("Reset to the default Jake's Resume template? This replaces your resume text and formatting settings. You can undo this reset.")
+    if (prepared) session.resetTemplate(prepared.documentRevision)
   }
 
   return (
@@ -73,6 +88,10 @@ export function Toolbar({ data, globalScale, pdfReady, onRestore, onReset }: Too
       <div data-slot="toolbar-group" className="flex min-w-0 flex-wrap items-center gap-2" role="group" aria-label="Export actions">
         <Button size="editor" onClick={handleExportPDF} disabled={!pdfReady}>Export PDF</Button>
         <Button variant="outline" size="editor" onClick={handleDownloadBackup} title="Download resume text and formatting settings as JSON">Download backup</Button>
+      </div>
+      <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Document history">
+        <Button variant="outline" size="editor" disabled={!state.canUndo || state.composing} aria-label={state.undoLabel ? `Undo ${state.undoLabel}` : 'Undo'} onClick={() => session.undo()}>Undo</Button>
+        <Button variant="outline" size="editor" disabled={!state.canRedo || state.composing} aria-label={state.redoLabel ? `Redo ${state.redoLabel}` : 'Redo'} onClick={() => session.redo()}>Redo</Button>
       </div>
       <div data-slot="toolbar-group" className="flex min-w-0 flex-wrap items-center gap-2" role="group" aria-label="File actions">
         <Button variant="outline" size="editor" onClick={handleImportClick} title="Restore a JSON backup or an older resume JSON file">Restore backup</Button>

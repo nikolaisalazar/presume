@@ -78,3 +78,41 @@ describe('saveConstraints / loadConstraints', () => {
     expect(loadConstraints()).toEqual(mockConstraints)
   })
 })
+
+describe('transitional document safeguards', () => {
+  it('distinguishes missing, malformed and method-denied reads without writing', async () => {
+    const { readTransitionalDocument } = await import('../storage')
+    const set = vi.spyOn(Storage.prototype, 'setItem')
+    expect(readTransitionalDocument().status).toBe('sample')
+    expect(set).not.toHaveBeenCalled()
+    localStorage.setItem(RESUME_KEY, '{bad')
+    const read = readTransitionalDocument()
+    expect(read.status).toBe('recovery')
+    expect(read.reason).toBe('invalid')
+    expect(read.raw?.resume).toBe('{bad')
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => { throw new Error('denied') })
+    expect(readTransitionalDocument()).toMatchObject({ status: 'recovery', reason: 'read-failed' })
+  })
+  it('catches the storage getter in both theme startup and document discovery/writes', async () => {
+    const { readTransitionalDocument, writeTransitionalDocument, sampleDocument } = await import('../storage')
+    const { initializeTheme } = await import('../theme')
+    const descriptor = Object.getOwnPropertyDescriptor(window, 'localStorage')!
+    Object.defineProperty(window, 'localStorage', { configurable: true, get() { throw new DOMException('denied', 'SecurityError') } })
+    try {
+      expect(() => initializeTheme()).not.toThrow()
+      expect(readTransitionalDocument()).toMatchObject({ status: 'recovery', reason: 'read-failed' })
+      expect(writeTransitionalDocument(sampleDocument())).toEqual({ status: 'unsaved', reason: 'unavailable' })
+    } finally { Object.defineProperty(window, 'localStorage', descriptor) }
+  })
+  it('reports a second-key failure without claiming a complete save', async () => {
+    const { writeTransitionalDocument, sampleDocument } = await import('../storage')
+    const set = Storage.prototype.setItem
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(function (this: Storage, key, value) {
+      if (key === CONSTRAINTS_KEY) throw new DOMException('quota', 'QuotaExceededError')
+      set.call(this, key, value)
+    })
+    expect(writeTransitionalDocument(sampleDocument())).toEqual({ status: 'unsaved', reason: 'quota' })
+    expect(loadResume()).toEqual(sampleDocument().resume)
+    expect(loadConstraints()).toBeNull()
+  })
+})

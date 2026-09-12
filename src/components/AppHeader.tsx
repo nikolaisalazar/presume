@@ -3,9 +3,10 @@ import { BrandMark } from './BrandMark'
 
 export interface AppHeaderProps {
   onOpenLanding: () => void
+  saveStatus: string
 }
 
-export function AppHeader({ onOpenLanding }: AppHeaderProps) {
+export function AppHeader({ onOpenLanding, saveStatus }: AppHeaderProps) {
   return (
     <header className="app-header">
       <a
@@ -22,7 +23,7 @@ export function AppHeader({ onOpenLanding }: AppHeaderProps) {
       </a>
       <div className="app-header__meta" aria-label="Editor status and appearance">
         <span className="app-header__save-status" data-slot="editor-save-status">
-          Saved locally
+          {saveStatus}
         </span>
         <ThemeControl />
       </div>

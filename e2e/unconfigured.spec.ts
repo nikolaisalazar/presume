@@ -71,11 +71,12 @@ test.describe('unconfigured browser contracts', () => {
 
     const commandDeck = page.locator('[data-slot="document-actions"]')
     await expect(commandDeck).toBeVisible()
-    await expect(commandDeck.locator('[data-slot="button"]')).toHaveCount(4)
     await expect(commandDeck.locator('[data-slot="separator"]')).toHaveCount(0)
     await expect(commandDeck.locator('[data-slot="button"]')).toHaveText([
       'Export PDF',
       'Download backup',
+      'Undo',
+      'Redo',
       'Restore backup',
       'Reset template',
     ])
