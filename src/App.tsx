@@ -50,7 +50,7 @@ export default function App() {
 }
 
 function EditorApp({ onOpenLanding }: { onOpenLanding: () => void }) {
-  const { resume, setResume, constraints, setConstraints } = useResume()
+  const { data, resume, setResume, constraints, setConstraints, restoreBackup } = useResume()
   const pageRef = useRef<HTMLDivElement>(null)
   const [reviewPanelOpen, setReviewPanelOpen] = useState(false)
   const [fitPanelOpen, setFitPanelOpen] = useState(false)
@@ -125,10 +125,10 @@ function EditorApp({ onOpenLanding }: { onOpenLanding: () => void }) {
             data-slot="document-actions"
           >
             <Toolbar
-              resume={resume}
+              data={data}
               globalScale={globalScale}
               pdfReady={isScaleReady}
-              onImport={setResume}
+              onRestore={restoreBackup}
               onReset={() => setResume(DEFAULT_RESUME)}
             />
           </div>

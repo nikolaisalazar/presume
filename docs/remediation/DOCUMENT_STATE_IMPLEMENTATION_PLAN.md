@@ -1,6 +1,6 @@
 **T2: Document state and editing — implementation plan, September 10, 2026.**
 
-Status: prepared for future implementation under [Milestone 19](../MILESTONE_PLAN.md#milestone-19-dependable-document-and-review-behavior). The authorized kickoff produces this plan; it does not implement or ship the behavior described below. The baseline is `1e91742`, containing the audits and remediation tracker. Product wording is representative and remains subject to T1/T5 review.
+Status: T2-1 implemented on `plan/audit-document-state`; independent review and validation are recorded in the [T2-1 handoff](T2_1_BACKUP_HANDOFF.md). T2-2 through T2-5 remain pending under [Milestone 19](../MILESTONE_PLAN.md#milestone-19-dependable-document-and-review-behavior). The original September 10 kickoff produced this plan only; the September 12 implementation request authorizes T2-1. Broader behavior below remains planned. The baseline is `1e91742`, containing the audits and remediation tracker. Product wording is representative and remains subject to T1/T5 review.
 
 The outcome is a document that retains the user's text, supports deliberate recovery, reports whether saving succeeded, and moves between browsers with its formatting choices intact. This serves both the everyday-use standard in [PRODUCT.md](../../PRODUCT.md) and the portfolio standard. Preserve the direct document interaction, existing React stack, and [design system](../../DESIGN.md).
 
@@ -196,7 +196,7 @@ Keep the existing PDF helper signature until T3/T4 explicitly integrate the revi
 
 **Ordered PR-sized implementation steps.**
 
-Each step includes the relevant tests in the same change and an independent review. These are future deliverables, not permission to start implementation during this documentation kickoff. Keep one lead owner across the T2 changes. Parallel assistance is useful for a bounded browser-input investigation or test review, with explicit file ownership; it should not split canonical state and persistence across competing implementations.
+Each step includes the relevant tests in the same change and an independent review. The September 12 implementation request selects T2-1; the other rows remain future deliverables. Keep one lead owner across the T2 changes. Parallel assistance is useful for a bounded browser-input investigation or test review, with explicit file ownership; it should not split canonical state and persistence across competing implementations.
 
 | PR | Concrete change | Evidence required before integration |
 | --- | --- | --- |
@@ -243,4 +243,4 @@ Routine implementation choices resolved by this plan are one complete document p
 
 No product question blocks preparing the T2 implementation work. T1/T5 should settle final action/status/help wording and presentation around these behaviors. Named variants, cloud synchronization, automatic merge, and persistent multi-session history remain separate product decisions outside T2. The primary technical tradeoff to validate early is whether the retained plain-text editing host stays smaller and more reliable than a native field integrated with T3's geometry. The PR gate above supplies a clear point to change that choice using browser evidence.
 
-Plan verification: source and audit review plus platform-documentation review; no application implementation, dependency installation, live user research, or product regression execution was performed for this planning task. Link and whitespace checks are recorded with the documentation handoff. Future implementation must reproduce the audit cases against its then-current checkout.
+Original plan verification (September 10): source and audit review plus platform-documentation review; no application implementation, dependency installation, live user research, or product regression execution was performed for this planning task. Link and whitespace checks are recorded with the documentation handoff. Future implementation must reproduce the audit cases against its then-current checkout.

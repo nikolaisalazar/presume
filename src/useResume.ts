@@ -1,13 +1,27 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, type SetStateAction } from 'react'
 import type { Constraints, Resume } from './types'
 import { DEFAULT_CONSTRAINTS } from './constraints'
 import { loadConstraints, loadResume, saveConstraints, saveResume } from './storage'
 import { DEFAULT_RESUME } from './defaultResume'
+import type { DocumentData } from './document'
+import type { ParsedDocumentBackup } from './documentBackup'
 
 export function useResume() {
-  const [resume, setResume] = useState<Resume>(() => loadResume() ?? DEFAULT_RESUME)
-  const [constraints, setConstraints] = useState<Constraints>(
-    () => loadConstraints() ?? DEFAULT_CONSTRAINTS
+  const [data, setData] = useState<DocumentData>(() => ({
+    resume: loadResume() ?? DEFAULT_RESUME,
+    constraints: loadConstraints() ?? DEFAULT_CONSTRAINTS,
+  }))
+  const { resume, constraints } = data
+  const setResume = (next: SetStateAction<Resume>) => setData(current => ({
+    ...current,
+    resume: typeof next === 'function' ? next(current.resume) : next,
+  }))
+  const setConstraints = (next: SetStateAction<Constraints>) => setData(current => ({
+    ...current,
+    constraints: typeof next === 'function' ? next(current.constraints) : next,
+  }))
+  const restoreBackup = (backup: ParsedDocumentBackup) => setData(current =>
+    backup.kind === 'complete' ? backup.data : { ...current, resume: backup.resume }
   )
 
   useEffect(() => {
@@ -18,5 +32,5 @@ export function useResume() {
     saveConstraints(constraints)
   }, [constraints])
 
-  return { resume, setResume, constraints, setConstraints }
+  return { data, resume, setResume, constraints, setConstraints, restoreBackup }
 }

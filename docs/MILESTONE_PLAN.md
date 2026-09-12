@@ -26,6 +26,12 @@ T1 product direction and the T2 document-state implementation plan. This kickoff
 is documentation and planning only. Application fixes, production redesign, and
 public deployment have not begun under this authorization.
 
+On September 12, the user authorized T2-1 implementation. Complete versioned
+backups and backward-compatible restore are implemented on the T2 branch,
+pending integration; see Milestone 19 and the
+[T2-1 handoff](remediation/T2_1_BACKUP_HANDOFF.md). The remaining steps retain
+their own scope and acceptance gates.
+
 Start with Milestone 18. T2 planning under Milestone 19 may proceed alongside it;
 the implementation milestones retain their own completion criteria. The earlier
 milestones record historical delivery and are not evidence that the newly
@@ -1173,7 +1179,7 @@ Completion criteria:
 
 ### Milestone 19: Dependable Document And Review Behavior
 
-Status: T2 implementation plan prepared and reviewed; application fixes and T3/T4 implementation have not started.
+Status: In progress — T2-1 complete backups and backward-compatible restore implemented on `plan/audit-document-state`, pending integration. T2-2 through T2-5 and T3/T4 remain pending. F09 is resolved on this branch; Milestone 19 is not complete.
 
 Goal:
 
@@ -1199,6 +1205,7 @@ Supporting documents:
   — document/session interfaces, editing and history behavior, transactional
   persistence, migration/recovery, complete backups, five PRs, and acceptance
   checks. Integrated in `6367b87`; independently reviewed against T1 and the audit.
+- [T2-1 implementation handoff](remediation/T2_1_BACKUP_HANDOFF.md) — F09 reproduction, complete backup/legacy restore behavior, validation, independent review, and explicit later-step limitations.
 
 Completion criteria:
 

@@ -18,12 +18,11 @@ This directory is the source of truth for Presume's product direction, current a
 - [Product and landing audit](audits/2026-09-10-product-and-landing-audit.md): positioning, copy, visual quality, user journeys, and portfolio presentation.
 - [Remediation work map](audits/2026-09-10-remediation-work-map.md): adopted four-milestone structure, six work threads, dependencies, and handoff guidance.
 - [Working product brief](remediation/PRODUCT_DIRECTION_BRIEF.md): proposed T1 direction, representative copy, desktop/narrow composition, and evidence gates; it does not replace the approved shipping brief.
-- [Document-state implementation plan](remediation/DOCUMENT_STATE_IMPLEMENTATION_PLAN.md): T2 interfaces, editing/history, persistence and migration, complete backups, five PRs, and verification gates; implementation has not started.
+- [Document-state implementation plan](remediation/DOCUMENT_STATE_IMPLEMENTATION_PLAN.md): T2 interfaces, editing/history, persistence and migration, complete backups, five PRs, and verification gates; T2-1 is implemented on its work branch, with later steps pending.
+- [T2-1 handoff](remediation/T2_1_BACKUP_HANDOFF.md): F09 reproduction, complete backup/legacy restore behavior, validation, independent review, and remaining limitations.
 
 Milestones 18–21 in the [Milestone Plan](MILESTONE_PLAN.md#current-audit-remediation)
-track this work. The current kickoff covers product direction and document-state
-planning. The audits identify gaps in the shipped behavior described below;
-they do not indicate that fixes have already been implemented.
+track this work. The documentation kickoff is complete. T2-1 implements complete backups on the T2 branch; integration and the other remediation steps remain tracked separately. The audits remain historical evidence of the original gaps.
 
 ## Current vs Planned
 

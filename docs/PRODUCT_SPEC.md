@@ -24,7 +24,7 @@ The product has two separate loops:
 - Keep the rendered resume directly editable at all times.
 - Preserve a clear relationship between typed resume data, on-page layout, and exported artifacts.
 - Fit content according to explicit constraints: max pages, max bullet lines, and minimum font size.
-- Provide portable local data through JSON export/import.
+- Provide portable resume text and formatting settings through complete JSON backup/restore.
 - Export a PDF that reflects the current rendered resume, including multiple Letter pages when the configured page limit allows them.
 - Add review feedback as advisory evidence, not automatic rewriting.
 - Keep formatting behavior independent from review behavior.
@@ -47,8 +47,8 @@ The product has two separate loops:
 3. Adjust layout constraints if needed.
 4. Let the resize engine fit the resume.
 5. Shorten content manually if the app marks an impossible fit warning.
-6. Export the result as PDF or JSON. PDF export uses one Letter page per Letter-height segment of the rendered resume.
-7. Re-import a previously exported JSON resume when needed.
+6. Export the result as PDF, or use Download backup to keep resume text and formatting settings in a versioned JSON file.
+7. Restore backup validates before confirming replacement. Older resume JSON files replace text and keep current formatting settings, as explained in the confirmation.
 
 ### Current Review Workflow
 
@@ -65,7 +65,7 @@ The product has two separate loops:
 ### Automated Browser Review/Export Checks
 
 1. Run `npm run test:e2e` to launch the real Vite app in Chromium through
-   Playwright.
+   Playwright. Backup round trips additionally run in Firefox and WebKit.
 2. The suite verifies `/presume/` base-path app load, nonblank resume rendering,
    normal PDF export download, unconfigured/disabled/config-error review states, fixture-backed
    review submission and rendering, stale-after-edit behavior, and narrow
@@ -82,7 +82,7 @@ The app currently supports:
 - Editing name, contact items, sections, entries, and bullets.
 - Adding and removing contact items, sections, entries, and bullets.
 - Autosaving resume content and constraints to LocalStorage.
-- Validating imported JSON before replacing current resume data.
+- Validating complete backups and older resume JSON before confirming replacement; invalid, unsupported, canceled, or unreadable files preserve current text and settings.
 - Exporting the resume as a zoom-independent Letter-sized PDF, with additional PDF pages when the content exceeds one page.
 - Warning on content that cannot fit within the configured constraints.
 
