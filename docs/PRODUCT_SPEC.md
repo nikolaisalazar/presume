@@ -65,7 +65,7 @@ The product has two separate loops:
 ### Automated Browser Review/Export Checks
 
 1. Run `npm run test:e2e` to launch the real Vite app in Chromium through
-   Playwright. Backup round trips additionally run in Firefox and WebKit.
+   Playwright. Backup and document-session journeys additionally run in Firefox and WebKit.
 2. The suite verifies `/presume/` base-path app load, nonblank resume rendering,
    normal PDF export download, unconfigured/disabled/config-error review states, fixture-backed
    review submission and rendering, stale-after-edit behavior, and narrow
@@ -81,7 +81,8 @@ The app currently supports:
 
 - Editing name, contact items, sections, entries, and bullets.
 - Adding and removing contact items, sections, entries, and bullets.
-- Autosaving resume content and constraints to LocalStorage.
+- Session Undo/Redo for up to 100 groups across text, formatting, structural changes, restore, and reset; history survives internal navigation and ends on reload.
+- Saving resume content and constraints through a caught transitional LocalStorage adapter, with visible unsaved/recovery states, backup, and retry. An untouched sample is not saved; unreadable stored values are preserved until deliberate replacement. Separate-key writes and cross-tab overwrites remain limitations until T2-4.
 - Validating complete backups and older resume JSON before confirming replacement; invalid, unsupported, canceled, or unreadable files preserve current text and settings.
 - Exporting the resume as a zoom-independent Letter-sized PDF, with additional PDF pages when the content exceeds one page.
 - Warning on content that cannot fit within the configured constraints.

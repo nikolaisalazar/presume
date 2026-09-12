@@ -352,7 +352,7 @@ describe('App review availability boundaries', () => {
       screen.queryByText('Edit the final resume directly. Presume keeps it fitting.')
     ).not.toBeInTheDocument()
 
-    const saveStatus = screen.getByText('Saved locally')
+    const saveStatus = screen.getByText('Sample — not saved')
     const appearance = screen.getByRole('group', { name: 'Appearance' })
     expect(saveStatus).toHaveAttribute('data-slot', 'editor-save-status')
     expect(saveStatus).not.toHaveAttribute('data-slot', 'badge')
@@ -450,7 +450,7 @@ describe('App review availability boundaries', () => {
 
     render(<App />)
 
-    const warning = screen.getByRole('status')
+    const warning = within(screen.getByRole('complementary', { name: 'Fit constraints and formatting' })).getByRole('status')
     expect(warning).toHaveAttribute('data-slot', 'alert')
     expect(warning).toHaveClass(
       'border-t',
@@ -466,7 +466,7 @@ describe('App review availability boundaries', () => {
     const fitRegion = screen.getByRole('complementary', {
       name: 'Fit constraints and formatting',
     })
-    expect(fitRegion).toContainElement(screen.getByRole('status'))
+    expect(fitRegion).toContainElement(warning)
     expect(
       screen.getByText('1 bullet exceeds 1 line per bullet even at the 8px minimum. Shorten it or loosen constraints.')
     ).toBeInTheDocument()
@@ -478,7 +478,7 @@ describe('App review availability boundaries', () => {
 
     render(<App />)
 
-    const warning = screen.getByRole('status')
+    const warning = within(screen.getByRole('complementary', { name: 'Fit constraints and formatting' })).getByRole('status')
     expect(warning).toHaveAttribute('data-slot', 'alert')
     expect(warning.querySelector('[data-slot="alert-title"]')).toHaveTextContent(
       'Cannot fit under current constraints'
@@ -489,7 +489,7 @@ describe('App review availability boundaries', () => {
     const fitRegion = screen.getByRole('complementary', {
       name: 'Fit constraints and formatting',
     })
-    expect(fitRegion).toContainElement(screen.getByRole('status'))
+    expect(fitRegion).toContainElement(warning)
     expect(
       screen.getByText('The resume exceeds 1 page even at the 8px minimum. Shorten content or loosen constraints.')
     ).toBeInTheDocument()
@@ -508,7 +508,7 @@ describe('App review availability boundaries', () => {
 
     render(<App />)
 
-    const warning = screen.getByRole('status')
+    const warning = within(screen.getByRole('complementary', { name: 'Fit constraints and formatting' })).getByRole('status')
     expect(warning).toHaveAttribute('data-slot', 'alert')
     expect(warning.querySelector('[data-slot="alert-title"]')).toHaveTextContent(
       'Cannot fit under current constraints'
@@ -522,7 +522,7 @@ describe('App review availability boundaries', () => {
     const fitRegion = screen.getByRole('complementary', {
       name: 'Fit constraints and formatting',
     })
-    expect(fitRegion).toContainElement(screen.getByRole('status'))
+    expect(fitRegion).toContainElement(warning)
     expect(
       screen.getByText('The resume exceeds 1 page even at the 8px minimum. Shorten content or loosen constraints.')
     ).toBeInTheDocument()

@@ -9,16 +9,18 @@ Presume is currently a React application with an optional review service. The fr
 | Module | Responsibility |
 |---|---|
 | `src/App.tsx` | Composes resume state, settings, toolbar, resume page, and resize warnings. |
-| `src/useResume.ts` | Owns resume and constraint state, loading defaults from LocalStorage and autosaving changes. |
+| `src/documentSession.ts` / `src/useDocumentSession.ts` | Own one synchronous session above internal routes; expose immutable snapshots through `useSyncExternalStore`, revisions, edit tokens, preparation, history, and save outcomes. |
+| `src/documentHistory.ts` / `src/documentCommands.ts` | Reduce bounded snapshot history and apply typed field/structure/constraint commands to the latest data. |
+| `src/documentSelection.ts` | Capture and restore UTF-16 focus anchors without splitting surrogate pairs. |
 | `src/formatting/` | Pure in-process module that computes a `ResumeFit` from resume data, constraints, and injected measurements. |
 | `src/useResizeEngine.ts` | React/DOM/Pretext adapter that supplies live measurements to the formatting module and publishes its result. |
-| `src/export.ts` | Exports single-page or multi-page Letter PDFs; its renderer API is unchanged by T2-1. |
+| `src/export.ts` | Exports single-page or multi-page Letter PDFs; its renderer API remains unchanged. |
 | `src/document.ts` | Defines and validates portable `DocumentData` containing resume and constraints. |
 | `src/documentBackup.ts` | Encodes versioned complete JSON backups, reads legacy resume files, validates before restore, and initiates downloads. |
 | `src/constraints.ts` | Owns the constraint interface, inclusive bounds, defaults, parsing, and controlled updates. |
 | `src/types.ts` | Defines resume data and validators, with compatibility re-exports for constraints. |
 | `src/resumeOperations.ts` | Provides pure immutable helpers for contact, section, entry, and bullet editing operations. |
-| `src/storage.ts` | Wraps LocalStorage persistence for resume data and constraints. |
+| `src/storage.ts` | Catches transitional two-key LocalStorage reads/writes and distinguishes sample, saved, recovery, and unsaved outcomes. |
 | `src/defaultResume.ts` | Provides the initial resume template. |
 | `src/components/*` | Renders editable resume UI, settings, toolbar, sections, entries, bullets, and header. |
 | `src/styles/app.css` | App shell, toolbar, settings, and editing controls. |
@@ -55,7 +57,7 @@ type Constraints = {
 
 The public Resume shape remains the editing content model and the resume LocalStorage value. New JSON backups wrap it with formatting constraints in `DocumentData`; bare Resume JSON remains accepted for restore. Imported JSON is validated and unknown fields are stripped. Milestone 17 preserved this public shape while moving contact, section, entry, and bullet mutations into tested pure helpers so inline editor components no longer own array manipulation directly.
 
-Persisted formatting constraints are parsed against the inclusive bounds in `src/constraints.ts`. Invalid values are rejected rather than clamped, allowing `useResume` to fall back to the defaults; unknown fields on otherwise valid constraint data are stripped.
+Persisted formatting constraints are parsed against the inclusive bounds in `src/constraints.ts`. Invalid values are rejected rather than clamped; unknown fields on otherwise valid constraint data are stripped. Invalid or inaccessible stored values enter recovery without writing defaults over the original data.
 
 ## Complete Backup Format
 
@@ -63,7 +65,11 @@ T2-1 writes `{ format: "presume-backup", version: 1, exportedAt, data: { resume,
 
 The toolbar reads and validates before confirming replacement. Complete restores replace both halves of the in-memory document with one React state update; legacy imports replace text and retain the constraints current when the update is applied. A newer file selection or editor unmount invalidates an older pending read. Cancellation and errors preserve current data and reset the file input for another selection of the same file.
 
-`useResume` currently stores one `DocumentData` state, but persistence still writes the two legacy LocalStorage keys in separate effects. This is not an atomic durable transaction or a document-session implementation. Prepared snapshots/composition handling, undo, focused replacement reconciliation, save outcomes, and IndexedDB migration remain later T2 steps.
+T2-2 replaces `useResume` with an application-owned document session. Typed commands use current state and reject stale structural epochs/edit tokens. The reducer retains at most 100 undoable groups across text, formatting, structure, restore, and reset. Ordinary same-field/same-operation input groups while events are less than 750ms apart; selection moves, blur, distinct operations and commands end groups. Repeated Enter on a constraint stepper is one gesture. History ends on reload, survives internal routes, and does not rewind the document revision. Effective replacements remount the field Fragment by reconciliation epoch while preserving the `.resume-page` root; history carries focus/selection anchors.
+
+`prepareSnapshot()` flushes an active non-composing field and returns immutable `{ status: 'ready', data, documentRevision }`, or `{ status: 'composing' }`. Backup/PDF/Review callers prepare first. Restore/reset recheck the confirmed revision; legacy restore retains settings at application time. Basic composition guards keep an internal route pending until completion. The rich contentEditable serializer and full native history/composition/AX behavior remain T2-3 work; revision-tagged layout and Review result identity remain T3/T4 work.
+
+Persistence is explicitly transitional: caught synchronous writes still update `presume:resume` and `presume:constraints` separately. Only both successful writes acknowledge the current document. A failure, including the second key, retains the full draft/history and exposes retry and complete backup. Invalid/denied discovery preserves original values and disables automatic writes; raw readable values can be downloaded, and replacing browser data requires confirmation. There are no startup writes for a sample. The theme storage getter is also guarded so recovery can mount. This is not atomic or concurrency-safe: partial durable pairs and older-tab overwrites remain possible (F05 open) until T2-4 replaces the adapter with IndexedDB and its recovery protocol.
 
 ## Current Formatting Behavior
 
@@ -98,9 +104,10 @@ The current renderer does not create visible page-break UI inside the editor. Th
 flowchart TD
   User[User edits resume] --> Components[src/components]
   Components --> App[src/App.tsx]
-  App --> UseResume[src/useResume.ts]
-  UseResume --> Storage[src/storage.ts and LocalStorage]
-  UseResume --> Resize[src/useResizeEngine.ts]
+  App --> Session[src/documentSession.ts via useSyncExternalStore]
+  Session --> History[src/documentHistory.ts]
+  Session --> Storage[src/storage.ts transitional LocalStorage]
+  Session --> Resize[src/useResizeEngine.ts]
   Resize --> Pretext[@chenglou/pretext]
   Resize --> DOM[Resume DOM height measurement]
   Resize --> Formatting[src/formatting pure ResumeFit computation]

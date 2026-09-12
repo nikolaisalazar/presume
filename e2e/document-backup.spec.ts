@@ -54,7 +54,8 @@ test('F09: actual download restores all text and non-default settings in a fresh
   try {
     const restored = await fresh.newPage()
     await restored.goto(page.url())
-    await expect.poll(() => snapshot(restored)).toEqual({ resume: DEFAULT_RESUME, constraints: DEFAULT_CONSTRAINTS })
+    await expect(restored.locator('.resume-name')).toHaveText(DEFAULT_RESUME.name)
+    expect(await snapshot(restored)).toEqual({ resume: null, constraints: null })
     const dialogPromise = restored.waitForEvent('dialog')
     const restoring = restored.locator('input[type=file]').setInputFiles(path)
     const dialog = await dialogPromise

@@ -83,7 +83,8 @@ function applyThemePreference(preference: ThemePreference) {
 }
 
 export function initializeTheme(): ThemePreference {
-  const preference = readThemePreference(window.localStorage)
+  let preference: ThemePreference = 'system'
+  try { preference = readThemePreference(window.localStorage) } catch { /* Storage getter may be denied before React mounts. */ }
   currentPreference = preference
   applyThemePreference(preference)
   return preference

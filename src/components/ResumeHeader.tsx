@@ -1,23 +1,19 @@
 import { EditableText } from './EditableText'
 import type { Resume } from '../types'
-import {
-  addContactItem,
-  removeContactItem,
-  updateContactItem,
-  updateResumeName,
-} from '../resumeOperations'
+import { useSessionController } from '../useDocumentSession'
 
 interface ResumeHeaderProps {
   resume: Resume
-  onResumeChange: (resume: Resume) => void
 }
 
-export function ResumeHeader({ resume, onResumeChange }: ResumeHeaderProps) {
+export function ResumeHeader({ resume }: ResumeHeaderProps) {
+  const session = useSessionController()
+  const epoch = session.getSnapshot().reconciliationEpoch
   return (
     <header className="resume-header" role="presentation">
       <EditableText
         value={resume.name}
-        onChange={name => onResumeChange(updateResumeName(resume, name))}
+        field={{ kind: 'name' }}
         className="resume-name"
         placeholder="Your Name"
       />
@@ -27,12 +23,12 @@ export function ResumeHeader({ resume, onResumeChange }: ResumeHeaderProps) {
             <li key={i} className="resume-contact-item">
               <EditableText
                 value={item}
-                onChange={v => onResumeChange(updateContactItem(resume, i, v))}
+                field={{ kind: 'contact', index: i }}
                 placeholder="contact"
               />
               <button
                 className="editor-control editor-control--remove remove-btn"
-                onClick={() => onResumeChange(removeContactItem(resume, i))}
+                onClick={() => session.dispatch({ type: 'structure', operation: 'remove', path: { kind: 'contact', index: i }, epoch })}
                 aria-label={`Remove contact item${item ? `: ${item}` : ''}`}
                 data-editor-only="true"
               >
@@ -43,7 +39,8 @@ export function ResumeHeader({ resume, onResumeChange }: ResumeHeaderProps) {
         </ul>
         <button
           className="editor-control editor-control--add add-btn"
-          onClick={() => onResumeChange(addContactItem(resume))}
+          data-document-action="add-contact"
+          onClick={() => session.dispatch({ type: 'structure', operation: 'add', path: { kind: 'contact' }, epoch })}
           aria-label="Add contact item"
           data-editor-only="true"
         >

@@ -8,15 +8,13 @@ import {
   getReviewSeverityClass,
   type ReviewAnnotationTargets,
 } from './ReviewAnnotations'
-import { addEntry, removeEntry, updateEntry } from '../resumeOperations'
+import { useSessionController } from '../useDocumentSession'
 
 interface SectionProps {
   section: ResumeSection
   sectionIdx: number
   warnings: FormattingWarnings
   reviewAnnotationTargets?: ReviewAnnotationTargets
-  onChange: (section: ResumeSection) => void
-  onRemove: () => void
 }
 
 export function Section({
@@ -24,9 +22,9 @@ export function Section({
   sectionIdx,
   warnings,
   reviewAnnotationTargets,
-  onChange,
-  onRemove,
 }: SectionProps) {
+  const session = useSessionController()
+  const epoch = session.getSnapshot().reconciliationEpoch
   const reviewAnnotations = getReviewAnnotationsForTarget(
     reviewAnnotationTargets,
     `section-${sectionIdx}`
@@ -39,7 +37,7 @@ export function Section({
       <div className="resume-section-header-row">
         <EditableText
           value={section.title}
-          onChange={v => onChange({ ...section, title: v })}
+          field={{ kind: 'section', section: sectionIdx }}
           className="resume-section-title"
           placeholder="SECTION"
         />
@@ -47,7 +45,7 @@ export function Section({
         <div className="section-actions editor-rail" data-editor-only="true">
           <button
             className="editor-control editor-control--remove remove-btn"
-            onClick={onRemove}
+            onClick={() => session.dispatch({ type: 'structure', operation: 'remove', path: { kind: 'section', section: sectionIdx }, epoch })}
             aria-label={`Remove section: ${section.title || 'Untitled section'}`}
             data-editor-only="true"
           >
@@ -63,14 +61,13 @@ export function Section({
           entryIdx={eIdx}
           warnings={warnings}
           reviewAnnotationTargets={reviewAnnotationTargets}
-          onChange={entry => onChange(updateEntry(section, eIdx, entry))}
-          onRemove={() => onChange(removeEntry(section, eIdx))}
         />
       ))}
       <div className="controls-row" data-editor-only="true">
         <button
           className="editor-control editor-control--add add-btn"
-          onClick={() => onChange(addEntry(section))}
+          data-document-action={`add-entry-${sectionIdx}`}
+          onClick={() => session.dispatch({ type: 'structure', operation: 'add', path: { kind: 'entry', section: sectionIdx }, epoch })}
           aria-label={`Add entry to ${section.title || 'section'}`}
           data-editor-only="true"
         >

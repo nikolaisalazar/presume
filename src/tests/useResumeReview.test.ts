@@ -1,5 +1,7 @@
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { createDocumentSession } from '../documentSession'
+import { DEFAULT_CONSTRAINTS } from '../constraints'
 import type { ReviewResult } from '../reviewTypes'
 import type { Resume } from '../types'
 import { useResumeReview } from '../useResumeReview'
@@ -609,6 +611,37 @@ describe('useResumeReview', () => {
       error,
     })
     expect(workingResume).toEqual(originalResume)
+  })
+
+  it('captures the latest prepared document before asynchronous PDF work', async () => {
+    mockConfiguredApi()
+    renderResumeToPDFBlobMock.mockResolvedValue(new Blob(['%PDF'], { type: 'application/pdf' }))
+    submitResumeForReviewMock.mockResolvedValue(reviewResult)
+    const session = createDocumentSession({
+      initial: { data: { resume, constraints: DEFAULT_CONSTRAINTS }, status: 'sample' },
+      write: () => ({ status: 'saved' }),
+    })
+    let draft = 'Focused, not yet reported'
+    session.beginFieldEdit({ kind: 'name' }, undefined, () => ({ text: draft, composing: false }))
+    const { result } = renderHook(() => useResumeReview({ resume, globalScale: 1, prepareSnapshot: session.prepareSnapshot }))
+    await waitForReviewReady(result)
+    await act(async () => {
+      const pending = result.current.requestReview()
+      draft = 'Later editing'
+      session.prepareSnapshot()
+      await pending
+    })
+    expect(renderResumeToPDFBlobMock).toHaveBeenCalledWith({ ...resume, name: 'Focused, not yet reported' }, 1)
+  })
+
+  it('does not begin Review while a prepared snapshot is composing', async () => {
+    mockConfiguredApi()
+    const { result } = renderHook(() => useResumeReview({ resume, globalScale: 1, prepareSnapshot: () => ({ status: 'composing' }) }))
+    await waitForReviewReady(result)
+    await act(async () => { await result.current.requestReview() })
+    expect(renderResumeToPDFBlobMock).not.toHaveBeenCalled()
+    expect(submitResumeForReviewMock).not.toHaveBeenCalled()
+    expect(result.current.state.status).toBe('idle')
   })
 
 })

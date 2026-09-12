@@ -8,7 +8,7 @@ import {
   getReviewSeverityClass,
   type ReviewAnnotationTargets,
 } from './ReviewAnnotations'
-import { addBullet, removeBullet, updateBullet } from '../resumeOperations'
+import { useSessionController } from '../useDocumentSession'
 
 interface EntryProps {
   entry: ResumeEntry
@@ -16,8 +16,6 @@ interface EntryProps {
   entryIdx: number
   warnings: FormattingWarnings
   reviewAnnotationTargets?: ReviewAnnotationTargets
-  onChange: (entry: ResumeEntry) => void
-  onRemove: () => void
 }
 
 export function Entry({
@@ -26,9 +24,9 @@ export function Entry({
   entryIdx,
   warnings,
   reviewAnnotationTargets,
-  onChange,
-  onRemove,
 }: EntryProps) {
+  const session = useSessionController()
+  const epoch = session.getSnapshot().reconciliationEpoch
   const reviewAnnotations = getReviewAnnotationsForTarget(
     reviewAnnotationTargets,
     `entry-${sectionIdx}-${entryIdx}`
@@ -39,14 +37,14 @@ export function Entry({
       <div className="entry-header-row">
         <EditableText
           value={entry.title}
-          onChange={v => onChange({ ...entry, title: v })}
+          field={{ kind: 'entry', section: sectionIdx, entry: entryIdx, field: 'title' }}
           className="entry-title"
           placeholder="Job Title / Degree"
         />
         <ReviewAnnotations annotations={reviewAnnotations} />
         <EditableText
           value={entry.dateRange}
-          onChange={v => onChange({ ...entry, dateRange: v })}
+          field={{ kind: 'entry', section: sectionIdx, entry: entryIdx, field: 'dateRange' }}
           className="entry-date"
           placeholder="Jan 2020 – Present"
         />
@@ -54,13 +52,13 @@ export function Entry({
       <div className="entry-subtitle-row">
         <EditableText
           value={entry.subtitle}
-          onChange={v => onChange({ ...entry, subtitle: v })}
+          field={{ kind: 'entry', section: sectionIdx, entry: entryIdx, field: 'subtitle' }}
           className="entry-subtitle"
           placeholder="Company / Institution"
         />
         <EditableText
           value={entry.location}
-          onChange={v => onChange({ ...entry, location: v })}
+          field={{ kind: 'entry', section: sectionIdx, entry: entryIdx, field: 'location' }}
           className="entry-location"
           placeholder="City, ST"
         />
@@ -75,15 +73,16 @@ export function Entry({
               reviewAnnotationTargets,
               `bullet-${sectionIdx}-${entryIdx}-${bIdx}`
             )}
-            onChange={text => onChange(updateBullet(entry, bIdx, text))}
-            onDelete={() => onChange(removeBullet(entry, bIdx))}
+            field={{ kind: 'bullet', section: sectionIdx, entry: entryIdx, index: bIdx }}
+            onDelete={() => session.dispatch({ type: 'structure', operation: 'remove', path: { kind: 'bullet', section: sectionIdx, entry: entryIdx, index: bIdx }, epoch })}
           />
         ))}
       </ul>
       <div className="entry-actions editor-rail" data-editor-only="true">
         <button
           className="editor-control editor-control--add add-btn"
-          onClick={() => onChange(addBullet(entry))}
+          data-document-action={`add-bullet-${sectionIdx}-${entryIdx}`}
+          onClick={() => session.dispatch({ type: 'structure', operation: 'add', path: { kind: 'bullet', section: sectionIdx, entry: entryIdx }, epoch })}
           aria-label={`Add bullet to ${entry.title || 'entry'}`}
           data-editor-only="true"
         >
@@ -91,7 +90,7 @@ export function Entry({
         </button>
         <button
           className="editor-control editor-control--remove remove-btn"
-          onClick={onRemove}
+          onClick={() => session.dispatch({ type: 'structure', operation: 'remove', path: { kind: 'entry', section: sectionIdx, entry: entryIdx }, epoch })}
           aria-label={`Remove entry: ${entry.title || 'Untitled entry'}`}
           data-editor-only="true"
         >
