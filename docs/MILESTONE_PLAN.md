@@ -27,8 +27,7 @@ is documentation and planning only. Application fixes, production redesign, and
 public deployment have not begun under this authorization.
 
 On September 12, the user authorized T2-1 implementation. Complete versioned
-backups and backward-compatible restore are implemented on the T2 branch,
-pending integration; see Milestone 19 and the
+backups and backward-compatible restore are implemented in T2-1; see Milestone 19 and the
 [T2-1 handoff](remediation/T2_1_BACKUP_HANDOFF.md). The remaining steps retain
 their own scope and acceptance gates.
 
@@ -1179,7 +1178,7 @@ Completion criteria:
 
 ### Milestone 19: Dependable Document And Review Behavior
 
-Status: In progress — T2-1 complete backups and backward-compatible restore implemented on `plan/audit-document-state`, pending integration. T2-2 through T2-5 and T3/T4 remain pending. F09 is resolved on this branch; Milestone 19 is not complete.
+Status: In progress — T2-1 complete backups and backward-compatible restore are complete (`ef82fe4`). T2-2 through T2-5 and T3/T4 remain pending. F09 is resolved by T2-1; Milestone 19 is not complete.
 
 Goal:
 

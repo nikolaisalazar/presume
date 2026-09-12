@@ -1,6 +1,6 @@
 **T2-1: Complete backups and backward-compatible restore — September 12, 2026.**
 
-Implemented on `plan/audit-document-state` in `.worktrees/audit-document-state-plan`, pending integration. F09 is resolved on this branch. Milestone 19 and T2-2 through T2-5 remain incomplete.
+Implementation commit: `ef82fe4a00c68a5d614414c4ef51b89abbb723e4`, prepared on `plan/audit-document-state` in `.worktrees/audit-document-state-plan`. F09 is resolved by this change. Milestone 19 and T2-2 through T2-5 remain incomplete.
 
 The worktree was clean at `efb152f` before implementation. `git fetch origin` confirmed local `main` and `origin/main` both at `a14296cf0e6ae52d81e8a628a65b9360474a6031`. Merging `main` produced `8bec0e6efc3a18b6b676e6192c11d396e7d7236c` without conflicts. Implementation and reproduction used that updated baseline; the unrelated `.codex/` directory in the main checkout was left alone.
 
@@ -50,4 +50,4 @@ An independent reviewer inspected all production, tests, CI configuration, and d
 - New Presume accepts old bare Resume files; older application bundles cannot restore the new versioned envelopes. Browser data does not sync between profiles. Download initiation cannot establish whether the user saved a file to disk.
 - PDF behavior was regression-tested, but glyph coverage, pagination/fitting audit fixes, and cross-package snapshot/layout identity remain T3/T4 responsibilities. Review browser tests use fixtures; this change did not repeat real Ollama, manual IME/assistive-technology, Windows/Linux, or real-user sessions.
 
-The next T2 step is T2-2. Integrate this change before dependent consumers adopt the backup types; keep the session/history/persistence handoff explicit rather than treating `useResume` as the planned session controller.
+The next T2 step is T2-2. Start from current `main` containing the implementation commit before dependent consumers adopt the backup types; keep the session/history/persistence handoff explicit rather than treating `useResume` as the planned session controller.
